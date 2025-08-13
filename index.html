@@ -1325,7 +1325,7 @@
                 });
                 
                 // Show selected page
-                document.getElementById(${pageId}-page).classList.add('active');
+                document.getElementById(`${pageId}-page`).classList.add('active');
                 
                 // Scroll to top
                 window.scrollTo(0, 0);
@@ -1344,7 +1344,7 @@
                 
                 // Show corresponding content
                 const tabId = tab.getAttribute('data-tab');
-                document.getElementById(${tabId}-tab).classList.add('active');
+                document.getElementById(`${tabId}-tab`).classList.add('active');
             });
         });
         
@@ -1441,7 +1441,7 @@
                 canvas.width = 128;
                 canvas.height = 128;
                 
-                context.fillStyle = rgba(${Math.random() * 100 + 155}, ${Math.random() * 100 + 155}, 255, 0.8);
+                context.fillStyle = `rgba(${Math.random() * 100 + 155}, ${Math.random() * 100 + 155}, 255, 0.8)`;
                 context.font = '100px Arial';
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
@@ -1617,4 +1617,4 @@
         document.querySelector('[data-page="tax-portal"]')?.addEventListener('click', createTaxChart);
     </script>
 </body>
-</html>
+                            </html>
