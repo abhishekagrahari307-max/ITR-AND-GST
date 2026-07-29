@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TDS & Payroll – TaxMitra AI Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .payslip-preview { background: #fff; border: 1px solid #e5e7eb; border-radius: var(--radius-lg); padding: 2rem; font-family: 'Inter', sans-serif; }
+    .payslip-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #1e40af; }
+    .payslip-co { font-size: 1.2rem; font-weight: 800; color: #1e40af; }
+    .payslip-title { font-size: 0.75rem; color: #555; margin-top: 0.25rem; }
+    .payslip-emp { margin-bottom: 1rem; padding: 0.75rem; background: #f8fafc; border-radius: 8px; }
+    .payslip-emp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.78rem; }
+    .ps-label { color: #6b7280; }
+    .ps-value { font-weight: 600; }
+    .payslip-salary-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    .payslip-salary-table th { background: #1e40af; color: #fff; padding: 0.5rem 0.75rem; text-align: left; font-size: 0.78rem; }
+    .payslip-salary-table td { padding: 0.4rem 0.75rem; border-bottom: 1px solid #e5e7eb; font-size: 0.78rem; }
+    .payslip-net { background: linear-gradient(135deg, #1e40af, #3b82f6); color: #fff; padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+    .tds-rates-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .tds-rates-table th, .tds-rates-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+    .tds-rates-table th { background: var(--bg-secondary); font-weight: 700; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right"><button class="nav-icon-btn" id="themeToggle">🌙</button><a href="../index.html" class="btn-nav-login">← Home</a></div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>TDS & Payroll</span></div>
+      <h1>💼 TDS & Payroll Management</h1>
+      <p>Complete TDS management, payroll processing, payslip generation, Form 16 & TDS return filing – एक platform</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding:2rem 0 3rem">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('salary-tds',this)">💰 Salary TDS</button>
+      <button class="tab-btn" onclick="switchTab('payslip',this)">📋 Payslip Generator</button>
+      <button class="tab-btn" onclick="switchTab('form16',this)">📄 Form 16</button>
+      <button class="tab-btn" onclick="switchTab('tds-rates',this)">📊 TDS Rates</button>
+      <button class="tab-btn" onclick="switchTab('returns',this)">📁 TDS Returns</button>
+    </div>
+
+    <!-- SALARY TDS -->
+    <div class="tab-panel active" id="tab-salary-tds">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+        <div class="form-card">
+          <h3>💰 Salary TDS Calculator (u/s 192)</h3>
+          <div class="form-grid">
+            <div class="form-group"><label>Employee Name</label><input type="text" id="empName" value="Arjun Kumar"/></div>
+            <div class="form-group"><label>Annual CTC (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="annualCTC" value="1200000"/></div></div>
+            <div class="form-group"><label>Basic Salary %</label><input type="number" id="basicPct" value="40" max="100"/></div>
+            <div class="form-group"><label>HRA %</label><input type="number" id="hraPct" value="20" max="100"/></div>
+            <div class="form-group"><label>City Type</label><select id="cityType"><option value="metro">Metro</option><option value="nonmetro">Non-Metro</option></select></div>
+            <div class="form-group"><label>Annual Rent Paid (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="annualRent" value="180000"/></div></div>
+            <div class="form-group"><label>Section 80C (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="tds80c" value="150000"/></div></div>
+            <div class="form-group"><label>Section 80D (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="tds80d" value="25000"/></div></div>
+            <div class="form-group"><label>Tax Regime</label><select id="tdsRegime"><option value="new">New Regime</option><option value="old">Old Regime</option></select></div>
+          </div>
+          <div class="form-actions"><button class="btn-primary-solid" onclick="calcSalaryTDS()">💰 Calculate TDS</button></div>
+          <div class="result-card" id="tdsSalaryResult" style="display:none;margin-top:1.5rem">
+            <h4>TDS Computation</h4>
+            <div class="result-main" id="monthlyTDS">₹0/month</div>
+            <div class="result-breakdown" id="tdsBreakdown"></div>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>📊 Non-Salary TDS Calculator</h3>
+          <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1.25rem">Contractor, professional fees, interest, rent – sabke liye</p>
+          <div class="form-grid">
+            <div class="form-group"><label>Payment Type</label>
+              <select id="nsPayType" onchange="updateTDSRate()">
+                <option value="192">192 – Salary</option>
+                <option value="194A">194A – Interest (Bank/other)</option>
+                <option value="194C" selected>194C – Contractor/Sub-contractor</option>
+                <option value="194D">194D – Insurance Commission</option>
+                <option value="194I">194I – Rent (Plant/Equipment/Land)</option>
+                <option value="194J">194J – Professional/Technical Fees</option>
+                <option value="194H">194H – Commission/Brokerage</option>
+                <option value="194B">194B – Lottery/Gambling</option>
+                <option value="195">195 – NRI Payment</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Payment Amount (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="nsAmount" value="100000"/></div></div>
+            <div class="form-group"><label>TDS Rate (%)</label><input type="number" id="nsTDSRate" value="2" step="0.1" readonly style="background:var(--bg-secondary)"/></div>
+            <div class="form-group"><label>Payee Type</label><select id="nsPayee"><option value="individual">Individual/HUF</option><option value="company">Company</option></select></div>
+            <div class="form-group"><label>PAN Available?</label><select id="nsPAN"><option value="yes">Yes (TDS at normal rate)</option><option value="no">No (TDS @20%)</option></select></div>
+          </div>
+          <div class="form-actions"><button class="btn-primary-solid" onclick="calcNSTDS()">📊 Calculate TDS</button></div>
+          <div class="result-card" id="nsTDSResult" style="display:none;margin-top:1.5rem">
+            <div class="result-main" id="nsTDSAmount">₹0</div>
+            <div class="result-breakdown" id="nsTDSBreakdown"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYSLIP -->
+    <div class="tab-panel" id="tab-payslip">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+        <div class="form-card">
+          <h3 id="payslip">📋 Payslip Generator</h3>
+          <div class="form-grid">
+            <div class="form-group"><label>Company Name</label><input type="text" id="psCompany" value="TechCorp Solutions Pvt Ltd" oninput="genPayslip()"/></div>
+            <div class="form-group"><label>Employee Name</label><input type="text" id="psEmpName" value="Arjun Kumar" oninput="genPayslip()"/></div>
+            <div class="form-group"><label>Employee ID</label><input type="text" id="psEmpId" value="EMP001" oninput="genPayslip()"/></div>
+            <div class="form-group"><label>Month Year</label><input type="month" id="psMonth" oninput="genPayslip()"/></div>
+            <div class="form-group"><label>Basic Salary (₹/month)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="psBasic" value="40000" oninput="genPayslip()"/></div></div>
+            <div class="form-group"><label>HRA (₹/month)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="psHRA" value="20000" oninput="genPayslip()"/></div></div>
+            <div class="form-group"><label>Transport Allowance (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="psTA" value="3200" oninput="genPayslip()"/></div></div>
+            <div class="form-group"><label>Medical Allowance (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="psMed" value="1250" oninput="genPayslip()"/></div></div>
+            <div class="form-group"><label>Special Allowance (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="psSA" value="15000" oninput="genPayslip()"/></div></div>
+            <div class="form-group"><label>EPF Deduction (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="psEPF" value="4800" oninput="genPayslip()"/></div></div>
+            <div class="form-group"><label>Professional Tax (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="psPT" value="200" oninput="genPayslip()"/></div></div>
+            <div class="form-group"><label>TDS this Month (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="psTDS" value="6000" oninput="genPayslip()"/></div></div>
+          </div>
+          <div class="form-actions"><button class="btn-primary-solid" onclick="printPayslip()">🖨️ Print Payslip</button><button class="btn-secondary-solid" onclick="genPayslip()">🔄 Preview</button></div>
+        </div>
+        <div>
+          <div class="payslip-preview" id="payslipPreview">
+            <div class="payslip-header">
+              <div><div class="payslip-co" id="psCoName">TechCorp Solutions Pvt Ltd</div><div class="payslip-title">SALARY SLIP</div></div>
+              <div style="text-align:right;font-size:0.75rem;color:#555">Month: <span id="psMonthLabel">July 2025</span><br>Employee ID: <span id="psEmpIdLabel">EMP001</span></div>
+            </div>
+            <div class="payslip-emp">
+              <div class="payslip-emp-grid">
+                <div><span class="ps-label">Employee Name:</span></div><div><span class="ps-value" id="psEmpNameLabel">Arjun Kumar</span></div>
+                <div><span class="ps-label">Designation:</span></div><div><span class="ps-value">Software Engineer</span></div>
+                <div><span class="ps-label">Department:</span></div><div><span class="ps-value">Technology</span></div>
+                <div><span class="ps-label">Working Days:</span></div><div><span class="ps-value">26/26</span></div>
+              </div>
+            </div>
+            <table class="payslip-salary-table">
+              <thead><tr><th>Earnings</th><th>Amount</th><th>Deductions</th><th>Amount</th></tr></thead>
+              <tbody id="psTableBody">
+                <tr><td>Basic Salary</td><td>₹40,000</td><td>EPF</td><td>₹4,800</td></tr>
+                <tr><td>HRA</td><td>₹20,000</td><td>Professional Tax</td><td>₹200</td></tr>
+                <tr><td>Transport Allowance</td><td>₹3,200</td><td>TDS</td><td>₹6,000</td></tr>
+                <tr><td>Medical Allowance</td><td>₹1,250</td><td></td><td></td></tr>
+                <tr><td>Special Allowance</td><td>₹15,000</td><td></td><td></td></tr>
+                <tr style="font-weight:700;border-top:2px solid #e5e7eb"><td>Gross Earnings</td><td id="psGrossLabel">₹79,450</td><td>Total Deductions</td><td id="psTotalDedLabel">₹11,000</td></tr>
+              </tbody>
+            </table>
+            <div class="payslip-net">
+              <div><div style="font-size:0.8rem;opacity:0.8">NET PAY (Take Home)</div></div>
+              <div style="font-size:1.5rem;font-weight:900" id="psNetLabel">₹68,450</div>
+            </div>
+            <div style="margin-top:1rem;font-size:0.68rem;color:#888;text-align:center">Generated by TaxMitra AI Enterprise | This is a system-generated payslip</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM 16 -->
+    <div class="tab-panel" id="tab-form16">
+      <div class="form-card">
+        <h3 id="form16">📄 Form 16 Generator</h3>
+        <p style="color:var(--text-secondary);font-size:0.875rem;margin-bottom:1.5rem">Annual TDS certificate generate karo employee ke liye (Part A & Part B)</p>
+        <div class="form-grid">
+          <div class="form-group"><label>Employee Name</label><input type="text" value="Arjun Kumar"/></div>
+          <div class="form-group"><label>Employee PAN</label><input type="text" value="ABCDE1234F" maxlength="10"/></div>
+          <div class="form-group"><label>Employer TAN</label><input type="text" value="BLRA12345B" maxlength="10"/></div>
+          <div class="form-group"><label>Financial Year</label><select><option>2024-25</option><option selected>2025-26</option></select></div>
+          <div class="form-group"><label>Gross Salary Paid (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" value="1200000"/></div></div>
+          <div class="form-group"><label>Total TDS Deposited (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" value="85000"/></div></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary-solid" onclick="generateForm16()">📄 Generate Form 16</button>
+        </div>
+        <div id="form16Demo" style="display:none;margin-top:1.5rem;background:var(--bg-secondary);border-radius:var(--radius);padding:1.5rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <strong>✅ Form 16 Generated – FY 2025-26</strong>
+            <div style="display:flex;gap:0.5rem">
+              <button class="btn-primary-solid" style="font-size:0.8rem;padding:0.4rem 0.9rem" onclick="alert('PDF downloading...')">📥 Download PDF</button>
+              <button class="btn-secondary-solid" style="font-size:0.8rem;padding:0.4rem 0.9rem" onclick="alert('Email sent to employee!')">📧 Email Employee</button>
+            </div>
+          </div>
+          <div class="result-breakdown">
+            <div class="result-item"><span>Gross Salary</span><strong>₹12,00,000</strong></div>
+            <div class="result-item"><span>Standard Deduction</span><strong>₹75,000</strong></div>
+            <div class="result-item"><span>Taxable Income</span><strong>₹11,25,000</strong></div>
+            <div class="result-item"><span>Tax + Cess</span><strong>₹1,03,000</strong></div>
+            <div class="result-item"><span>TDS Deducted</span><strong style="color:var(--success)">₹85,000</strong></div>
+            <div class="result-item"><span>Balance Tax</span><strong style="color:var(--warning)">₹18,000 (SAT)</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TDS RATES -->
+    <div class="tab-panel" id="tab-tds-rates">
+      <div class="form-card">
+        <h3>📊 TDS Rate Chart (FY 2025-26)</h3>
+        <div style="overflow-x:auto;margin-top:1rem">
+          <table class="tds-rates-table">
+            <thead><tr><th>Section</th><th>Nature of Payment</th><th>Threshold (₹)</th><th>TDS Rate (PAN available)</th><th>No PAN Rate</th></tr></thead>
+            <tbody>
+              <tr><td>192</td><td>Salary</td><td>Basic exemption</td><td>As per slab</td><td>20%</td></tr>
+              <tr><td>192A</td><td>Premature EPF withdrawal</td><td>50,000</td><td>10%</td><td>20%</td></tr>
+              <tr><td>193</td><td>Interest on securities</td><td>5,000</td><td>10%</td><td>20%</td></tr>
+              <tr><td>194</td><td>Dividend</td><td>5,000</td><td>10%</td><td>20%</td></tr>
+              <tr><td>194A</td><td>Interest (bank/other)</td><td>40,000 / 10,000</td><td>10%</td><td>20%</td></tr>
+              <tr><td>194B</td><td>Lottery/games of chance</td><td>10,000</td><td>30%</td><td>30%</td></tr>
+              <tr><td>194C</td><td>Contractor (individual/HUF)</td><td>30,000 / 1,00,000</td><td>1%</td><td>20%</td></tr>
+              <tr><td>194C</td><td>Contractor (company)</td><td>30,000 / 1,00,000</td><td>2%</td><td>20%</td></tr>
+              <tr><td>194D</td><td>Insurance commission</td><td>15,000</td><td>5%</td><td>20%</td></tr>
+              <tr><td>194H</td><td>Commission/brokerage</td><td>15,000</td><td>5%</td><td>20%</td></tr>
+              <tr><td>194I(a)</td><td>Rent (plant/machinery)</td><td>2,40,000</td><td>2%</td><td>20%</td></tr>
+              <tr><td>194I(b)</td><td>Rent (land/building)</td><td>2,40,000</td><td>10%</td><td>20%</td></tr>
+              <tr><td>194J</td><td>Professional fees</td><td>30,000</td><td>10%</td><td>20%</td></tr>
+              <tr><td>194J(b)</td><td>Technical services (not professional)</td><td>30,000</td><td>2%</td><td>20%</td></tr>
+              <tr><td>194IA</td><td>Immovable property purchase</td><td>50,00,000</td><td>1%</td><td>1%</td></tr>
+              <tr><td>194IB</td><td>Rent by individual/HUF</td><td>50,000/month</td><td>5%</td><td>5%</td></tr>
+              <tr><td>195</td><td>Payment to NRI</td><td>–</td><td>Varies by DTAA</td><td>–</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TDS RETURNS -->
+    <div class="tab-panel" id="tab-returns">
+      <div class="form-card">
+        <h3>📁 TDS Returns – Form Guide</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem;margin-top:1rem">
+          <div style="padding:1.25rem;background:var(--bg-secondary);border-radius:var(--radius);border-left:4px solid var(--primary)"><h4>Form 24Q</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.4rem">TDS on salary (Section 192). Quarterly filing by employers.</p><div style="font-size:0.78rem;margin-top:0.5rem"><strong>Due:</strong> Q1: 31 Jul | Q2: 31 Oct | Q3: 31 Jan | Q4: 31 May</div><button class="btn-file-itr" style="margin-top:0.75rem;display:inline-block;text-align:center">File 24Q</button></div>
+          <div style="padding:1.25rem;background:var(--bg-secondary);border-radius:var(--radius);border-left:4px solid var(--success)"><h4>Form 26Q</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.4rem">TDS on non-salary payments – contractor, interest, rent, commission etc.</p><div style="font-size:0.78rem;margin-top:0.5rem"><strong>Due:</strong> Same as 24Q quarterly schedule</div><button class="btn-file-itr" style="margin-top:0.75rem;display:inline-block;text-align:center">File 26Q</button></div>
+          <div style="padding:1.25rem;background:var(--bg-secondary);border-radius:var(--radius);border-left:4px solid var(--warning)"><h4>Form 27Q</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.4rem">TDS on payments to NRI/foreign companies. Requires DTAA knowledge.</p><div style="font-size:0.78rem;margin-top:0.5rem"><strong>Due:</strong> Same quarterly schedule</div><button class="btn-file-itr" style="margin-top:0.75rem;display:inline-block;text-align:center">File 27Q</button></div>
+          <div style="padding:1.25rem;background:var(--bg-secondary);border-radius:var(--radius);border-left:4px solid var(--accent)"><h4>Form 27EQ</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.4rem">TCS (Tax Collected at Source) return. For sellers collecting TCS.</p><div style="font-size:0.78rem;margin-top:0.5rem"><strong>Due:</strong> Same quarterly schedule</div><button class="btn-file-itr" style="margin-top:0.75rem;display:inline-block;text-align:center">File 27EQ</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script>
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-'+id).classList.add('active');
+    }
+
+    document.getElementById('psMonth').value = '2025-07';
+
+    const tdsRates = { '192': 0, '194A': 10, '194C': 2, '194D': 5, '194I': 10, '194J': 10, '194H': 5, '194B': 30, '195': 20 };
+    function updateTDSRate() {
+      const sec = document.getElementById('nsPayType').value;
+      document.getElementById('nsTDSRate').value = tdsRates[sec] || 2;
+    }
+
+    function calcSalaryTDS() {
+      const ctc = parseFloat(document.getElementById('annualCTC').value) || 0;
+      const basicPct = parseFloat(document.getElementById('basicPct').value) / 100;
+      const hraPct = parseFloat(document.getElementById('hraPct').value) / 100;
+      const rent = parseFloat(document.getElementById('annualRent').value) || 0;
+      const d80c = Math.min(parseFloat(document.getElementById('tds80c').value) || 0, 150000);
+      const d80d = Math.min(parseFloat(document.getElementById('tds80d').value) || 0, 25000);
+      const regime = document.getElementById('tdsRegime').value;
+      const city = document.getElementById('cityType').value;
+
+      const basic = ctc * basicPct;
+      const hra = ctc * hraPct;
+
+      let hraExempt = 0;
+      if (regime === 'old') {
+        const rule1 = hra;
+        const rule2 = basic * (city === 'metro' ? 0.5 : 0.4);
+        const rule3 = Math.max(0, rent - basic * 0.1);
+        hraExempt = Math.min(rule1, rule2, rule3);
+      }
+
+      const stdDed = regime === 'new' ? 75000 : 50000;
+      let taxableIncome = Math.max(0, ctc - stdDed - (regime === 'old' ? hraExempt + d80c + d80d : 0));
+      let tax = 0;
+
+      if (regime === 'new') {
+        if (taxableIncome <= 300000) tax = 0;
+        else if (taxableIncome <= 700000) tax = (taxableIncome - 300000) * 0.05;
+        else if (taxableIncome <= 1000000) tax = 20000 + (taxableIncome - 700000) * 0.10;
+        else if (taxableIncome <= 1200000) tax = 50000 + (taxableIncome - 1000000) * 0.15;
+        else if (taxableIncome <= 1500000) tax = 80000 + (taxableIncome - 1200000) * 0.20;
+        else tax = 140000 + (taxableIncome - 1500000) * 0.30;
+        if (taxableIncome <= 1200000) tax = Math.max(0, tax - Math.min(tax, 60000));
+      } else {
+        if (taxableIncome <= 250000) tax = 0;
+        else if (taxableIncome <= 500000) tax = (taxableIncome - 250000) * 0.05;
+        else if (taxableIncome <= 1000000) tax = 12500 + (taxableIncome - 500000) * 0.20;
+        else tax = 112500 + (taxableIncome - 1000000) * 0.30;
+        if (taxableIncome <= 500000) tax = Math.max(0, tax - 12500);
+      }
+
+      const totalTax = Math.round(tax * 1.04);
+      const monthlyTDS = Math.round(totalTax / 12);
+
+      document.getElementById('tdsSalaryResult').style.display = 'block';
+      document.getElementById('monthlyTDS').textContent = '₹' + monthlyTDS.toLocaleString('en-IN') + '/month';
+      document.getElementById('tdsBreakdown').innerHTML = `
+        <div class="result-item"><span>Annual CTC</span><strong>₹${ctc.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Standard Deduction</span><strong>₹${stdDed.toLocaleString('en-IN')}</strong></div>
+        ${regime==='old'?`<div class="result-item"><span>HRA Exempt</span><strong>₹${Math.round(hraExempt).toLocaleString('en-IN')}</strong></div><div class="result-item"><span>80C+80D Ded.</span><strong>₹${(d80c+d80d).toLocaleString('en-IN')}</strong></div>`:''}
+        <div class="result-item"><span>Taxable Income</span><strong>₹${Math.round(taxableIncome).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Annual Tax (with cess)</span><strong>₹${totalTax.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Monthly TDS (÷12)</span><strong style="color:var(--primary)">₹${monthlyTDS.toLocaleString('en-IN')}</strong></div>
+      `;
+    }
+
+    function calcNSTDS() {
+      const amt = parseFloat(document.getElementById('nsAmount').value) || 0;
+      const panAvail = document.getElementById('nsPAN').value;
+      let rate = parseFloat(document.getElementById('nsTDSRate').value) / 100;
+      if (panAvail === 'no') rate = 0.20;
+      const tds = Math.round(amt * rate);
+      const net = amt - tds;
+      document.getElementById('nsTDSResult').style.display = 'block';
+      document.getElementById('nsTDSAmount').textContent = 'TDS: ₹' + tds.toLocaleString('en-IN');
+      document.getElementById('nsTDSBreakdown').innerHTML = `
+        <div class="result-item"><span>Gross Payment</span><strong>₹${amt.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>TDS Rate</span><strong>${panAvail==='no'?'20% (No PAN)':(document.getElementById('nsTDSRate').value+'%')}</strong></div>
+        <div class="result-item"><span>TDS Amount</span><strong style="color:var(--danger)">₹${tds.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Net Payment to Payee</span><strong>₹${net.toLocaleString('en-IN')}</strong></div>
+      `;
+    }
+
+    function genPayslip() {
+      const basic = parseFloat(document.getElementById('psBasic').value) || 0;
+      const hra = parseFloat(document.getElementById('psHRA').value) || 0;
+      const ta = parseFloat(document.getElementById('psTA').value) || 0;
+      const med = parseFloat(document.getElementById('psMed').value) || 0;
+      const sa = parseFloat(document.getElementById('psSA').value) || 0;
+      const epf = parseFloat(document.getElementById('psEPF').value) || 0;
+      const pt = parseFloat(document.getElementById('psPT').value) || 0;
+      const tds = parseFloat(document.getElementById('psTDS').value) || 0;
+      const gross = basic + hra + ta + med + sa;
+      const totalDed = epf + pt + tds;
+      const net = gross - totalDed;
+
+      document.getElementById('psCoName').textContent = document.getElementById('psCompany').value;
+      document.getElementById('psEmpNameLabel').textContent = document.getElementById('psEmpName').value;
+      document.getElementById('psEmpIdLabel').textContent = document.getElementById('psEmpId').value;
+      const m = document.getElementById('psMonth').value;
+      document.getElementById('psMonthLabel').textContent = m ? new Date(m + '-01').toLocaleDateString('en-IN', {month:'long',year:'numeric'}) : 'July 2025';
+
+      document.getElementById('psGrossLabel').textContent = '₹' + gross.toLocaleString('en-IN');
+      document.getElementById('psTotalDedLabel').textContent = '₹' + totalDed.toLocaleString('en-IN');
+      document.getElementById('psNetLabel').textContent = '₹' + net.toLocaleString('en-IN');
+
+      document.getElementById('psTableBody').innerHTML = `
+        <tr><td>Basic Salary</td><td>₹${basic.toLocaleString('en-IN')}</td><td>EPF</td><td>₹${epf.toLocaleString('en-IN')}</td></tr>
+        <tr><td>HRA</td><td>₹${hra.toLocaleString('en-IN')}</td><td>Professional Tax</td><td>₹${pt.toLocaleString('en-IN')}</td></tr>
+        <tr><td>Transport Allowance</td><td>₹${ta.toLocaleString('en-IN')}</td><td>TDS</td><td>₹${tds.toLocaleString('en-IN')}</td></tr>
+        <tr><td>Medical Allowance</td><td>₹${med.toLocaleString('en-IN')}</td><td></td><td></td></tr>
+        <tr><td>Special Allowance</td><td>₹${sa.toLocaleString('en-IN')}</td><td></td><td></td></tr>
+        <tr style="font-weight:700;border-top:2px solid #e5e7eb"><td>Gross Earnings</td><td>₹${gross.toLocaleString('en-IN')}</td><td>Total Deductions</td><td>₹${totalDed.toLocaleString('en-IN')}</td></tr>
+      `;
+    }
+
+    function printPayslip() {
+      const content = document.getElementById('payslipPreview').outerHTML;
+      const w = window.open('', '_blank');
+      w.document.write('<html><head><title>Payslip</title><style>body{font-family:Inter,sans-serif;padding:2rem;max-width:700px;margin:auto}.payslip-header{display:flex;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid #1e40af}.payslip-co{font-size:1.2rem;font-weight:800;color:#1e40af}.payslip-emp{background:#f8fafc;padding:0.75rem;border-radius:8px;margin-bottom:1rem}.payslip-emp-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;font-size:0.78rem}.payslip-salary-table{width:100%;border-collapse:collapse}.payslip-salary-table th{background:#1e40af;color:#fff;padding:0.5rem}.payslip-salary-table td{padding:0.4rem 0.75rem;border-bottom:1px solid #e5e7eb;font-size:0.78rem}.payslip-net{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:1rem;border-radius:8px;display:flex;justify-content:space-between;margin-top:1rem}</style></head><body>'+content+'</body></html>');
+      w.document.close(); w.print();
+    }
+
+    function generateForm16() { document.getElementById('form16Demo').style.display = 'block'; }
+  </script>
+</body>
+</html>

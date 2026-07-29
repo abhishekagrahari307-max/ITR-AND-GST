@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – TaxMitra AI Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .dashboard-layout { display: grid; grid-template-columns: 240px 1fr; gap: 1.5rem; padding: 1.5rem 0 3rem; }
+    .dash-sidebar { display: flex; flex-direction: column; gap: 0.5rem; position: sticky; top: 80px; max-height: calc(100vh-90px); }
+    .dash-nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.9rem; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: var(--transition); }
+    .dash-nav-item:hover, .dash-nav-item.active { background: rgba(30,64,175,0.08); color: var(--primary); }
+    .dash-nav-item i { width: 20px; text-align: center; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.25rem; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--grad-primary); }
+    .stat-card.green::before { background: var(--grad-success); }
+    .stat-card.orange::before { background: linear-gradient(90deg,#f59e0b,#d97706); }
+    .stat-card.purple::before { background: linear-gradient(90deg,#8b5cf6,#6d28d9); }
+    .stat-card-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+    .stat-card-value { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .stat-card-sub { font-size: 0.78rem; color: var(--text-muted); }
+    .stat-card-icon { position: absolute; top: 1rem; right: 1rem; font-size: 2rem; opacity: 0.15; }
+    .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .activity-item { display: flex; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .activity-text strong { display: block; font-size: 0.85rem; }
+    .activity-text span { font-size: 0.75rem; color: var(--text-muted); }
+    .progress-bar { height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+    .progress-fill { height: 100%; background: var(--grad-primary); border-radius: 4px; transition: width 1s ease; }
+    .filing-status-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; border-radius: var(--radius-sm); margin-bottom: 0.5rem; background: var(--bg-secondary); }
+    .status-badge { font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: var(--radius-full); }
+    .sb-filed { background: rgba(16,185,129,0.15); color: var(--success); }
+    .sb-pending { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .sb-overdue { background: rgba(239,68,68,0.15); color: var(--danger); }
+    @media(max-width:1024px){ .stats-grid { grid-template-columns: repeat(2,1fr); } .dash-grid { grid-template-columns: 1fr; } }
+    @media(max-width:768px){ .dashboard-layout { grid-template-columns: 1fr; } .dash-sidebar { display: none; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle">🌙</button>
+        <span style="font-size:0.875rem;font-weight:600;color:var(--text-secondary)">👤 Arjun Kumar</span>
+        <a href="../index.html" class="btn-nav-login">← Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="dashboard-layout">
+
+      <!-- SIDEBAR -->
+      <aside class="dash-sidebar">
+        <div class="form-card" style="padding:1rem">
+          <div style="text-align:center;margin-bottom:1rem">
+            <div style="width:60px;height:60px;background:var(--grad-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.75rem;margin:0 auto 0.5rem">👤</div>
+            <strong style="display:block">Arjun Kumar</strong>
+            <span style="font-size:0.75rem;color:var(--text-muted)">PAN: ABCDE1234F</span>
+            <div style="font-size:0.72rem;background:rgba(16,185,129,0.1);color:var(--success);padding:0.2rem 0.6rem;border-radius:var(--radius-full);margin-top:0.5rem;display:inline-block">✅ Premium User</div>
+          </div>
+          <div class="dash-nav-item active"><i class="fa fa-tachometer-alt"></i>Dashboard</div>
+          <div class="dash-nav-item" onclick="location.href='itr-center.html'"><i class="fa fa-file-alt"></i>My ITR Returns</div>
+          <div class="dash-nav-item" onclick="location.href='gst.html'"><i class="fa fa-receipt"></i>GST Returns</div>
+          <div class="dash-nav-item" onclick="location.href='calculators.html'"><i class="fa fa-calculator"></i>Calculations</div>
+          <div class="dash-nav-item"><i class="fa fa-folder"></i>My Documents</div>
+          <div class="dash-nav-item" onclick="location.href='investment.html'"><i class="fa fa-chart-line"></i>Investments</div>
+          <div class="dash-nav-item" onclick="location.href='reports.html'"><i class="fa fa-file-pdf"></i>Reports</div>
+          <div class="dash-nav-item" onclick="location.href='compliance.html'"><i class="fa fa-calendar-check"></i>Compliance</div>
+          <div class="dash-nav-item" onclick="location.href='ai-assistant.html'"><i class="fa fa-robot"></i>AI Assistant</div>
+          <div style="border-top:1px solid var(--border);margin:0.75rem 0"></div>
+          <div class="dash-nav-item" style="color:var(--danger)"><i class="fa fa-sign-out-alt"></i>Logout</div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main>
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
+          <div>
+            <h2 style="font-size:1.4rem;font-weight:800">Good Morning, Arjun! 👋</h2>
+            <p style="color:var(--text-secondary);font-size:0.875rem">Tuesday, 29 July 2025 | AY 2025-26 | Last Login: 2 hours ago</p>
+          </div>
+          <div style="display:flex;gap:0.75rem">
+            <a href="itr-center.html" class="btn-primary-solid">📋 File ITR</a>
+            <a href="ai-assistant.html" class="btn-secondary-solid">🤖 AI Help</a>
+          </div>
+        </div>
+
+        <!-- AI ALERT -->
+        <div style="background:linear-gradient(135deg,rgba(239,68,68,0.08),rgba(245,158,11,0.05));border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem">
+          <span style="font-size:1.5rem">⚠️</span>
+          <div style="flex:1"><strong style="color:var(--danger)">ITR Filing Deadline: 31 July 2025</strong><br><span style="font-size:0.82rem;color:var(--text-secondary)">Sirf 2 din bacha hai! Abhi file karo – penalty se bachao</span></div>
+          <a href="itr-center.html" class="btn-primary-solid" style="font-size:0.82rem;padding:0.5rem 1rem">File Now →</a>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-label">Tax Liability</div>
+            <div class="stat-card-value">₹1,24,500</div>
+            <div class="stat-card-sub">AY 2025-26 (New Regime)</div>
+            <div class="stat-card-icon">💰</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-card-label">TDS Credit</div>
+            <div class="stat-card-value" style="color:var(--success)">₹1,42,750</div>
+            <div class="stat-card-sub">Form 26AS verified</div>
+            <div class="stat-card-icon">✅</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-card-label">Refund Expected</div>
+            <div class="stat-card-value" style="color:var(--warning)">₹18,250</div>
+            <div class="stat-card-sub">After filing ITR</div>
+            <div class="stat-card-icon">🎁</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-card-label">Tax Saved (AI)</div>
+            <div class="stat-card-value" style="color:var(--accent)">₹45,000</div>
+            <div class="stat-card-sub">vs manual calculation</div>
+            <div class="stat-card-icon">🤖</div>
+          </div>
+        </div>
+
+        <!-- MIDDLE GRID -->
+        <div class="dash-grid">
+
+          <!-- FILING STATUS -->
+          <div class="form-card">
+            <h3>📋 Filing Status – AY 2025-26</h3>
+            <div style="margin-top:1rem">
+              <div class="filing-status-item"><div><strong style="font-size:0.875rem">ITR-1 (Salary)</strong><br><small style="color:var(--text-muted)">Income Tax Return</small></div><span class="status-badge sb-pending">🟡 Pending</span></div>
+              <div class="filing-status-item"><div><strong style="font-size:0.875rem">GSTR-3B July</strong><br><small style="color:var(--text-muted)">GST Monthly Return</small></div><span class="status-badge sb-pending">🟡 Due: 20 Aug</span></div>
+              <div class="filing-status-item"><div><strong style="font-size:0.875rem">GSTR-1 July</strong><br><small style="color:var(--text-muted)">GST Outward Supplies</small></div><span class="status-badge sb-pending">🟡 Due: 11 Aug</span></div>
+              <div class="filing-status-item"><div><strong style="font-size:0.875rem">Form 24Q (Q1)</strong><br><small style="color:var(--text-muted)">TDS Return Salary</small></div><span class="status-badge sb-filed">✅ Filed</span></div>
+              <div class="filing-status-item"><div><strong style="font-size:0.875rem">Advance Tax Q1</strong><br><small style="color:var(--text-muted)">15 June installment</small></div><span class="status-badge sb-filed">✅ Paid</span></div>
+            </div>
+          </div>
+
+          <!-- TAX BREAKDOWN VISUAL -->
+          <div class="form-card">
+            <h3>📊 Tax Breakdown</h3>
+            <div style="margin-top:1rem;display:flex;flex-direction:column;gap:0.75rem">
+              <div><div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.25rem"><span>Income Tax (Base)</span><span style="font-weight:700">₹1,20,000</span></div><div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.25rem"><span>Surcharge</span><span style="font-weight:700">₹0</span></div><div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--warning)"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.25rem"><span>4% Cess</span><span style="font-weight:700">₹4,800</span></div><div class="progress-bar"><div class="progress-fill" style="width:4%;background:var(--accent)"></div></div></div>
+              <div style="border-top:1px solid var(--border);padding-top:0.75rem"><div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700"><span>Total Tax</span><span style="color:var(--primary)">₹1,24,800</span></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.25rem"><span>TDS Deducted</span><span style="font-weight:700;color:var(--success)">-₹1,42,750</span></div></div>
+              <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius-sm);padding:0.75rem"><strong style="color:var(--success)">🎉 Refund: ₹17,950</strong><br><small style="color:var(--text-muted)">Will be credited after ITR filing & verification</small></div>
+            </div>
+          </div>
+
+          <!-- RECENT ACTIVITY -->
+          <div class="form-card">
+            <h3>📜 Recent Activity</h3>
+            <div style="margin-top:1rem">
+              <div class="activity-item"><div class="activity-icon" style="background:rgba(30,64,175,0.1)">📋</div><div class="activity-text"><strong>AIS downloaded and analyzed</strong><span>Today, 10:30 AM</span></div></div>
+              <div class="activity-item"><div class="activity-icon" style="background:rgba(16,185,129,0.1)">✅</div><div class="activity-text"><strong>Form 26AS verified – ₹1,42,750 TDS</strong><span>Yesterday, 3:45 PM</span></div></div>
+              <div class="activity-item"><div class="activity-icon" style="background:rgba(99,102,241,0.1)">🤖</div><div class="activity-text"><strong>AI recommended New Regime – saves ₹32K</strong><span>28 Jul, 11:20 AM</span></div></div>
+              <div class="activity-item"><div class="activity-icon" style="background:rgba(245,158,11,0.1)">💰</div><div class="activity-text"><strong>Advance Tax Q1 paid – ₹15,000</strong><span>15 Jun, 2:00 PM</span></div></div>
+              <div class="activity-item"><div class="activity-icon" style="background:rgba(16,185,129,0.1)">🧾</div><div class="activity-text"><strong>GSTR-3B June filed successfully</strong><span>20 Jun, 10:15 AM</span></div></div>
+            </div>
+          </div>
+
+          <!-- AI RECOMMENDATIONS -->
+          <div class="form-card">
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem">
+              <div style="width:36px;height:36px;background:var(--grad-accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem">🤖</div>
+              <h3 style="margin:0">AI Tax Recommendations</h3>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem">
+              <div style="padding:0.75rem;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius-sm)"><strong style="font-size:0.85rem;color:var(--success)">✅ New Regime Recommended</strong><p style="font-size:0.78rem;color:var(--text-secondary);margin-top:0.25rem">New regime mein ₹32,000 zyada bachenge. Aapke deductions ₹1.8L hain jo break-even se kam hai.</p></div>
+              <div style="padding:0.75rem;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:var(--radius-sm)"><strong style="font-size:0.85rem;color:var(--accent)">💡 NPS Contribution</strong><p style="font-size:0.78rem;color:var(--text-secondary);margin-top:0.25rem">Old regime ke liye: NPS 80CCD(1B) mein ₹50K extra deduction milti hai agar switch karo.</p></div>
+              <div style="padding:0.75rem;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-sm)"><strong style="font-size:0.85rem;color:var(--warning)">⚠️ File Before Deadline</strong><p style="font-size:0.78rem;color:var(--text-secondary);margin-top:0.25rem">31 July deadline miss hone par ₹5,000 penalty + ₹17,950 refund delay hoga.</p></div>
+              <a href="ai-assistant.html" class="btn-primary-solid" style="font-size:0.82rem;text-align:center">🤖 Get More AI Advice →</a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="form-card" style="margin-top:1.25rem">
+          <h3>⚡ Quick Actions</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-top:1rem">
+            <a href="itr-center.html" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:1rem;background:var(--bg-secondary);border-radius:var(--radius);border:1px solid var(--border);text-align:center;transition:var(--transition)" class="qt-item"><span style="font-size:1.5rem">📋</span><span style="font-size:0.78rem;font-weight:600">File ITR-1</span></a>
+            <a href="gst.html" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:1rem;background:var(--bg-secondary);border-radius:var(--radius);border:1px solid var(--border);text-align:center;transition:var(--transition)" class="qt-item"><span style="font-size:1.5rem">🧾</span><span style="font-size:0.78rem;font-weight:600">File GSTR-3B</span></a>
+            <a href="calculators.html#income-tax" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:1rem;background:var(--bg-secondary);border-radius:var(--radius);border:1px solid var(--border);text-align:center;transition:var(--transition)" class="qt-item"><span style="font-size:1.5rem">🔢</span><span style="font-size:0.78rem;font-weight:600">Tax Calculator</span></a>
+            <a href="investment.html" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:1rem;background:var(--bg-secondary);border-radius:var(--radius);border:1px solid var(--border);text-align:center;transition:var(--transition)" class="qt-item"><span style="font-size:1.5rem">📈</span><span style="font-size:0.78rem;font-weight:600">Investment Plan</span></a>
+            <a href="reports.html" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:1rem;background:var(--bg-secondary);border-radius:var(--radius);border:1px solid var(--border);text-align:center;transition:var(--transition)" class="qt-item"><span style="font-size:1.5rem">📊</span><span style="font-size:0.78rem;font-weight:600">View Reports</span></a>
+            <a href="documents.html" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:1rem;background:var(--bg-secondary);border-radius:var(--radius);border:1px solid var(--border);text-align:center;transition:var(--transition)" class="qt-item"><span style="font-size:1.5rem">📁</span><span style="font-size:0.78rem;font-weight:600">My Documents</span></a>
+            <a href="compliance.html" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:1rem;background:var(--bg-secondary);border-radius:var(--radius);border:1px solid var(--border);text-align:center;transition:var(--transition)" class="qt-item"><span style="font-size:1.5rem">📅</span><span style="font-size:0.78rem;font-weight:600">Due Dates</span></a>
+            <a href="ai-assistant.html" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;padding:1rem;background:rgba(30,64,175,0.06);border-radius:var(--radius);border:1px solid rgba(30,64,175,0.2);text-align:center;transition:var(--transition)" class="qt-item"><span style="font-size:1.5rem">🤖</span><span style="font-size:0.78rem;font-weight:600;color:var(--primary)">AI Assistant</span></a>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+</body>
+</html>

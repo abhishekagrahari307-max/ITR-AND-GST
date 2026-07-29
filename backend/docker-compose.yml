@@ -1,0 +1,84 @@
+version: '3.9'
+
+services:
+  # ─── PostgreSQL Database ──────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: taxmitra_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: taxmitra
+      POSTGRES_PASSWORD: taxmitra_secret_2025
+      POSTGRES_DB: taxmitra_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taxmitra"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Redis Cache ──────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: taxmitra_redis
+    restart: unless-stopped
+    command: redis-server --requirepass taxmitra_redis_2025
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Backend API ──────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: taxmitra_api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://taxmitra:taxmitra_secret_2025@postgres:5432/taxmitra_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=taxmitra_redis_2025
+      - NODE_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/app/uploads
+
+  # ─── pgAdmin (DB management) ──────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: taxmitra_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@taxmitra.ai
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads_data:
+
+networks:
+  default:
+    name: taxmitra_network

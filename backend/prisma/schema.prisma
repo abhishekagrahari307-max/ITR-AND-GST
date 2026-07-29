@@ -1,0 +1,596 @@
+// TaxMitra AI Enterprise – Prisma Schema
+// Database: PostgreSQL
+// Author: Abhishek Agrahari
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===================== ENUMS =====================
+
+enum UserRole {
+  USER
+  CA
+  BUSINESS
+  ADMIN
+  SUPERADMIN
+}
+
+enum EntityType {
+  INDIVIDUAL
+  HUF
+  FIRM
+  LLP
+  COMPANY
+  TRUST
+  AOP_BOI
+}
+
+enum TaxRegime {
+  OLD
+  NEW
+}
+
+enum FilingStatus {
+  DRAFT
+  SUBMITTED
+  VERIFIED
+  PROCESSED
+  REFUND_ISSUED
+  DEMAND_RAISED
+}
+
+enum GSTReturnType {
+  GSTR1
+  GSTR3B
+  GSTR9
+  GSTR9C
+  GSTR4
+  CMP08
+}
+
+enum DocumentType {
+  PAN_CARD
+  AADHAAR
+  FORM_16
+  FORM_26AS
+  AIS
+  BANK_STATEMENT
+  SALARY_SLIP
+  CAPITAL_GAIN_STATEMENT
+  RENT_RECEIPT
+  INSURANCE_CERTIFICATE
+  LOAN_CERTIFICATE
+  OTHER
+}
+
+enum NotificationType {
+  DEADLINE_REMINDER
+  AI_TIP
+  FILING_STATUS
+  PAYMENT_DUE
+  SYSTEM
+}
+
+// ===================== USER MODULE =====================
+
+model User {
+  id              String     @id @default(uuid())
+  email           String     @unique
+  phone           String?    @unique
+  password        String?
+  firebaseUid     String?    @unique
+  googleId        String?    @unique
+
+  // Profile
+  firstName       String
+  lastName        String
+  pan             String?    @unique
+  aadhaar         String?
+  dob             DateTime?
+  address         Json?
+
+  // Business
+  role            UserRole   @default(USER)
+  entityType      EntityType @default(INDIVIDUAL)
+  gstin           String?    @unique
+  tan             String?
+
+  // Preferences
+  defaultRegime   TaxRegime  @default(NEW)
+  language        String     @default("hi")
+  emailAlerts     Boolean    @default(true)
+  smsAlerts       Boolean    @default(true)
+
+  // Security
+  isEmailVerified Boolean    @default(false)
+  isPhoneVerified Boolean    @default(false)
+  twoFactorEnabled Boolean   @default(false)
+  twoFactorSecret String?
+  lastLoginAt     DateTime?
+  lastLoginIp     String?
+
+  // Subscription
+  isPremium       Boolean    @default(false)
+  premiumExpiry   DateTime?
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Relations
+  profile         UserProfile?
+  calculations    TaxCalculation[]
+  itrFilings      ITRFiling[]
+  gstReturns      GSTReturn[]
+  documents       Document[]
+  notifications   Notification[]
+  aiChats         AIChat[]
+  payroll         Payroll[]
+  complianceTasks ComplianceTask[]
+  auditLogs       AuditLog[]
+  sessions        Session[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Income sources
+  hasSalaryIncome     Boolean @default(false)
+  hasBusinessIncome   Boolean @default(false)
+  hasCapitalGains     Boolean @default(false)
+  hasHouseProperty    Boolean @default(false)
+  hasForeignIncome    Boolean @default(false)
+  isDirector          Boolean @default(false)
+  isPartner           Boolean @default(false)
+
+  // Financial summary (latest year)
+  grossSalary     Float?
+  tdsDeducted     Float?
+  taxPaid         Float?
+  refundExpected  Float?
+  taxLiability    Float?
+
+  // Deductions
+  deduction80C    Float?
+  deduction80D    Float?
+  deductionHRA    Float?
+  deductionHomeLoan Float?
+  deductionNPS    Float?
+
+  financialHealthScore Int?
+  profileCompleteness  Int   @default(0)
+
+  updatedAt       DateTime @updatedAt
+
+  @@map("user_profiles")
+}
+
+model Session {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token       String   @unique
+  deviceInfo  Json?
+  ipAddress   String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@map("sessions")
+}
+
+// ===================== TAX COMPUTATION =====================
+
+model TaxCalculation {
+  id              String     @id @default(uuid())
+  userId          String
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name            String     // "FY 2024-25 Calculation"
+  assessmentYear  String     // "2025-26"
+  entityType      EntityType @default(INDIVIDUAL)
+  regime          TaxRegime
+
+  // Income heads
+  salaryIncome    Float      @default(0)
+  houseProperty   Float      @default(0)
+  businessIncome  Float      @default(0)
+  capitalGains    Json?      // STCG / LTCG breakdown
+  otherIncome     Float      @default(0)
+  agriculturalIncome Float   @default(0)
+  grossTotalIncome Float     @default(0)
+
+  // Deductions (Old Regime)
+  deduction80C    Float      @default(0)
+  deduction80CCD  Float      @default(0)
+  deduction80D    Float      @default(0)
+  deduction80E    Float      @default(0)
+  deduction80G    Float      @default(0)
+  deduction80TTA  Float      @default(0)
+  deductionHRA    Float      @default(0)
+  deductionHomeLoan Float    @default(0)
+  standardDeduction Float    @default(0)
+  totalDeductions Float      @default(0)
+
+  // Computation
+  taxableIncome   Float      @default(0)
+  taxBeforeRebate Float      @default(0)
+  rebate87A       Float      @default(0)
+  taxAfterRebate  Float      @default(0)
+  surcharge       Float      @default(0)
+  cess            Float      @default(0)
+  totalTaxLiability Float    @default(0)
+
+  // Payments
+  tdsDeducted     Float      @default(0)
+  advanceTaxPaid  Float      @default(0)
+  selfAssessmentTax Float    @default(0)
+  refundAmount    Float      @default(0)
+
+  // Interest
+  interest234A    Float      @default(0)
+  interest234B    Float      @default(0)
+  interest234C    Float      @default(0)
+
+  // AMT/MAT
+  amtApplicable   Boolean    @default(false)
+  matApplicable   Boolean    @default(false)
+  amtAmount       Float      @default(0)
+  matAmount       Float      @default(0)
+
+  // AI Analysis
+  aiRegimeRecommendation TaxRegime?
+  aiSavingAmount  Float?
+  aiTips          Json?
+
+  isFinalised     Boolean    @default(false)
+  notes           String?
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@map("tax_calculations")
+}
+
+// ===================== ITR FILING =====================
+
+model ITRFiling {
+  id              String       @id @default(uuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  assessmentYear  String
+  financialYear   String
+  itrForm         String       // ITR-1, ITR-2, etc.
+  entityType      EntityType
+  regime          TaxRegime
+
+  // Personal Info
+  personalInfo    Json?
+  bankDetails     Json?
+
+  // Income Details
+  incomeDetails   Json?
+  deductionDetails Json?
+  taxComputation  Json?
+
+  // Filing
+  status          FilingStatus @default(DRAFT)
+  acknowledgementNo String?
+  filedOn         DateTime?
+  verifiedOn      DateTime?
+  verificationMode String?     // e-verify, ITR-V
+
+  // AI Assistance
+  aiFormRecommended String?
+  aiErrorsFound   Json?
+  aiChecklist     Json?
+
+  // XML/JSON
+  xmlData         String?
+  jsonData        String?
+  pdfPath         String?
+
+  refundStatus    String?
+  refundAmount    Float?
+  demandAmount    Float?
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@map("itr_filings")
+}
+
+// ===================== GST MODULE =====================
+
+model GSTReturn {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  returnType      GSTReturnType
+  gstin           String
+  financialYear   String
+  taxPeriod       String        // "07-2025", "Q1-2025-26"
+
+  // Supply Details
+  outwardSupplies Json?
+  inwardSupplies  Json?
+  itcAvailable    Float         @default(0)
+  itcUtilised     Float         @default(0)
+  itcReversed     Float         @default(0)
+
+  // Tax
+  cgst            Float         @default(0)
+  sgst            Float         @default(0)
+  igst            Float         @default(0)
+  cess            Float         @default(0)
+  totalTax        Float         @default(0)
+  lateFee         Float         @default(0)
+  interest        Float         @default(0)
+
+  // Filing
+  status          String        @default("DRAFT")
+  arn             String?       // Acknowledgement Reference Number
+  filedOn         DateTime?
+  dueDate         DateTime?
+
+  data            Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("gst_returns")
+}
+
+model GSTInvoice {
+  id              String   @id @default(uuid())
+  userId          String
+
+  invoiceNo       String
+  invoiceDate     DateTime
+  invoiceType     String   // TAX_INVOICE, DEBIT_NOTE, CREDIT_NOTE
+
+  sellerName      String
+  sellerGSTIN     String
+  sellerAddress   Json?
+
+  buyerName       String
+  buyerGSTIN      String?
+  buyerAddress    Json?
+
+  items           Json     // Array of line items
+  subTotal        Float
+  discount        Float    @default(0)
+  cgst            Float    @default(0)
+  sgst            Float    @default(0)
+  igst            Float    @default(0)
+  grandTotal      Float
+
+  isInterState    Boolean  @default(false)
+  placeOfSupply   String?
+
+  irnNumber       String?  // E-Invoice IRN
+  qrCode          String?  // E-Invoice QR
+  eWayBillNo      String?
+
+  pdfPath         String?
+  createdAt       DateTime @default(now())
+
+  @@map("gst_invoices")
+}
+
+// ===================== TDS & PAYROLL =====================
+
+model Payroll {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  employeeName    String
+  employeeId      String?
+  pan             String?
+  month           String   // "2025-07"
+  financialYear   String
+
+  // CTC Breakdown
+  basicSalary     Float
+  hra             Float    @default(0)
+  ta              Float    @default(0)
+  medicalAllowance Float   @default(0)
+  specialAllowance Float   @default(0)
+  otherAllowances Float    @default(0)
+  grossSalary     Float
+
+  // Deductions
+  epf             Float    @default(0)
+  professionalTax Float    @default(0)
+  tds             Float    @default(0)
+  otherDeductions Float    @default(0)
+  totalDeductions Float
+
+  netSalary       Float
+
+  // TDS Details
+  annualTaxableIncome Float?
+  annualTDS       Float?
+  regime          TaxRegime @default(NEW)
+
+  payslipPath     String?
+  createdAt       DateTime @default(now())
+
+  @@map("payroll")
+}
+
+model TDSReturn {
+  id              String   @id @default(uuid())
+  userId          String
+
+  formType        String   // 24Q, 26Q, 27Q, 27EQ
+  quarter         String   // Q1, Q2, Q3, Q4
+  financialYear   String
+  tan             String
+
+  deductorName    String
+  deductorType    String
+
+  totalTDS        Float
+  totalSurcharge  Float    @default(0)
+  totalInterest   Float    @default(0)
+  totalLateFee    Float    @default(0)
+
+  status          String   @default("DRAFT")
+  arn             String?
+  filedOn         DateTime?
+  dueDate         DateTime?
+
+  data            Json?
+  createdAt       DateTime @default(now())
+
+  @@map("tds_returns")
+}
+
+// ===================== DOCUMENTS =====================
+
+model Document {
+  id              String       @id @default(uuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fileName        String
+  originalName    String
+  documentType    DocumentType
+  mimeType        String
+  fileSize        Int
+  filePath        String       // Local or cloud storage path
+  fileUrl         String?      // Public URL (if cloud)
+
+  // AI OCR Results
+  ocrProcessed    Boolean      @default(false)
+  ocrData         Json?        // Extracted data
+  aiSummary       String?
+  missingData     Json?        // What data is missing
+  confidenceScore Float?       // OCR confidence 0-1
+
+  // Metadata
+  assessmentYear  String?
+  financialYear   String?
+  isEncrypted     Boolean      @default(true)
+
+  uploadedAt      DateTime     @default(now())
+  processedAt     DateTime?
+  expiresAt       DateTime?    // Auto-delete date
+
+  @@map("documents")
+}
+
+// ===================== AI CHAT =====================
+
+model AIChat {
+  id          String     @id @default(uuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sessionId   String     @default(uuid())
+  mode        String     @default("general") // general, itr, gst, notice, invest
+  language    String     @default("hi")
+
+  messages    AIMessage[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("ai_chats")
+}
+
+model AIMessage {
+  id          String   @id @default(uuid())
+  chatId      String
+  chat        AIChat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  role        String   // user | assistant
+  content     String   @db.Text
+  aiProvider  String?  // gemini | openai | rule-based
+  tokens      Int?
+  latency     Int?     // ms
+
+  createdAt   DateTime @default(now())
+
+  @@map("ai_messages")
+}
+
+// ===================== COMPLIANCE =====================
+
+model ComplianceTask {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title           String
+  description     String?
+  category        String   // GST, IT, TDS, ROC
+  dueDate         DateTime
+  status          String   @default("PENDING") // PENDING, COMPLETED, OVERDUE
+
+  reminderDays    Int      @default(3)
+  lastReminderAt  DateTime?
+
+  isRecurring     Boolean  @default(false)
+  recurringType   String?  // MONTHLY, QUARTERLY, YEARLY
+
+  completedAt     DateTime?
+  notes           String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("compliance_tasks")
+}
+
+// ===================== NOTIFICATIONS =====================
+
+model Notification {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type        NotificationType
+  title       String
+  message     String
+  data        Json?
+
+  isRead      Boolean          @default(false)
+  readAt      DateTime?
+
+  createdAt   DateTime         @default(now())
+
+  @@map("notifications")
+}
+
+// ===================== AUDIT LOGS =====================
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+
+  action      String   // LOGIN, CALC_CREATED, ITR_FILED, etc.
+  resource    String?  // users, calculations, gst_returns
+  resourceId  String?
+  oldValue    Json?
+  newValue    Json?
+  ipAddress   String?
+  userAgent   String?
+  statusCode  Int?
+
+  createdAt   DateTime @default(now())
+
+  @@map("audit_logs")
+}

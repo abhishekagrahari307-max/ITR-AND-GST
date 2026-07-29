@@ -1,613 +1,1049 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SecureTax – BharatOS Integrated Tax Portal</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
-    rel="stylesheet"
-  />
-  <style>
-    /* Theme */
-    :root {
-      --bg-color: #f9fafb;
-      --text-color: #111827;
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --card-bg: #ffffff;
-      --nav-bg: rgba(255, 255, 255, 0.85);
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    body.dark {
-      --bg-color: #111827;
-      --text-color: #f3f4f6;
-      --card-bg: #1f2937;
-      --nav-bg: rgba(31, 41, 55, 0.85);
-      --shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-    }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: "Inter", sans-serif;
-      background: var(--bg-color);
-      color: var(--text-color);
-      transition: background 0.3s, color 0.3s;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-    /* Navbar */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: var(--nav-bg);
-      backdrop-filter: blur(12px);
-      box-shadow: var(--shadow);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.75rem 1.5rem;
-      flex-shrink: 0;
-    }
-    nav .logo {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-    nav ul {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      list-style: none;
-    }
-    nav ul li {
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-    }
-    nav button {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 0.4rem 0.9rem;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    nav button:hover {
-      background: var(--primary-dark);
-    }
-    #hamburger {
-      display: none;
-      flex-direction: column;
-      cursor: pointer;
-    }
-    #hamburger span {
-      width: 25px;
-      height: 3px;
-      background: var(--text-color);
-      margin: 4px 0;
-      transition: 0.3s;
-    }
-    /* Hero */
-    .hero {
-      min-height: 80vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      background: linear-gradient(135deg, #2563eb, #9333ea);
-      color: #fff;
-      position: relative;
-      overflow: hidden;
-      padding: 0 1rem;
-    }
-    .hero h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      max-width: 900px;
-    }
-    .hero p {
-      font-size: 1.2rem;
-      max-width: 600px;
-      line-height: 1.4;
-    }
-    .hero .btn-primary {
-      background: #fff;
-      color: #2563eb;
-      padding: 0.8rem 1.5rem;
-      border-radius: 10px;
-      font-weight: 600;
-      margin-top: 2rem;
-      transition: 0.3s;
-      cursor: pointer;
-      display: inline-block;
-    }
-    .hero .btn-primary:hover {
-      background: #e0e7ff;
-    }
-    .wave {
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      width: 100%;
-      height: 80px;
-      overflow: hidden;
-      line-height: 0;
-    }
-    .wave svg {
-      width: 100%;
-      height: 100%;
-    }
-    /* Services */
-    .services {
-      display: grid;
-      gap: 1.5rem;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      padding: 4rem 1.5rem;
-      max-width: 1200px;
-      margin: auto;
-      flex-grow: 1;
-    }
-    .card {
-      background: var(--card-bg);
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      text-align: center;
-      transition: transform 0.3s;
-      cursor: pointer;
-      user-select: none;
-    }
-    .card:hover {
-      transform: translateY(-8px);
-    }
-    .card h3 {
-      margin-top: 1rem;
-      margin-bottom: 0.5rem;
-    }
-    /* Footer */
-    footer {
-      padding: 2rem 1.5rem 1rem;
-      text-align: center;
-      background: var(--primary);
-      color: #fff;
-      margin-top: 3rem;
-      flex-shrink: 0;
-      user-select: none;
-      font-size: 0.9rem;
-    }
-    footer small {
-      display: block;
-      margin-top: 8px;
-      font-weight: 400;
-      font-style: italic;
-      opacity: 0.8;
-    }
-    /* Assistant */
-    #assistant-toggle {
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      background: var(--primary);
-      color: #fff;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.5rem;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-      z-index: 1000;
-    }
-    #assistant-window {
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      width: 320px;
-      height: 420px;
-      display: none;
-      flex-direction: column;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      background: var(--card-bg);
-      overflow: hidden;
-      z-index: 1000;
-      user-select: text;
-    }
-    #assistant-header {
-      background: var(--primary);
-      color: #fff;
-      padding: 0.8rem;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    #assistant-header span {
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 1.2rem;
-    }
-    #assistant-messages {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      scrollbar-width: thin;
-    }
-    .message {
-      margin-bottom: 0.8rem;
-      padding: 0.6rem 0.9rem;
-      border-radius: 10px;
-      max-width: 75%;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      font-size: 0.95rem;
-      line-height: 1.3;
-    }
-    .user-message {
-      background: var(--primary);
-      color: #fff;
-      margin-left: auto;
-      user-select: text;
-    }
-    .bot-message {
-      background: #e5e7eb;
-      color: #111827;
-      user-select: text;
-    }
-    body.dark .bot-message {
-      background: #374151;
-      color: #f3f4f6;
-    }
-    #assistant-input-area {
-      display: flex;
-      padding: 0.5rem;
-      border-top: 1px solid #e5e7eb;
-      background: var(--card-bg);
-    }
-    #assistant-input-area input {
-      flex: 1;
-      padding: 0.5rem;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      background: transparent;
-      color: var(--text-color);
-      font-size: 1rem;
-    }
-    #assistant-send-btn {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      margin-left: 0.5rem;
-      border-radius: 8px;
-      padding: 0 1rem;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 1rem;
-      transition: background 0.3s;
-    }
-    #assistant-send-btn:hover {
-      background: var(--primary-dark);
-    }
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--primary);
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      z-index: 1100;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.3s, transform 0.3s;
-      user-select: none;
-      font-weight: 600;
-    }
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    /* Dark Mode Toggle */
-    .dark-toggle {
-      cursor: pointer;
-      font-size: 1.2rem;
-      margin-left: 1rem;
-      user-select: none;
-    }
-    /* Responsive */
-    @media (max-width: 768px) {
-      nav ul {
-        display: none;
-        flex-direction: column;
-        background: var(--card-bg);
-        position: absolute;
-        top: 60px;
-        right: 10px;
-        border-radius: 8px;
-        padding: 1rem;
-        min-width: 140px;
-      }
-      nav ul.show {
-        display: flex;
-      }
-      #hamburger {
-        display: flex;
-      }
-    }
-    /* Assistant small screens tweak */
-    @media (max-width: 360px) {
-      #assistant-window {
-        width: 280px;
-        height: 400px;
-        right: 10px;
-        bottom: 70px;
-      }
-    }
-  </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="TaxMitra AI Enterprise – India's most advanced all-in-one taxation platform with AI assistance, ITR filing, GST, TDS, payroll, accounting and investment planning."/>
+  <meta name="theme-color" content="#1e40af"/>
+  <title>TaxMitra AI Enterprise – India's #1 Tax Platform</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/taxmitra.css"/>
 </head>
-<body>
-  <!-- Navbar -->
-  <nav>
-    <div class="logo">SecureTax 🇮🇳</div>
-    <div id="hamburger" aria-label="Toggle navigation menu" role="button" tabindex="0">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-    <ul id="nav-links" role="menu">
-      <li role="menuitem"><a href="#">Home</a></li>
-      <li role="menuitem"><a href="#services">Services</a></li>
-      <li role="menuitem"><a href="#" id="dashboard-link">Dashboard</a></li>
-      <li role="menuitem"><a href="#" id="profile-link">Profile</a></li>
-      <li role="menuitem" id="auth-buttons">
-        <button onclick="mockLogin()" aria-label="Login to account">Login</button>
-        <button onclick="showToast('Register flow not implemented')" aria-label="Register new account">Register</button>
-      </li>
-      <li role="menuitem" id="user-menu" style="display:none;">
-        <span id="user-name" aria-live="polite" aria-atomic="true" style="margin-right: 8px;"></span>
-        <button onclick="handleLogout()" aria-label="Logout from account">Logout</button>
-      </li>
-      <li role="menuitem" class="dark-toggle" tabindex="0" aria-label="Toggle dark mode">🌓</li>
-    </ul>
-  </nav>
+<body class="light-mode">
 
-  <!-- Hero Section -->
-  <section class="hero" role="banner" aria-label="Welcome section">
-    <h1>Welcome to SecureTax Portal</h1>
-    <p>🇮🇳 BharatOS Powered • Tax Filing &amp; AI Assistance with secure boot &amp; TPM encryption</p>
-    <a href="#services" class="btn-primary">Explore Services</a>
-    <div class="wave" aria-hidden="true">
-      <svg viewBox="0 0 500 80" preserveAspectRatio="none">
-        <path d="M0,30 C150,80 350,0 500,50 L500,0 L0,0 Z" fill="#fff"></path>
-      </svg>
-    </div>
-  </section>
-
-  <!-- Services -->
-  <section id="services" class="services" aria-label="Our services">
-    <div class="card" tabindex="0"><h3>File IT Returns</h3><p>Simple &amp; fast e-filing with BharatOS compliance.</p></div>
-    <div class="card" tabindex="0"><h3>Tax Calculator</h3><p>Plan finances with AI-powered calculators.</p></div>
-    <div class="card" tabindex="0"><h3>Govt. Schemes</h3><p>Check eligibility for latest schemes.</p></div>
-    <div class="card" tabindex="0"><h3>AI Assistant</h3><p>24x7 chatbot answers your queries instantly.</p></div>
-  </section>
-
-  <!-- Footer -->
-  <footer role="contentinfo">
-    <p>© 2025 SecureTax – BharatOS • Secure. Fast. Trusted.</p>
-    <small>Built by Abhishek Agrahari &lt;abhishekagrahari312@gmail.com&gt;</small>
-    <small>You can extend by adding real Login/Register backend integration, GST-specific modules, or additional services.</small>
-  </footer>
-
-  <!-- Floating AI Assistant -->
-  <div
-    id="assistant-toggle"
-    aria-label="Toggle AI assistant chat"
-    role="button"
-    tabindex="0"
-    title="Toggle AI assistant chat"
-  >
-    💬
+<!-- ========== TOP ANNOUNCEMENT BAR ========== -->
+<div class="announcement-bar" id="announcementBar">
+  <div class="announcement-content">
+    <span class="pulse-dot"></span>
+    <span>🚀 <strong>TaxMitra AI Enterprise v2.0</strong> launched! ITR Filing Season 2024-25 Open | AY 2025-26 Deadline: 31 July 2025</span>
+    <span class="ann-divider">|</span>
+    <span>📱 PWA App Available – Install Now!</span>
   </div>
-  <div id="assistant-window" aria-live="polite" aria-label="AI assistant chat window" role="region">
-    <div id="assistant-header">
-      AI Assistant <span id="assistant-close" aria-label="Close AI assistant" role="button" tabindex="0">✖</span>
+  <button class="ann-close" onclick="document.getElementById('announcementBar').style.display='none'">✕</button>
+</div>
+
+<!-- ========== NAVBAR ========== -->
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <!-- Logo -->
+    <a href="index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">
+        <span class="logo-primary">TaxMitra</span>
+        <span class="logo-badge">AI Enterprise</span>
+      </div>
+    </a>
+
+    <!-- Desktop Nav Links -->
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li class="nav-item has-dropdown">
+          <a href="#" class="nav-link active">🏠 Home <i class="fa fa-chevron-down nav-arrow"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-col">
+              <h4>Quick Access</h4>
+              <a href="pages/dashboard.html"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+              <a href="pages/itr-center.html"><i class="fa fa-file-alt"></i> ITR Center</a>
+              <a href="pages/gst.html"><i class="fa fa-receipt"></i> GST Suite</a>
+            </div>
+            <div class="mega-col">
+              <h4>Tools</h4>
+              <a href="pages/calculators.html"><i class="fa fa-calculator"></i> All Calculators</a>
+              <a href="pages/tds-payroll.html"><i class="fa fa-users"></i> TDS & Payroll</a>
+              <a href="pages/compliance.html"><i class="fa fa-calendar-check"></i> Compliance Hub</a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item has-dropdown">
+          <a href="pages/itr-center.html" class="nav-link">📋 ITR <i class="fa fa-chevron-down nav-arrow"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-col">
+              <h4>ITR Forms</h4>
+              <a href="pages/itr-center.html#itr1">ITR-1 (Sahaj)</a>
+              <a href="pages/itr-center.html#itr2">ITR-2</a>
+              <a href="pages/itr-center.html#itr3">ITR-3</a>
+              <a href="pages/itr-center.html#itr4">ITR-4 (Sugam)</a>
+              <a href="pages/itr-center.html#itr5">ITR-5</a>
+              <a href="pages/itr-center.html#itr6">ITR-6</a>
+              <a href="pages/itr-center.html#itr7">ITR-7</a>
+            </div>
+            <div class="mega-col">
+              <h4>Analysis Tools</h4>
+              <a href="pages/itr-center.html#ais">AIS Analysis</a>
+              <a href="pages/itr-center.html#form26as">Form 26AS</a>
+              <a href="pages/itr-center.html#form16">Form 16 Analysis</a>
+              <a href="pages/itr-center.html#prefill">Prefilled Import</a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item has-dropdown">
+          <a href="pages/gst.html" class="nav-link">🧾 GST <i class="fa fa-chevron-down nav-arrow"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-col">
+              <h4>GST Returns</h4>
+              <a href="pages/gst.html#gstr1">GSTR-1</a>
+              <a href="pages/gst.html#gstr3b">GSTR-3B</a>
+              <a href="pages/gst.html#gstr9">GSTR-9 (Annual)</a>
+              <a href="pages/gst.html#einvoice">E-Invoice</a>
+              <a href="pages/gst.html#eway">E-Way Bill</a>
+            </div>
+            <div class="mega-col">
+              <h4>GST Tools</h4>
+              <a href="pages/gst.html#calc">GST Calculator</a>
+              <a href="pages/gst.html#invoice">Invoice Generator</a>
+              <a href="pages/gst.html#hsn">HSN/SAC Search</a>
+              <a href="pages/gst.html#itc">ITC Calculator</a>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item">
+          <a href="pages/calculators.html" class="nav-link">🔢 Calculators</a>
+        </li>
+        <li class="nav-item has-dropdown">
+          <a href="#" class="nav-link">⚙️ More <i class="fa fa-chevron-down nav-arrow"></i></a>
+          <div class="mega-dropdown">
+            <div class="mega-col">
+              <h4>Business</h4>
+              <a href="pages/accounting.html"><i class="fa fa-book"></i> Accounting</a>
+              <a href="pages/tds-payroll.html"><i class="fa fa-money-bill"></i> Payroll</a>
+              <a href="pages/compliance.html"><i class="fa fa-shield-alt"></i> Compliance</a>
+            </div>
+            <div class="mega-col">
+              <h4>Planning</h4>
+              <a href="pages/investment.html"><i class="fa fa-chart-line"></i> Investment Planner</a>
+              <a href="pages/knowledge.html"><i class="fa fa-book-open"></i> Knowledge Center</a>
+              <a href="pages/reports.html"><i class="fa fa-file-pdf"></i> Reports</a>
+            </div>
+          </div>
+        </li>
+      </ul>
     </div>
-    <div id="assistant-messages"></div>
-    <div id="assistant-input-area">
-      <input
-        type="text"
-        id="assistant-input"
-        placeholder="Ask something..."
-        aria-label="Type your message"
-        autocomplete="off"
-      />
-      <button id="assistant-send-btn" aria-label="Send message">Send</button>
+
+    <!-- Nav Right -->
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="searchToggle" title="Search"><i class="fa fa-search"></i></button>
+      <button class="nav-icon-btn" id="themeToggle" title="Toggle Dark Mode">🌙</button>
+      <a href="pages/ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI Assistant</a>
+      <a href="login.html" class="btn-nav-login">Login</a>
+      <a href="signup.html" class="btn-nav-register">Register Free</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 
-  <script>
-    // Authentication UI toggle
-    function checkAuthStatus() {
-      const token = localStorage.getItem("token");
-      const authButtons = document.getElementById("auth-buttons");
-      const userMenu = document.getElementById("user-menu");
-      const dashboardLink = document.getElementById("dashboard-link");
-      const profileLink = document.getElementById("profile-link");
-      const userName = document.getElementById("user-name");
+  <!-- Search Bar -->
+  <div class="nav-search-bar" id="navSearchBar">
+    <div class="search-container">
+      <i class="fa fa-search search-icon"></i>
+      <input type="text" id="globalSearch" placeholder="Search calculators, tax tools, forms... (e.g. 'HRA Calculator', 'GST Invoice')"/>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+</nav>
 
-      if (token) {
-        authButtons.style.display = "none";
-        userMenu.style.display = "flex";
-        dashboardLink.style.display = "inline-block";
-        profileLink.style.display = "inline-block";
-        userName.textContent = "👤 " + (localStorage.getItem("username") || "User");
-      } else {
-        authButtons.style.display = "flex";
-        userMenu.style.display = "none";
-        dashboardLink.style.display = "none";
-        profileLink.style.display = "none";
-        userName.textContent = "";
-      }
-    }
-    // Logout function with toast notification and reload
-    function handleLogout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("username");
-      checkAuthStatus();
-      showToast("✅ You have logged out!");
-      setTimeout(() => location.reload(), 1200);
-    }
-    // Mock login to simulate user login
-    function mockLogin() {
-      localStorage.setItem("token", "sampletoken");
-      localStorage.setItem("username", "Arjun Kumar");
-      checkAuthStatus();
-      showToast("✅ Logged in as Arjun Kumar!");
-    }
-    // Toast notifications helper function
-    function showToast(msg) {
-      const toast = document.createElement("div");
-      toast.className = "toast";
-      toast.textContent = msg;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.classList.add("show"), 100);
-      setTimeout(() => {
-        toast.classList.remove("show");
-        toast.remove();
-      }, 3000);
-    }
-    // Dark mode toggle with persistence
-    function toggleDarkMode() {
-      const dark = document.body.classList.toggle("dark");
-      localStorage.setItem("theme", dark ? "dark" : "light");
-    }
-    // Setup AI Assistant chat widget with backend API integration
-    function setupAIAssistant() {
-      const toggleBtn = document.getElementById("assistant-toggle");
-      const windowEl = document.getElementById("assistant-window");
-      const closeBtn = document.getElementById("assistant-close");
-      const sendBtn = document.getElementById("assistant-send-btn");
-      const inputEl = document.getElementById("assistant-input");
-      const messages = document.getElementById("assistant-messages");
+<!-- ========== HERO SECTION ========== -->
+<section class="hero-section">
+  <div class="hero-bg-animation">
+    <div class="hero-blob blob1"></div>
+    <div class="hero-blob blob2"></div>
+    <div class="hero-blob blob3"></div>
+    <div class="hero-particles" id="heroParticles"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        🇮🇳 India's Most Advanced Tax Platform
+      </div>
+      <h1 class="hero-title">
+        <span class="title-line1">TaxMitra</span>
+        <span class="title-line2">AI <span class="gradient-text">Enterprise</span></span>
+        <span class="title-line3">Computax से भी ज़्यादा Powerful</span>
+      </h1>
+      <p class="hero-subtitle">
+        India का पहला All-in-One AI-Powered Tax Ecosystem — ITR Filing, GST Suite, Payroll, Accounting, Investment Planning और 100+ Professional Tools — सब एक जगह।
+      </p>
+      <div class="hero-stats">
+        <div class="stat-item"><span class="stat-num" data-target="50000">0</span><span class="stat-plus">+</span><span class="stat-label">Users</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat-item"><span class="stat-num" data-target="100">0</span><span class="stat-plus">+</span><span class="stat-label">Tools</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat-item"><span class="stat-num" data-target="99">0</span><span class="stat-plus">%</span><span class="stat-label">Accuracy</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat-item"><span class="stat-num" data-target="24">0</span><span class="stat-plus">/7</span><span class="stat-label">AI Support</span></div>
+      </div>
+      <div class="hero-actions">
+        <a href="pages/itr-center.html" class="btn-hero-primary">
+          <i class="fa fa-file-alt"></i> File ITR Now
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="pages/ai-assistant.html" class="btn-hero-secondary">
+          <i class="fa fa-robot"></i> Try AI Assistant
+        </a>
+        <a href="pages/calculators.html" class="btn-hero-outline">
+          <i class="fa fa-calculator"></i> Free Calculators
+        </a>
+      </div>
+      <div class="hero-trust">
+        <span>✅ 100% Secure</span>
+        <span>✅ CA Approved</span>
+        <span>✅ Income Tax Compliant</span>
+        <span>✅ GST Ready</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="dashboard-preview">
+        <div class="preview-header">
+          <div class="preview-dots"><span></span><span></span><span></span></div>
+          <span class="preview-title">TaxMitra Dashboard</span>
+        </div>
+        <div class="preview-body">
+          <div class="preview-stat-row">
+            <div class="prev-stat green"><i class="fa fa-arrow-down"></i><div><span>Tax Liability</span><strong>₹1,24,500</strong></div></div>
+            <div class="prev-stat blue"><i class="fa fa-arrow-up"></i><div><span>Refund Due</span><strong>₹18,250</strong></div></div>
+          </div>
+          <div class="preview-chart">
+            <div class="chart-bar" style="height:60%"><span>Q1</span></div>
+            <div class="chart-bar active" style="height:85%"><span>Q2</span></div>
+            <div class="chart-bar" style="height:45%"><span>Q3</span></div>
+            <div class="chart-bar" style="height:70%"><span>Q4</span></div>
+          </div>
+          <div class="preview-ai-msg">
+            <div class="ai-avatar">🤖</div>
+            <div class="ai-text">New Tax Regime में आपकी बचत: <strong>₹32,000</strong> ✓</div>
+          </div>
+          <div class="preview-tags">
+            <span class="ptag green">ITR Filed ✓</span>
+            <span class="ptag orange">GST Due: 20 Jan</span>
+            <span class="ptag blue">TDS Paid ✓</span>
+          </div>
+        </div>
+      </div>
+      <div class="floating-card fc1">
+        <i class="fa fa-robot"></i>
+        <span>AI Tax Saving<br><strong>₹45,000 Saved!</strong></span>
+      </div>
+      <div class="floating-card fc2">
+        <i class="fa fa-check-circle"></i>
+        <span>ITR Verified<br><strong>AY 2024-25</strong></span>
+      </div>
+      <div class="floating-card fc3">
+        <i class="fa fa-shield-alt"></i>
+        <span>SSL Secured<br><strong>256-bit AES</strong></span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,60 C360,120 1080,0 1440,60 L1440,120 L0,120 Z" fill="var(--bg-primary)"/></svg>
+  </div>
+</section>
 
-      toggleBtn.addEventListener("click", () => {
-        windowEl.style.display = windowEl.style.display === "flex" ? "none" : "flex";
-        if (windowEl.style.display === "flex") inputEl.focus();
-      });
-      closeBtn.addEventListener("click", () => {
-        windowEl.style.display = "none";
-      });
-      closeBtn.addEventListener("keypress", (e) => {
-        if (e.key === "Enter" || e.key === " ") windowEl.style.display = "none";
-      });
+<!-- ========== QUICK TOOLS BAR ========== -->
+<section class="quick-tools-bar">
+  <div class="container">
+    <div class="quick-tools-grid">
+      <a href="pages/itr-center.html" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">📋</div>
+        <span>File ITR</span>
+      </a>
+      <a href="pages/gst.html" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#10b981,#059669)">🧾</div>
+        <span>GST Filing</span>
+      </a>
+      <a href="pages/calculators.html#tax" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">🔢</div>
+        <span>Tax Calculator</span>
+      </a>
+      <a href="pages/calculators.html#hra" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">🏠</div>
+        <span>HRA Calc</span>
+      </a>
+      <a href="pages/tds-payroll.html" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)">💼</div>
+        <span>TDS / Payroll</span>
+      </a>
+      <a href="pages/calculators.html#capital-gain" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">📈</div>
+        <span>Capital Gain</span>
+      </a>
+      <a href="pages/investment.html" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#f97316,#ea580c)">💰</div>
+        <span>Investment</span>
+      </a>
+      <a href="pages/compliance.html" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#14b8a6,#0d9488)">📅</div>
+        <span>Compliance</span>
+      </a>
+      <a href="pages/ai-assistant.html" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">🤖</div>
+        <span>AI Assistant</span>
+      </a>
+      <a href="pages/accounting.html" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#84cc16,#65a30d)">📒</div>
+        <span>Accounting</span>
+      </a>
+      <a href="pages/reports.html" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#ec4899,#db2777)">📊</div>
+        <span>Reports</span>
+      </a>
+      <a href="pages/knowledge.html" class="qt-item">
+        <div class="qt-icon" style="background:linear-gradient(135deg,#a855f7,#9333ea)">📚</div>
+        <span>Knowledge</span>
+      </a>
+    </div>
+  </div>
+</section>
 
-      sendBtn.addEventListener("click", sendMessage);
-      inputEl.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") sendMessage();
-      });
+<!-- ========== TAX REGIME COMPARISON BANNER ========== -->
+<section class="regime-banner">
+  <div class="container">
+    <div class="regime-card">
+      <div class="regime-header">
+        <i class="fa fa-balance-scale"></i>
+        <h3>Old Regime vs New Regime – कौनसा बेहतर है आपके लिए?</h3>
+        <a href="pages/calculators.html#regime" class="btn-regime">Compare Now →</a>
+      </div>
+      <div class="regime-slabs">
+        <div class="slab-section">
+          <h4>🔵 Old Tax Regime</h4>
+          <div class="slab-grid">
+            <div class="slab-item"><span>₹0 – ₹2.5L</span><strong>Nil</strong></div>
+            <div class="slab-item"><span>₹2.5L – ₹5L</span><strong>5%</strong></div>
+            <div class="slab-item"><span>₹5L – ₹10L</span><strong>20%</strong></div>
+            <div class="slab-item highlight"><span>Above ₹10L</span><strong>30%</strong></div>
+          </div>
+        </div>
+        <div class="regime-vs">VS</div>
+        <div class="slab-section">
+          <h4>🟢 New Tax Regime (Default)</h4>
+          <div class="slab-grid">
+            <div class="slab-item"><span>₹0 – ₹3L</span><strong>Nil</strong></div>
+            <div class="slab-item"><span>₹3L – ₹7L</span><strong>5%</strong></div>
+            <div class="slab-item"><span>₹7L – ₹10L</span><strong>10%</strong></div>
+            <div class="slab-item"><span>₹10L – ₹12L</span><strong>15%</strong></div>
+            <div class="slab-item"><span>₹12L – ₹15L</span><strong>20%</strong></div>
+            <div class="slab-item highlight"><span>Above ₹15L</span><strong>30%</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-      loadChat();
+<!-- ========== MAIN FEATURES GRID ========== -->
+<section class="features-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Complete Platform</span>
+      <h2>14 Powerful Modules – <span class="gradient-text">One Platform</span></h2>
+      <p>Computax, ClearTax और TaxSmile से भी ज़्यादा features – सब कुछ एक ही जगह</p>
+    </div>
+    <div class="modules-grid">
 
-      async function sendMessage() {
-        const text = inputEl.value.trim();
-        if (!text) return;
-        appendMessage(text, "user");
-        inputEl.value = "";
-        saveChat();
+      <!-- Module 1: AI Assistant -->
+      <div class="module-card" data-module="ai">
+        <div class="module-header" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+          <div class="module-icon">🤖</div>
+          <span class="module-tag">AI Powered</span>
+        </div>
+        <div class="module-body">
+          <h3>AI Tax Assistant</h3>
+          <p>Hindi + English में बात करें। Voice, Chat, Document Q&A सब available.</p>
+          <ul class="module-features">
+            <li>✅ AI Chat (Hindi + English)</li>
+            <li>✅ Voice Assistant</li>
+            <li>✅ Tax Planning AI</li>
+            <li>✅ AI Notice Explanation</li>
+            <li>✅ AI ITR Form Recommender</li>
+            <li>✅ AI Error Detection</li>
+          </ul>
+          <a href="pages/ai-assistant.html" class="module-btn">Open AI Assistant →</a>
+        </div>
+      </div>
 
-        appendMessage("🤖 Typing...", "bot");
-        scrollToBottom();
+      <!-- Module 2: Income Tax Computation -->
+      <div class="module-card" data-module="computation">
+        <div class="module-header" style="background:linear-gradient(135deg,#2563eb,#1e40af)">
+          <div class="module-icon">🧮</div>
+          <span class="module-tag">Computax Style</span>
+        </div>
+        <div class="module-body">
+          <h3>Income Tax Computation</h3>
+          <p>Professional-grade computation engine for all entity types.</p>
+          <ul class="module-features">
+            <li>✅ Individual, HUF, Firm, LLP, Co.</li>
+            <li>✅ Capital Gains (STCG/LTCG)</li>
+            <li>✅ AMT/MAT Calculation</li>
+            <li>✅ Old vs New Regime</li>
+            <li>✅ Interest 234A/B/C</li>
+            <li>✅ Refund Estimation</li>
+          </ul>
+          <a href="pages/calculators.html#tax" class="module-btn">Compute Tax →</a>
+        </div>
+      </div>
 
-        try {
-          const reply = await fetchBotReply(text);
-          removeTypingMessage();
-          appendMessage(reply, "bot");
-          saveChat();
-          scrollToBottom();
-        } catch (error) {
-          removeTypingMessage();
-          appendMessage("Sorry, I couldn't process your request right now.", "bot");
-          saveChat();
-        }
-      }
-      function appendMessage(text, sender) {
-        const div = document.createElement("div");
-        div.classList.add("message", sender === "user" ? "user-message" : "bot-message");
-        div.textContent = text;
-        messages.appendChild(div);
-        scrollToBottom();
-      }
-      function removeTypingMessage() {
-        const typingMsg = Array.from(messages.children).find(
-          (child) => child.textContent === "🤖 Typing..."
-        );
-        if (typingMsg) messages.removeChild(typingMsg);
-      }
-      function saveChat() {
-        localStorage.setItem("chat-history", messages.innerHTML);
-      }
-      function loadChat() {
-        const saved = localStorage.getItem("chat-history");
-        if (saved) messages.innerHTML = saved;
-      }
-      function scrollToBottom() {
-        messages.scrollTop = messages.scrollHeight;
-      }
-      // Call backend AI API - CHANGE THIS URL to your actual backend API endpoint
-      async function fetchBotReply(message) {
-        try {
-          const response = await fetch("https://your-backend-api-endpoint.com/chat", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              // Add authorization headers here if required
-            },
-            body: JSON.stringify({ message }),
-          });
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-          const data = await response.json();
-          return data.reply || "Sorry, no reply from AI.";
-        } catch (error) {
-          console.error("AI API error:", error);
-          return "Sorry, I couldn't process your request right now.";
-        }
-      }
-    }
-    // Mobile menu toggle handlers
-    const hamburger = document.getElementById("hamburger");
-    const navLinks = document.getElementById("nav-links");
-    hamburger.addEventListener("click", () => navLinks.classList.toggle("show"));
-    hamburger.addEventListener("keypress", (e) => {
-      if (e.key === "Enter" || e.key === " ") navLinks.classList.toggle("show");
-    });
-    // Dark mode accessibility toggle handlers
-    const darkToggle = document.querySelector(".dark-toggle");
-    darkToggle.addEventListener("click", toggleDarkMode);
-    darkToggle.addEventListener("keypress", (e) => {
-      if (e.key === "Enter" || e.key === " ") toggleDarkMode();
-    });
-    // Initialization on window load
-    window.onload = () => {
-      checkAuthStatus();
-      setupAIAssistant();
-      if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
-    };
-  </script>
+      <!-- Module 3: Calculators -->
+      <div class="module-card" data-module="calc">
+        <div class="module-header" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+          <div class="module-icon">🔢</div>
+          <span class="module-tag">50+ Tools</span>
+        </div>
+        <div class="module-body">
+          <h3>Complete Tax Calculators</h3>
+          <p>50+ professional calculators for every financial need.</p>
+          <ul class="module-features">
+            <li>✅ Income Tax / GST / TDS</li>
+            <li>✅ HRA / Gratuity / Bonus</li>
+            <li>✅ SIP / EMI / FD / RD</li>
+            <li>✅ Capital Gain Calculator</li>
+            <li>✅ Retirement / Home Loan</li>
+            <li>✅ NPS / EPF / PPF</li>
+          </ul>
+          <a href="pages/calculators.html" class="module-btn">All Calculators →</a>
+        </div>
+      </div>
+
+      <!-- Module 4: ITR Center -->
+      <div class="module-card" data-module="itr">
+        <div class="module-header" style="background:linear-gradient(135deg,#10b981,#059669)">
+          <div class="module-icon">📋</div>
+          <span class="module-tag">ITR-1 to ITR-7</span>
+        </div>
+        <div class="module-body">
+          <h3>Complete ITR Center</h3>
+          <p>AI-powered ITR filing from form selection to PDF generation.</p>
+          <ul class="module-features">
+            <li>✅ ITR-1 to ITR-7 Forms</li>
+            <li>✅ AI Form Selector</li>
+            <li>✅ AIS & Form 26AS Analysis</li>
+            <li>✅ XML/JSON Validation</li>
+            <li>✅ Error Checker & Preview</li>
+            <li>✅ PDF Generation</li>
+          </ul>
+          <a href="pages/itr-center.html" class="module-btn">File ITR →</a>
+        </div>
+      </div>
+
+      <!-- Module 5: GST Suite -->
+      <div class="module-card" data-module="gst">
+        <div class="module-header" style="background:linear-gradient(135deg,#06b6d4,#0e7490)">
+          <div class="module-icon">🧾</div>
+          <span class="module-tag">Professional</span>
+        </div>
+        <div class="module-body">
+          <h3>GST Professional Suite</h3>
+          <p>Complete GST management – Returns, Invoicing, E-Way Bill.</p>
+          <ul class="module-features">
+            <li>✅ GSTR-1, 3B, 9 Filing</li>
+            <li>✅ GST Invoice Generator</li>
+            <li>✅ E-Invoice & E-Way Bill</li>
+            <li>✅ ITC Calculator</li>
+            <li>✅ HSN/SAC Search</li>
+            <li>✅ Interest & Penalty Calc</li>
+          </ul>
+          <a href="pages/gst.html" class="module-btn">GST Suite →</a>
+        </div>
+      </div>
+
+      <!-- Module 6: TDS & Payroll -->
+      <div class="module-card" data-module="tds">
+        <div class="module-header" style="background:linear-gradient(135deg,#ef4444,#b91c1c)">
+          <div class="module-icon">💼</div>
+          <span class="module-tag">HR & Finance</span>
+        </div>
+        <div class="module-body">
+          <h3>TDS & Payroll</h3>
+          <p>Complete TDS management and payroll processing system.</p>
+          <ul class="module-features">
+            <li>✅ Salary & Non-Salary TDS</li>
+            <li>✅ Payroll Processing</li>
+            <li>✅ Payslip Generator</li>
+            <li>✅ Form 16 Generator</li>
+            <li>✅ Form 24Q / 26Q / 27Q</li>
+            <li>✅ Challan Generator</li>
+          </ul>
+          <a href="pages/tds-payroll.html" class="module-btn">TDS & Payroll →</a>
+        </div>
+      </div>
+
+      <!-- Module 7: Accounting -->
+      <div class="module-card" data-module="accounting">
+        <div class="module-header" style="background:linear-gradient(135deg,#84cc16,#4d7c0f)">
+          <div class="module-icon">📒</div>
+          <span class="module-tag">Business ERP</span>
+        </div>
+        <div class="module-body">
+          <h3>Business & Accounting</h3>
+          <p>Complete accounting suite for businesses and professionals.</p>
+          <ul class="module-features">
+            <li>✅ Ledger & Trial Balance</li>
+            <li>✅ P&L & Balance Sheet</li>
+            <li>✅ Cash Book & BRS</li>
+            <li>✅ Invoice Generator</li>
+            <li>✅ Expense Tracker</li>
+            <li>✅ Inventory Management</li>
+          </ul>
+          <a href="pages/accounting.html" class="module-btn">Accounting →</a>
+        </div>
+      </div>
+
+      <!-- Module 8: Compliance -->
+      <div class="module-card" data-module="compliance">
+        <div class="module-header" style="background:linear-gradient(135deg,#14b8a6,#0f766e)">
+          <div class="module-icon">📅</div>
+          <span class="module-tag">AI Reminders</span>
+        </div>
+        <div class="module-body">
+          <h3>Compliance Hub</h3>
+          <p>Never miss a deadline with AI-powered compliance tracking.</p>
+          <ul class="module-features">
+            <li>✅ IT / GST / TDS Due Dates</li>
+            <li>✅ ROC Compliance</li>
+            <li>✅ MSME Compliance</li>
+            <li>✅ AI Reminder System</li>
+            <li>✅ Calendar View</li>
+            <li>✅ Email / SMS Alerts</li>
+          </ul>
+          <a href="pages/compliance.html" class="module-btn">Compliance Hub →</a>
+        </div>
+      </div>
+
+      <!-- Module 9: Document Center -->
+      <div class="module-card" data-module="docs">
+        <div class="module-header" style="background:linear-gradient(135deg,#a855f7,#7c3aed)">
+          <div class="module-icon">📁</div>
+          <span class="module-tag">AI OCR</span>
+        </div>
+        <div class="module-body">
+          <h3>AI Document Center</h3>
+          <p>Upload once, AI reads everything and generates summary.</p>
+          <ul class="module-features">
+            <li>✅ PAN / Aadhaar Upload</li>
+            <li>✅ Form 16 / 26AS / AIS</li>
+            <li>✅ Bank Statement Upload</li>
+            <li>✅ AI OCR Reading</li>
+            <li>✅ AI Summary Generation</li>
+            <li>✅ Missing Data Detection</li>
+          </ul>
+          <a href="pages/documents.html" class="module-btn">Document Center →</a>
+        </div>
+      </div>
+
+      <!-- Module 10: Investment Planner -->
+      <div class="module-card" data-module="invest">
+        <div class="module-header" style="background:linear-gradient(135deg,#f97316,#c2410c)">
+          <div class="module-icon">📈</div>
+          <span class="module-tag">AI Advisor</span>
+        </div>
+        <div class="module-body">
+          <h3>Investment Planner</h3>
+          <p>AI-powered investment advisory for tax saving and wealth building.</p>
+          <ul class="module-features">
+            <li>✅ Section 80C / 80D / 80G</li>
+            <li>✅ Home Loan Benefits</li>
+            <li>✅ NPS / EPF / PPF</li>
+            <li>✅ AI Investment Suggestions</li>
+            <li>✅ Goal-Based Planning</li>
+            <li>✅ Portfolio Analysis</li>
+          </ul>
+          <a href="pages/investment.html" class="module-btn">Investment Planner →</a>
+        </div>
+      </div>
+
+      <!-- Module 11: Knowledge Center -->
+      <div class="module-card" data-module="knowledge">
+        <div class="module-header" style="background:linear-gradient(135deg,#ec4899,#be185d)">
+          <div class="module-icon">📚</div>
+          <span class="module-tag">Tax Library</span>
+        </div>
+        <div class="module-body">
+          <h3>Knowledge Center</h3>
+          <p>Complete tax library – Laws, Budget, Circulars, Articles.</p>
+          <ul class="module-features">
+            <li>✅ Income Tax Act</li>
+            <li>✅ Budget Highlights 2024</li>
+            <li>✅ CBDT Circulars</li>
+            <li>✅ Finance Articles</li>
+            <li>✅ Video Tutorials</li>
+            <li>✅ FAQs</li>
+          </ul>
+          <a href="pages/knowledge.html" class="module-btn">Knowledge Center →</a>
+        </div>
+      </div>
+
+      <!-- Module 12: Reports -->
+      <div class="module-card" data-module="reports">
+        <div class="module-header" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)">
+          <div class="module-icon">📊</div>
+          <span class="module-tag">PDF & Excel</span>
+        </div>
+        <div class="module-body">
+          <h3>Reports & Analytics</h3>
+          <p>Professional reports for individuals, CAs and businesses.</p>
+          <ul class="module-features">
+            <li>✅ Tax Computation Report</li>
+            <li>✅ Tax Liability & Refund</li>
+            <li>✅ GST & Financial Report</li>
+            <li>✅ Investment Report</li>
+            <li>✅ PDF & Excel Export</li>
+            <li>✅ Financial Health Score</li>
+          </ul>
+          <a href="pages/reports.html" class="module-btn">View Reports →</a>
+        </div>
+      </div>
+
+      <!-- Module 13: Dashboard -->
+      <div class="module-card" data-module="dashboard">
+        <div class="module-header" style="background:linear-gradient(135deg,#6366f1,#4338ca)">
+          <div class="module-icon">🏠</div>
+          <span class="module-tag">Personal</span>
+        </div>
+        <div class="module-body">
+          <h3>User Dashboard</h3>
+          <p>Your personal tax command center with all data at a glance.</p>
+          <ul class="module-features">
+            <li>✅ Saved Computations</li>
+            <li>✅ Saved Returns</li>
+            <li>✅ Document Vault</li>
+            <li>✅ Notifications</li>
+            <li>✅ Activity History</li>
+            <li>✅ Quick Actions</li>
+          </ul>
+          <a href="pages/dashboard.html" class="module-btn">My Dashboard →</a>
+        </div>
+      </div>
+
+      <!-- Module 14: Admin Panel -->
+      <div class="module-card" data-module="admin">
+        <div class="module-header" style="background:linear-gradient(135deg,#78716c,#44403c)">
+          <div class="module-icon">⚙️</div>
+          <span class="module-tag">Enterprise</span>
+        </div>
+        <div class="module-body">
+          <h3>Admin Panel</h3>
+          <p>Enterprise-grade admin control for CAs, Tax Consultants & Firms.</p>
+          <ul class="module-features">
+            <li>✅ User Management</li>
+            <li>✅ Content Management</li>
+            <li>✅ AI Logs & Analytics</li>
+            <li>✅ Audit Logs</li>
+            <li>✅ Backup & Security</li>
+            <li>✅ System Settings</li>
+          </ul>
+          <a href="pages/admin.html" class="module-btn">Admin Panel →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== AI FEATURES SHOWCASE ========== -->
+<section class="ai-showcase">
+  <div class="container">
+    <div class="ai-showcase-inner">
+      <div class="ai-visual-side">
+        <div class="ai-chat-demo">
+          <div class="chat-header">
+            <div class="chat-avatar">🤖</div>
+            <div>
+              <strong>TaxMitra AI</strong>
+              <span class="online-dot">● Online</span>
+            </div>
+            <div class="lang-switch">
+              <button class="lang-btn active" onclick="switchLang('hi')">हिंदी</button>
+              <button class="lang-btn" onclick="switchLang('en')">English</button>
+            </div>
+          </div>
+          <div class="chat-messages" id="aiDemoMessages">
+            <div class="chat-msg bot">नमस्ते! 🙏 मैं TaxMitra AI हूँ। आपको ITR, GST, TDS किसी भी tax matter में help करूँगा।</div>
+            <div class="chat-msg user">मेरी income ₹12 lakh है, कौनसा regime better है?</div>
+            <div class="chat-msg bot">आपकी income ₹12 lakh के लिए analysis:<br>
+            🔵 Old Regime: ₹1,17,000 (with deductions)<br>
+            🟢 New Regime: ₹80,000 (no deductions needed)<br>
+            <strong>✅ New Regime में ₹37,000 की बचत होगी!</strong></div>
+          </div>
+          <div class="chat-input-demo">
+            <input type="text" id="demoInput" placeholder="Tax question पूछें... (Hindi/English)"/>
+            <button onclick="sendDemoMsg()"><i class="fa fa-paper-plane"></i></button>
+            <button class="voice-btn-demo"><i class="fa fa-microphone"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="ai-features-side">
+        <div class="section-header left-align">
+          <span class="section-tag">AI Powered</span>
+          <h2>12 AI Features – <span class="gradient-text">Your Digital CA</span></h2>
+          <p>Artificial Intelligence से powered tax assistance जो 24/7 available है</p>
+        </div>
+        <div class="ai-features-list">
+          <div class="ai-feat-item"><div class="ai-feat-icon">💬</div><div><strong>AI Tax Chat</strong><p>Hindi & English में instant tax answers</p></div></div>
+          <div class="ai-feat-item"><div class="ai-feat-icon">🎙️</div><div><strong>Voice Assistant</strong><p>बोलकर पूछें, AI जवाब देगा</p></div></div>
+          <div class="ai-feat-item"><div class="ai-feat-icon">📄</div><div><strong>Document Q&A</strong><p>Upload करें, AI पढ़ेगा और समझाएगा</p></div></div>
+          <div class="ai-feat-item"><div class="ai-feat-icon">📝</div><div><strong>AI ITR Form Recommender</strong><p>सही form automatically select होगा</p></div></div>
+          <div class="ai-feat-item"><div class="ai-feat-icon">🔔</div><div><strong>AI Notice Explainer</strong><p>IT Notice को simple भाषा में समझाएगा</p></div></div>
+          <div class="ai-feat-item"><div class="ai-feat-icon">🔍</div><div><strong>AI OCR</strong><p>PDF/Image से data automatically extract</p></div></div>
+          <div class="ai-feat-item"><div class="ai-feat-icon">💡</div><div><strong>AI Tax Saving Tips</strong><p>Personalized deduction suggestions</p></div></div>
+          <div class="ai-feat-item"><div class="ai-feat-icon">🌐</div><div><strong>AI Translation</strong><p>Hindi ↔ English automatic translation</p></div></div>
+        </div>
+        <a href="pages/ai-assistant.html" class="btn-ai-full">
+          <i class="fa fa-robot"></i> Open Full AI Assistant →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CALCULATORS PREVIEW ========== -->
+<section class="calculators-preview">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">50+ Tools</span>
+      <h2>Professional <span class="gradient-text">Tax Calculators</span></h2>
+      <p>India ke sabse comprehensive financial calculators – free mein</p>
+    </div>
+    <div class="calc-categories">
+      <button class="calc-cat-btn active" data-cat="tax">Income Tax</button>
+      <button class="calc-cat-btn" data-cat="gst">GST</button>
+      <button class="calc-cat-btn" data-cat="salary">Salary</button>
+      <button class="calc-cat-btn" data-cat="investment">Investment</button>
+      <button class="calc-cat-btn" data-cat="loan">Loans</button>
+    </div>
+    <div class="calc-grid" id="calcGrid">
+      <!-- Tax -->
+      <a href="pages/calculators.html#income-tax" class="calc-card" data-cat="tax"><span class="calc-emoji">💰</span><span>Income Tax Calculator</span></a>
+      <a href="pages/calculators.html#regime" class="calc-card" data-cat="tax"><span class="calc-emoji">⚖️</span><span>Old vs New Regime</span></a>
+      <a href="pages/calculators.html#advance-tax" class="calc-card" data-cat="tax"><span class="calc-emoji">📅</span><span>Advance Tax</span></a>
+      <a href="pages/calculators.html#capital-gain" class="calc-card" data-cat="tax"><span class="calc-emoji">📈</span><span>Capital Gain</span></a>
+      <a href="pages/calculators.html#surcharge" class="calc-card" data-cat="tax"><span class="calc-emoji">➕</span><span>Surcharge & Cess</span></a>
+      <a href="pages/calculators.html#234abc" class="calc-card" data-cat="tax"><span class="calc-emoji">⚡</span><span>Interest 234A/B/C</span></a>
+      <a href="pages/calculators.html#rebate87a" class="calc-card" data-cat="tax"><span class="calc-emoji">🎁</span><span>Rebate u/s 87A</span></a>
+      <a href="pages/calculators.html#amt" class="calc-card" data-cat="tax"><span class="calc-emoji">🔢</span><span>AMT/MAT Calculator</span></a>
+      <!-- GST -->
+      <a href="pages/calculators.html#gst-calc" class="calc-card hidden" data-cat="gst"><span class="calc-emoji">🧾</span><span>GST Calculator</span></a>
+      <a href="pages/calculators.html#reverse-gst" class="calc-card hidden" data-cat="gst"><span class="calc-emoji">🔄</span><span>Reverse GST</span></a>
+      <a href="pages/calculators.html#gst-interest" class="calc-card hidden" data-cat="gst"><span class="calc-emoji">💸</span><span>GST Interest</span></a>
+      <a href="pages/calculators.html#itc" class="calc-card hidden" data-cat="gst"><span class="calc-emoji">✅</span><span>ITC Calculator</span></a>
+      <!-- Salary -->
+      <a href="pages/calculators.html#hra" class="calc-card hidden" data-cat="salary"><span class="calc-emoji">🏠</span><span>HRA Calculator</span></a>
+      <a href="pages/calculators.html#gratuity" class="calc-card hidden" data-cat="salary"><span class="calc-emoji">🎖️</span><span>Gratuity Calculator</span></a>
+      <a href="pages/calculators.html#leave" class="calc-card hidden" data-cat="salary"><span class="calc-emoji">🏖️</span><span>Leave Encashment</span></a>
+      <a href="pages/calculators.html#epf" class="calc-card hidden" data-cat="salary"><span class="calc-emoji">🏦</span><span>EPF Calculator</span></a>
+      <a href="pages/calculators.html#tds-salary" class="calc-card hidden" data-cat="salary"><span class="calc-emoji">💼</span><span>Salary TDS</span></a>
+      <a href="pages/calculators.html#salary-breakup" class="calc-card hidden" data-cat="salary"><span class="calc-emoji">📋</span><span>Salary Breakup</span></a>
+      <!-- Investment -->
+      <a href="pages/calculators.html#sip" class="calc-card hidden" data-cat="investment"><span class="calc-emoji">📊</span><span>SIP Calculator</span></a>
+      <a href="pages/calculators.html#ppf" class="calc-card hidden" data-cat="investment"><span class="calc-emoji">🏛️</span><span>PPF Calculator</span></a>
+      <a href="pages/calculators.html#nps" class="calc-card hidden" data-cat="investment"><span class="calc-emoji">🧓</span><span>NPS Calculator</span></a>
+      <a href="pages/calculators.html#fd" class="calc-card hidden" data-cat="investment"><span class="calc-emoji">🏧</span><span>FD Calculator</span></a>
+      <a href="pages/calculators.html#swp" class="calc-card hidden" data-cat="investment"><span class="calc-emoji">💵</span><span>SWP Calculator</span></a>
+      <a href="pages/calculators.html#cagr" class="calc-card hidden" data-cat="investment"><span class="calc-emoji">📉</span><span>CAGR Calculator</span></a>
+      <!-- Loans -->
+      <a href="pages/calculators.html#emi" class="calc-card hidden" data-cat="loan"><span class="calc-emoji">🏠</span><span>EMI Calculator</span></a>
+      <a href="pages/calculators.html#home-loan" class="calc-card hidden" data-cat="loan"><span class="calc-emoji">🏡</span><span>Home Loan Tax</span></a>
+      <a href="pages/calculators.html#education-loan" class="calc-card hidden" data-cat="loan"><span class="calc-emoji">🎓</span><span>Education Loan</span></a>
+      <a href="pages/calculators.html#car-loan" class="calc-card hidden" data-cat="loan"><span class="calc-emoji">🚗</span><span>Car Loan EMI</span></a>
+    </div>
+    <div class="calc-cta">
+      <a href="pages/calculators.html" class="btn-calc-all">View All 50+ Calculators →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ========== TECH STACK ========== -->
+<section class="tech-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Technology</span>
+      <h2>Enterprise-Grade <span class="gradient-text">Technology Stack</span></h2>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-category">
+        <h4>🖥️ Frontend</h4>
+        <div class="tech-tags">
+          <span>Next.js / React</span><span>TypeScript</span><span>Tailwind CSS</span>
+          <span>Framer Motion</span><span>Chart.js</span><span>PWA</span>
+        </div>
+      </div>
+      <div class="tech-category">
+        <h4>⚙️ Backend</h4>
+        <div class="tech-tags">
+          <span>NestJS</span><span>Node.js</span><span>REST API</span>
+          <span>GraphQL</span><span>WebSockets</span>
+        </div>
+      </div>
+      <div class="tech-category">
+        <h4>🗄️ Database</h4>
+        <div class="tech-tags">
+          <span>PostgreSQL</span><span>Redis</span><span>Prisma ORM</span><span>MongoDB</span>
+        </div>
+      </div>
+      <div class="tech-category">
+        <h4>☁️ Cloud & DevOps</h4>
+        <div class="tech-tags">
+          <span>Vercel</span><span>AWS</span><span>Docker</span>
+          <span>GitHub Actions</span><span>Cloudflare CDN</span>
+        </div>
+      </div>
+      <div class="tech-category">
+        <h4>🔒 Security</h4>
+        <div class="tech-tags">
+          <span>JWT Auth</span><span>Google Login</span><span>OTP Login</span>
+          <span>2FA</span><span>AES-256</span><span>SSL/TLS</span>
+        </div>
+      </div>
+      <div class="tech-category">
+        <h4>🤖 AI/ML</h4>
+        <div class="tech-tags">
+          <span>OpenAI GPT</span><span>OCR Engine</span><span>NLP</span>
+          <span>Speech-to-Text</span><span>ML Models</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== WHO IS IT FOR ========== -->
+<section class="audience-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">For Everyone</span>
+      <h2>यह Platform किनके लिए है?</h2>
+    </div>
+    <div class="audience-grid">
+      <div class="audience-card">
+        <div class="aud-icon">👤</div>
+        <h3>Individual Taxpayers</h3>
+        <p>Salary, business या professional income वाले सभी individuals के लिए easy ITR filing और tax planning</p>
+        <ul><li>ITR-1, ITR-2, ITR-3, ITR-4</li><li>Tax saving suggestions</li><li>Refund tracking</li></ul>
+      </div>
+      <div class="audience-card featured">
+        <div class="aud-badge">Most Popular</div>
+        <div class="aud-icon">👔</div>
+        <h3>CA & Tax Consultants</h3>
+        <p>Professional-grade tools जो Computax और ClearTax Pro से भी ज़्यादा features देते हैं</p>
+        <ul><li>Bulk client management</li><li>All entity types</li><li>Report generation</li></ul>
+      </div>
+      <div class="audience-card">
+        <div class="aud-icon">🏢</div>
+        <h3>Businesses & SMEs</h3>
+        <p>GST filing, TDS management, payroll processing और accounting सब एक जगह</p>
+        <ul><li>GST compliance</li><li>Payroll & TDS</li><li>Accounting ERP</li></ul>
+      </div>
+      <div class="audience-card">
+        <div class="aud-icon">🏗️</div>
+        <h3>Enterprises & Corporates</h3>
+        <p>Large enterprises के लिए white-label solution और API integration available</p>
+        <ul><li>MAT/AMT calculation</li><li>Company ITR-6</li><li>ROC compliance</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== TESTIMONIALS ========== -->
+<section class="testimonials-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Reviews</span>
+      <h2>Users क्या कहते हैं?</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p>"TaxMitra AI ने मेरा ITR filing process बिल्कुल simple कर दिया। AI ने automatically सही form suggest किया और ₹38,000 की extra deduction भी बताई!"</p>
+        <div class="testi-author"><div class="testi-avatar">👩</div><div><strong>Priya Sharma</strong><span>Software Engineer, Bangalore</span></div></div>
+      </div>
+      <div class="testi-card featured">
+        <div class="testi-stars">★★★★★</div>
+        <p>"As a CA, मैंने Computax, TaxSmile सब try किए हैं। TaxMitra AI Enterprise सबसे comprehensive platform है। Client management, computation engine, सब top-notch!"</p>
+        <div class="testi-author"><div class="testi-avatar">👨</div><div><strong>CA Rajesh Kumar</strong><span>Chartered Accountant, Delhi</span></div></div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p>"GST filing और TDS management दोनों एक ही platform पर! AI chatbot Hindi में बात करता है – बहुत convenient है हमारे छोटे business के लिए।"</p>
+        <div class="testi-author"><div class="testi-avatar">🧑</div><div><strong>Mahesh Patel</strong><span>Business Owner, Surat</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== DUE DATES TRACKER ========== -->
+<section class="due-dates-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Compliance Calendar</span>
+      <h2>Upcoming <span class="gradient-text">Tax Due Dates</span></h2>
+    </div>
+    <div class="due-dates-grid" id="dueDatesGrid">
+      <!-- Populated by JS -->
+    </div>
+    <div class="due-cta">
+      <a href="pages/compliance.html" class="btn-compliance">View Full Compliance Calendar →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CTA SECTION ========== -->
+<section class="cta-section">
+  <div class="cta-bg"></div>
+  <div class="container">
+    <div class="cta-content">
+      <h2>आज ही शुरू करें – 100% Free!</h2>
+      <p>Join 50,000+ taxpayers, CAs, and businesses who trust TaxMitra AI Enterprise</p>
+      <div class="cta-actions">
+        <a href="signup.html" class="btn-cta-primary">🚀 Free में Register करें</a>
+        <a href="pages/ai-assistant.html" class="btn-cta-secondary">🤖 AI से बात करें</a>
+      </div>
+      <div class="cta-features">
+        <span>✅ No Credit Card</span>
+        <span>✅ Instant Access</span>
+        <span>✅ All Features Free</span>
+        <span>✅ Hindi + English Support</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">⚡ TaxMitra AI Enterprise</div>
+          <p>India's most advanced all-in-one tax platform. Computax se bhi zyada powerful. AI-powered. 100% Secure.</p>
+          <div class="footer-social">
+            <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+          </div>
+          <div class="footer-contact">
+            <span><i class="fa fa-envelope"></i> support@taxmitra.ai</span>
+            <span><i class="fa fa-phone"></i> 1800-TAX-MITRA</span>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>ITR Filing</h4>
+          <ul>
+            <li><a href="pages/itr-center.html#itr1">ITR-1 (Sahaj)</a></li>
+            <li><a href="pages/itr-center.html#itr2">ITR-2</a></li>
+            <li><a href="pages/itr-center.html#itr3">ITR-3</a></li>
+            <li><a href="pages/itr-center.html#itr4">ITR-4 (Sugam)</a></li>
+            <li><a href="pages/itr-center.html#itr5">ITR-5, 6, 7</a></li>
+            <li><a href="pages/itr-center.html#ais">AIS Analysis</a></li>
+            <li><a href="pages/itr-center.html#form16">Form 16 Upload</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>GST & TDS</h4>
+          <ul>
+            <li><a href="pages/gst.html#gstr1">GSTR-1 Filing</a></li>
+            <li><a href="pages/gst.html#gstr3b">GSTR-3B</a></li>
+            <li><a href="pages/gst.html#gstr9">GSTR-9 Annual</a></li>
+            <li><a href="pages/gst.html#invoice">GST Invoice</a></li>
+            <li><a href="pages/tds-payroll.html">TDS Returns</a></li>
+            <li><a href="pages/tds-payroll.html#form16">Form 16 Gen</a></li>
+            <li><a href="pages/tds-payroll.html#payslip">Payslip Gen</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Calculators</h4>
+          <ul>
+            <li><a href="pages/calculators.html#income-tax">Income Tax Calc</a></li>
+            <li><a href="pages/calculators.html#hra">HRA Calculator</a></li>
+            <li><a href="pages/calculators.html#capital-gain">Capital Gain</a></li>
+            <li><a href="pages/calculators.html#sip">SIP Calculator</a></li>
+            <li><a href="pages/calculators.html#emi">EMI Calculator</a></li>
+            <li><a href="pages/calculators.html#ppf">PPF Calculator</a></li>
+            <li><a href="pages/calculators.html#gratuity">Gratuity Calc</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="pages/knowledge.html">Knowledge Center</a></li>
+            <li><a href="pages/knowledge.html#budget">Budget 2024</a></li>
+            <li><a href="pages/knowledge.html#circulars">CBDT Circulars</a></li>
+            <li><a href="pages/compliance.html">Compliance Calendar</a></li>
+            <li><a href="pages/ai-assistant.html">AI Assistant</a></li>
+            <li><a href="pages/documents.html">Document Center</a></li>
+            <li><a href="pages/reports.html">Reports</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="footer-bottom-content">
+        <p>© 2025 TaxMitra AI Enterprise | Built by <strong>Abhishek Agrahari</strong> &lt;abhishekagrahari312@gmail.com&gt;</p>
+        <p>
+          <a href="#">Privacy Policy</a> |
+          <a href="#">Terms of Service</a> |
+          <a href="#">Disclaimer</a> |
+          <a href="#">Sitemap</a>
+        </p>
+        <p class="footer-disclaimer">⚠️ TaxMitra AI is for educational purposes. Always consult a qualified CA for final tax decisions.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ========== AI FLOATING ASSISTANT ========== -->
+<div class="ai-float-btn" id="aiFloatBtn" title="AI Tax Assistant">
+  <div class="ai-float-icon">🤖</div>
+  <div class="ai-float-pulse"></div>
+  <div class="ai-tooltip">AI Tax Assistant</div>
+</div>
+
+<div class="ai-float-window" id="aiFloatWindow">
+  <div class="afw-header">
+    <div class="afw-info">
+      <div class="afw-avatar">🤖</div>
+      <div>
+        <strong>TaxMitra AI</strong>
+        <span class="afw-status">● Online – AI Ready</span>
+      </div>
+    </div>
+    <div class="afw-actions">
+      <button onclick="window.open('pages/ai-assistant.html','_self')" title="Open Full Screen"><i class="fa fa-expand"></i></button>
+      <button id="afw-close" title="Close">✕</button>
+    </div>
+  </div>
+  <div class="afw-quick-actions">
+    <button onclick="askQuick('ITR form kaunsa bharna chahiye?')">📋 ITR Form?</button>
+    <button onclick="askQuick('Tax saving suggestions')">💡 Tax Tips</button>
+    <button onclick="askQuick('GST filing process')">🧾 GST Help</button>
+    <button onclick="askQuick('Section 80C deductions')">💰 80C Info</button>
+  </div>
+  <div class="afw-messages" id="afwMessages">
+    <div class="afw-msg bot">
+      <div class="afw-msg-avatar">🤖</div>
+      <div class="afw-msg-text">नमस्ते! 🙏 Main TaxMitra AI hoon. ITR, GST, TDS ya kisi bhi tax matter mein help karoon?<br><br>You can also ask in English!</div>
+    </div>
+  </div>
+  <div class="afw-input-area">
+    <input type="text" id="afwInput" placeholder="Tax question पूछें..." onkeypress="if(event.key==='Enter')sendAfwMsg()"/>
+    <button id="afwVoiceBtn" title="Voice Input"><i class="fa fa-microphone"></i></button>
+    <button onclick="sendAfwMsg()" title="Send"><i class="fa fa-paper-plane"></i></button>
+  </div>
+  <div class="afw-footer">
+    <a href="pages/ai-assistant.html">Open Full AI Assistant →</a>
+  </div>
+</div>
+
+<!-- ========== SCROLL TO TOP ========== -->
+<button class="scroll-top" id="scrollTop" title="Scroll to top">↑</button>
+
+<!-- Toast Notification -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/taxmitra.js"></script>
 </body>
 </html>

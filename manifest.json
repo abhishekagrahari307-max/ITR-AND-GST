@@ -1,38 +1,22 @@
 {
-  "name": "SecureTax - BharatOS Tax Portal",
-  "short_name": "SecureTax",
+  "name": "TaxMitra AI Enterprise",
+  "short_name": "TaxMitra",
+  "description": "India's most advanced AI-powered all-in-one tax platform – ITR, GST, TDS, Payroll, Investment Planning",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#00004d",
-  "theme_color": "#FF9933",
-  "description": "Secure Income Tax & GST Filing powered by BharatOS",
+  "background_color": "#0f172a",
+  "theme_color": "#1e40af",
+  "orientation": "any",
   "icons": [
-    {
-      "src": "assets/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
   ],
-  "screenshots": [
-    {
-      "src": "assets/screenshot1.png",
-      "sizes": "1280x800",
-      "type": "image/png",
-      "label": "SecureTax Desktop"
-    },
-    {
-      "src": "assets/screenshot2.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "label": "SecureTax Mobile"
-    }
+  "shortcuts": [
+    { "name": "File ITR", "url": "/pages/itr-center.html", "description": "File your Income Tax Return" },
+    { "name": "GST Suite", "url": "/pages/gst.html", "description": "GST filing and management" },
+    { "name": "AI Assistant", "url": "/pages/ai-assistant.html", "description": "Ask tax questions to AI" },
+    { "name": "Tax Calculator", "url": "/pages/calculators.html", "description": "50+ tax calculators" }
   ],
   "categories": ["finance", "productivity", "business"],
-  "lang": "en-IN",
-  "dir": "ltr"
+  "lang": "en-IN"
 }

@@ -1,76 +1,157 @@
 <!DOCTYPE html>
-<html lang="en-IN">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SecureTax</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login – TaxMitra AI Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/taxmitra.css"/>
+  <style>
+    body { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+    .login-left { background: var(--grad-hero); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 3rem; color: #fff; position: relative; overflow: hidden; }
+    .login-right { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 3rem; background: var(--bg-primary); }
+    .login-card { width: 100%; max-width: 420px; }
+    @media(max-width:768px){ body { grid-template-columns: 1fr; } .login-left { display: none; } }
+    .social-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.75rem 1.25rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-primary); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: var(--transition); margin-bottom: 0.75rem; }
+    .social-btn:hover { border-color: var(--primary); background: rgba(30,64,175,0.04); }
+    .divider { display: flex; align-items: center; gap: 1rem; margin: 1.25rem 0; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .divider span { font-size: 0.8rem; color: var(--text-muted); }
+    .login-feature { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: rgba(255,255,255,0.08); border-radius: var(--radius-sm); margin-bottom: 0.5rem; }
+    .login-feature i { font-size: 1rem; }
+    .login-feature span { font-size: 0.85rem; }
+  </style>
 </head>
-<body class="auth-page">
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h2>Welcome Back</h2>
-                <p>Login to access your SecureTax account</p>
-            </div>
-            
-            <form id="login-form" class="auth-form">
-                <div class="form-group">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" required>
-                    <div class="error-message" id="email-error"></div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <div class="password-input">
-                        <input type="password" id="login-password" required>
-                        <button type="button" class="toggle-password" aria-label="Show password">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                    <div class="error-message" id="password-error"></div>
-                </div>
-                
-                <div class="form-options">
-                    <label class="remember-me">
-                        <input type="checkbox" id="remember-me">
-                        <span>Remember me</span>
-                    </label>
-                    <a href="#" class="forgot-password">Forgot password?</a>
-                </div>
-                
-                <button type="submit" class="btn btn-primary auth-btn">Login</button>
-                
-                <div class="auth-footer">
-                    <p>Don't have an account? <a href="signup.html">Sign up</a></p>
-                </div>
-            </form>
-            
-            <div class="auth-social">
-                <p>Or login with</p>
-                <div class="social-buttons">
-                    <button class="btn btn-social google">
-                        <i class="fab fa-google"></i> Google
-                    </button>
-                    <button class="btn btn-social aadhaar">
-                        <i class="fas fa-id-card"></i> Aadhaar
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="auth-image">
-            <div class="floating-tax-icons">
-                <div class="tax-icon itr-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                <div class="tax-icon gst-icon"><i class="fas fa-receipt"></i></div>
-                <div class="tax-icon tds-icon"><i class="fas fa-percentage"></i></div>
-            </div>
-        </div>
+<body>
+  <div class="login-left">
+    <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none"><div style="width:400px;height:400px;background:rgba(59,130,246,0.2);border-radius:50%;position:absolute;top:-100px;right:-100px;filter:blur(60px)"></div><div style="width:300px;height:300px;background:rgba(139,92,246,0.2);border-radius:50%;position:absolute;bottom:-50px;left:-50px;filter:blur(60px)"></div></div>
+    <div style="position:relative;z-index:1;text-align:center;max-width:400px">
+      <a href="index.html" style="display:inline-flex;align-items:center;gap:0.75rem;margin-bottom:2rem">
+        <div style="width:48px;height:48px;background:rgba(255,255,255,0.15);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.5rem;backdrop-filter:blur(10px)">⚡</div>
+        <div style="text-align:left"><div style="font-size:1.3rem;font-weight:800;color:#fff">TaxMitra</div><div style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase">AI Enterprise</div></div>
+      </a>
+      <h2 style="font-size:1.75rem;font-weight:800;color:#fff;margin-bottom:0.75rem">India's #1 Tax Platform</h2>
+      <p style="color:rgba(255,255,255,0.75);font-size:0.9rem;margin-bottom:2rem">Login karke access karo 100+ professional tax tools, AI assistant aur much more</p>
+      <div>
+        <div class="login-feature"><i class="fa fa-robot"></i><span>AI Tax Assistant (Hindi + English)</span></div>
+        <div class="login-feature"><i class="fa fa-file-alt"></i><span>ITR-1 to ITR-7 Filing</span></div>
+        <div class="login-feature"><i class="fa fa-calculator"></i><span>50+ Professional Calculators</span></div>
+        <div class="login-feature"><i class="fa fa-receipt"></i><span>GST Suite & Invoice Generator</span></div>
+        <div class="login-feature"><i class="fa fa-shield-alt"></i><span>AES-256 Encrypted & Secure</span></div>
+      </div>
+      <div style="margin-top:2rem;font-size:0.8rem;color:rgba(255,255,255,0.5)">Trusted by 50,000+ taxpayers & CAs</div>
     </div>
+  </div>
 
-    <script src="js/auth.js"></script>
+  <div class="login-right">
+    <div class="login-card">
+      <div style="margin-bottom:2rem;text-align:center">
+        <a href="index.html" style="display:inline-flex;align-items:center;gap:0.5rem;margin-bottom:1.5rem;font-size:1rem;font-weight:700;color:var(--primary)">⚡ TaxMitra AI Enterprise</a>
+        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem">Welcome Back!</h2>
+        <p style="color:var(--text-secondary);font-size:0.875rem">Login karein apne account mein</p>
+      </div>
+
+      <button class="social-btn"><img src="https://www.google.com/favicon.ico" style="width:18px;height:18px"/> Continue with Google</button>
+      <button class="social-btn" style="background:linear-gradient(135deg,#FF9933,#fff,#138808);color:#000;font-weight:700">🇮🇳 Login with Aadhaar OTP</button>
+
+      <div class="divider"><span>or login with email</span></div>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group" style="margin-bottom:1rem">
+          <label>Email / PAN / Mobile</label>
+          <input type="text" id="loginId" placeholder="email@example.com or ABCDE1234F" required/>
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem">
+          <label>Password</label>
+          <div style="position:relative">
+            <input type="password" id="loginPwd" placeholder="Enter your password" required style="padding-right:2.5rem"/>
+            <button type="button" onclick="togglePass('loginPwd',this)" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)"><i class="fa fa-eye"></i></button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;font-size:0.82rem">
+          <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer"><input type="checkbox" style="accent-color:var(--primary)"/> Remember me</label>
+          <a href="#" style="color:var(--primary)">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn-primary-solid" style="width:100%;font-size:1rem;padding:0.85rem">Login to TaxMitra →</button>
+      </form>
+
+      <div style="margin-top:1rem;padding:0.9rem;background:rgba(30,64,175,0.06);border-radius:var(--radius-sm);border:1px solid rgba(30,64,175,0.15)">
+        <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.4rem"><strong>🔑 Demo Access:</strong></p>
+        <p style="font-size:0.78rem;color:var(--text-muted)">Email: demo@taxmitra.ai | Password: Demo@123</p>
+      </div>
+
+      <div style="text-align:center;margin-top:1.5rem;font-size:0.875rem;color:var(--text-secondary)">
+        Account nahi hai? <a href="signup.html" style="color:var(--primary);font-weight:600">Register Free →</a>
+      </div>
+      <div style="text-align:center;margin-top:0.75rem;font-size:0.75rem;color:var(--text-muted)">
+        By logging in, you agree to our <a href="#" style="color:var(--primary)">Terms</a> and <a href="#" style="color:var(--primary)">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Firebase SDK (optional – load only if Firebase configured) -->
+  <!-- <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script> -->
+  <!-- <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script> -->
+
+  <script src="js/taxmitra.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    // ─── Backend Config ──────────────────────────────────
+    window.TAXMITRA_API_URL = 'http://localhost:3001/api/v1'; // Change to your backend URL
+
+    const { AuthAPI, Auth } = window.TaxMitraAPI || {};
+
+    // Redirect if already logged in
+    if (Auth?.isLoggedIn()) location.href = 'pages/dashboard.html';
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const id  = document.getElementById('loginId').value.trim();
+      const pwd = document.getElementById('loginPwd').value;
+      if (!id || !pwd) return showToast('⚠️ Please enter credentials', 'warning');
+
+      const btn = e.submitter;
+      btn.textContent = '⏳ Logging in...';
+      btn.disabled = true;
+
+      try {
+        // ── Try Backend API ──────────────────────────────
+        if (AuthAPI) {
+          const result = await AuthAPI.loginAndStore({ identifier: id, password: pwd });
+          showToast('✅ Login successful!', 'success');
+          setTimeout(() => location.href = 'pages/dashboard.html', 800);
+        } else {
+          // ── Fallback (no backend) ────────────────────────
+          localStorage.setItem('tm_access_token', 'demo_token_' + Date.now());
+          localStorage.setItem('tm_user', JSON.stringify({ firstName: id.split('@')[0], email: id }));
+          showToast('✅ Demo login successful!', 'success');
+          setTimeout(() => location.href = 'pages/dashboard.html', 800);
+        }
+      } catch (err) {
+        showToast('❌ ' + (err.message || 'Login failed. Check credentials.'), 'error');
+        btn.textContent = 'Login to TaxMitra →';
+        btn.disabled = false;
+      }
+    }
+
+    async function googleLogin() {
+      try {
+        const { FirebaseAuth } = window.TaxMitraAPI;
+        await FirebaseAuth.signInWithGoogle();
+        showToast('✅ Google login successful!', 'success');
+        setTimeout(() => location.href = 'pages/dashboard.html', 800);
+      } catch (err) {
+        showToast('❌ Google login failed: ' + err.message, 'error');
+      }
+    }
+
+    function togglePass(id, btn) {
+      const input = document.getElementById(id);
+      if (input.type === 'password') { input.type = 'text'; btn.innerHTML = '<i class="fa fa-eye-slash"></i>'; }
+      else { input.type = 'password'; btn.innerHTML = '<i class="fa fa-eye"></i>'; }
+    }
+  </script>
 </body>
 </html>
