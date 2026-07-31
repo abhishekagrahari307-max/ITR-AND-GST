@@ -12,7 +12,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="../css/taxmitra.css"/>
   <link rel="stylesheet" href="../css/responsive.css"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+window.generateBatchReceipts = window.downloadAllReceiptsPDF || window.generateAll || function(){showToast("Use Annual tab to generate batch","info");};
+</script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
     .receipt-preview { background:#fff; border:2px solid #e5e7eb; border-radius:8px; padding:2rem; font-family:'Inter',sans-serif; color:#1a1a1a; max-width:600px; margin:0 auto; }

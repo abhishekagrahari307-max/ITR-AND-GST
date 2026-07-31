@@ -159,7 +159,21 @@
     </div>
   </div>
 
-  <script src="../js/taxmitra.js"></script>
+  <script src="../js/taxmitra.js">
+  // Tax saved calculation based on regime and investments
+  function calcTaxSaved() {
+    const total80c = parseFloat(document.querySelector('#total80c')?.textContent?.replace(/[₹,]/g,'')) || 150000;
+    const total80d = parseFloat(document.querySelector('#total80d')?.textContent?.replace(/[₹,]/g,'')) || 0;
+    const nps = parseFloat(document.querySelector('#totalNPS')?.textContent?.replace(/[₹,]/g,'')) || 0;
+    const totalDed = total80c + total80d + nps;
+    const taxSaved = Math.round(totalDed * 0.30); // @30% slab
+    const el = document.getElementById('taxSavedAmt');
+    if (el) el.textContent = '₹' + taxSaved.toLocaleString('en-IN');
+    return taxSaved;
+  }
+  window.calcTaxSaved = calcTaxSaved;
+
+</script>
   <script src="../js/config-generated.js"></script>
 <script src="../js/ai-proxy-config.js"></script>
 <script src="../js/config-generated.js"></script>
