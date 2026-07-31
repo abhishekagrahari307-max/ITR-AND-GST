@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>TDS Returns — 24Q, 26Q, 27Q, 27EQ — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper"><ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+      </ul></div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero"><div class="container">
+  <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>TDS Returns — 24Q, 26Q, 27Q, 27EQ</span></div>
+  <h1>📁 TDS Returns — 24Q, 26Q, 27Q, 27EQ</h1>
+  <p>AY 2026-27 | Budget 2025 | Developed by <strong>Abhishek Agrahari</strong></p>
+</div></div>
+<div class="container" style="padding:1.5rem 0 4rem">
+<div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.15);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem"><strong style="color:var(--primary)">Quarterly TDS Returns — ₹200/day late fee u/s 234E</strong></div>
+<div class="tab-nav" style="margin-bottom:1.5rem"><button class="tab-btn active" onclick="showTTab('24q',this)">24Q Salary</button><button class="tab-btn" onclick="showTTab('26q',this)">26Q Non-Salary</button><button class="tab-btn" onclick="showTTab('27eq',this)">27EQ TCS</button><button class="tab-btn" onclick="showTTab('dl',this)">📅 Deadlines</button></div>
+<div class="tab-panel active" id="t-24q"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem"><div class="form-card"><h3 style="font-weight:800;margin-bottom:1.25rem">24Q — Salary TDS Validator</h3>
+<div class="form-group"><label>Quarter</label><select id="q24Q"><option>Q1 Apr-Jun 2025 (Due 31 Jul)</option><option>Q2 Jul-Sep 2025 (Due 31 Oct)</option><option>Q3 Oct-Dec 2025 (Due 31 Jan)</option><option selected>Q4 Jan-Mar 2026 (Due 31 May)</option></select></div>
+<div class="form-group"><label>Total Salary (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="q24Sal" placeholder="0" oninput="calcQ24()"/></div></div>
+<div class="form-group"><label>TDS Deducted (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="q24TDS" placeholder="0" oninput="calcQ24()"/></div></div>
+<div class="form-group"><label>TDS Deposited (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="q24Dep" placeholder="0" oninput="calcQ24()"/></div></div>
+<div style="display:flex;gap:.6rem;margin-top:.5rem"><button class="btn-primary-solid" onclick="calcQ24()" style="flex:1">Validate</button><button class="btn-secondary-solid" onclick="dl24QPDF()" style="flex:1">PDF</button></div></div>
+<div><div id="q24Res" class="result-card" style="display:none"><div class="result-label">24Q Status</div><div id="q24Break" style="margin-top:.75rem"></div></div>
+<div class="form-card" style="margin-top:1rem"><h4 style="font-weight:800;margin-bottom:.65rem">Filing Steps</h4><div style="font-size:.8rem;display:flex;flex-direction:column;gap:.35rem;color:var(--text-secondary)"><div style="padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px">1. Download RPU from tin.nsdl.com</div><div style="padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px">2. Fill Deductor + Challan + Deductee</div><div style="padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px">3. Validate with FVU utility</div><div style="padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px">4. Upload .fvu to TRACES portal</div></div></div></div></div></div>
+<div class="tab-panel" id="t-26q"><div class="form-card"><h3 style="font-weight:800;margin-bottom:1rem">26Q — Non-Salary TDS Rates</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.85rem"><div style="padding:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><strong style="color:var(--primary)">194A — FD Interest</strong><br><span style="font-size:.8rem;color:var(--text-secondary)">10% | Threshold ₹40,000 (₹50K seniors)</span></div><div style="padding:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><strong style="color:var(--primary)">194C — Contractor</strong><br><span style="font-size:.8rem;color:var(--text-secondary)">1%/2% | ₹30K single / ₹1L annual</span></div><div style="padding:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><strong style="color:var(--primary)">194H — Commission</strong><br><span style="font-size:.8rem;color:var(--text-secondary)">5% | Threshold ₹15,000</span></div><div style="padding:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><strong style="color:var(--primary)">194I — Rent</strong><br><span style="font-size:.8rem;color:var(--text-secondary)">10% (building) / 2% (machine) | ₹2.4L/yr</span></div><div style="padding:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><strong style="color:var(--primary)">194J — Professional</strong><br><span style="font-size:.8rem;color:var(--text-secondary)">10% (professional) / 2% (technical)</span></div><div style="padding:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><strong style="color:var(--primary)">194Q — Purchase</strong><br><span style="font-size:.8rem;color:var(--text-secondary)">0.1% | ₹50L purchase/year</span></div></div><div style="margin-top:1rem;padding:.75rem;background:rgba(220,38,38,.06);border-radius:6px;font-size:.82rem"><strong style="color:var(--danger)">⚠️ No PAN → Deduct @20% u/s 206AA</strong></div></div></div>
+<div class="tab-panel" id="t-27eq"><div class="form-card"><h3 style="font-weight:800;margin-bottom:1rem">27EQ — TCS Rates</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.85rem"><div style="padding:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><strong>206C(1H) — Sale of Goods</strong><br><span style="font-size:.8rem;color:var(--text-secondary)">0.1% TCS on sale &gt;₹50L/buyer</span></div><div style="padding:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><strong>206C(1G) — LRS</strong><br><span style="font-size:.8rem;color:var(--text-secondary)">20% TCS on foreign remittance &gt;₹7L</span></div><div style="padding:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><strong>206C(1F) — Vehicle</strong><br><span style="font-size:.8rem;color:var(--text-secondary)">1% TCS on vehicle purchase &gt;₹10L</span></div></div><div style="margin-top:1rem;padding:.75rem;background:rgba(5,150,105,.06);border-radius:6px;font-size:.82rem"><strong style="color:var(--success)">TCS Credit:</strong> Buyer claims in ITR (Schedule TCS)</div></div></div>
+<div class="tab-panel" id="t-dl"><div class="form-card"><h3 style="font-weight:800;margin-bottom:1rem">TDS Return Deadlines AY 2026-27</h3><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.82rem"><thead><tr style="background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff"><th style="padding:.6rem .8rem;text-align:left">Quarter</th><th style="padding:.6rem .8rem">Period</th><th style="padding:.6rem .8rem">Due Date</th><th style="padding:.6rem .8rem">Late Fee</th></tr></thead><tbody><tr><td style="padding:.5rem .8rem;border-bottom:1px solid var(--border)">Q1</td><td style="text-align:center;border-bottom:1px solid var(--border)">Apr-Jun 25</td><td style="text-align:center;border-bottom:1px solid var(--border);font-weight:700;color:var(--danger)">31 Jul 2025</td><td style="text-align:center;border-bottom:1px solid var(--border)">₹200/day</td></tr><tr style="background:var(--bg-secondary)"><td style="padding:.5rem .8rem;border-bottom:1px solid var(--border)">Q2</td><td style="text-align:center;border-bottom:1px solid var(--border)">Jul-Sep 25</td><td style="text-align:center;border-bottom:1px solid var(--border);font-weight:700;color:var(--danger)">31 Oct 2025</td><td style="text-align:center;border-bottom:1px solid var(--border)">₹200/day</td></tr><tr><td style="padding:.5rem .8rem;border-bottom:1px solid var(--border)">Q3</td><td style="text-align:center;border-bottom:1px solid var(--border)">Oct-Dec 25</td><td style="text-align:center;border-bottom:1px solid var(--border);font-weight:700;color:var(--danger)">31 Jan 2026</td><td style="text-align:center;border-bottom:1px solid var(--border)">₹200/day</td></tr><tr style="background:var(--bg-secondary)"><td style="padding:.5rem .8rem">Q4</td><td style="text-align:center">Jan-Mar 26</td><td style="text-align:center;font-weight:700;color:var(--danger)">31 May 2026</td><td style="text-align:center">₹200/day</td></tr></tbody></table></div></div></div>
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+function showTTab(id,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));const p=document.getElementById('t-'+id);if(p)p.classList.add('active');if(btn)btn.classList.add('active');}
+function calcQ24(){
+  const sal=parseFloat(document.getElementById('q24Sal').value)||0;
+  const tds=parseFloat(document.getElementById('q24TDS').value)||0;
+  const dep=parseFloat(document.getElementById('q24Dep').value)||0;
+  const bal=tds-dep;
+  document.getElementById('q24Res').style.display='block';
+  document.getElementById('q24Break').innerHTML='<div style="display:flex;flex-direction:column;gap:.35rem;font-size:.82rem">'
+    +'<div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Salary Paid</span><strong>'+fmt(sal)+'</strong></div>'
+    +'<div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>TDS Deducted</span><strong>'+fmt(tds)+'</strong></div>'
+    +'<div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>TDS Deposited</span><strong style="color:var(--success)">'+fmt(dep)+'</strong></div>'
+    +'<div style="display:flex;justify-content:space-between;padding:.5rem .6rem;background:'+(bal>0?'rgba(220,38,38,.08)':'rgba(5,150,105,.08)')+';border-radius:6px;font-size:.9rem"><span style="font-weight:700">Balance</span><strong style="color:'+(bal>0?'var(--danger)':'var(--success)')+'">'+fmt(bal)+(bal>0?' PENDING':' OK')+'</strong></div>'
+    +'<div style="font-size:.75rem;color:var(--text-muted);padding:.3rem .5rem">Effective TDS: '+(sal>0?(tds/sal*100).toFixed(2):0)+'%</div></div>';
+  window._q24={sal,tds,dep,bal};
+}
+function dl24QPDF(){
+  if(!window.jspdf||!window._q24){showToast('Calculate first!','warning');return;}
+  const{jsPDF}=window.jspdf;const r=window._q24;const doc=new jsPDF();
+  doc.setFillColor(30,64,175);doc.rect(0,0,210,28,'F');doc.setTextColor(255,255,255);doc.setFontSize(14);doc.setFont('helvetica','bold');
+  doc.text('24Q TDS Summary',105,12,{align:'center'});doc.setFontSize(8);doc.setFont('helvetica','normal');
+  doc.text('TaxMitra AI | Abhishek Agrahari',105,22,{align:'center'});doc.setTextColor(30,30,30);
+  doc.autoTable({startY:36,head:[['Particulars','Amount']],body:[['Salary',fmt(r.sal)],['TDS Deducted',fmt(r.tds)],['Deposited',fmt(r.dep)],['Balance',fmt(r.bal)+(r.bal>0?' PENDING':' NIL')]],headStyles:{fillColor:[30,64,175],textColor:255,fontSize:9},styles:{fontSize:9}});
+  doc.save('24Q_Summary_TaxMitra.pdf');showToast('Downloaded!','success');
+}
+</script>
+</body>
+</html>

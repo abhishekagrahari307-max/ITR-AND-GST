@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>GST Reconciliation Tool — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>GST Reconciliation Tool</span></div>
+    <h1>🔄 GST Reconciliation Tool</h1>
+    <p>AY 2026-27 | Budget 2025 Updated | Developed by <strong>Abhishek Agrahari</strong></p>
+  </div>
+</div>
+<div class="container" style="padding:1.5rem 0 4rem">
+
+<div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;gap:.75rem">
+  <span style="font-size:1.3rem">🔄</span>
+  <div><strong style="color:var(--accent)">GSTR-2A/2B vs Purchase Register Reconciliation</strong>
+  <p style="font-size:.82rem;margin:.25rem 0 0;color:var(--text-secondary)">Reconcile ITC claimed in GSTR-3B with GSTR-2B auto-populated data. Ensure correct ITC before filing.</p></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+<div class="form-card">
+  <h3 style="font-weight:800;margin-bottom:1.25rem">📊 ITC Reconciliation</h3>
+  <div class="form-group"><label>ITC in GSTR-2B (Portal auto-populated ₹)</label>
+    <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="recGSTR2B" placeholder="0" oninput="calcReconciliation()"/></div>
+    <small style="color:var(--text-muted);font-size:.72rem">Download from: GST Portal → Services → Returns → GSTR-2B</small></div>
+  <div class="form-group"><label>ITC in Purchase Register/Books (₹)</label>
+    <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="recPurchReg" placeholder="0" oninput="calcReconciliation()"/></div></div>
+  <div class="form-group"><label>ITC Claimed in GSTR-3B (₹)</label>
+    <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="recGSTR3B" placeholder="0" oninput="calcReconciliation()"/></div></div>
+  <div class="form-group"><label>ITC Reversed (₹)</label>
+    <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="recReversed" placeholder="0" oninput="calcReconciliation()"/></div></div>
+  <div class="form-group"><label>Tax Period</label>
+    <select id="recPeriod">
+      <option value="Apr-26">April 2026</option>
+      <option value="Mar-26">March 2026</option>
+      <option value="Feb-26">February 2026</option>
+      <option value="Jan-26">January 2026</option>
+      <option value="Annual">Annual (FY 2025-26)</option>
+    </select></div>
+  <button class="btn-primary-solid" onclick="calcReconciliation()" style="width:100%;margin-top:.5rem"><i class="fa fa-sync"></i> Reconcile</button>
+</div>
+<div>
+  <div class="result-card" id="recResult" style="display:none">
+    <div class="result-label">Reconciliation Result</div>
+    <div id="recBreakdown" style="margin-top:.75rem"></div>
+  </div>
+  <div class="form-card" style="margin-top:1rem">
+    <h4 style="font-weight:800;margin-bottom:.75rem">📋 Common Mismatches & Fixes</h4>
+    <div style="font-size:.8rem;display:flex;flex-direction:column;gap:.4rem;color:var(--text-secondary)">
+      <div style="padding:.42rem .65rem;background:rgba(220,38,38,.04);border-radius:6px;border-left:3px solid var(--danger)"><strong>Supplier not filed GSTR-1:</strong> ITC not in 2B. Follow up with supplier.</div>
+      <div style="padding:.42rem .65rem;background:rgba(245,158,11,.04);border-radius:6px;border-left:3px solid var(--warning)"><strong>Timing difference:</strong> Invoice of prev month — check next 2B.</div>
+      <div style="padding:.42rem .65rem;background:rgba(37,99,235,.04);border-radius:6px;border-left:3px solid var(--primary)"><strong>GSTIN mismatch:</strong> Wrong GSTIN in invoice — get amended invoice.</div>
+      <div style="padding:.42rem .65rem;background:rgba(5,150,105,.04);border-radius:6px;border-left:3px solid var(--success)"><strong>Rule 42/43 Reversal:</strong> Partial exempt supply — calculate proportionate reversal.</div>
+    </div>
+  </div>
+  <button class="btn-secondary-solid" onclick="downloadRecPDF()" style="width:100%;margin-top:1rem"><i class="fa fa-file-pdf"></i> Download Reconciliation Report</button>
+</div>
+</div>
+
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+function calcReconciliation() {
+  const gstr2b = parseFloat(document.getElementById('recGSTR2B').value)||0;
+  const purchReg = parseFloat(document.getElementById('recPurchReg').value)||0;
+  const gstr3b = parseFloat(document.getElementById('recGSTR3B').value)||0;
+  const reversed = parseFloat(document.getElementById('recReversed').value)||0;
+  const netClaimed = gstr3b - reversed;
+  const diff2B = gstr2b - netClaimed;
+  const diffReg = purchReg - gstr2b;
+  const r = document.getElementById('recResult');
+  r.style.display = 'block';
+  const getStatus = (d) => d === 0 ? '<span style="color:var(--success)">✅ MATCHED</span>' : d > 0 ? '<span style="color:var(--warning)">⚠️ EXCESS</span>' : '<span style="color:var(--danger)">❌ SHORT</span>';
+  document.getElementById('recBreakdown').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.82rem">
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>ITC in GSTR-2B</span><strong>${fmt(gstr2b)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>ITC in Purchase Register</span><strong>${fmt(purchReg)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>ITC Claimed in 3B</span><strong>${fmt(gstr3b)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>ITC Reversed</span><strong>${fmt(reversed)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Net ITC Claimed</span><strong>${fmt(netClaimed)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.55rem .6rem;background:rgba(37,99,235,.08);border-radius:6px"><span>2B vs Claimed Diff</span><strong>${fmt(diff2B)} ${getStatus(diff2B)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.55rem .6rem;background:rgba(124,58,237,.08);border-radius:6px"><span>Books vs 2B Diff</span><strong>${fmt(diffReg)} ${getStatus(diffReg)}</strong></div>
+      ${diff2B < 0 ? '<div style="padding:.5rem;background:rgba(220,38,38,.06);border-radius:6px;font-size:.78rem;color:var(--danger)">⚠️ Excess ITC claimed vs 2B. Reverse ' + fmt(Math.abs(diff2B)) + ' or check with supplier.</div>' : ''}
+    </div>`;
+  window._rec = { gstr2b, purchReg, gstr3b, reversed, netClaimed, diff2B, diffReg };
+}
+function downloadRecPDF() {
+  if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+  if (!window._rec) { calcReconciliation(); }
+  const { jsPDF } = window.jspdf; const r = window._rec;
+  const doc = new jsPDF();
+  doc.setFillColor(124,58,237); doc.rect(0,0,210,28,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('GST ITC Reconciliation Report', 105, 12, {align:'center'});
+  doc.setFontSize(8); doc.text('TaxMitra AI | Abhishek Agrahari | FY 2025-26', 105, 22, {align:'center'});
+  doc.setTextColor(30,30,30);
+  doc.autoTable({startY:36, head:[['Particulars','Amount']],
+    body:[['ITC in GSTR-2B',fmt(r.gstr2b)],['ITC in Purchase Register',fmt(r.purchReg)],
+          ['ITC Claimed in 3B',fmt(r.gstr3b)],['ITC Reversed',fmt(r.reversed)],
+          ['Net ITC Claimed',fmt(r.netClaimed)],['2B vs Claimed Difference',fmt(r.diff2B)],
+          ['Books vs 2B Difference',fmt(r.diffReg)]],
+    headStyles:{fillColor:[124,58,237],textColor:255,fontSize:9}, styles:{fontSize:9}});
+  doc.save('GST_Reconciliation_TaxMitra.pdf');
+  showToast('Reconciliation report downloaded!','success');
+}
+document.addEventListener('DOMContentLoaded', calcReconciliation);
+</script>
+</body>
+</html>
