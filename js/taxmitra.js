@@ -50,7 +50,16 @@ if (hamburger && navWrapper) {
 }
 
 // ── Scroll to top ─────────────────────────────────────────────
-const scrollTopBtn = document.getElementById('scrollTop');
+// Scroll to top - auto inject if missing
+let scrollTopBtn = document.getElementById('scrollTop');
+if (!scrollTopBtn) {
+  scrollTopBtn = document.createElement('button');
+  scrollTopBtn.id = 'scrollTop';
+  scrollTopBtn.className = 'scroll-top';
+  scrollTopBtn.innerHTML = '↑';
+  scrollTopBtn.title = 'Back to top';
+  document.body.appendChild(scrollTopBtn);
+}
 if (scrollTopBtn) scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
 // ── Search ────────────────────────────────────────────────────
@@ -416,22 +425,43 @@ window.appendAfwMsg = appendAfwMsg;
 
 // ── Toast ─────────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
-  const container = document.getElementById('toastContainer');
-  if (!container) return;
+  // Auto-create container if missing (works on ALL pages)
+  let container = document.getElementById('toastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.4rem;pointer-events:none;max-width:380px';
+    document.body.appendChild(container);
+  }
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
+  toast.style.cssText = 'pointer-events:auto;cursor:pointer';
   toast.textContent = msg;
+  toast.onclick = () => toast.remove();
   container.appendChild(toast);
-  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(24px)'; setTimeout(() => toast.remove(), 300); }, 3200);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(24px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
 }
 
 // ── Intersection observer animations ─────────────────────────
-const animEl = document.querySelectorAll('.module-card,.audience-card,.testi-card,.tech-category,.ai-feat-item,.due-date-card');
-const animObs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('animate-in'); animObs.unobserve(e.target); } });
-}, { threshold: 0.1 });
-animEl.forEach(el => { el.style.cssText += 'opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease'; animObs.observe(el); });
-document.head.insertAdjacentHTML('beforeend', '<style>.animate-in{opacity:1!important;transform:none!important}</style>');
+// Animate cards on scroll (safe for all pages)
+(function initAnimations() {
+  const animEl = document.querySelectorAll('.module-card,.audience-card,.due-date-card,.tech-card,.testimonial-card,.guide-card,.kb-card');
+  if (!animEl.length) return;
+  const style = document.createElement('style');
+  style.textContent = '.animate-in{opacity:1!important;transform:none!important}';
+  document.head.appendChild(style);
+  const animObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('animate-in'); animObs.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  animEl.forEach(el => {
+    el.style.cssText += ';opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease';
+    animObs.observe(el);
+  });
+})();
 
 // ── PWA + Keyboard shortcuts ──────────────────────────────────
 if ('serviceWorker' in navigator) {

@@ -486,3 +486,113 @@
   .kb-card { padding: 1rem; }
   .kb-icon { font-size: 1.5rem; margin-bottom: .5rem; }
 }
+
+/* ================================================================
+   GLOBAL FIXES — All Pages (v4.2)
+   Developer: Abhishek Agrahari
+   ================================================================ */
+
+/* ── Toast notifications global fix ──────────────────────────── */
+#toastContainer {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  pointer-events: none;
+  max-width: 380px;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .72rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  min-width: 240px;
+  pointer-events: auto;
+  animation: toastIn .3s ease;
+  cursor: pointer;
+}
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error { border-left: 3px solid var(--danger); }
+.toast.warning { border-left: 3px solid var(--warning); }
+.toast.info { border-left: 3px solid var(--info); }
+
+/* ── Scroll to top global ───────────────────────────────────── */
+.scroll-top {
+  position: fixed;
+  bottom: 5.5rem;
+  right: 1.5rem;
+  width: 38px;
+  height: 38px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: var(--shadow-md);
+  z-index: 400;
+  cursor: pointer;
+  transition: var(--t-fast);
+  color: var(--text-secondary);
+  font-weight: var(--fw-bold);
+}
+.scroll-top.show { display: flex; }
+.scroll-top:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* ── Navbar — force proper display on ALL pages ─────────────── */
+.navbar-main .nav-links-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+.navbar-main .nav-links {
+  display: flex;
+  gap: .1rem;
+  list-style: none;
+  align-items: center;
+  flex-wrap: nowrap;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Page hero consistent ───────────────────────────────────── */
+.page-hero {
+  padding: 2rem 0 1.5rem;
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+  border-bottom: 1px solid var(--border);
+}
+.page-hero h1 {
+  font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  font-weight: var(--fw-extrabold);
+  margin-bottom: .35rem;
+}
+.page-hero p {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* ── Mobile toast fix ───────────────────────────────────────── */
+@media (max-width: 480px) {
+  #toastContainer {
+    bottom: 5.5rem;
+    right: .75rem;
+    left: .75rem;
+    max-width: none;
+  }
+  .toast { min-width: unset; }
+}
+
+/* ── Dark mode toast ────────────────────────────────────────── */
+body.dark-mode .toast { background: #1a2235; border-color: #1e293b; color: #f1f5f9; }
+body.dark-mode .scroll-top { background: #1a2235; border-color: #1e293b; color: #94a3b8; }
+body.dark-mode .scroll-top:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+body.dark-mode .page-hero { background: linear-gradient(135deg, #1a2235, #111827); border-color: #1e293b; }
