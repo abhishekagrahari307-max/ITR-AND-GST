@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Business Accounting – TaxMitra AI Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right"><button class="nav-icon-btn" id="themeToggle">🌙</button><a href="import-data.html" class="btn-nav-ai" style="background:linear-gradient(135deg,#059669,#047857)"><i class="fa fa-file-import"></i> Import</a>
+      <a href="../index.html" class="btn-nav-login">← Home</a></div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Accounting</span></div>
+      <h1>📒 Business & Accounting Suite</h1>
+      <p>Complete business accounting – Ledger, P&L, Balance Sheet, Invoice Generator, Expense Tracker, Inventory</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding:2rem 0 3rem">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('invoice',this)">🧾 Invoice Generator</button>
+      <button class="tab-btn" onclick="switchTab('expenses',this)">💸 Expense Tracker</button>
+      <button class="tab-btn" onclick="switchTab('pnl',this)">📊 P&L Statement</button>
+      <button class="tab-btn" onclick="switchTab('ledger',this)">📒 Ledger</button>
+      <button class="tab-btn" onclick="switchTab('brs',this)">🏦 Bank Reconciliation</button>
+    </div>
+
+    <!-- INVOICE TAB -->
+    <div class="tab-panel active" id="tab-invoice">
+      <div class="form-card">
+        <h3>🧾 Business Invoice Generator (Non-GST)</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>From (Your Business)</label><input type="text" id="bizFrom" value="My Business Name"/></div>
+          <div class="form-group"><label>To (Client)</label><input type="text" id="bizTo" value="Client Company Ltd"/></div>
+          <div class="form-group"><label>Invoice No.</label><input type="text" id="bizInvNo" value="INV-2025-001"/></div>
+          <div class="form-group"><label>Date</label><input type="date" id="bizDate"/></div>
+          <div class="form-group"><label>Due Date</label><input type="date" id="bizDue"/></div>
+          <div class="form-group"><label>Payment Terms</label><select><option>Net 30</option><option>Net 15</option><option>Immediate</option><option>Net 60</option></select></div>
+        </div>
+        <div style="margin:1rem 0">
+          <div style="display:grid;grid-template-columns:3fr 1fr 1fr 1fr;gap:0.5rem;font-weight:700;font-size:0.8rem;padding:0.5rem;background:var(--bg-secondary);border-radius:var(--radius-sm);margin-bottom:0.5rem">
+            <span>Description</span><span>Qty</span><span>Rate (₹)</span><span>Amount</span>
+          </div>
+          <div id="bizItems">
+            <div style="display:grid;grid-template-columns:3fr 1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;align-items:center">
+              <input type="text" placeholder="Item description" value="Web Development Services"/>
+              <input type="number" placeholder="1" value="1" id="bQty1" oninput="updateBizTotal()"/>
+              <input type="number" placeholder="50000" value="50000" id="bRate1" oninput="updateBizTotal()"/>
+              <div id="bAmt1" style="font-weight:600">₹50,000</div>
+            </div>
+            <div style="display:grid;grid-template-columns:3fr 1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;align-items:center">
+              <input type="text" placeholder="Item description" value="Monthly Maintenance"/>
+              <input type="number" placeholder="1" value="3" id="bQty2" oninput="updateBizTotal()"/>
+              <input type="number" placeholder="10000" value="10000" id="bRate2" oninput="updateBizTotal()"/>
+              <div id="bAmt2" style="font-weight:600">₹30,000</div>
+            </div>
+          </div>
+          <button style="font-size:0.8rem;color:var(--primary);background:none;border:none;cursor:pointer;padding:0.25rem 0;margin-top:0.25rem">+ Add Item</button>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <div style="min-width:240px">
+            <div style="display:flex;justify-content:space-between;padding:0.4rem 0;font-size:0.875rem"><span>Subtotal</span><span id="bizSubtotal">₹80,000</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;font-size:0.875rem;border-bottom:1px solid var(--border)">
+              <span>Discount (%)</span>
+              <input type="number" id="bizDiscount" value="0" style="width:60px;padding:0.25rem;border:1px solid var(--border);border-radius:4px;text-align:center" oninput="updateBizTotal()"/>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.75rem 0;font-weight:800;font-size:1rem;color:var(--primary);border-top:2px solid var(--primary);margin-top:0.5rem"><span>TOTAL</span><span id="bizTotal">₹80,000</span></div>
+          </div>
+        </div>
+        <div style="margin-top:0.5rem" class="form-group"><label>Notes / Payment Instructions</label><textarea rows="2" style="resize:none">Thank you for your business! Please pay via bank transfer or UPI.</textarea></div>
+        <div class="form-actions"><button class="btn-primary-solid" onclick="realBizInvoicePDF()">🖨️ Generate PDF</button><button class="btn-secondary-solid" onclick="showToast('Email: Configure EmailJS in firebase-config.js','warning')">📧 Email Invoice</button></div>
+      </div>
+    </div>
+
+    <!-- EXPENSES TAB -->
+    <div class="tab-panel" id="tab-expenses">
+      <div class="form-card">
+        <h3>💸 Expense Tracker</h3>
+        <div class="form-grid" style="margin-bottom:1.25rem">
+          <div class="form-group"><label>Expense Date</label><input type="date" id="expDate"/></div>
+          <div class="form-group"><label>Category</label><select id="expCat"><option>Office Rent</option><option>Salaries</option><option>Marketing</option><option>Travel</option><option>Software/Tools</option><option>Utilities</option><option>Miscellaneous</option></select></div>
+          <div class="form-group"><label>Description</label><input type="text" id="expDesc" placeholder="Expense description"/></div>
+          <div class="form-group"><label>Amount (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="expAmt" placeholder="0"/></div></div>
+          <div class="form-group"><label>GST Applied?</label><select id="expGST"><option value="no">No</option><option value="yes">Yes – 18%</option><option value="yes5">Yes – 5%</option></select></div>
+          <div class="form-group"><label>Receipt Available?</label><select><option>Yes</option><option>No</option></select></div>
+        </div>
+        <div class="form-actions"><button class="btn-primary-solid" onclick="addExpense()">+ Add Expense</button></div>
+        <div style="margin-top:1.5rem">
+          <h4 style="font-size:0.9rem;margin-bottom:0.75rem">📊 Expense Summary (Current Month)</h4>
+          <table style="width:100%;border-collapse:collapse;font-size:0.82rem" id="expTable">
+            <thead><tr style="background:var(--bg-secondary)"><th style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:left">Date</th><th style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:left">Category</th><th style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:left">Description</th><th style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">Amount</th></tr></thead>
+            <tbody id="expTableBody">
+              <tr><td style="padding:0.6rem;border-bottom:1px solid var(--border)">01 Jul</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">Office Rent</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">Monthly office rent</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">₹25,000</td></tr>
+              <tr><td style="padding:0.6rem;border-bottom:1px solid var(--border)">05 Jul</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">Software/Tools</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">CRM subscription</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">₹5,900</td></tr>
+              <tr style="font-weight:700;background:rgba(30,64,175,0.05)"><td style="padding:0.6rem" colspan="3">Total Expenses (July)</td><td style="padding:0.6rem;text-align:right;color:var(--danger)" id="totalExp">₹30,900</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- P&L TAB -->
+    <div class="tab-panel" id="tab-pnl">
+      <div class="form-card">
+        <h3>📊 Profit & Loss Statement</h3>
+        <div class="form-grid" style="margin-bottom:1.5rem">
+          <div class="form-group"><label>Business Name</label><input type="text" value="My Business" id="pnlBiz"/></div>
+          <div class="form-group"><label>Period</label><select id="pnlPeriod"><option>April–June 2025 (Q1)</option><option>April–March 2025 (FY)</option><option>July 2025 (Monthly)</option></select></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+          <div>
+            <h4 style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;color:var(--success)">📈 INCOME</h4>
+            <div style="display:flex;flex-direction:column;gap:0.5rem">
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Sales Revenue</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" value="500000" id="p1" oninput="calcPNL()"/></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Service Income</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" value="150000" id="p2" oninput="calcPNL()"/></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:2px solid var(--border);font-weight:700"><span>Total Income</span><strong id="totalIncome" style="color:var(--success)">₹6,50,000</strong></div>
+            </div>
+          </div>
+          <div>
+            <h4 style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;color:var(--danger)">📉 EXPENSES</h4>
+            <div style="display:flex;flex-direction:column;gap:0.5rem">
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Salaries</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" value="200000" id="e1" oninput="calcPNL()"/></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Rent & Utilities</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" value="75000" id="e2" oninput="calcPNL()"/></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Marketing</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" value="50000" id="e3" oninput="calcPNL()"/></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:2px solid var(--border);font-weight:700"><span>Total Expenses</span><strong id="totalExpenses" style="color:var(--danger)">₹3,25,000</strong></div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:1.5rem;padding:1.25rem;border-radius:var(--radius);background:rgba(30,64,175,0.06);border:1px solid rgba(30,64,175,0.15);display:flex;justify-content:space-between;align-items:center">
+          <div><strong style="font-size:1rem">Net Profit / (Loss)</strong><br><small style="color:var(--text-muted)" id="profitMarginLabel">Profit Margin: 50%</small></div>
+          <strong style="font-size:1.75rem;color:var(--primary)" id="netProfit">₹3,25,000</strong>
+        </div>
+        <div class="form-actions" style="margin-top:1rem"><button class="btn-primary-solid" onclick="realPnLPDF()">📄 Export P&L Report</button><button class="btn-secondary-solid" onclick="realExportCSV()">📊 Excel Export</button></div>
+      </div>
+    </div>
+
+    <!-- LEDGER TAB -->
+    <div class="tab-panel" id="tab-ledger">
+      <div class="form-card">
+        <h3>📒 General Ledger</h3>
+        <div style="overflow-x:auto;margin-top:1rem">
+          <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+            <thead><tr style="background:var(--bg-secondary)"><th style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:left">Date</th><th style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:left">Particulars</th><th style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:left">Voucher</th><th style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">Debit</th><th style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">Credit</th><th style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">Balance</th></tr></thead>
+            <tbody>
+              <tr><td style="padding:0.6rem;border-bottom:1px solid var(--border)">01 Apr</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">Opening Balance</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">OB-001</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">–</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">₹2,00,000</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right;color:var(--success)">₹2,00,000</td></tr>
+              <tr><td style="padding:0.6rem;border-bottom:1px solid var(--border)">05 Apr</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">Sales Invoice – ABC Corp</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">INV-001</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">₹1,50,000</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">–</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right;color:var(--success)">₹3,50,000</td></tr>
+              <tr><td style="padding:0.6rem;border-bottom:1px solid var(--border)">07 Apr</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">Office Rent Paid</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">PMT-001</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">–</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">₹25,000</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right;color:var(--success)">₹3,25,000</td></tr>
+              <tr><td style="padding:0.6rem;border-bottom:1px solid var(--border)">15 Apr</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">Salary Payment</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">PMT-002</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">–</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">₹80,000</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right;color:var(--success)">₹2,45,000</td></tr>
+              <tr><td style="padding:0.6rem;border-bottom:1px solid var(--border)">20 Apr</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">GST Payment</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">GST-001</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">–</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">₹27,000</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right;color:var(--success)">₹2,18,000</td></tr>
+              <tr style="font-weight:700;background:rgba(30,64,175,0.05)"><td style="padding:0.6rem" colspan="3">Closing Balance (30 Jun)</td><td style="padding:0.6rem;text-align:right">₹1,50,000</td><td style="padding:0.6rem;text-align:right">₹1,32,000</td><td style="padding:0.6rem;text-align:right;color:var(--primary)">₹2,18,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="form-actions" style="margin-top:1rem"><button class="btn-primary-solid" onclick="realLedgerPDF()">📄 Export Ledger</button></div>
+      </div>
+    </div>
+
+    <!-- BRS TAB -->
+    <div class="tab-panel" id="tab-brs">
+      <div class="form-card">
+        <h3>🏦 Bank Reconciliation Statement (BRS)</h3>
+        <div class="form-grid" style="margin-bottom:1.5rem">
+          <div class="form-group"><label>Bank Account</label><input type="text" value="SBI Current A/c – XXXX5678"/></div>
+          <div class="form-group"><label>Date</label><input type="date"/></div>
+          <div class="form-group"><label>Balance as per Bank Statement (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsBank" value="245000" oninput="calcBRS()"/></div></div>
+          <div class="form-group"><label>Balance as per Books (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsBooks" value="218000" oninput="calcBRS()"/></div></div>
+          <div class="form-group"><label>Outstanding Cheques (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsCheques" value="35000" oninput="calcBRS()"/></div></div>
+          <div class="form-group"><label>Deposits in Transit (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsDeposits" value="8000" oninput="calcBRS()"/></div></div>
+        </div>
+        <div class="result-card" id="brsResult">
+          <h4>BRS Reconciliation</h4>
+          <div class="result-breakdown" id="brsBreakdown">
+            <div class="result-item"><span>Bank Balance</span><strong>₹2,45,000</strong></div>
+            <div class="result-item"><span>(-) Outstanding Cheques</span><strong style="color:var(--danger)">₹35,000</strong></div>
+            <div class="result-item"><span>(+) Deposits in Transit</span><strong style="color:var(--success)">₹8,000</strong></div>
+            <div class="result-item"><span>Adjusted Bank Balance</span><strong>₹2,18,000</strong></div>
+            <div class="result-item"><span>Balance as per Books</span><strong>₹2,18,000</strong></div>
+            <div class="result-item"><span>Difference</span><strong style="color:var(--success)">₹0 – RECONCILED ✅</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/ai-real.js"></script>
+<script src="../js/pdf-real.js"></script>
+<script>
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-'+id).classList.add('active');
+    }
+
+    document.getElementById('bizDate').value = new Date().toISOString().split('T')[0];
+
+    function updateBizTotal() {
+      const q1 = parseFloat(document.getElementById('bQty1').value)||0;
+      const r1 = parseFloat(document.getElementById('bRate1').value)||0;
+      const q2 = parseFloat(document.getElementById('bQty2').value)||0;
+      const r2 = parseFloat(document.getElementById('bRate2').value)||0;
+      const a1 = q1*r1; const a2 = q2*r2;
+      document.getElementById('bAmt1').textContent = '₹'+a1.toLocaleString('en-IN');
+      document.getElementById('bAmt2').textContent = '₹'+a2.toLocaleString('en-IN');
+      const sub = a1+a2;
+      const disc = parseFloat(document.getElementById('bizDiscount').value)||0;
+      const total = sub*(1-disc/100);
+      document.getElementById('bizSubtotal').textContent = '₹'+Math.round(sub).toLocaleString('en-IN');
+      document.getElementById('bizTotal').textContent = '₹'+Math.round(total).toLocaleString('en-IN');
+    }
+
+    function addExpense() {
+      const date = document.getElementById('expDate').value || 'Today';
+      const cat = document.getElementById('expCat').value;
+      const desc = document.getElementById('expDesc').value;
+      const amt = parseFloat(document.getElementById('expAmt').value)||0;
+      if (!amt) return;
+      const row = `<tr><td style="padding:0.6rem;border-bottom:1px solid var(--border)">${date}</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">${cat}</td><td style="padding:0.6rem;border-bottom:1px solid var(--border)">${desc}</td><td style="padding:0.6rem;border-bottom:1px solid var(--border);text-align:right">₹${amt.toLocaleString('en-IN')}</td></tr>`;
+      const tbody = document.getElementById('expTableBody');
+      tbody.insertAdjacentHTML('beforeend', row);
+    }
+
+    function calcPNL() {
+      const inc = (parseFloat(document.getElementById('p1').value)||0)+(parseFloat(document.getElementById('p2').value)||0);
+      const exp = (parseFloat(document.getElementById('e1').value)||0)+(parseFloat(document.getElementById('e2').value)||0)+(parseFloat(document.getElementById('e3').value)||0);
+      const profit = inc - exp;
+      const margin = inc>0 ? ((profit/inc)*100).toFixed(1) : 0;
+      document.getElementById('totalIncome').textContent = '₹'+Math.round(inc).toLocaleString('en-IN');
+      document.getElementById('totalExpenses').textContent = '₹'+Math.round(exp).toLocaleString('en-IN');
+      document.getElementById('netProfit').textContent = '₹'+Math.round(Math.abs(profit)).toLocaleString('en-IN') + (profit<0?' (Loss)':'');
+      document.getElementById('netProfit').style.color = profit>=0?'var(--success)':'var(--danger)';
+      document.getElementById('profitMarginLabel').textContent = `Profit Margin: ${margin}%`;
+    }
+
+    function calcBRS() {
+      const bank = parseFloat(document.getElementById('brsBank').value)||0;
+      const books = parseFloat(document.getElementById('brsBooks').value)||0;
+      const cheques = parseFloat(document.getElementById('brsCheques').value)||0;
+      const deposits = parseFloat(document.getElementById('brsDeposits').value)||0;
+      const adj = bank - cheques + deposits;
+      const diff = adj - books;
+      document.getElementById('brsBreakdown').innerHTML = `
+        <div class="result-item"><span>Bank Balance</span><strong>₹${bank.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>(-) Outstanding Cheques</span><strong style="color:var(--danger)">₹${cheques.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>(+) Deposits in Transit</span><strong style="color:var(--success)">₹${deposits.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Adjusted Bank Balance</span><strong>₹${Math.round(adj).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Balance as per Books</span><strong>₹${books.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Difference</span><strong style="color:${Math.abs(diff)<1?'var(--success)':'var(--danger)'}">₹${Math.abs(Math.round(diff)).toLocaleString('en-IN')} – ${Math.abs(diff)<1?'RECONCILED ✅':'⚠️ Discrepancy Found'}</strong></div>
+      `;
+    }
+
+    function realBizInvoicePDF() {
+      if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+      const from = document.getElementById('bizFrom')?.value || 'My Business';
+      const to = document.getElementById('bizTo')?.value || 'Client';
+      const invNo = document.getElementById('bizInvNo')?.value || 'INV-001';
+      const date = document.getElementById('bizDate')?.value || new Date().toISOString().split('T')[0];
+      const q1 = parseFloat(document.getElementById('bQty1')?.value)||0;
+      const r1 = parseFloat(document.getElementById('bRate1')?.value)||0;
+      const q2 = parseFloat(document.getElementById('bQty2')?.value)||0;
+      const r2 = parseFloat(document.getElementById('bRate2')?.value)||0;
+      const a1 = q1*r1, a2 = q2*r2;
+      const disc = parseFloat(document.getElementById('bizDiscount')?.value)||0;
+      const sub = a1 + a2;
+      const total = Math.round(sub*(1-disc/100));
+      doc.setFillColor(30,64,175); doc.rect(0,0,210,30,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(18); doc.setFont('helvetica','bold');
+      doc.text('INVOICE', 105, 14, {align:'center'});
+      doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text('Generated by TaxMitra AI Enterprise | Abhishek Agrahari', 105, 22, {align:'center'});
+      doc.setTextColor(30,30,30);
+      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.text(from, 14, 40);
+      doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.text('Bill To:', 130, 38);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.text(to, 130, 44);
+      doc.setFontSize(8); doc.text('Invoice No: '+invNo, 14, 50); doc.text('Date: '+date, 14, 55);
+      const rows = [];
+      if (a1>0) rows.push(['Web Dev Services', q1, '₹'+r1.toLocaleString('en-IN'), '₹'+Math.round(a1).toLocaleString('en-IN')]);
+      if (a2>0) rows.push(['Monthly Maintenance', q2, '₹'+r2.toLocaleString('en-IN'), '₹'+Math.round(a2).toLocaleString('en-IN')]);
+      if (disc>0) rows.push(['Discount ('+disc+'%)', '', '', '(₹'+Math.round(sub*disc/100).toLocaleString('en-IN')+')']);
+      rows.push([{content:'TOTAL', styles:{fontStyle:'bold'}}, '', '', {content:'₹'+total.toLocaleString('en-IN'), styles:{fontStyle:'bold'}}]);
+      doc.autoTable({startY:62, head:[['Description','Qty','Rate','Amount']], body:rows,
+        headStyles:{fillColor:[30,64,175],textColor:255,fontSize:8}, styles:{fontSize:8}});
+      doc.setFontSize(7); doc.setTextColor(150);
+      doc.text('TaxMitra AI Enterprise | Developed by Abhishek Agrahari', 105, 285, {align:'center'});
+      doc.save('Invoice_'+invNo+'.pdf');
+      showToast('Invoice PDF downloaded!','success');
+    }
+
+    function realPnLPDF() {
+      if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const p1 = parseFloat(document.getElementById('p1')?.value)||0;
+      const p2 = parseFloat(document.getElementById('p2')?.value)||0;
+      const e1 = parseFloat(document.getElementById('e1')?.value)||0;
+      const e2 = parseFloat(document.getElementById('e2')?.value)||0;
+      const e3 = parseFloat(document.getElementById('e3')?.value)||0;
+      const inc = p1+p2, exp = e1+e2+e3, profit = inc-exp;
+      const margin = inc>0?((profit/inc)*100).toFixed(1):0;
+      doc.setFillColor(30,64,175); doc.rect(0,0,210,28,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+      doc.text('PROFIT & LOSS STATEMENT', 105, 12, {align:'center'});
+      doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text('TaxMitra AI Enterprise | '+new Date().toLocaleDateString('en-IN'), 105, 22, {align:'center'});
+      doc.setTextColor(30,30,30);
+      doc.autoTable({startY:36, head:[['Particulars','Amount (₹)']],
+        body:[
+          ['INCOME',''],
+          ['Product Sales', '₹'+p1.toLocaleString('en-IN')],
+          ['Service Revenue', '₹'+p2.toLocaleString('en-IN')],
+          [{content:'Total Income',styles:{fontStyle:'bold'}}, {content:'₹'+Math.round(inc).toLocaleString('en-IN'),styles:{fontStyle:'bold'}}],
+          ['EXPENSES',''],
+          ['Salaries & Wages', '₹'+e1.toLocaleString('en-IN')],
+          ['Rent & Utilities', '₹'+e2.toLocaleString('en-IN')],
+          ['Marketing & Other', '₹'+e3.toLocaleString('en-IN')],
+          [{content:'Total Expenses',styles:{fontStyle:'bold'}}, {content:'₹'+Math.round(exp).toLocaleString('en-IN'),styles:{fontStyle:'bold'}}],
+          [{content:(profit>=0?'NET PROFIT':'NET LOSS'),styles:{fontStyle:'bold',fillColor:profit>=0?[209,250,229]:[254,226,226]}},
+           {content:'₹'+Math.round(Math.abs(profit)).toLocaleString('en-IN')+' ('+margin+'%)',styles:{fontStyle:'bold',fillColor:profit>=0?[209,250,229]:[254,226,226]}}],
+        ], headStyles:{fillColor:[30,64,175],textColor:255,fontSize:9}, styles:{fontSize:9}});
+      doc.save('PnL_Statement_TaxMitra.pdf');
+      showToast('P&L PDF downloaded!','success');
+    }
+
+    function realLedgerPDF() {
+      if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFillColor(30,64,175); doc.rect(0,0,210,28,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+      doc.text('GENERAL LEDGER', 105, 12, {align:'center'});
+      doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text('TaxMitra AI Enterprise | Abhishek Agrahari | '+new Date().toLocaleDateString('en-IN'), 105, 22, {align:'center'});
+      doc.setTextColor(30,30,30);
+      // Collect expenses from table
+      const rows = [];
+      const tbody = document.getElementById('expTableBody');
+      if (tbody) {
+        const trs = tbody.querySelectorAll('tr');
+        trs.forEach(tr => {
+          const tds = tr.querySelectorAll('td');
+          if (tds.length >= 4) rows.push([tds[0].textContent, tds[1].textContent, tds[2].textContent, tds[3].textContent]);
+        });
+      }
+      if (!rows.length) {
+        rows.push(['05 Jul 2026','Office Rent','Monthly rent','₹25,000']);
+        rows.push(['10 Jul 2026','Software/Tools','CRM subscription','₹5,900']);
+        rows.push(['15 Jul 2026','Marketing','Google Ads','₹12,000']);
+      }
+      doc.autoTable({startY:36, head:[['Date','Category','Description','Amount']],
+        body: rows, headStyles:{fillColor:[30,64,175],textColor:255,fontSize:9}, styles:{fontSize:9}});
+      const total = rows.reduce((s,r)=>s+parseFloat(r[3].replace(/[₹,]/g,''))||0, 0);
+      const finalY = doc.lastAutoTable.finalY+5;
+      doc.setFontSize(10); doc.setFont('helvetica','bold');
+      doc.text('Total Expenses: ₹'+total.toLocaleString('en-IN'), 150, finalY, {align:'right'});
+      doc.save('Ledger_TaxMitra.pdf');
+      showToast('Ledger PDF downloaded!','success');
+    }
+
+    function realExportCSV() {
+      const p1 = parseFloat(document.getElementById('p1')?.value)||0;
+      const p2 = parseFloat(document.getElementById('p2')?.value)||0;
+      const e1 = parseFloat(document.getElementById('e1')?.value)||0;
+      const e2 = parseFloat(document.getElementById('e2')?.value)||0;
+      const e3 = parseFloat(document.getElementById('e3')?.value)||0;
+      const inc = p1+p2, exp = e1+e2+e3, profit = inc-exp;
+      const csvRows = [
+        ['TaxMitra AI Enterprise – P&L Statement'],
+        ['Generated: '+new Date().toLocaleDateString('en-IN')],
+        [],
+        ['INCOME','Amount (₹)'],
+        ['Product Sales', p1],
+        ['Service Revenue', p2],
+        ['Total Income', inc],
+        [],
+        ['EXPENSES','Amount (₹)'],
+        ['Salaries & Wages', e1],
+        ['Rent & Utilities', e2],
+        ['Marketing & Other', e3],
+        ['Total Expenses', exp],
+        [],
+        [profit>=0?'NET PROFIT':'NET LOSS', Math.abs(profit)],
+        ['Profit Margin', inc>0?((profit/inc)*100).toFixed(1)+'%':'0%'],
+      ];
+      const csv = csvRows.map(r => r.map(v => '"'+v+'"').join(',')).join('\n');
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      a.download = 'PnL_Statement_TaxMitra.csv';
+      a.click();
+      showToast('CSV downloaded! Open in Excel.','success');
+    }
+  </script>
+
+<p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong></p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+</body>
+</html>

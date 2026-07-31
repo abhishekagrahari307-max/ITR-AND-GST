@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI Setup — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.setup-hero{background:var(--grad-hero);color:#fff;padding:3rem 0;text-align:center}
+.setup-hero h1{font-size:2rem;font-weight:900;margin-bottom:.5rem}
+.setup-hero p{opacity:.8;font-size:.95rem}
+.setup-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;margin-bottom:1.5rem;box-shadow:var(--shadow)}
+.step-badge{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--primary);color:#fff;border-radius:50%;font-weight:900;font-size:.9rem;margin-right:.75rem;flex-shrink:0}
+.step-row{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:1.5rem}
+.key-input-wrap{position:relative;margin:.75rem 0}
+.key-input-wrap input{width:100%;padding:.75rem 1rem;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:.95rem;font-family:monospace;background:var(--bg-secondary);color:var(--text-primary);transition:.2s}
+.key-input-wrap input:focus{outline:none;border-color:var(--primary);background:var(--bg-card)}
+.key-input-wrap input.valid{border-color:var(--success)}
+.key-input-wrap input.invalid{border-color:var(--danger)}
+.key-status{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem}
+.test-result{padding:.85rem 1rem;border-radius:var(--radius-sm);margin-top:.75rem;font-size:.875rem;display:none}
+.test-result.success{background:rgba(5,150,105,.08);border:1px solid rgba(5,150,105,.25);color:#065f46}
+.test-result.error{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25);color:#991b1b}
+.test-result.loading{background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.25);color:#1e3a8a}
+.big-btn{width:100%;padding:.9rem;font-size:1rem;font-weight:800;border:none;border-radius:var(--radius-sm);cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.btn-save{background:var(--primary);color:#fff;box-shadow:var(--shadow-primary)}
+.btn-save:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.btn-test{background:var(--bg-secondary);color:var(--text-primary);border:1.5px solid var(--border)}
+.btn-test:hover{background:var(--border)}
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+.status-item{padding:1rem;border-radius:var(--radius-sm);border:1px solid var(--border);text-align:center}
+.status-item.active{background:rgba(5,150,105,.06);border-color:rgba(5,150,105,.2)}
+.status-item.inactive{background:rgba(220,38,38,.04);border-color:rgba(220,38,38,.15)}
+.status-emoji{font-size:1.75rem;margin-bottom:.35rem}
+.tip-box{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:var(--radius-sm);padding:.85rem 1rem;font-size:.82rem;color:#92400e;margin:.75rem 0}
+</style>
+</head>
+<body>
+<nav class="navbar-main">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div style="flex:1"></div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="../index.html" class="btn-nav-login">← Home</a>
+    </div>
+  </div>
+</nav>
+
+<div class="setup-hero">
+  <div class="container">
+    <div style="font-size:3rem;margin-bottom:.5rem">🔑</div>
+    <h1>AI Key Setup</h1>
+    <p>Gemini AI activate karo — 2 minutes mein | Developed by Abhishek Agrahari</p>
+  </div>
+</div>
+
+<div class="container" style="padding:2rem 1.5rem 4rem;max-width:680px">
+
+  <!-- Current Status -->
+  <div class="setup-card">
+    <h3 style="font-size:1rem;font-weight:800;margin-bottom:1rem">📊 Current AI Status</h3>
+    <div class="status-grid" id="statusGrid">
+      <div class="status-item inactive" id="geminiStatus">
+        <div class="status-emoji">🔴</div>
+        <div style="font-weight:700;font-size:.85rem">Gemini AI</div>
+        <div style="font-size:.72rem;color:var(--text-muted)">Not configured</div>
+      </div>
+      <div class="status-item inactive" id="orStatus">
+        <div class="status-emoji">🔴</div>
+        <div style="font-weight:700;font-size:.85rem">OpenRouter AI</div>
+        <div style="font-size:.72rem;color:var(--text-muted)">Optional</div>
+      </div>
+    </div>
+    <div id="overallStatus" style="margin-top:.85rem;padding:.65rem;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:.82rem;text-align:center">
+      Checking...
+    </div>
+  </div>
+
+  <!-- Step 1: Gemini -->
+  <div class="setup-card">
+    <div style="display:flex;align-items:center;margin-bottom:1.25rem">
+      <span class="step-badge">1</span>
+      <div>
+        <h3 style="font-size:1rem;font-weight:800;margin:0">Gemini API Key</h3>
+        <p style="font-size:.78rem;color:var(--text-muted);margin:0">Free — 1,500 AI requests/day</p>
+      </div>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" 
+         style="margin-left:auto;padding:.38rem .85rem;background:var(--primary);color:#fff;border-radius:99px;font-size:.75rem;font-weight:700;text-decoration:none">
+        Get Key →
+      </a>
+    </div>
+    
+    <div class="tip-box">
+      💡 Key format: <code>AIzaSy...</code> (39 characters)<br>
+      Get it free at: <strong>aistudio.google.com/app/apikey</strong>
+    </div>
+
+    <div class="key-input-wrap">
+      <input type="password" id="geminiKeyInput" placeholder="AIzaSy..." 
+             oninput="validateGeminiKey(this)" autocomplete="off" spellcheck="false"/>
+      <span class="key-status" id="geminiKeyStatus"></span>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-top:.5rem">
+      <button class="big-btn btn-test" style="flex:.4" onclick="toggleShowKey('geminiKeyInput')">👁 Show</button>
+      <button class="big-btn btn-test" style="flex:.6" onclick="testGeminiKey()">🧪 Test Key</button>
+    </div>
+    <div class="test-result" id="geminiTestResult"></div>
+  </div>
+
+  <!-- Step 2: OpenRouter (Optional) -->
+  <div class="setup-card">
+    <div style="display:flex;align-items:center;margin-bottom:1.25rem">
+      <span class="step-badge" style="background:var(--accent)">2</span>
+      <div>
+        <h3 style="font-size:1rem;font-weight:800;margin:0">OpenRouter Key <span style="font-size:.72rem;font-weight:500;color:var(--text-muted)">(Optional)</span></h3>
+        <p style="font-size:.78rem;color:var(--text-muted);margin:0">DeepSeek R1 + Llama 3.3 70B — free models</p>
+      </div>
+      <a href="https://openrouter.ai/keys" target="_blank"
+         style="margin-left:auto;padding:.38rem .85rem;background:var(--accent);color:#fff;border-radius:99px;font-size:.75rem;font-weight:700;text-decoration:none">
+        Get Key →
+      </a>
+    </div>
+
+    <div class="tip-box" style="color:#6d28d9;background:rgba(124,58,237,.06);border-color:rgba(124,58,237,.2)">
+      💡 Key format: <code>sk-or-...</code><br>
+      Adds DeepSeek R1 for IT Notice explainer + Llama for Hindi tips
+    </div>
+
+    <div class="key-input-wrap">
+      <input type="password" id="orKeyInput" placeholder="sk-or-..." 
+             oninput="validateORKey(this)" autocomplete="off" spellcheck="false"/>
+      <span class="key-status" id="orKeyStatus"></span>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-top:.5rem">
+      <button class="big-btn btn-test" style="flex:.4" onclick="toggleShowKey('orKeyInput')">👁 Show</button>
+      <button class="big-btn btn-test" style="flex:.6" onclick="testORKey()">🧪 Test Key</button>
+    </div>
+    <div class="test-result" id="orTestResult"></div>
+  </div>
+
+  <!-- Save Button -->
+  <button class="big-btn btn-save" onclick="saveAllKeys()" style="font-size:1.1rem;padding:1rem">
+    💾 Save Keys & Activate AI
+  </button>
+  <div id="saveResult" class="test-result" style="display:none;margin-top:.75rem"></div>
+
+  <!-- Verify section -->
+  <div class="setup-card" style="margin-top:1.5rem">
+    <h3 style="font-size:.95rem;font-weight:800;margin-bottom:1rem">🧠 Test AI Response</h3>
+    <div style="display:flex;gap:.5rem">
+      <input type="text" id="testQuestion" placeholder="Tax question puchein..." 
+             style="flex:1;padding:.65rem .85rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:.875rem;background:var(--bg-secondary);color:var(--text-primary)"
+             value="Meri salary 12 lakh hai, kya mujhe tax dena hoga?"/>
+      <button onclick="testAIResponse()" 
+              style="padding:.65rem 1.1rem;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-weight:700;cursor:pointer;white-space:nowrap">
+        Ask AI →
+      </button>
+    </div>
+    <div id="aiTestResponse" style="margin-top:.85rem;padding:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:.875rem;line-height:1.65;min-height:60px;display:none"></div>
+  </div>
+
+  <!-- Links -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.75rem">
+    <a href="../index.html" class="big-btn btn-test" style="text-decoration:none">🏠 Go to TaxMitra</a>
+    <a href="ai-assistant.html" class="big-btn btn-save" style="text-decoration:none">🤖 Open AI Assistant</a>
+  </div>
+  <p style="text-align:center;font-size:.72rem;color:var(--text-muted);margin-top:1rem">
+    Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | Keys stored in browser localStorage only
+  </p>
+</div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+
+// ── Check current status ──────────────────────────────────────
+function checkStatus() {
+  const keys = JSON.parse(localStorage.getItem('tm_keys') || '{}');
+  const gemini = keys.geminiApiKey || '';
+  const or = keys.openrouterApiKey || '';
+  const gOk = gemini.startsWith('AIzaSy') && gemini.length > 30;
+  const oOk = or.startsWith('sk-or-') && or.length > 20;
+
+  const gs = document.getElementById('geminiStatus');
+  const os = document.getElementById('orStatus');
+  const ov = document.getElementById('overallStatus');
+
+  if (gOk) {
+    gs.className = 'status-item active';
+    gs.innerHTML = '<div class="status-emoji">🟢</div><div style="font-weight:700;font-size:.85rem">Gemini AI</div><div style="font-size:.72rem;color:var(--success)">Active ✅</div>';
+    document.getElementById('geminiKeyInput').value = gemini.substring(0,8) + '...' + gemini.slice(-4);
+  }
+  if (oOk) {
+    os.className = 'status-item active';
+    os.innerHTML = '<div class="status-emoji">🟢</div><div style="font-weight:700;font-size:.85rem">OpenRouter</div><div style="font-size:.72rem;color:var(--success)">Active ✅</div>';
+    document.getElementById('orKeyInput').value = or.substring(0,8) + '...' + or.slice(-4);
+  }
+
+  if (gOk) {
+    ov.innerHTML = '✅ <strong>AI Active!</strong> Gemini 2.5 Flash ready. ' + (oOk ? 'OpenRouter also active.' : '');
+    ov.style.background = 'rgba(5,150,105,.08)';
+    ov.style.color = '#065f46';
+  } else {
+    ov.innerHTML = '❌ Keys not set — fill in the form below and click Save';
+  }
+}
+
+// ── Validation ───────────────────────────────────────────────
+function validateGeminiKey(input) {
+  const v = input.value.trim();
+  const statusEl = document.getElementById('geminiKeyStatus');
+  if (!v) { input.className = 'key-input-wrap input'; statusEl.textContent = ''; return; }
+  if (v.startsWith('AIzaSy') && v.length >= 35) {
+    input.style.borderColor = 'var(--success)';
+    statusEl.textContent = '✅';
+  } else if (v.length > 5) {
+    input.style.borderColor = 'var(--danger)';
+    statusEl.textContent = '❌';
+  }
+}
+
+function validateORKey(input) {
+  const v = input.value.trim();
+  const statusEl = document.getElementById('orKeyStatus');
+  if (!v) { statusEl.textContent = ''; return; }
+  if (v.startsWith('sk-or-') && v.length > 20) {
+    input.style.borderColor = 'var(--success)';
+    statusEl.textContent = '✅';
+  } else if (v.length > 5) {
+    input.style.borderColor = 'var(--danger)';
+    statusEl.textContent = '❌';
+  }
+}
+
+function toggleShowKey(id) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ── Test Gemini Key ───────────────────────────────────────────
+async function testGeminiKey() {
+  const key = document.getElementById('geminiKeyInput').value.trim();
+  const res = document.getElementById('geminiTestResult');
+  if (!key || !key.startsWith('AIzaSy')) {
+    showResult(res, '❌ Invalid key format. Must start with AIzaSy', 'error');
+    return;
+  }
+  showResult(res, '⏳ Testing connection to Gemini 2.5 Flash...', 'loading');
+  try {
+    const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: 'Reply with exactly: "TaxMitra AI connected!"' }] }],
+        generationConfig: { maxOutputTokens: 20, temperature: 0 }
+      })
+    });
+    const data = await resp.json();
+    if (resp.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
+      showResult(res, '✅ Gemini API key VALID! Response: "' + data.candidates[0].content.parts[0].text.trim() + '"', 'success');
+    } else {
+      showResult(res, '❌ API Error ' + resp.status + ': ' + JSON.stringify(data).substring(0,100), 'error');
+    }
+  } catch(e) {
+    showResult(res, '❌ Network error: ' + e.message, 'error');
+  }
+}
+
+// ── Test OpenRouter Key ───────────────────────────────────────
+async function testORKey() {
+  const key = document.getElementById('orKeyInput').value.trim();
+  const res = document.getElementById('orTestResult');
+  if (!key || !key.startsWith('sk-or-')) {
+    showResult(res, '❌ Invalid OpenRouter key. Must start with sk-or-', 'error');
+    return;
+  }
+  showResult(res, '⏳ Testing OpenRouter connection...', 'loading');
+  try {
+    const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + key,
+        'HTTP-Referer': 'https://abhishekagrahari307-max.github.io/ITR-AND-GST/',
+        'X-Title': 'TaxMitra AI Enterprise'
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-3.2-3b-instruct:free',
+        messages: [{ role: 'user', content: 'Reply with: "OpenRouter connected!"' }],
+        max_tokens: 15
+      })
+    });
+    const data = await resp.json();
+    if (resp.ok && data.choices?.[0]?.message?.content) {
+      showResult(res, '✅ OpenRouter key VALID! "' + data.choices[0].message.content.trim() + '"', 'success');
+    } else {
+      showResult(res, '❌ OpenRouter Error ' + resp.status + ': ' + JSON.stringify(data).substring(0,100), 'error');
+    }
+  } catch(e) {
+    showResult(res, '❌ ' + e.message, 'error');
+  }
+}
+
+// ── Save Keys ────────────────────────────────────────────────
+function saveAllKeys() {
+  const gKey = document.getElementById('geminiKeyInput').value.trim();
+  const oKey = document.getElementById('orKeyInput').value.trim();
+  const res = document.getElementById('saveResult');
+
+  const keysToSave = {};
+  let msg = [];
+
+  if (gKey && gKey.startsWith('AIzaSy') && gKey.length > 30 && !gKey.includes('...')) {
+    keysToSave.geminiApiKey = gKey;
+    msg.push('✅ Gemini AI key saved');
+  } else if (gKey && gKey.includes('...')) {
+    msg.push('ℹ️ Gemini key unchanged (showing masked)');
+  } else if (gKey) {
+    showResult(res, '❌ Gemini key invalid — must start with AIzaSy and be 39 chars', 'error');
+    return;
+  }
+
+  if (oKey && oKey.startsWith('sk-or-') && !oKey.includes('...')) {
+    keysToSave.openrouterApiKey = oKey;
+    msg.push('✅ OpenRouter key saved');
+  }
+
+  if (Object.keys(keysToSave).length > 0) {
+    const existing = JSON.parse(localStorage.getItem('tm_keys') || '{}');
+    const updated = { ...existing, ...keysToSave };
+    localStorage.setItem('tm_keys', JSON.stringify(updated));
+    sessionStorage.setItem('tm_keys', JSON.stringify(updated));
+    showResult(res, msg.join(' | ') + '\n\n🎉 Keys saved! AI is now active.', 'success');
+    if (typeof launchConfetti === 'function') launchConfetti(2000);
+    setTimeout(checkStatus, 500);
+  } else {
+    showResult(res, '⚠️ No new keys to save. Enter valid keys above.', 'error');
+  }
+}
+
+// ── Test AI Response ─────────────────────────────────────────
+async function testAIResponse() {
+  const q = document.getElementById('testQuestion').value.trim();
+  const res = document.getElementById('aiTestResponse');
+  if (!q) return;
+  res.style.display = 'block';
+  res.textContent = '⏳ AI soch raha hai...';
+  try {
+    if (window.TaxMitraAI?.callGemini) {
+      const result = await window.TaxMitraAI.callGemini(q, 'general', 'hi', []);
+      res.innerHTML = result.text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    } else {
+      res.textContent = 'AI not connected. Set Gemini key above first.';
+    }
+  } catch(e) {
+    res.textContent = '❌ Error: ' + e.message;
+  }
+}
+
+function showResult(el, msg, type) {
+  el.style.display = 'block';
+  el.className = 'test-result ' + type;
+  el.textContent = msg;
+}
+
+// ── Init ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  checkStatus();
+  
+  // Pre-fill if key already exists
+  const keys = JSON.parse(localStorage.getItem('tm_keys') || '{}');
+  if (keys.geminiApiKey && keys.geminiApiKey.startsWith('AIzaSy')) {
+    // Already configured - show success state
+    document.getElementById('geminiKeyInput').value = keys.geminiApiKey.substring(0,8) + '...' + keys.geminiApiKey.slice(-4);
+    document.getElementById('geminiKeyInput').style.borderColor = 'var(--success)';
+    document.getElementById('geminiKeyStatus').textContent = '✅';
+    const res = document.getElementById('overallStatus');
+    res.innerHTML = '✅ <strong>AI Active!</strong> Gemini 2.5 Flash ready — <a href="../pages/ai-assistant.html" style="color:var(--primary);font-weight:700">Open AI Assistant →</a>';
+    res.style.background = 'rgba(5,150,105,.08)';
+    res.style.color = '#065f46';
+  }
+});
+</script>
+</body>
+</html>

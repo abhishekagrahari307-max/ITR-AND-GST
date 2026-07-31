@@ -1,38 +1,49 @@
 {
-  "name": "SecureTax - BharatOS Tax Portal",
-  "short_name": "SecureTax",
-  "start_url": "/index.html",
+  "name": "TaxMitra AI Enterprise",
+  "short_name": "TaxMitra",
+  "description": "India's most advanced AI-powered tax platform by Abhishek Agrahari",
+  "start_url": "/ITR-AND-GST/index.html",
   "display": "standalone",
-  "background_color": "#00004d",
-  "theme_color": "#FF9933",
-  "description": "Secure Income Tax & GST Filing powered by BharatOS",
+  "background_color": "#0f172a",
+  "theme_color": "#1e40af",
+  "orientation": "any",
   "icons": [
     {
-      "src": "assets/icon-192.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjI0IiBmaWxsPSIjMWU0MGFmIi8+PHRleHQgeD0iOTYiIHk9IjEyMCIgZm9udC1zaXplPSIxMDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmYiPuKaqDwvdGV4dD48L3N2Zz4=",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/svg+xml"
     },
     {
-      "src": "assets/icon-512.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjY0IiBmaWxsPSIjMWU0MGFmIi8+PHRleHQgeD0iMjU2IiB5PSIzMjAiIGZvbnQtc2l6ZT0iMjgwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmIj7imqg8L3RleHQ+PC9zdmc+",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml"
     }
   ],
-  "screenshots": [
+  "shortcuts": [
     {
-      "src": "assets/screenshot1.png",
-      "sizes": "1280x800",
-      "type": "image/png",
-      "label": "SecureTax Desktop"
+      "name": "Tax Computation",
+      "url": "/ITR-AND-GST/pages/computation.html",
+      "description": "Compute Income Tax"
     },
     {
-      "src": "assets/screenshot2.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "label": "SecureTax Mobile"
+      "name": "AI Assistant",
+      "url": "/ITR-AND-GST/pages/ai-assistant.html",
+      "description": "Ask AI"
+    },
+    {
+      "name": "GST Suite",
+      "url": "/ITR-AND-GST/pages/gst.html",
+      "description": "GST Filing"
+    },
+    {
+      "name": "ITR Filing",
+      "url": "/ITR-AND-GST/pages/itr-center.html",
+      "description": "File ITR"
     }
   ],
-  "categories": ["finance", "productivity", "business"],
-  "lang": "en-IN",
-  "dir": "ltr"
+  "categories": [
+    "finance",
+    "productivity",
+    "business"
+  ]
 }

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="author" content="Abhishek Agrahari"/>
+  <meta name="description" content="Free Rent Receipt Generator for HRA tax exemption. Generate monthly rent receipts PDF instantly. No signup required."/>
+  <meta property="og:title" content="Rent Receipt Generator – TaxMitra AI | Free HRA Receipts"/>
+  <meta property="og:description" content="Generate professional rent receipts for HRA tax exemption instantly. Landlord signature, stamp, PDF download – free!"/>
+  <title>🏠 Rent Receipt Generator – TaxMitra AI Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    .receipt-preview { background:#fff; border:2px solid #e5e7eb; border-radius:8px; padding:2rem; font-family:'Inter',sans-serif; color:#1a1a1a; max-width:600px; margin:0 auto; }
+    .receipt-header { text-align:center; border-bottom:2px solid #1e40af; padding-bottom:1rem; margin-bottom:1.5rem; }
+    .receipt-title { font-size:1.4rem; font-weight:900; color:#1e40af; letter-spacing:2px; text-transform:uppercase; }
+    .receipt-row { display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px dotted #e5e7eb; font-size:0.875rem; }
+    .receipt-row.highlight { background:rgba(30,64,175,0.05); padding:0.5rem 0.75rem; border-radius:4px; font-weight:700; }
+    .receipt-sign { display:flex; justify-content:space-between; margin-top:2rem; padding-top:1rem; border-top:1px solid #e5e7eb; }
+    .sign-box { text-align:center; flex:1; }
+    .sign-line { border-bottom:1px solid #1a1a1a; width:120px; margin:0 auto 0.25rem; height:35px; }
+    .stamp-circle { width:70px; height:70px; border:2px dashed #94a3b8; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.6rem; color:#94a3b8; margin:0 auto 0.5rem; }
+    .month-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; }
+    .month-chip { padding:0.35rem; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:0.78rem; font-weight:600; text-align:center; cursor:pointer; transition:var(--transition); }
+    .month-chip.selected { background:var(--primary); color:#fff; border-color:var(--primary); }
+    .hue-info { background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius); padding:1rem; margin-bottom:1rem; }
+    .form-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.5rem; margin-bottom:1.25rem; }
+    .form-group { display:flex; flex-direction:column; gap:0.3rem; margin-bottom:0.75rem; }
+    .form-group label { font-size:0.78rem; font-weight:600; color:var(--text-secondary); }
+    .form-group input, .form-group select, .form-group textarea { padding:0.55rem 0.8rem; border:1.5px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-secondary); color:var(--text-primary); font-size:0.875rem; font-family:inherit; }
+    .form-group input:focus, .form-group select:focus { outline:none; border-color:var(--primary); }
+    .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    @media(max-width:600px) { .form-grid-2 { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.4rem"></div>
+
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle">🌙</button>
+        <a href="import-data.html" class="btn-nav-ai" style="background:linear-gradient(135deg,#059669,#047857)"><i class="fa fa-file-import"></i> Import</a>
+      <a href="../index.html" class="btn-nav-login">← Home</a>
+        <a href="calculators.html" class="btn-nav-ai">🧮 Calculators</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Rent Receipt Generator</span></div>
+      <h1>🏠 Rent Receipt Generator</h1>
+      <p>HRA tax exemption ke liye professional rent receipts PDF generate karein — monthly ya annual batch | Free | No signup | Developed by Abhishek Agrahari</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding:2rem 0 4rem">
+
+    <!-- HRA Info Banner -->
+    <div class="hue-info">
+      <strong style="color:var(--success)">💡 HRA Tax Saving:</strong> 
+      <span style="font-size:0.875rem;color:var(--text-secondary)"> Agar aap rent pay karte hain aur HRA milta hai, to rent receipts se tax bacha sakte hain. Landlord PAN required hai agar annual rent > ₹1,00,000. Old Regime mein HRA exempt hoti hai — New Regime mein nahi milti.</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;flex-wrap:wrap">
+
+      <!-- Left: Form -->
+      <div>
+        <div class="form-card">
+          <h3 style="font-size:1rem;font-weight:800;margin-bottom:1.25rem">🏠 Tenant (Aap) Details</h3>
+          <div class="form-grid-2">
+            <div class="form-group"><label>Tenant Name *</label><input type="text" id="tenantName" placeholder="Aapka pura naam" oninput="liveReceipt()"/></div>
+            <div class="form-group"><label>Tenant PAN</label><input type="text" id="tenantPAN" placeholder="ABCDE1234F" maxlength="10" oninput="this.value=this.value.toUpperCase();liveReceipt()"/></div>
+            <div class="form-group" style="grid-column:1/-1"><label>Rented Property Address *</label><input type="text" id="propertyAddr" placeholder="Full address of rented property" oninput="liveReceipt()"/></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3 style="font-size:1rem;font-weight:800;margin-bottom:1.25rem">👤 Landlord Details</h3>
+          <div class="form-grid-2">
+            <div class="form-group"><label>Landlord Name *</label><input type="text" id="landlordName" placeholder="Landlord ka pura naam" oninput="liveReceipt()"/></div>
+            <div class="form-group"><label>Landlord PAN <span style="color:#f59e0b;font-size:0.68rem">(Required if rent >₹1L/year)</span></label><input type="text" id="landlordPAN" placeholder="FGHIJ5678K" maxlength="10" oninput="this.value=this.value.toUpperCase();liveReceipt()"/></div>
+            <div class="form-group" style="grid-column:1/-1"><label>Landlord Address</label><input type="text" id="landlordAddr" placeholder="Landlord ka address" oninput="liveReceipt()"/></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3 style="font-size:1rem;font-weight:800;margin-bottom:1.25rem">💰 Rent Details</h3>
+          <div class="form-grid-2">
+            <div class="form-group"><label>Monthly Rent (₹) *</label><input type="number" id="monthlyRent" placeholder="15000" oninput="liveReceipt()"/></div>
+            <div class="form-group"><label>Payment Mode</label>
+              <select id="payMode" onchange="liveReceipt()">
+                <option value="Bank Transfer">Bank Transfer / NEFT</option>
+                <option value="UPI / GPay / PhonePe">UPI / GPay / PhonePe</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Cash">Cash</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Financial Year</label>
+              <select id="fyYear" onchange="populateMonths()">
+                <option value="2025-26">FY 2025-26 (Apr 2025 – Mar 2026)</option>
+                <option value="2026-27">FY 2026-27 (Apr 2026 – Mar 2027)</option>
+                <option value="2024-25">FY 2024-25 (Apr 2024 – Mar 2025)</option>
+              </select>
+            </div>
+            <div class="form-group"><label>City (for receipt)</label>
+              <input type="text" id="receiptCity" placeholder="Lucknow" oninput="liveReceipt()"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3 style="font-size:1rem;font-weight:800;margin-bottom:0.75rem">📅 Select Months</h3>
+          <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1rem">Jinke liye receipts chahiye woh months select karein:</p>
+          <div class="month-grid" id="monthGrid"></div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
+            <button type="button" onclick="selectAllMonths()" style="padding:0.3rem 0.75rem;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">Select All 12</button>
+            <button type="button" onclick="clearMonths()" style="padding:0.3rem 0.75rem;background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">Clear</button>
+          </div>
+          <div style="margin-top:0.75rem;font-size:0.78rem;color:var(--text-secondary)" id="selectedMonthsInfo">No months selected</div>
+        </div>
+
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+          <button type="button" class="btn-primary-solid" onclick="generateAllPDF()" style="flex:1"><i class="fa fa-file-pdf"></i> Download All Receipts PDF</button>
+          <button type="button" class="btn-secondary-solid" onclick="generateSinglePDF()" style="flex:1"><i class="fa fa-file-alt"></i> Single Month PDF</button>
+        </div>
+
+        <!-- HRA Calculator -->
+        <div class="form-card" style="margin-top:1.25rem;background:rgba(30,64,175,0.03)">
+          <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:1rem">🧮 HRA Exemption Calculator</h3>
+          <div class="form-grid-2">
+            <div class="form-group"><label>Basic Salary (₹/month)</label><input type="number" id="hraBasic" placeholder="40000" oninput="calcHRA()"/></div>
+            <div class="form-group"><label>HRA Received (₹/month)</label><input type="number" id="hraReceived" placeholder="20000" oninput="calcHRA()"/></div>
+            <div class="form-group"><label>City Type</label>
+              <select id="hraCityType" onchange="calcHRA()">
+                <option value="metro">Metro (50% — Delhi/Mumbai/Kolkata/Chennai)</option>
+                <option value="non-metro">Non-Metro (40%)</option>
+              </select>
+            </div>
+          </div>
+          <div id="hraResult" style="display:none;margin-top:0.75rem;background:var(--bg-card);border-radius:var(--radius);padding:0.75rem;font-size:0.82rem">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;text-align:center;margin-bottom:0.5rem">
+              <div><div style="font-size:0.68rem;color:var(--text-muted)">Limit 1 (HRA recd)</div><div id="hraL1" style="font-weight:700"></div></div>
+              <div><div style="font-size:0.68rem;color:var(--text-muted)">Limit 2 (Rent-10%)</div><div id="hraL2" style="font-weight:700"></div></div>
+              <div><div style="font-size:0.68rem;color:var(--text-muted)">Limit 3 (50%/40%)</div><div id="hraL3" style="font-weight:700"></div></div>
+            </div>
+            <div style="background:rgba(16,185,129,0.08);border-radius:4px;padding:0.5rem;text-align:center">
+              <strong>✅ Annual HRA Exempt: <span id="hraExemptAmt" style="color:var(--success)">₹0</span></strong>
+              <div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.25rem" id="hraTaxSaving"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Live Preview -->
+      <div>
+        <div style="position:sticky;top:80px">
+          <h3 style="font-size:0.95rem;font-weight:800;margin-bottom:0.75rem;color:var(--text-secondary)">📄 Live Preview</h3>
+          <div id="receiptPreview" class="receipt-preview">
+            <div class="receipt-header">
+              <div class="receipt-title">RENT RECEIPT</div>
+              <div style="font-size:0.72rem;color:#64748b;margin-top:0.25rem">Fill details on left to preview</div>
+            </div>
+            <p style="text-align:center;color:#94a3b8;font-size:0.82rem;padding:1.5rem">Fill the form on the left to see receipt preview here.</p>
+          </div>
+
+          <!-- Annual Summary -->
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-top:1rem">
+            <h4 style="font-size:0.875rem;font-weight:700;margin-bottom:0.75rem">📊 Annual Summary</h4>
+            <div id="annualSummary" style="font-size:0.82rem;color:var(--text-secondary)">Select months and enter rent to see summary.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p style="text-align:center;padding:.5rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | Rent receipts generated locally — no data sent to server</p>
+  <script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+  <script>
+  'use strict';
+
+  // State
+  const MONTHS = ['April','May','June','July','August','September','October','November','December','January','February','March'];
+  let selectedMonths = new Set();
+
+  // Init months grid
+  function populateMonths() {
+    const fy = document.getElementById('fyYear')?.value || '2025-26';
+    const fyStart = parseInt(fy.split('-')[0]);
+    const grid = document.getElementById('monthGrid');
+    if (!grid) return;
+    grid.innerHTML = MONTHS.map((m, i) => {
+      const yr = i < 9 ? fyStart : fyStart + 1;
+      const key = m + ' ' + yr;
+      const isSelected = selectedMonths.has(key);
+      return `<div class="month-chip ${isSelected ? 'selected' : ''}" onclick="toggleMonth('${key}', this)">${m.slice(0,3)} ${yr}</div>`;
+    }).join('');
+    updateMonthInfo();
+  }
+
+  function toggleMonth(key, el) {
+    if (selectedMonths.has(key)) {
+      selectedMonths.delete(key);
+      el.classList.remove('selected');
+    } else {
+      selectedMonths.add(key);
+      el.classList.add('selected');
+    }
+    updateMonthInfo();
+    liveReceipt();
+  }
+
+  function selectAllMonths() {
+    const fy = document.getElementById('fyYear')?.value || '2025-26';
+    const fyStart = parseInt(fy.split('-')[0]);
+    selectedMonths.clear();
+    MONTHS.forEach((m, i) => {
+      const yr = i < 9 ? fyStart : fyStart + 1;
+      selectedMonths.add(m + ' ' + yr);
+    });
+    populateMonths();
+  }
+
+  function clearMonths() {
+    selectedMonths.clear();
+    populateMonths();
+  }
+
+  function updateMonthInfo() {
+    const el = document.getElementById('selectedMonthsInfo');
+    const rent = parseFloat(document.getElementById('monthlyRent')?.value) || 0;
+    const n = selectedMonths.size;
+    if (!n) { el.textContent = 'No months selected'; return; }
+    el.innerHTML = `<strong>${n} months selected</strong> | Total annual rent: <strong>₹${(rent * n).toLocaleString('en-IN')}</strong>`;
+    updateAnnualSummary();
+  }
+
+  function updateAnnualSummary() {
+    const rent = parseFloat(document.getElementById('monthlyRent')?.value) || 0;
+    const n = selectedMonths.size;
+    const annual = rent * n;
+    const el = document.getElementById('annualSummary');
+    if (!el) return;
+    if (!n || !rent) { el.textContent = 'Select months and enter rent to see summary.'; return; }
+    const needsPAN = annual > 100000;
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--border)"><span>Monthly Rent</span><strong>₹${rent.toLocaleString('en-IN')}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--border)"><span>Months</span><strong>${n}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--border)"><span>Annual Rent</span><strong>₹${annual.toLocaleString('en-IN')}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:0.3rem 0"><span>Receipts to generate</span><strong>${n}</strong></div>
+      ${needsPAN ? '<div style="margin-top:0.5rem;color:#f59e0b;font-size:0.75rem">⚠️ Annual rent > ₹1 Lakh — Landlord PAN mandatory!</div>' : ''}
+    `;
+  }
+
+  // Live preview
+  function liveReceipt() {
+    const tenantName = document.getElementById('tenantName')?.value || 'Tenant Name';
+    const landlordName = document.getElementById('landlordName')?.value || 'Landlord Name';
+    const landlordPAN = document.getElementById('landlordPAN')?.value || '';
+    const propertyAddr = document.getElementById('propertyAddr')?.value || 'Property Address';
+    const landlordAddr = document.getElementById('landlordAddr')?.value || '';
+    const rent = parseFloat(document.getElementById('monthlyRent')?.value) || 0;
+    const payMode = document.getElementById('payMode')?.value || 'Bank Transfer';
+    const city = document.getElementById('receiptCity')?.value || 'City';
+    const today = new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'});
+
+    // Get first selected month or current
+    const months = [...selectedMonths];
+    const displayMonth = months.length > 0 ? months[0] : 'April ' + new Date().getFullYear();
+
+    const rentWords = numberToWords(rent);
+
+    document.getElementById('receiptPreview').innerHTML = `
+      <div class="receipt-header">
+        <div class="receipt-title">RENT RECEIPT</div>
+        <div style="font-size:0.68rem;color:#64748b;margin-top:0.25rem">For HRA Tax Exemption | TaxMitra AI Enterprise</div>
+      </div>
+      <div class="receipt-row"><span>Receipt Date:</span><strong>${today}</strong></div>
+      <div class="receipt-row"><span>Rental Period:</span><strong>${displayMonth}</strong></div>
+      <div class="receipt-row highlight"><span>Amount Received:</span><strong>₹${rent.toLocaleString('en-IN')} /-</strong></div>
+      <div style="font-size:0.75rem;color:#64748b;padding:0.25rem 0;margin-bottom:0.5rem">(${rentWords})</div>
+      <div class="receipt-row"><span>Received From:</span><strong>${tenantName}</strong></div>
+      <div class="receipt-row"><span>Against Property:</span><strong>${propertyAddr}</strong></div>
+      <div class="receipt-row"><span>Payment Mode:</span><strong>${payMode}</strong></div>
+      <div class="receipt-row"><span>Place:</span><strong>${city}</strong></div>
+      <div style="margin:0.75rem 0;padding:0.6rem;background:#f8fafc;border-radius:6px;font-size:0.8rem">
+        <strong>Landlord / Property Owner:</strong><br>
+        ${landlordName}${landlordAddr ? '<br>' + landlordAddr : ''}
+        ${landlordPAN ? '<br><strong>PAN: ' + landlordPAN + '</strong>' : ''}
+      </div>
+      <p style="font-size:0.78rem;color:#475569;margin:0.5rem 0">
+        I hereby certify that I have received rent of ₹${rent.toLocaleString('en-IN')}/- (${rentWords}) from <strong>${tenantName}</strong> for the property located at <strong>${propertyAddr}</strong> for the month of <strong>${displayMonth}</strong>.
+      </p>
+      <div class="receipt-sign">
+        <div class="sign-box">
+          <div class="stamp-circle">STAMP</div>
+          <div class="sign-line"></div>
+          <div style="font-size:0.72rem;font-weight:700">${landlordName}</div>
+          <div style="font-size:0.65rem;color:#64748b">Signature of Landlord</div>
+          ${landlordPAN ? '<div style="font-size:0.65rem;color:#475569">PAN: ' + landlordPAN + '</div>' : ''}
+        </div>
+        <div class="sign-box">
+          <div style="height:70px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:3px">
+            <div style="width:100px;border-bottom:1px solid #1a1a1a;margin-bottom:4px"></div>
+          </div>
+          <div style="font-size:0.72rem;font-weight:700">${tenantName}</div>
+          <div style="font-size:0.65rem;color:#64748b">Tenant's Acknowledgement</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:0.75rem;font-size:0.65rem;color:#94a3b8">Generated by TaxMitra AI Enterprise | Abhishek Agrahari | This is a computer-generated receipt</div>
+    `;
+
+    updateMonthInfo();
+    calcHRA();
+  }
+
+  function numberToWords(n) {
+    if (!n) return 'Zero Rupees Only';
+    const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+    const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+    function conv(x) {
+      if (x < 20) return ones[x];
+      if (x < 100) return tens[Math.floor(x/10)] + (x%10 ? ' '+ones[x%10] : '');
+      if (x < 1000) return ones[Math.floor(x/100)] + ' Hundred' + (x%100 ? ' '+conv(x%100) : '');
+      if (x < 100000) return conv(Math.floor(x/1000)) + ' Thousand' + (x%1000 ? ' '+conv(x%1000) : '');
+      if (x < 10000000) return conv(Math.floor(x/100000)) + ' Lakh' + (x%100000 ? ' '+conv(x%100000) : '');
+      return conv(Math.floor(x/10000000)) + ' Crore' + (x%10000000 ? ' '+conv(x%10000000) : '');
+    }
+    return 'Rupees ' + conv(Math.round(n)) + ' Only';
+  }
+
+  // HRA Calculator
+  function calcHRA() {
+    const basic = parseFloat(document.getElementById('hraBasic')?.value) || 0;
+    const hraRcvd = parseFloat(document.getElementById('hraReceived')?.value) || 0;
+    const rent = parseFloat(document.getElementById('monthlyRent')?.value) || 0;
+    const isMetro = document.getElementById('hraCityType')?.value === 'metro';
+
+    if (!basic || !hraRcvd || !rent) {
+      document.getElementById('hraResult').style.display = 'none';
+      return;
+    }
+
+    const l1 = hraRcvd;
+    const l2 = Math.max(0, rent - basic * 0.10);
+    const l3 = basic * (isMetro ? 0.50 : 0.40);
+    const monthlyExempt = Math.min(l1, l2, l3);
+    const annualExempt = monthlyExempt * 12;
+    const taxSaving30 = Math.round(annualExempt * 0.30 * 1.04);
+    const taxSaving20 = Math.round(annualExempt * 0.20 * 1.04);
+
+    document.getElementById('hraResult').style.display = 'block';
+    document.getElementById('hraL1').textContent = '₹' + l1.toLocaleString('en-IN');
+    document.getElementById('hraL2').textContent = '₹' + l2.toLocaleString('en-IN');
+    document.getElementById('hraL3').textContent = '₹' + l3.toLocaleString('en-IN');
+    document.getElementById('hraExemptAmt').textContent = '₹' + annualExempt.toLocaleString('en-IN') + '/year';
+    document.getElementById('hraTaxSaving').textContent = `Tax saving: ~₹${taxSaving30.toLocaleString('en-IN')} (30% slab) or ₹${taxSaving20.toLocaleString('en-IN')} (20% slab) | Old Regime only`;
+  }
+
+  // PDF Generation
+  function buildReceiptData() {
+    return {
+      tenantName: document.getElementById('tenantName')?.value?.trim() || '',
+      tenantPAN: document.getElementById('tenantPAN')?.value?.trim() || '',
+      landlordName: document.getElementById('landlordName')?.value?.trim() || '',
+      landlordPAN: document.getElementById('landlordPAN')?.value?.trim() || '',
+      landlordAddr: document.getElementById('landlordAddr')?.value?.trim() || '',
+      propertyAddr: document.getElementById('propertyAddr')?.value?.trim() || '',
+      rent: parseFloat(document.getElementById('monthlyRent')?.value) || 0,
+      payMode: document.getElementById('payMode')?.value || 'Bank Transfer',
+      city: document.getElementById('receiptCity')?.value?.trim() || 'Lucknow',
+    };
+  }
+
+  function validateForm() {
+    const d = buildReceiptData();
+    if (!d.tenantName) { showToast('Tenant name required', 'error'); return false; }
+    if (!d.landlordName) { showToast('Landlord name required', 'error'); return false; }
+    if (!d.propertyAddr) { showToast('Property address required', 'error'); return false; }
+    if (!d.rent) { showToast('Monthly rent amount required', 'error'); return false; }
+    const annualRent = d.rent * selectedMonths.size;
+    if (annualRent > 100000 && !d.landlordPAN) {
+      showToast('⚠️ Annual rent > ₹1 Lakh — Landlord PAN is mandatory for HRA!', 'error');
+      return false;
+    }
+    return d;
+  }
+
+  function addReceiptPage(doc, d, month, isFirst, receiptNum, totalReceipts) {
+    if (!isFirst) doc.addPage();
+    const W = 210, pw = 170, lm = 20;
+
+    // Header
+    doc.setFillColor(30,64,175); doc.rect(0,0,W,28,'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(16); doc.setFont('helvetica','bold');
+    doc.text('RENT RECEIPT', W/2, 12, {align:'center'});
+    doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text('For HRA Tax Exemption | TaxMitra AI Enterprise | Abhishek Agrahari', W/2, 21, {align:'center'});
+    if (totalReceipts > 1) {
+      doc.text(`Receipt ${receiptNum} of ${totalReceipts}`, W-5, 10, {align:'right'});
+    }
+
+    doc.setTextColor(30,30,30);
+    let y = 38;
+
+    // Receipt details
+    const today = new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'});
+    doc.autoTable({
+      startY: y,
+      head: [],
+      body: [
+        ['Receipt Date', today, 'Rental Month', month],
+        ['Tenant Name', d.tenantName, 'Tenant PAN', d.tenantPAN || 'Not provided'],
+        ['Rented Property', d.propertyAddr, 'Payment Mode', d.payMode],
+      ],
+      theme: 'grid', styles: { fontSize: 9 },
+      columnStyles: { 0:{fontStyle:'bold',fillColor:[240,244,255],cellWidth:40}, 2:{fontStyle:'bold',fillColor:[240,244,255],cellWidth:40} },
+      margin: { left: lm, right: lm }
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Amount box
+    doc.setFillColor(30,64,175); doc.rect(lm, y, pw, 14, 'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(12); doc.setFont('helvetica','bold');
+    doc.text('AMOUNT RECEIVED: ₹' + d.rent.toLocaleString('en-IN') + ' /-', W/2, y+9, {align:'center'});
+    doc.setTextColor(30,30,30); doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text('(' + numberToWords(d.rent) + ')', W/2, y+19, {align:'center'});
+    y += 26;
+
+    // Declaration
+    doc.setFontSize(9); doc.setFont('helvetica','normal');
+    const decl = `I hereby certify that I have received a sum of Rs.${d.rent.toLocaleString('en-IN')}/- (${numberToWords(d.rent)}) from ${d.tenantName} for the use of property situated at ${d.propertyAddr} for the month of ${month}.`;
+    const lines = doc.splitTextToSize(decl, pw);
+    doc.text(lines, lm, y);
+    y += lines.length * 5 + 6;
+
+    // Landlord details
+    doc.autoTable({
+      startY: y,
+      head: [['Landlord / Property Owner Details']],
+      body: [
+        ['Name: ' + d.landlordName],
+        ['Address: ' + (d.landlordAddr || 'As per records')],
+        ['PAN: ' + (d.landlordPAN || 'Not provided (required if annual rent > ₹1 Lakh)')],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [30,64,175], textColor: 255, fontSize: 9 },
+      styles: { fontSize: 9 },
+      margin: { left: lm, right: lm }
+    });
+    y = doc.lastAutoTable.finalY + 10;
+
+    // Signature area
+    doc.setFontSize(8); doc.setFont('helvetica','normal');
+    // Left: Landlord
+    doc.rect(lm, y, 60, 35);
+    doc.text('STAMP', lm+30, y+12, {align:'center'});
+    doc.line(lm+5, y+28, lm+55, y+28);
+    doc.text(d.landlordName, lm+30, y+31, {align:'center'});
+    doc.text('(Signature of Landlord)', lm+30, y+34, {align:'center'});
+    // Right: Tenant
+    doc.rect(lm+100, y, 60, 35);
+    doc.line(lm+105, y+28, lm+155, y+28);
+    doc.text(d.tenantName, lm+130, y+31, {align:'center'});
+    doc.text('(Tenant Acknowledgement)', lm+130, y+34, {align:'center'});
+
+    // Footer
+    const ph = doc.internal.pageSize.height;
+    doc.setFontSize(7); doc.setTextColor(150);
+    doc.text('This is a computer-generated receipt. Valid for HRA tax exemption claim. | TaxMitra AI Enterprise | Abhishek Agrahari', W/2, ph-8, {align:'center'});
+  }
+
+  function generateAllPDF() {
+    if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+    const d = validateForm();
+    if (!d) return;
+    if (!selectedMonths.size) { showToast('Please select at least one month', 'error'); return; }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const months = [...selectedMonths];
+
+    months.forEach((month, i) => {
+      addReceiptPage(doc, d, month, i === 0, i+1, months.length);
+    });
+
+    const fileName = `RentReceipts_${d.tenantName.replace(/\s+/g,'_')}_${months.length}months.pdf`;
+    doc.save(fileName);
+    showToast(`✅ ${months.length} rent receipts downloaded!`, 'success');
+  }
+
+  function generateSinglePDF() {
+    if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+    const d = validateForm();
+    if (!d) return;
+
+    const months = [...selectedMonths];
+    const month = months.length > 0 ? months[0] : 'April ' + new Date().getFullYear();
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    addReceiptPage(doc, d, month, true, 1, 1);
+    doc.save(`RentReceipt_${month.replace(' ','_')}.pdf`);
+    showToast('Single receipt PDF downloaded!', 'success');
+  }
+
+  function showToast(msg, type) {
+    const c = document.getElementById('toastContainer');
+    if (!c) return;
+    const d = document.createElement('div');
+    d.className = 'toast ' + (type||'success');
+    d.textContent = msg;
+    c.appendChild(d);
+    setTimeout(() => d.remove(), 3500);
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', () => {
+    populateMonths();
+    liveReceipt();
+    // Auto-select current month
+    const now = new Date();
+    const m = MONTHS[now.getMonth() < 3 ? now.getMonth() + 9 : now.getMonth() - 3]; // April-March offset
+    // Just populate fresh
+  });
+  </script>
+</body>
+</html>

@@ -1,0 +1,488 @@
+/* ================================================================
+   TaxMitra AI Enterprise — Responsive CSS v4.0
+   Developer: Abhishek Agrahari | Lucknow, UP
+   Breakpoints: 1280 | 1024 | 768 | 640 | 480 | 360
+   ================================================================ */
+
+/* ================================================================
+   ≤ 1280px — Large tablet / small laptop
+   ================================================================ */
+@media (max-width: 1280px) {
+  .hero-content { grid-template-columns: 1.1fr 0.9fr; gap: 2.5rem; }
+  .hero-title { font-size: clamp(1.8rem, 3.5vw, 2.9rem); }
+  .footer-grid { grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 1.5rem; }
+  .modules-grid { grid-template-columns: repeat(3, 1fr); }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .ai-main-layout { grid-template-columns: 1fr 290px; }
+  .comp-wrap { grid-template-columns: 290px 1fr; }
+  .floating-card { display: none !important; }
+}
+
+/* ================================================================
+   ≤ 1024px — Tablet landscape
+   ================================================================ */
+@media (max-width: 1024px) {
+  /* Nav */
+  .nav-links .nav-item:nth-child(n+6) { display: none; }
+  .dashboard-layout { grid-template-columns: 200px 1fr; }
+  .dash-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* AI */
+  .ai-main-layout { grid-template-columns: 1fr; }
+  .ai-sidebar-panel { display: none; }
+
+  /* Hero */
+  .hero-content { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .hero-title { font-size: clamp(1.7rem, 3.2vw, 2.65rem); }
+
+  /* Regime */
+  .regime-slabs { flex-wrap: wrap; }
+
+  /* Modules */
+  .modules-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Footer */
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+  /* Auth */
+  .login-left { display: none; }
+  .auth-layout { grid-template-columns: 1fr; }
+  .login-right { max-width: 440px; padding: 2rem 1.5rem; }
+}
+
+/* ================================================================
+   ≤ 768px — Tablet portrait / large phone
+   ================================================================ */
+@media (max-width: 768px) {
+  /* --- NAV --- */
+  .nav-links-wrapper {
+    display: none;
+    position: fixed;
+    top: 62px; left: 0; right: 0;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    z-index: 99;
+    padding: .75rem 1rem 1rem;
+    animation: slideDown .2s ease;
+    max-height: calc(100vh - 62px);
+    overflow-y: auto;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: none; }
+  }
+  .nav-links-wrapper.show { display: block; }
+  .nav-links { flex-direction: column; gap: .2rem; }
+  .nav-link { padding: .75rem 1rem; font-size: .9rem; border-radius: var(--radius-sm); }
+  .hamburger { display: flex !important; }
+  .btn-nav-login, .btn-nav-register { display: none; }
+  .btn-nav-ai { font-size: .72rem; padding: .34rem .7rem; }
+  .nav-container { height: 58px; padding: 0 1rem; }
+
+  /* --- HERO --- */
+  .hero-section { padding: 2.5rem 0 4rem; min-height: auto; }
+  .hero-content { grid-template-columns: 1fr; gap: 2rem; text-align: center; }
+  .hero-visual { display: none !important; }
+  .hero-title { font-size: clamp(1.7rem, 5.5vw, 2.5rem); }
+  .hero-subtitle { font-size: .875rem; }
+  .hero-actions { flex-direction: column; align-items: center; }
+  .btn-hero-primary, .btn-hero-secondary { width: 100%; max-width: 340px; justify-content: center; }
+  .hero-badge { margin-bottom: 1rem; }
+  .hero-stats { justify-content: center; gap: 1rem; }
+  .stat-divider { display: none; }
+  .hero-trust { justify-content: center; }
+
+  /* --- SECTIONS --- */
+  .section-pad { padding: 2.5rem 0; }
+  .section-pad-sm { padding: 1.75rem 0; }
+  .section-header { margin-bottom: 2rem; }
+  .section-header h2 { font-size: 1.5rem; }
+
+  /* --- QUICK TOOLS --- */
+  .quick-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: .35rem;
+    overflow: visible;
+  }
+  .qt-item { min-width: unset; padding: .4rem .3rem; }
+  .qt-item span { font-size: .6rem; }
+  .qt-icon { width: 36px; height: 36px; font-size: 1rem; }
+
+  /* --- REGIME --- */
+  .regime-slabs { flex-direction: column; gap: .85rem; }
+  .regime-vs { display: none; }
+  .slab-grid { grid-template-columns: 1fr 1fr; }
+  .regime-header { flex-direction: column; align-items: flex-start; gap: .4rem; }
+
+  /* --- MODULES --- */
+  .modules-grid { grid-template-columns: 1fr; }
+
+  /* --- AUDIENCE --- */
+  .audience-grid { grid-template-columns: 1fr 1fr; }
+
+  /* --- DUE DATES --- */
+  .due-dates-grid { grid-template-columns: 1fr 1fr; }
+
+  /* --- TESTIMONIALS --- */
+  .testimonials-grid { grid-template-columns: 1fr; }
+
+  /* --- TECH GRID --- */
+  .tech-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* --- FOOTER --- */
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .footer-social { justify-content: flex-start; }
+
+  /* --- CTA --- */
+  .cta-actions { flex-direction: column; align-items: center; }
+  .btn-cta-primary, .btn-cta-secondary { width: 100%; max-width: 320px; justify-content: center; }
+  .cta-features { gap: .65rem; font-size: .72rem; }
+
+  /* --- FORMS --- */
+  .form-grid { grid-template-columns: 1fr !important; }
+  .form-grid.cols-3 { grid-template-columns: 1fr !important; }
+  .result-breakdown { grid-template-columns: 1fr !important; }
+  .form-actions { flex-direction: column; gap: .5rem; }
+  .form-actions button, .form-actions a { width: 100%; justify-content: center; text-align: center; }
+
+  /* --- TABS --- */
+  .tab-nav { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; padding-bottom: .1rem; }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn { flex-shrink: 0; font-size: .78rem; padding: .45rem .8rem; white-space: nowrap; }
+
+  /* --- PAGE HERO --- */
+  .page-hero { padding: 1.75rem 0 1.25rem; }
+  .page-hero h1 { font-size: 1.35rem; }
+  .page-hero p { font-size: .8rem; }
+
+  /* --- AI FLOAT --- */
+  .ai-float-window { width: calc(100vw - 1.25rem); right: .625rem; bottom: 4.75rem; height: 72vh; }
+  .ai-float-btn { bottom: 1.25rem; right: 1.25rem; width: 48px; height: 48px; }
+
+  /* --- AI ASSISTANT PAGE --- */
+  .ai-chat-box { height: 65vh; min-height: 400px; }
+  .ai-modes { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .ai-modes::-webkit-scrollbar { display: none; }
+  .mode-btn { flex-shrink: 0; }
+
+  /* --- COMPUTATION --- */
+  .comp-wrap { grid-template-columns: 1fr !important; }
+  .inp-sidebar { position: static !important; max-height: none !important; overflow: visible; }
+
+  /* --- DASHBOARD --- */
+  .dashboard-layout { grid-template-columns: 1fr !important; }
+  .dash-sidebar { display: none !important; }
+  .stats-grid { grid-template-columns: 1fr 1fr !important; }
+  .dash-grid { grid-template-columns: 1fr !important; }
+
+  /* --- TABLES --- */
+  .table-wrap { border-radius: var(--radius-sm); }
+  table { font-size: .78rem; }
+  th, td { padding: .5rem .65rem; }
+  .comparison-table, .tds-rates-table, .hsn-table,
+  .adv-table, .cg-table { min-width: 520px; }
+  .ps-table { min-width: 400px; }
+
+  /* --- GST --- */
+  .gst-returns-grid { grid-template-columns: 1fr !important; }
+  .invoice-row-table th, .invoice-row-table td { font-size: .7rem; padding: .3rem .4rem; }
+
+  /* --- CALC PAGE --- */
+  .calc-main-layout { grid-template-columns: 1fr !important; }
+  .calc-sidebar { display: none !important; }
+  .calc-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* --- DOWNLOAD BTN GROUP --- */
+  .download-btn-group { flex-direction: column; gap: .5rem; }
+  .download-btn-group button,
+  .download-btn-group a { width: 100% !important; justify-content: center; }
+
+  /* --- ITR WIZARD --- */
+  .wizard-steps { flex-wrap: nowrap; }
+  .wizard-step { font-size: .7rem; padding: .45rem .65rem; }
+
+  /* --- MOBILE BOTTOM BAR --- */
+  .mobile-bottom-bar { display: flex !important; }
+  .compute-actions { display: none !important; }
+  .ai-check-btn { display: none !important; }
+
+  /* --- LOGIN --- */
+  .login-left { display: none !important; }
+}
+
+/* ================================================================
+   ≤ 640px — Large phone landscape
+   ================================================================ */
+@media (max-width: 640px) {
+  .quick-tools-grid { grid-template-columns: repeat(5, 1fr); }
+  .qt-item span { display: none; }
+  .qt-icon { width: 38px; height: 38px; }
+
+  .hero-stats { gap: .75rem; }
+  .stat-num { font-size: 1.45rem; }
+
+  .due-dates-grid { grid-template-columns: 1fr; }
+  .audience-grid { grid-template-columns: 1fr; }
+  .tech-grid { grid-template-columns: 1fr 1fr; }
+
+  .footer-grid { grid-template-columns: 1fr; }
+
+  /* Regime slabs one column */
+  .slab-grid { grid-template-columns: 1fr 1fr; }
+
+  /* AI float */
+  .ai-float-window { height: 74vh; }
+
+  /* Stat card icons hide */
+  .stat-card-icon { display: none; }
+}
+
+/* ================================================================
+   ≤ 480px — Standard phone
+   ================================================================ */
+@media (max-width: 480px) {
+  /* --- BASE --- */
+  .container { padding: 0 .85rem; }
+  body { font-size: 15px; }
+
+  /* --- TYPOGRAPHY --- */
+  .section-header h2 { font-size: 1.3rem !important; }
+  .page-hero h1 { font-size: 1.2rem !important; }
+
+  /* --- HERO --- */
+  .hero-section { padding: 2rem 0 3.5rem; }
+  .hero-title { font-size: clamp(1.5rem, 6vw, 2rem) !important; }
+  .hero-subtitle { font-size: .82rem; }
+  .hero-stats { gap: .6rem; }
+  .stat-num { font-size: 1.3rem; }
+  .stat-label { font-size: .6rem; }
+
+  /* --- NAV --- */
+  .logo-badge { display: none; }
+  .logo-primary { font-size: .9rem; }
+  .logo-icon { width: 30px; height: 30px; font-size: .88rem; }
+  .nav-container { height: 54px; padding: 0 .85rem; }
+  .nav-links-wrapper { top: 54px; max-height: calc(100vh - 54px); }
+  .btn-nav-ai { font-size: .68rem; padding: .28rem .58rem; gap: .2rem; }
+
+  /* --- ANNOUNCEMENT --- */
+  .announcement-bar { font-size: .65rem; padding: .35rem .7rem; }
+
+  /* --- QUICK TOOLS --- */
+  .quick-tools-grid { grid-template-columns: repeat(5, 1fr); gap: .3rem; }
+  .qt-icon { width: 34px; height: 34px; font-size: .9rem; }
+  .qt-item { padding: .35rem .25rem; }
+
+  /* --- CARDS --- */
+  .form-card { padding: 1rem; }
+  .module-card { border-radius: var(--radius-sm); }
+  .result-card { padding: 1rem; }
+  .result-main { font-size: 1.75rem; }
+
+  /* --- BUTTONS --- */
+  .btn-primary-solid, .btn-secondary-solid, .btn-outline-primary {
+    width: 100%; justify-content: center; text-align: center;
+    font-size: .82rem; padding: .6rem 1rem;
+  }
+
+  /* --- TABS --- */
+  .tab-btn { font-size: .75rem; padding: .42rem .7rem; }
+
+  /* --- GRID OVERRIDES --- */
+  .result-breakdown { grid-template-columns: 1fr !important; }
+  .stats-grid { grid-template-columns: 1fr 1fr !important; }
+  .calc-grid { grid-template-columns: 1fr 1fr !important; }
+  .slab-grid { grid-template-columns: 1fr 1fr; }
+  .audience-grid { grid-template-columns: 1fr; }
+  .tech-grid { grid-template-columns: 1fr; }
+  .due-dates-grid { grid-template-columns: 1fr; }
+  .knowledge-grid { grid-template-columns: 1fr; }
+
+  /* --- AI Window --- */
+  .ai-float-window { width: calc(100vw - 1rem); right: .5rem; height: 76vh; border-radius: var(--radius); }
+  .afw-quick-actions { gap: .2rem; }
+  .afw-quick-actions button { font-size: .62rem; padding: .15rem .4rem; }
+
+  /* --- FOOTER --- */
+  .footer-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+  .footer-bottom { flex-direction: column; text-align: center; gap: .4rem; }
+
+  /* --- MODAL --- */
+  .modal-overlay { padding: .5rem; }
+  .modal-box { border-radius: var(--radius); max-height: 95vh; }
+  .modal-header { padding: 1rem; }
+  .modal-body { padding: 1rem; }
+  .modal-footer { padding: .85rem 1rem; }
+
+  /* --- COMPUTATION --- */
+  .fg input, .fg select { font-size: 16px !important; } /* prevent zoom iOS */
+
+  /* --- AUTH --- */
+  .login-right { padding: 1.5rem 1rem; }
+  .login-form-title { font-size: 1.4rem; }
+
+  /* --- WIZARD --- */
+  .wizard-step { font-size: .65rem; padding: .38rem .5rem; }
+  .step-num { width: 16px; height: 16px; font-size: .6rem; }
+
+  /* --- AI ASSISTANT --- */
+  .ai-chat-box { height: 60vh; min-height: 360px; border-radius: var(--radius-sm); }
+  .ai-input-area { padding: .5rem; }
+  #aiInput { font-size: 16px !important; }
+
+  /* --- CTA --- */
+  .cta-section { padding: 3rem 0; }
+  .cta-section h2 { font-size: 1.35rem; }
+  .cta-features { flex-direction: column; align-items: center; gap: .5rem; }
+
+  /* --- UPLOAD ZONE --- */
+  .upload-zone { padding: 1.25rem 1rem; }
+  .upload-icon { font-size: 2rem; }
+}
+
+/* ================================================================
+   ≤ 360px — Very small phones (Galaxy A series)
+   ================================================================ */
+@media (max-width: 360px) {
+  .container { padding: 0 .65rem; }
+  .nav-container { padding: 0 .65rem; height: 52px; }
+  .nav-links-wrapper { top: 52px; }
+  .logo-icon { display: none; }
+  .logo-primary { font-size: .82rem; }
+
+  .hero-title { font-size: 1.4rem !important; }
+  .section-header h2 { font-size: 1.15rem !important; }
+
+  .qt-icon { width: 30px; height: 30px; font-size: .82rem; }
+  .quick-tools-grid { grid-template-columns: repeat(5, 1fr); gap: .2rem; }
+
+  .stat-num { font-size: 1.2rem; }
+
+  .tab-btn { font-size: .7rem; padding: .38rem .58rem; }
+
+  .form-card { padding: .85rem; }
+  .result-main { font-size: 1.5rem; }
+
+  .announcement-bar { display: none; }
+
+  .ai-float-btn { width: 44px; height: 44px; font-size: 1.1rem; }
+  .ai-float-window { height: 78vh; }
+}
+
+/* ================================================================
+   Landscape phones
+   ================================================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-section { min-height: auto; padding: 1.25rem 0 2rem; }
+  .hero-content { grid-template-columns: 1fr 1fr; }
+  .ai-float-window { height: 78vh; bottom: 3.25rem; }
+  .inp-sidebar { max-height: 100vh; }
+  .ai-chat-box { height: 70vh; }
+}
+
+/* ================================================================
+   ≥ 1536px — Ultra-wide / 4K
+   ================================================================ */
+@media (min-width: 1536px) {
+  .container { max-width: 1440px; }
+  .hero-title { font-size: 3.75rem; }
+  .modules-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ================================================================
+   Dark mode (system preference)
+   ================================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light-mode) {
+    --bg-primary: #0a0f1e;
+    --bg-secondary: #111827;
+    --bg-card: #1a2235;
+    --bg-glass: rgba(26,34,53,.92);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border: #1e293b;
+    --shadow: 0 4px 12px rgba(0,0,0,.3);
+    --shadow-md: 0 8px 24px rgba(0,0,0,.4);
+    --shadow-lg: 0 16px 48px rgba(0,0,0,.5);
+  }
+}
+
+/* ================================================================
+   Reduced motion
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* ================================================================
+   Extra polish — Mobile specific tweaks
+   ================================================================ */
+@media (max-width: 768px) {
+  /* Smooth scroll on mobile */
+  html { scroll-padding-top: 64px; }
+
+  /* Computation sidebar → top card */
+  .inp-card { border-radius: var(--radius-sm); }
+  .inp-head { font-size: .8rem; padding: .6rem .85rem; }
+  .inp-body { padding: .6rem .75rem; gap: .4rem; }
+
+  /* ITR form tabs scroll */
+  .form-tab { padding: .38rem .75rem; font-size: .76rem; }
+  .filing-section .form-card { padding: .85rem; }
+
+  /* GST invoice table */
+  .invoice-row-table { min-width: 480px; }
+
+  /* AI assistant */
+  .ai-modes::-webkit-scrollbar { display: none; }
+
+  /* Chat message max width */
+  .chat-msg { max-width: 95%; }
+
+  /* Result items stack */
+  .result-item { flex-direction: column; align-items: flex-start; gap: .2rem; }
+  .result-item strong { align-self: flex-end; font-size: 1rem; }
+
+  /* Tables */
+  .schedule-table { font-size: .72rem; }
+
+  /* Breadcrumb */
+  .breadcrumb { font-size: .68rem; }
+  .section-tag { font-size: .65rem; }
+
+  /* Sticky head */
+  .sticky-head { top: 58px; }
+
+  /* Scroll to top position */
+  .scroll-top { bottom: 4.75rem; right: 1.25rem; }
+
+  /* Toast position */
+  .toast-container { bottom: 5rem; right: .75rem; left: .75rem; }
+  .toast { min-width: unset; max-width: 100%; }
+
+  /* Upload zone compact */
+  .upload-zone { padding: 1.5rem 1rem; }
+
+  /* Highlight boxes */
+  .highlight-box, .tip-box, .warn-box { font-size: .8rem; padding: .7rem .85rem; }
+
+  /* Alert */
+  .alert { font-size: .8rem; padding: .65rem .85rem; }
+
+  /* Badge */
+  .badge { font-size: .65rem; padding: .15rem .45rem; }
+
+  /* Knowledge cards */
+  .knowledge-grid { grid-template-columns: 1fr; }
+
+  /* KB card */
+  .kb-card { padding: 1rem; }
+  .kb-icon { font-size: 1.5rem; margin-bottom: .5rem; }
+}

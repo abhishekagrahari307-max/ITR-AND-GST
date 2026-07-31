@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>50+ Tax Calculators – TaxMitra AI Enterprise</title>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://abhishekagrahari307-max.github.io/ITR-AND-GST/pages/calculators.html"/>
+  <meta property="og:title" content="50+ Tax Calculators — Income Tax, HRA, SIP, EMI, PPF | TaxMitra AI"/>
+  <meta property="og:description" content="India ke sabse comprehensive tax calculators — Income Tax, HRA, SIP, EMI, PPF, NPS, FD, Capital Gains, GST aur bahut kuch. Free. AY 2026-27."/>
+  <meta property="og:image" content="https://abhishekagrahari307-max.github.io/ITR-AND-GST/og-image.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="50+ Tax Calculators — Income Tax, HRA, SIP, EMI, PPF | TaxMitra AI"/>
+  <meta name="twitter:description" content="India ke sabse comprehensive tax calculators — Income Tax, HRA, SIP, EMI, PPF, NPS, FD, Capital Gains, GST aur bahut kuch. Free. AY 2026-27."/>
+  <meta name="description" content="India ke sabse comprehensive tax calculators — Income Tax, HRA, SIP, EMI, PPF, NPS, FD, Capital Gains, GST aur bahut kuch. Free. AY 2026-27."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+  <link rel="stylesheet" href="../css/responsive.css">
+  <style>
+    .calc-sidebar { position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
+    .calc-sidebar-links { display: flex; flex-direction: column; gap: 0.25rem; }
+    .calc-sidebar-links a { padding: 0.5rem 0.75rem; font-size: 0.82rem; border-radius: var(--radius-sm); color: var(--text-secondary); transition: var(--transition); }
+    .calc-sidebar-links a:hover, .calc-sidebar-links a.active { background: rgba(30,64,175,0.08); color: var(--primary); font-weight: 600; }
+    .calc-sidebar-links h5 { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding: 0.75rem 0.75rem 0.25rem; }
+    .calc-main-layout { display: grid; grid-template-columns: 220px 1fr; gap: 2rem; padding: 2rem 0; }
+    .calc-section { margin-bottom: 3rem; scroll-margin-top: 80px; }
+    .calc-section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
+    .input-with-prefix { position: relative; }
+    .input-prefix { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-weight: 600; }
+    .input-with-prefix input { padding-left: 2rem !important; }
+    .comparison-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .comparison-table th, .comparison-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+    .comparison-table th { background: var(--bg-secondary); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; }
+    .comparison-table tr:last-child td { font-weight: 700; background: rgba(30,64,175,0.05); }
+    .highlight-row td { color: var(--primary) !important; font-weight: 700 !important; }
+    .range-input { width: 100%; accent-color: var(--primary); }
+    .range-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .range-label { display: flex; justify-content: space-between; font-size: 0.82rem; }
+    .sip-chart { height: 200px; background: linear-gradient(to right, rgba(30,64,175,0.1), rgba(30,64,175,0.05)); border-radius: var(--radius); display: flex; align-items: flex-end; gap: 4px; padding: 1rem 0.5rem 0; overflow: hidden; margin-top: 1rem; }
+    .sip-bar { flex: 1; background: linear-gradient(180deg, var(--primary), rgba(30,64,175,0.5)); border-radius: 4px 4px 0 0; min-height: 10px; transition: height 0.5s ease; }
+    @media(max-width:768px){ .calc-main-layout { grid-template-columns: 1fr; } .calc-sidebar { display: none; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle">🌙</button>
+        <a href="import-data.html" class="btn-nav-ai" style="background:linear-gradient(135deg,#059669,#047857)"><i class="fa fa-file-import"></i> Import</a>
+      <a href="../index.html" class="btn-nav-login">← Home</a>
+        <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="font-size:.88rem;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.3rem .6rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI Help</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Calculators</span></div>
+      <h1>🔢 50+ Professional Tax Calculators</h1>
+      <p>India ke sabse comprehensive financial calculators – Income Tax se lekar Retirement Planning tak sab kuch free mein</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="calc-main-layout">
+      <!-- SIDEBAR -->
+      <aside class="calc-sidebar">
+        <div class="form-card">
+          <div class="calc-sidebar-links">
+            <h5>Income Tax</h5>
+            <a href="#income-tax" onclick="scrollTo(this)">💰 Income Tax</a>
+            <a href="#regime">⚖️ Old vs New Regime</a>
+            <a href="#advance-tax">📅 Advance Tax</a>
+            <a href="#capital-gain">📈 Capital Gain</a>
+            <a href="#surcharge">➕ Surcharge & Cess</a>
+            <a href="#234abc">⚡ Interest 234A/B/C</a>
+            <a href="#rebate87a">🎁 Rebate u/s 87A</a>
+            <a href="#amt">🔢 AMT / MAT</a>
+            <h5>GST</h5>
+            <a href="#gst-calc">🧾 GST Calculator</a>
+            <a href="#reverse-gst">🔄 Reverse GST</a>
+            <h5>Salary</h5>
+            <a href="#hra">🏠 HRA Calculator</a>
+            <a href="#gratuity">🎖️ Gratuity</a>
+            <a href="#leave">🏖️ Leave Encashment</a>
+            <a href="#epf">🏦 EPF Calculator</a>
+            <a href="#tds-salary">💼 TDS on Salary</a>
+            <h5>Investment</h5>
+            <a href="#sip">📊 SIP Calculator</a>
+            <a href="#ppf">🏛️ PPF Calculator</a>
+            <a href="#nps">🧓 NPS Calculator</a>
+            <a href="#fd">🏧 FD Calculator</a>
+            <a href="#swp">💵 SWP Calculator</a>
+            <a href="#cagr">📉 CAGR Calculator</a>
+            <h5>Loans</h5>
+            <a href="#emi">🏡 EMI Calculator</a>
+            <a href="#home-loan">🏠 Home Loan Tax</a>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main>
+
+        <!-- ===== INCOME TAX CALCULATOR ===== -->
+        <section class="calc-section" id="income-tax">
+          <div class="calc-section-title">💰 Income Tax Calculator (AY 2026-27)</div>
+          <div class="form-card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Annual Income (₹)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="taxIncome" placeholder="e.g. 1200000" value="1200000"/></div>
+              </div>
+              <div class="form-group">
+                <label>Age Category</label>
+                <select id="taxAge">
+                  <option value="below60">Below 60 years</option>
+                  <option value="60to80">Senior Citizen (60-80)</option>
+                  <option value="above80">Super Senior (80+)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Tax Regime</label>
+                <select id="taxRegime">
+                  <option value="new">New Regime (Default)</option>
+                  <option value="old">Old Regime</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Section 80C (Old Regime)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="deduction80c" placeholder="Max 150000" value="150000"/></div>
+              </div>
+              <div class="form-group">
+                <label>Section 80D (Health Ins.)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="deduction80d" placeholder="Max 25000" value="25000"/></div>
+              </div>
+              <div class="form-group">
+                <label>Home Loan Interest (24b)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="homeloanInterest" placeholder="Max 200000" value="0"/></div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary-solid" onclick="calculateIncomeTax()"><i class="fa fa-calculator"></i> Calculate Tax</button>
+              <button class="btn-secondary-solid" onclick="resetTax()">Reset</button>
+            </div>
+          </div>
+          <div class="result-card" id="taxResult" style="display:none">
+            <h4>Tax Computation Result</h4>
+            <div class="result-main" id="taxAmount">₹0</div>
+            <div class="result-breakdown" id="taxBreakdown"></div>
+          </div>
+        </section>
+
+        <!-- ===== REGIME COMPARISON ===== -->
+        <section class="calc-section" id="regime">
+          <div class="calc-section-title">⚖️ Old vs New Regime Comparison</div>
+          <div class="form-card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Annual Income (₹)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="rcIncome" placeholder="e.g. 1200000" value="1200000"/></div>
+              </div>
+              <div class="form-group">
+                <label>Total Deductions (Old Regime)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="rcDeductions" placeholder="e.g. 375000" value="375000"/></div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary-solid" onclick="compareRegime()">⚖️ Compare Regimes</button>
+            </div>
+            <div id="regimeResult" style="margin-top:1.5rem;display:none">
+              <table class="comparison-table">
+                <thead><tr><th>Particulars</th><th>Old Regime</th><th>New Regime</th></tr></thead>
+                <tbody id="regimeTableBody"></tbody>
+              </table>
+              <div id="regimeRecommend" style="margin-top:1rem;padding:1rem;border-radius:var(--radius);font-weight:600;font-size:0.95rem"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== CAPITAL GAIN ===== -->
+        <section class="calc-section" id="capital-gain">
+          <div class="calc-section-title">📈 Capital Gain Calculator</div>
+          <div class="form-card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Asset Type</label>
+                <select id="cgAsset">
+                  <option value="equity">Equity Shares / Equity MF</option>
+                  <option value="debt">Debt MF / Bonds</option>
+                  <option value="property">House Property / Land</option>
+                  <option value="gold">Gold / Silver</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Purchase Price (₹)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="cgBuy" placeholder="Purchase price" value="100000"/></div>
+              </div>
+              <div class="form-group">
+                <label>Sale Price (₹)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="cgSell" placeholder="Sale price" value="200000"/></div>
+              </div>
+              <div class="form-group">
+                <label>Holding Period</label>
+                <select id="cgPeriod">
+                  <option value="stcg">Short Term (STCG)</option>
+                  <option value="ltcg">Long Term (LTCG)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Cost of Improvement (₹)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="cgImprove" placeholder="0" value="0"/></div>
+              </div>
+              <div class="form-group">
+                <label>LTCG Exemption (equity ₹1.25L)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="cgExemption" placeholder="125000" value="125000"/></div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary-solid" onclick="calculateCapitalGain()">📈 Calculate Capital Gain</button>
+            </div>
+            <div class="result-card" id="cgResult" style="display:none">
+              <h4>Capital Gain Result</h4>
+              <div class="result-main" id="cgTax">₹0</div>
+              <div class="result-breakdown" id="cgBreakdown"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== HRA CALCULATOR ===== -->
+        <section class="calc-section" id="hra">
+          <div class="calc-section-title">🏠 HRA Calculator</div>
+          <div class="form-card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Basic Salary (₹/year)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="hraBasic" value="600000"/></div>
+              </div>
+              <div class="form-group">
+                <label>HRA Received (₹/year)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="hraReceived" value="240000"/></div>
+              </div>
+              <div class="form-group">
+                <label>Rent Paid (₹/year)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="hraRent" value="300000"/></div>
+              </div>
+              <div class="form-group">
+                <label>City Type</label>
+                <select id="hraCity">
+                  <option value="metro">Metro (40% of Basic)</option>
+                  <option value="nonmetro">Non-Metro (50% of Basic)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary-solid" onclick="calculateHRA()">🏠 Calculate HRA Exemption</button>
+            </div>
+            <div class="result-card" id="hraResult" style="display:none">
+              <h4>HRA Exemption Result</h4>
+              <div class="result-main" id="hraExemption">₹0</div>
+              <div class="result-breakdown" id="hraBreakdown"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== SIP CALCULATOR ===== -->
+        <section class="calc-section" id="sip">
+          <div class="calc-section-title">📊 SIP Calculator</div>
+          <div class="form-card">
+            <div class="form-group">
+              <label>Monthly SIP Amount (₹)</label>
+              <div class="range-group">
+                <div class="range-label"><span>₹500</span><span id="sipAmtLabel">₹5,000</span><span>₹1,00,000</span></div>
+                <input type="range" class="range-input" id="sipAmt" min="500" max="100000" step="500" value="5000" oninput="document.getElementById('sipAmtLabel').textContent='₹'+parseInt(this.value).toLocaleString('en-IN');calculateSIP()"/>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:1rem">
+              <label>Expected Annual Return (%)</label>
+              <div class="range-group">
+                <div class="range-label"><span>1%</span><span id="sipReturnLabel">12%</span><span>30%</span></div>
+                <input type="range" class="range-input" id="sipReturn" min="1" max="30" step="0.5" value="12" oninput="document.getElementById('sipReturnLabel').textContent=this.value+'%';calculateSIP()"/>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:1rem">
+              <label>Investment Duration (Years)</label>
+              <div class="range-group">
+                <div class="range-label"><span>1yr</span><span id="sipYearsLabel">15 yrs</span><span>40yr</span></div>
+                <input type="range" class="range-input" id="sipYears" min="1" max="40" step="1" value="15" oninput="document.getElementById('sipYearsLabel').textContent=this.value+' yrs';calculateSIP()"/>
+              </div>
+            </div>
+            <div class="result-card" id="sipResult" style="margin-top:1.5rem">
+              <h4>SIP Growth Projection</h4>
+              <div class="result-main" id="sipFV">₹0</div>
+              <div class="result-breakdown" id="sipBreakdown"></div>
+              <div class="sip-chart" id="sipChart"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== EMI CALCULATOR ===== -->
+        <section class="calc-section" id="emi">
+          <div class="calc-section-title">🏡 EMI Calculator</div>
+          <div class="form-card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Loan Amount (₹)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="emiPrincipal" value="5000000"/></div>
+              </div>
+              <div class="form-group">
+                <label>Annual Interest Rate (%)</label>
+                <input type="number" id="emiRate" step="0.1" value="8.5"/>
+              </div>
+              <div class="form-group">
+                <label>Loan Tenure (Years)</label>
+                <input type="number" id="emiTenure" value="20"/>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary-solid" onclick="calculateEMI()">🏡 Calculate EMI</button>
+            </div>
+            <div class="result-card" id="emiResult" style="display:none">
+              <h4>Loan EMI Result</h4>
+              <div class="result-main" id="emiAmount">₹0/month</div>
+              <div class="result-breakdown" id="emiBreakdown"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== PPF CALCULATOR ===== -->
+        <section class="calc-section" id="ppf">
+          <div class="calc-section-title">🏛️ PPF Calculator</div>
+          <div class="form-card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Annual Contribution (₹)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="ppfAmt" value="150000"/></div>
+              </div>
+              <div class="form-group">
+                <label>PPF Rate (%)</label>
+                <input type="number" id="ppfRate" step="0.1" value="7.1"/>
+              </div>
+              <div class="form-group">
+                <label>Duration (Years, min 15)</label>
+                <input type="number" id="ppfYears" min="15" value="15"/>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary-solid" onclick="calculatePPF()">🏛️ Calculate PPF Maturity</button>
+            </div>
+            <div class="result-card" id="ppfResult" style="display:none">
+              <h4>PPF Maturity</h4>
+              <div class="result-main" id="ppfMaturity">₹0</div>
+              <div class="result-breakdown" id="ppfBreakdown"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== GRATUITY ===== -->
+        <section class="calc-section" id="gratuity">
+          <div class="calc-section-title">🎖️ Gratuity Calculator</div>
+          <div class="form-card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Last Drawn Basic + DA (₹/month)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="gratBasic" value="50000"/></div>
+              </div>
+              <div class="form-group">
+                <label>Years of Service</label>
+                <input type="number" id="gratYears" value="10"/>
+              </div>
+              <div class="form-group">
+                <label>Employment Type</label>
+                <select id="gratType">
+                  <option value="covered">Covered under Gratuity Act</option>
+                  <option value="notcovered">Not Covered</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary-solid" onclick="calculateGratuity()">🎖️ Calculate Gratuity</button>
+            </div>
+            <div class="result-card" id="gratResult" style="display:none">
+              <h4>Gratuity Amount</h4>
+              <div class="result-main" id="gratAmount">₹0</div>
+              <div class="result-breakdown" id="gratBreakdown"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== GST CALCULATOR ===== -->
+        <section class="calc-section" id="gst-calc">
+          <div class="calc-section-title">🧾 GST Calculator</div>
+          <div class="form-card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Amount (₹)</label>
+                <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="gstAmt" value="10000"/></div>
+              </div>
+              <div class="form-group">
+                <label>GST Rate (%)</label>
+                <select id="gstRate">
+                  <option value="0">0% (Exempt)</option>
+                  <option value="5">5%</option>
+                  <option value="12">12%</option>
+                  <option value="18" selected>18%</option>
+                  <option value="28">28%</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>GST Type</label>
+                <select id="gstType">
+                  <option value="exclusive">Exclusive (Add to amount)</option>
+                  <option value="inclusive">Inclusive (Extract from amount)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Transaction Type</label>
+                <select id="gstTxType">
+                  <option value="intra">Intra-state (CGST + SGST)</option>
+                  <option value="inter">Inter-state (IGST)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary-solid" onclick="calculateGST()">🧾 Calculate GST</button>
+            </div>
+            <div class="result-card" id="gstResult" style="display:none">
+              <h4>GST Calculation</h4>
+              <div class="result-main" id="gstTotal">₹0</div>
+              <div class="result-breakdown" id="gstBreakdown"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== ADVANCE TAX CALCULATOR ===== -->
+        <section class="calc-section" id="advance-tax">
+          <div class="calc-section-title">📅 Advance Tax Calculator</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Annual Tax Liability (after TDS) ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="advTaxLiab" value="100000" oninput="calcAdvanceTax()"/></div></div>
+            <div class="form-group"><label>Q1 Paid (by 15 Jun) ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="advQ1paid" value="0" oninput="calcAdvanceTax()"/></div></div>
+            <div class="form-group"><label>Q2 Paid (by 15 Sep) ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="advQ2paid" value="0" oninput="calcAdvanceTax()"/></div></div>
+            <div class="form-group"><label>Q3 Paid (by 15 Dec) ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="advQ3paid" value="0" oninput="calcAdvanceTax()"/></div></div>
+          </div>
+          <div class="result-card" id="advanceTaxResult" style="display:none;max-width:600px;margin-top:1rem">
+            <div class="result-label">Advance Tax Schedule (AY 2026-27)</div>
+            <div class="result-breakdown" id="advanceTaxBreakdown"></div>
+          </div>
+        </section>
+
+        <!-- ===== INTEREST 234A/B/C ===== -->
+        <section class="calc-section" id="234abc">
+          <div class="calc-section-title">⚡ Interest u/s 234A / 234B / 234C</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Net Tax Payable (after TDS) ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="int234Tax" value="50000" oninput="calc234Interest()"/></div></div>
+            <div class="form-group"><label>Filing Delay (months after 31 July)</label>
+              <input type="number" id="int234Delay" value="0" min="0" max="48" oninput="calc234Interest()"/></div>
+            <div class="form-group"><label>Advance Tax Paid ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="int234AdvPaid" value="0" oninput="calc234Interest()"/></div></div>
+          </div>
+          <div class="result-card" id="result234" style="display:none;max-width:600px;margin-top:1rem">
+            <div class="result-label">Interest Calculation</div>
+            <div class="result-breakdown" id="breakdown234"></div>
+          </div>
+        </section>
+
+        <!-- ===== 87A REBATE CHECKER ===== -->
+        <section class="calc-section" id="rebate87a">
+          <div class="calc-section-title">🎁 Rebate u/s 87A Checker</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Total Income (after deductions) ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="r87aIncome" value="1200000" oninput="calc87A()"/></div></div>
+            <div class="form-group"><label>Tax Regime</label>
+              <select id="r87aRegime" onchange="calc87A()">
+                <option value="new">New Regime</option>
+                <option value="old">Old Regime</option>
+              </select></div>
+          </div>
+          <div class="result-card" id="result87a" style="max-width:600px;margin-top:1rem">
+            <div class="result-label">87A Rebate Status</div>
+            <div class="result-main" id="rebate87aAmt" style="color:var(--success)">Calculate...</div>
+            <div class="result-breakdown" id="breakdown87a"></div>
+          </div>
+        </section>
+
+        <!-- ===== SURCHARGE CALCULATOR ===== -->
+        <section class="calc-section" id="surcharge">
+          <div class="calc-section-title">➕ Surcharge & Marginal Relief Calculator</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Total Income ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="surchargeIncome" value="5500000" oninput="calcSurcharge()"/></div></div>
+            <div class="form-group"><label>Tax Before Surcharge ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="surchargeTax" value="150000" oninput="calcSurcharge()"/></div></div>
+          </div>
+          <div class="result-card" id="surchargeResult" style="display:none;max-width:600px;margin-top:1rem">
+            <div class="result-label">Surcharge Calculation</div>
+            <div class="result-main" id="surchargeAmt">₹0</div>
+            <div class="result-breakdown" id="surchargeBreakdown"></div>
+          </div>
+        </section>
+
+        <!-- ===== EPF CALCULATOR ===== -->
+        <section class="calc-section" id="epf">
+          <div class="calc-section-title">🏦 EPF (Provident Fund) Calculator</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Basic Salary (Monthly ₹)</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="epfBasic" value="25000" oninput="calculateEPF()"/></div></div>
+            <div class="form-group"><label>Service Period (Years)</label>
+              <input type="number" id="epfYears" value="20" min="1" max="35" oninput="calculateEPF()"/></div>
+            <div class="form-group"><label>EPF Interest Rate (%)</label>
+              <input type="number" id="epfRate" value="8.25" step="0.01" oninput="calculateEPF()"/></div>
+          </div>
+          <div class="result-card" id="epfResult" style="display:none;max-width:600px;margin-top:1rem">
+            <div class="result-label">EPF Maturity Value</div>
+            <div class="result-main" id="epfCorpus">₹0</div>
+            <div class="result-breakdown" id="epfBreakdown"></div>
+          </div>
+        </section>
+
+        <!-- ===== NPS CALCULATOR ===== -->
+        <section class="calc-section" id="nps">
+          <div class="calc-section-title">🧓 NPS (National Pension System) Calculator</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Monthly Contribution ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="npsMonthly" value="5000" oninput="calculateNPS()"/></div></div>
+            <div class="form-group"><label>Investment Period (Years)</label>
+              <input type="number" id="npsYears" value="30" min="1" max="40" oninput="calculateNPS()"/></div>
+            <div class="form-group"><label>Expected Annual Return (%)</label>
+              <input type="number" id="npsReturn" value="10" step="0.5" oninput="calculateNPS()"/></div>
+          </div>
+          <div class="result-card" id="npsResult" style="display:none;max-width:600px;margin-top:1rem">
+            <div class="result-label">NPS Corpus at Retirement</div>
+            <div class="result-main" id="npsCorpus">₹0</div>
+            <div class="result-breakdown" id="npsBreakdown"></div>
+          </div>
+        </section>
+
+        <!-- ===== FD CALCULATOR ===== -->
+        <section class="calc-section" id="fd">
+          <div class="calc-section-title">🏧 FD (Fixed Deposit) Calculator</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Principal Amount ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="fdPrincipal" value="100000" oninput="calculateFD()"/></div></div>
+            <div class="form-group"><label>Annual Interest Rate (%)</label>
+              <input type="number" id="fdRate" value="7.5" step="0.1" oninput="calculateFD()"/></div>
+            <div class="form-group"><label>Tenure (Years)</label>
+              <input type="number" id="fdYears" value="5" min="1" max="20" oninput="calculateFD()"/></div>
+            <div class="form-group"><label>Compounding</label>
+              <select id="fdComp" onchange="calculateFD()">
+                <option value="4">Quarterly</option>
+                <option value="12">Monthly</option>
+                <option value="2">Half-Yearly</option>
+                <option value="1">Annual</option>
+              </select></div>
+            <div class="form-group"><label>Tax Slab (%)</label>
+              <select id="fdTaxSlab" onchange="calculateFD()">
+                <option value="0">Nil (below exemption)</option>
+                <option value="5">5%</option>
+                <option value="20" selected>20%</option>
+                <option value="30">30%</option>
+              </select></div>
+          </div>
+          <div class="result-card" id="fdResult" style="display:none;max-width:600px;margin-top:1rem">
+            <div class="result-label">FD Maturity Value</div>
+            <div class="result-main" id="fdMaturity">₹0</div>
+            <div class="result-breakdown" id="fdBreakdown"></div>
+          </div>
+        </section>
+
+        <!-- ===== SWP CALCULATOR ===== -->
+        <section class="calc-section" id="swp">
+          <div class="calc-section-title">💵 SWP (Systematic Withdrawal Plan) Calculator</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Total Investment ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="swpCorpus" value="1000000" oninput="calculateSWP()"/></div></div>
+            <div class="form-group"><label>Monthly Withdrawal ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="swpMonthly" value="8000" oninput="calculateSWP()"/></div></div>
+            <div class="form-group"><label>Expected Annual Return (%)</label>
+              <input type="number" id="swpReturn" value="10" step="0.5" oninput="calculateSWP()"/></div>
+          </div>
+          <div class="result-card" id="swpResult" style="display:none;max-width:600px;margin-top:1rem">
+            <div class="result-label">SWP Duration</div>
+            <div class="result-main" id="swpDuration">0 months</div>
+            <div class="result-breakdown" id="swpBreakdown"></div>
+          </div>
+        </section>
+
+        <!-- ===== CAGR CALCULATOR ===== -->
+        <section class="calc-section" id="cagr">
+          <div class="calc-section-title">📉 CAGR (Compound Annual Growth Rate) Calculator</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Initial Investment ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="cagrInitial" value="100000" oninput="calculateCAGR()"/></div></div>
+            <div class="form-group"><label>Final Value ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="cagrFinal" value="250000" oninput="calculateCAGR()"/></div></div>
+            <div class="form-group"><label>Investment Period (Years)</label>
+              <input type="number" id="cagrYears" value="10" min="1" oninput="calculateCAGR()"/></div>
+          </div>
+          <div class="result-card" id="cagrResult" style="display:none;max-width:600px;margin-top:1rem">
+            <div class="result-label">CAGR</div>
+            <div class="result-main" id="cagrRate">0%</div>
+            <div class="result-breakdown" id="cagrBreakdown"></div>
+          </div>
+        </section>
+
+        <!-- ===== LEAVE ENCASHMENT ===== -->
+        <section class="calc-section" id="leave">
+          <div class="calc-section-title">🏖️ Leave Encashment Calculator</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Basic + DA (Monthly ₹)</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="leaveBasic" value="50000" oninput="calcLeaveEncashment()"/></div></div>
+            <div class="form-group"><label>Earned Leave Balance (days)</label>
+              <input type="number" id="leaveDays" value="30" oninput="calcLeaveEncashment()"/></div>
+            <div class="form-group"><label>Employee Type</label>
+              <select id="leaveType" onchange="calcLeaveEncashment()">
+                <option value="govt">Government Employee (fully exempt)</option>
+                <option value="private">Private Employee</option>
+              </select></div>
+          </div>
+          <div class="result-card" id="leaveResult" style="display:none;max-width:600px;margin-top:1rem">
+            <div class="result-label">Leave Encashment</div>
+            <div class="result-main" id="leaveAmount">₹0</div>
+            <div class="result-breakdown" id="leaveBreakdown"></div>
+          </div>
+        </section>
+
+        <!-- ===== HOME LOAN TAX BENEFIT ===== -->
+        <section class="calc-section" id="home-loan">
+          <div class="calc-section-title">🏠 Home Loan Tax Benefit Calculator</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Annual Principal Repayment ₹ (80C)</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="hlPrincipal" value="150000" oninput="calcHomeLoanTax()"/></div></div>
+            <div class="form-group"><label>Annual Interest Paid ₹ (u/s 24b)</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="hlInterest" value="200000" oninput="calcHomeLoanTax()"/></div></div>
+            <div class="form-group"><label>Property Type</label>
+              <select id="hlType" onchange="calcHomeLoanTax()">
+                <option value="sop">Self-Occupied (max interest ₹2L)</option>
+                <option value="lop">Let-Out (full interest allowed)</option>
+              </select></div>
+            <div class="form-group"><label>Your Tax Slab (%)</label>
+              <select id="hlSlab" onchange="calcHomeLoanTax()">
+                <option value="5">5%</option>
+                <option value="20" selected>20%</option>
+                <option value="30">30%</option>
+              </select></div>
+          </div>
+          <div class="result-card" id="homeLoanResult" style="display:none;max-width:600px;margin-top:1rem">
+            <div class="result-label">Tax Benefit on Home Loan</div>
+            <div class="result-main" id="homeLoanSaving">₹0</div>
+            <div class="result-breakdown" id="homeLoanBreakdown"></div>
+          </div>
+        </section>
+
+        <!-- ===== REVERSE GST ===== -->
+        <section class="calc-section" id="reverse-gst">
+          <div class="calc-section-title">🔄 Reverse GST Calculator (Find Base Price)</div>
+          <div class="form-grid" style="max-width:500px">
+            <div class="form-group"><label>Amount Inclusive of GST ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="revGSTAmt" value="118" oninput="calcReverseGST()"/></div></div>
+            <div class="form-group"><label>GST Rate (%)</label>
+              <select id="revGSTRate" onchange="calcReverseGST()">
+                <option value="5">5%</option>
+                <option value="12">12%</option>
+                <option value="18" selected>18%</option>
+                <option value="28">28%</option>
+              </select></div>
+          </div>
+          <div class="result-card" id="revGSTResult" style="max-width:500px;margin-top:1rem">
+            <div class="result-label">Base Price (ex-GST)</div>
+            <div class="result-main" id="revGSTBase">₹0</div>
+            <div class="result-breakdown" id="revGSTBreakdown"></div>
+          </div>
+        </section>
+
+        <!-- ===== TDS ON SALARY ===== -->
+        <section class="calc-section" id="tds-salary">
+          <div class="calc-section-title">💼 Quick TDS on Salary Estimator</div>
+          <div class="form-grid" style="max-width:600px">
+            <div class="form-group"><label>Annual CTC ₹</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="calcTdsCTC" value="800000" oninput="calcTDSSalary()"/></div></div>
+            <div class="form-group"><label>Regime</label>
+              <select id="calcTdsRegime" onchange="calcTDSSalary()">
+                <option value="new">New Regime</option>
+                <option value="old">Old Regime</option>
+              </select></div>
+            <div class="form-group"><label>80C Investments ₹ (Old Regime)</label>
+              <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="calcTds80c" value="150000" oninput="calcTDSSalary()"/></div></div>
+          </div>
+          <div class="result-card" id="tdsSalResult" style="display:none;max-width:600px;margin-top:1rem">
+            <div class="result-label">Monthly TDS Deduction</div>
+            <div class="result-main" id="tdsSalMonthly">₹0/month</div>
+            <div class="result-breakdown" id="tdsSalBreakdown"></div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- AI Float Window injected by taxmitra.js -->
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/pdf-real.js"></script>
+<script>
+    // ===== INCOME TAX CALCULATOR =====
+    function calculateIncomeTax() {
+      const income = parseFloat(document.getElementById('taxIncome').value) || 0;
+      const regime = document.getElementById('taxRegime').value;
+      const age = document.getElementById('taxAge').value;
+      let d80c = parseFloat(document.getElementById('deduction80c').value) || 0;
+      let d80d = parseFloat(document.getElementById('deduction80d').value) || 0;
+      let hlInterest = parseFloat(document.getElementById('homeloanInterest').value) || 0;
+
+      let taxableIncome, tax = 0, stdDed = 0;
+
+      if (regime === 'new') {
+        stdDed = 75000;
+        taxableIncome = Math.max(0, income - stdDed);
+        // New Regime AY 2026-27 (Budget 2025)
+        if (taxableIncome <= 400000) tax = 0;
+        else if (taxableIncome <= 800000) tax = (taxableIncome - 400000) * 0.05;
+        else if (taxableIncome <= 1200000) tax = 20000 + (taxableIncome - 800000) * 0.10;
+        else if (taxableIncome <= 1600000) tax = 60000 + (taxableIncome - 1200000) * 0.15;
+        else if (taxableIncome <= 2000000) tax = 120000 + (taxableIncome - 1600000) * 0.20;
+        else if (taxableIncome <= 2400000) tax = 200000 + (taxableIncome - 2000000) * 0.25;
+        else tax = 300000 + (taxableIncome - 2400000) * 0.30;
+        // 87A rebate (if taxable income <= 12L, up to ₹60k)
+        if (taxableIncome <= 1200000) tax = Math.max(0, tax - Math.min(tax, 60000));
+      } else {
+        stdDed = 50000;
+        d80c = Math.min(d80c, 150000); d80d = Math.min(d80d, 25000); hlInterest = Math.min(hlInterest, 200000);
+        const totalDed = stdDed + d80c + d80d + hlInterest;
+        const exemption = age === 'above80' ? 500000 : age === '60to80' ? 300000 : 250000;
+        taxableIncome = Math.max(0, income - totalDed);
+        if (taxableIncome <= exemption) tax = 0;
+        else if (taxableIncome <= 500000) tax = (taxableIncome - exemption) * 0.05;
+        else if (taxableIncome <= 1000000) tax = (500000 - exemption) * 0.05 + (taxableIncome - 500000) * 0.20;
+        else tax = (500000 - exemption) * 0.05 + 100000 + (taxableIncome - 1000000) * 0.30;
+        if (taxableIncome <= 500000) tax = Math.max(0, tax - 12500);
+      }
+
+      const surcharge = income > 5000000 ? (income > 10000000 ? tax * 0.15 : tax * 0.10) : 0;
+      const cess = (tax + surcharge) * 0.04;
+      const total = tax + surcharge + cess;
+
+      document.getElementById('taxResult').style.display = 'block';
+      document.getElementById('taxAmount').textContent = '₹' + Math.round(total).toLocaleString('en-IN');
+      document.getElementById('taxBreakdown').innerHTML = `
+        <div class="result-item"><span>Gross Income</span><strong>₹${income.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Standard Deduction</span><strong>₹${stdDed.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Taxable Income</span><strong>₹${Math.round(taxableIncome).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Income Tax</span><strong>₹${Math.round(tax).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Surcharge</span><strong>₹${Math.round(surcharge).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>4% Health & Edu Cess</span><strong>₹${Math.round(cess).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span style="color:var(--primary);font-weight:700">Total Tax Payable</span><strong style="color:var(--primary)">₹${Math.round(total).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Effective Tax Rate</span><strong>${income > 0 ? ((total/income)*100).toFixed(2) : 0}%</strong></div>
+      `;
+    }
+    function resetTax() { document.getElementById('taxResult').style.display = 'none'; }
+
+    // ===== REGIME COMPARISON =====
+    function compareRegime() {
+      const income = parseFloat(document.getElementById('rcIncome').value) || 0;
+      const deductions = parseFloat(document.getElementById('rcDeductions').value) || 0;
+
+      function calcNewRegimeTax(inc) {
+        // Budget 2025 AY 2026-27 New Regime
+        const ti = Math.max(0, inc - 75000); // Standard deduction Rs75K
+        let t = 0;
+        if      (ti <= 400000)  t = 0;
+        else if (ti <= 800000)  t = (ti - 400000) * 0.05;
+        else if (ti <= 1200000) t = 20000  + (ti - 800000)  * 0.10;
+        else if (ti <= 1600000) t = 60000  + (ti - 1200000) * 0.15;
+        else if (ti <= 2000000) t = 120000 + (ti - 1600000) * 0.20;
+        else if (ti <= 2400000) t = 200000 + (ti - 2000000) * 0.25;
+        else                    t = 300000 + (ti - 2400000) * 0.30;
+        // 87A Rebate: income <= Rs12L → Rs60,000 rebate = ZERO TAX
+        if (ti <= 1200000) t = Math.max(0, t - Math.min(t, 60000));
+        return Math.round(t * 1.04); // +4% cess
+      }
+      function calcOldRegimeTax(inc) {
+        const ti = Math.max(0, inc - 50000 - Math.min(deductions, 375000));
+        let t = 0;
+        if (ti <= 250000) t = 0;
+        else if (ti <= 500000) t = (ti - 250000) * 0.05;
+        else if (ti <= 1000000) t = 12500 + (ti - 500000) * 0.20;
+        else t = 112500 + (ti - 1000000) * 0.30;
+        if (ti <= 500000) t = Math.max(0, t - 12500);
+        return t * 1.04;
+      }
+
+      const newTax = Math.round(calcNewRegimeTax(income));
+      const oldTax = Math.round(calcOldRegimeTax(income));
+      const saving = Math.abs(newTax - oldTax);
+      const better = newTax <= oldTax ? 'new' : 'old';
+
+      document.getElementById('regimeResult').style.display = 'block';
+      document.getElementById('regimeTableBody').innerHTML = `
+        <tr><td>Gross Income</td><td>₹${income.toLocaleString('en-IN')}</td><td>₹${income.toLocaleString('en-IN')}</td></tr>
+        <tr><td>Standard Deduction</td><td>₹50,000</td><td>₹75,000</td></tr>
+        <tr><td>Other Deductions Available</td><td>₹${deductions.toLocaleString('en-IN')}</td><td>NIL</td></tr>
+        <tr><td>Total Tax (incl. cess)</td><td>₹${oldTax.toLocaleString('en-IN')}</td><td>₹${newTax.toLocaleString('en-IN')}</td></tr>
+        <tr class="highlight-row"><td>Savings</td><td colspan="2" style="text-align:center">₹${saving.toLocaleString('en-IN')} ${better === 'new' ? '(New Regime Saves More)' : '(Old Regime Saves More)'}</td></tr>
+      `;
+      const rec = document.getElementById('regimeRecommend');
+      if (better === 'new') {
+        rec.style.background = 'rgba(16,185,129,0.1)'; rec.style.color = 'var(--success)';
+        rec.innerHTML = `✅ <strong>New Regime Recommended</strong> – ₹${saving.toLocaleString('en-IN')} zyada bachenge!`;
+      } else {
+        rec.style.background = 'rgba(30,64,175,0.08)'; rec.style.color = 'var(--primary)';
+        rec.innerHTML = `✅ <strong>Old Regime Recommended</strong> – ₹${saving.toLocaleString('en-IN')} zyada bachenge with deductions!`;
+      }
+    }
+
+    // ===== CAPITAL GAIN =====
+    function calculateCapitalGain() {
+      const asset = document.getElementById('cgAsset').value;
+      const buy = parseFloat(document.getElementById('cgBuy').value) || 0;
+      const sell = parseFloat(document.getElementById('cgSell').value) || 0;
+      const period = document.getElementById('cgPeriod').value;
+      const improve = parseFloat(document.getElementById('cgImprove').value) || 0;
+      const exemption = period === 'ltcg' && asset === 'equity' ? parseFloat(document.getElementById('cgExemption').value) || 125000 : 0;
+
+      const gain = sell - buy - improve;
+      const taxableGain = Math.max(0, gain - (period === 'ltcg' ? exemption : 0));
+      let rate = 0, label = '';
+      if (period === 'stcg') {
+        rate = asset === 'equity' ? 0.20 : 0.30;
+        label = asset === 'equity' ? 'STCG @20% (equity post Jul 2024)' : 'STCG @slab rate ~30%';
+      } else {
+        rate = asset === 'equity' ? 0.125 : 0.20;
+        label = asset === 'equity' ? 'LTCG @12.5% (equity, no indexation)' : 'LTCG @20% (with indexation option)';
+      }
+      const tax = Math.round(taxableGain * rate * 1.04);
+      document.getElementById('cgResult').style.display = 'block';
+      document.getElementById('cgTax').textContent = '₹' + tax.toLocaleString('en-IN');
+      document.getElementById('cgBreakdown').innerHTML = `
+        <div class="result-item"><span>Capital Gain</span><strong>₹${Math.round(gain).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>LTCG Exemption</span><strong>₹${exemption.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Taxable Gain</span><strong>₹${Math.round(taxableGain).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Tax Rate Applied</span><strong>${label}</strong></div>
+        <div class="result-item"><span>Tax (incl 4% cess)</span><strong>₹${tax.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Net Profit After Tax</span><strong>₹${Math.round(gain - tax).toLocaleString('en-IN')}</strong></div>
+      `;
+    }
+
+    // ===== HRA =====
+    function calculateHRA() {
+      const basic = parseFloat(document.getElementById('hraBasic').value) || 0;
+      const hraRcvd = parseFloat(document.getElementById('hraReceived').value) || 0;
+      const rent = parseFloat(document.getElementById('hraRent').value) || 0;
+      const city = document.getElementById('hraCity').value;
+      const pct = city === 'metro' ? 0.50 : 0.40;
+      const rule1 = hraRcvd;
+      const rule2 = basic * pct;
+      const rule3 = Math.max(0, rent - basic * 0.10);
+      const exemption = Math.round(Math.min(rule1, rule2, rule3));
+      const taxableHRA = Math.round(hraRcvd - exemption);
+      document.getElementById('hraResult').style.display = 'block';
+      document.getElementById('hraExemption').textContent = '₹' + exemption.toLocaleString('en-IN') + ' Exempt';
+      document.getElementById('hraBreakdown').innerHTML = `
+        <div class="result-item"><span>Rule 1: HRA Received</span><strong>₹${Math.round(rule1).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Rule 2: ${city==='metro'?'50':'40'}% of Basic</span><strong>₹${Math.round(rule2).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Rule 3: Rent - 10% Basic</span><strong>₹${Math.round(rule3).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>✅ HRA Exemption (Minimum)</span><strong style="color:var(--success)">₹${exemption.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Taxable HRA</span><strong style="color:var(--danger)">₹${taxableHRA.toLocaleString('en-IN')}</strong></div>
+      `;
+    }
+
+    // ===== SIP =====
+    function calculateSIP() {
+      const P = parseFloat(document.getElementById('sipAmt').value) || 5000;
+      const r = parseFloat(document.getElementById('sipReturn').value) / 100 / 12 || 0.01;
+      const n = parseFloat(document.getElementById('sipYears').value) * 12 || 180;
+      const fv = Math.round(P * (Math.pow(1 + r, n) - 1) / r * (1 + r));
+      const invested = Math.round(P * n);
+      const returns = fv - invested;
+      document.getElementById('sipFV').textContent = '₹' + fv.toLocaleString('en-IN');
+      document.getElementById('sipBreakdown').innerHTML = `
+        <div class="result-item"><span>Total Invested</span><strong>₹${invested.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Est. Returns</span><strong style="color:var(--success)">₹${returns.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Wealth Ratio</span><strong>${(fv/invested).toFixed(2)}x</strong></div>
+      `;
+      const chart = document.getElementById('sipChart');
+      chart.innerHTML = '';
+      const years = parseInt(document.getElementById('sipYears').value);
+      for (let y = 1; y <= Math.min(years, 20); y++) {
+        const ny = y * 12;
+        const fvy = Math.round(P * (Math.pow(1 + r, ny) - 1) / r * (1 + r));
+        const bar = document.createElement('div');
+        bar.className = 'sip-bar';
+        bar.style.height = `${(fvy / fv) * 160}px`;
+        bar.title = `Year ${y}: ₹${fvy.toLocaleString('en-IN')}`;
+        chart.appendChild(bar);
+      }
+    }
+    calculateSIP();
+
+    // ===== EMI =====
+    function calculateEMI() {
+      const P = parseFloat(document.getElementById('emiPrincipal').value) || 0;
+      const r = parseFloat(document.getElementById('emiRate').value) / 100 / 12;
+      const n = parseFloat(document.getElementById('emiTenure').value) * 12;
+      const emi = Math.round(P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1));
+      const total = emi * n;
+      const interest = total - P;
+      document.getElementById('emiResult').style.display = 'block';
+      document.getElementById('emiAmount').textContent = '₹' + emi.toLocaleString('en-IN') + '/month';
+      document.getElementById('emiBreakdown').innerHTML = `
+        <div class="result-item"><span>Principal Amount</span><strong>₹${P.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Total Interest</span><strong style="color:var(--danger)">₹${interest.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Total Payment</span><strong>₹${total.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Interest %</span><strong>${((interest/P)*100).toFixed(1)}%</strong></div>
+      `;
+    }
+
+    // ===== PPF =====
+    function calculatePPF() {
+      const P = parseFloat(document.getElementById('ppfAmt').value) || 0;
+      const r = parseFloat(document.getElementById('ppfRate').value) / 100;
+      const n = parseFloat(document.getElementById('ppfYears').value) || 15;
+      let balance = 0, totalInvested = 0;
+      for (let i = 0; i < n; i++) { balance = (balance + P) * (1 + r); totalInvested += P; }
+      balance = Math.round(balance);
+      const interest = balance - totalInvested;
+      document.getElementById('ppfResult').style.display = 'block';
+      document.getElementById('ppfMaturity').textContent = '₹' + balance.toLocaleString('en-IN');
+      document.getElementById('ppfBreakdown').innerHTML = `
+        <div class="result-item"><span>Total Invested</span><strong>₹${totalInvested.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Interest Earned</span><strong style="color:var(--success)">₹${interest.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Tax on Maturity</span><strong style="color:var(--success)">NIL (EEE Status)</strong></div>
+        <div class="result-item"><span>80C Benefit/year</span><strong>₹${Math.min(P,150000).toLocaleString('en-IN')}</strong></div>
+      `;
+    }
+
+    // ===== GRATUITY =====
+    function calculateGratuity() {
+      const basic = parseFloat(document.getElementById('gratBasic').value) || 0;
+      const years = parseFloat(document.getElementById('gratYears').value) || 0;
+      const type = document.getElementById('gratType').value;
+      const gratuity = type === 'covered'
+        ? Math.round((basic * 15 * years) / 26)
+        : Math.round((basic * 15 * years) / 30);
+      const exemptionLimit = 2000000;
+      const taxableGratuity = Math.max(0, gratuity - exemptionLimit);
+      document.getElementById('gratResult').style.display = 'block';
+      document.getElementById('gratAmount').textContent = '₹' + gratuity.toLocaleString('en-IN');
+      document.getElementById('gratBreakdown').innerHTML = `
+        <div class="result-item"><span>Formula Used</span><strong>${type === 'covered' ? '(Basic × 15 × Yrs) / 26' : '(Basic × 15 × Yrs) / 30'}</strong></div>
+        <div class="result-item"><span>Tax Exempt Limit</span><strong>₹20,00,000</strong></div>
+        <div class="result-item"><span>Taxable Gratuity</span><strong style="color:${taxableGratuity>0?'var(--danger)':'var(--success)'}">₹${taxableGratuity.toLocaleString('en-IN')}</strong></div>
+      `;
+    }
+
+    // ===== GST =====
+    function calculateGST() {
+      const amt = parseFloat(document.getElementById('gstAmt').value) || 0;
+      const rate = parseFloat(document.getElementById('gstRate').value) / 100;
+      const type = document.getElementById('gstType').value;
+      const txType = document.getElementById('gstTxType').value;
+      let base, gstAmt, total;
+      if (type === 'exclusive') { base = amt; gstAmt = amt * rate; total = amt + gstAmt; }
+      else { total = amt; base = amt / (1 + rate); gstAmt = amt - base; }
+      document.getElementById('gstResult').style.display = 'block';
+      document.getElementById('gstTotal').textContent = '₹' + Math.round(total).toLocaleString('en-IN');
+      const cgst = txType === 'intra' ? Math.round(gstAmt / 2) : 0;
+      const sgst = txType === 'intra' ? Math.round(gstAmt / 2) : 0;
+      const igst = txType === 'inter' ? Math.round(gstAmt) : 0;
+      document.getElementById('gstBreakdown').innerHTML = `
+        <div class="result-item"><span>Base Amount</span><strong>₹${Math.round(base).toLocaleString('en-IN')}</strong></div>
+        ${txType==='intra'?`<div class="result-item"><span>CGST (${(rate/2*100).toFixed(1)}%)</span><strong>₹${cgst.toLocaleString('en-IN')}</strong></div><div class="result-item"><span>SGST (${(rate/2*100).toFixed(1)}%)</span><strong>₹${sgst.toLocaleString('en-IN')}</strong></div>`:`<div class="result-item"><span>IGST (${(rate*100).toFixed(1)}%)</span><strong>₹${igst.toLocaleString('en-IN')}</strong></div>`}
+        <div class="result-item"><span>Total GST</span><strong>₹${Math.round(gstAmt).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Total Invoice Amount</span><strong style="color:var(--primary)">₹${Math.round(total).toLocaleString('en-IN')}</strong></div>
+      `;
+    }
+  </script>
+
+<div id="advance-tax" style="display:block;height:0;overflow:hidden"></div>
+<div id="rebate87a" style="display:block;height:0;overflow:hidden"></div>
+<div id="amt" style="display:block;height:0;overflow:hidden"></div>
+<p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong></p>
+
+  <script>
+  // ── Advanced Tax Calculators ────────────────────────────────
+
+  // Gratuity Calculator (Already present — enhanced)
+  function calculateGratuity() {
+    const basic = parseFloat(document.getElementById('gratBasic')?.value) || 0;
+    const years = parseFloat(document.getElementById('gratYears')?.value) || 0;
+    const type = document.getElementById('gratType')?.value || 'covered';
+    const gratuity = type === 'covered'
+      ? Math.round((basic * 15 * years) / 26)
+      : Math.round((basic * 15 * years) / 30);
+    const taxFree = Math.min(gratuity, 2000000);
+    const taxable = Math.max(0, gratuity - taxFree);
+    document.getElementById('gratResult').style.display = 'block';
+    document.getElementById('gratAmount').textContent = '₹' + gratuity.toLocaleString('en-IN');
+    document.getElementById('gratBreakdown').innerHTML = `
+      <div class="result-item"><span>Formula</span><strong>${type === 'covered' ? '(Basic×15×Yrs)÷26' : '(Basic×15×Yrs)÷30'}</strong></div>
+      <div class="result-item"><span>Gratuity Amount</span><strong>₹${gratuity.toLocaleString('en-IN')}</strong></div>
+      <div class="result-item"><span>Tax Free Limit</span><strong>₹${taxFree.toLocaleString('en-IN')}</strong></div>
+      <div class="result-item"><span>Taxable Amount</span><strong style="color:${taxable>0?'var(--danger)':'var(--success)'}">₹${taxable.toLocaleString('en-IN')}</strong></div>`;
+  }
+
+  // EPF Calculator
+  function calculateEPF() {
+    const basic = parseFloat(document.getElementById('epfBasic')?.value) || 0;
+    const years = parseFloat(document.getElementById('epfYears')?.value) || 1;
+    const empContrib = basic * 0.12;
+    const empContribEPF = basic > 15000 ? basic * 0.0367 : basic * 0.0367;
+    const annualContrib = (empContrib + empContrib) * 12;
+    const rate = 0.0825;
+    let balance = 0;
+    for (let i = 0; i < years; i++) {
+      balance = (balance + annualContrib) * (1 + rate);
+    }
+    if(typeof showToast==='function')
+      showToast(`EPF Maturity after ${years} yrs: ₹${Math.round(balance).toLocaleString('en-IN')}`, 'success');
+  }
+
+  // NPS Calculator
+  function calculateNPS() {
+    const monthly = parseFloat(document.getElementById('npsMonthly')?.value) || 0;
+    const years   = parseFloat(document.getElementById('npsYears')?.value) || 30;
+    const retRate = parseFloat(document.getElementById('npsReturn')?.value) / 100 / 12 || 0.01;
+    const n = years * 12;
+    const corpus = Math.round(monthly * (Math.pow(1+retRate,n)-1) / retRate * (1+retRate));
+    const annuityCorpus = Math.round(corpus * 0.40);
+    const lumpsum = corpus - annuityCorpus;
+    const monthlyPension = Math.round(annuityCorpus * 0.06 / 12);
+    if(typeof showToast==='function')
+      showToast(`NPS Corpus: ₹${corpus.toLocaleString('en-IN')} | Lumpsum: ₹${lumpsum.toLocaleString('en-IN')} | Pension: ₹${monthlyPension.toLocaleString('en-IN')}/month`, 'success');
+  }
+
+  // Home Loan Tax Benefit
+  function calcHomeLoanTax() {
+    const principal = parseFloat(document.getElementById('hlPrincipal')?.value) || 0;
+    const interest  = parseFloat(document.getElementById('hlInterest')?.value) || 0;
+    const ded80C = Math.min(principal, 150000);
+    const ded24b = Math.min(interest, 200000);
+    const totalSaving = (ded80C + ded24b) * 0.30;
+    if(typeof showToast==='function')
+      showToast(`Home Loan Tax Benefit: 80C ₹${ded80C.toLocaleString('en-IN')} + 24(b) ₹${ded24b.toLocaleString('en-IN')} = Tax Saving ~₹${Math.round(totalSaving).toLocaleString('en-IN')}`, 'success');
+  }
+  
+
+  // ===== ADVANCE TAX CALCULATOR =====
+  function calcAdvanceTax() {
+    const tax = parseFloat(document.getElementById('advTaxLiab')?.value) || 0;
+    const q1p = parseFloat(document.getElementById('advQ1paid')?.value) || 0;
+    const q2p = parseFloat(document.getElementById('advQ2paid')?.value) || 0;
+    const q3p = parseFloat(document.getElementById('advQ3paid')?.value) || 0;
+    const req = [[.15,'15 Jun (15%)'],[.45,'15 Sep (45%)'],[.75,'15 Dec (75%)'],[1.0,'15 Mar (100%)']];
+    const paid = [q1p, q1p+q2p, q1p+q2p+q3p, q1p+q2p+q3p];
+    const r = document.getElementById('advanceTaxResult');
+    const b = document.getElementById('advanceTaxBreakdown');
+    if (!r || !b) return;
+    r.style.display = 'block';
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    b.innerHTML = req.map(([pct,lbl],i) => {
+      const due = tax * pct; const p = paid[i]; const bal = Math.max(0, due - p);
+      return `<div class="result-item"><span>${lbl}</span><strong style="color:${bal>0?'var(--danger)':'var(--success)'}">Due: ${fmt2(due)} | Paid: ${fmt2(p)} | ${bal>0?'Shortfall: '+fmt2(bal):'✅ OK'}</strong></div>`;
+    }).join('');
+  }
+
+  // ===== 234A/B/C INTEREST =====
+  function calc234Interest() {
+    const tax = parseFloat(document.getElementById('int234Tax')?.value) || 0;
+    const delay = parseFloat(document.getElementById('int234Delay')?.value) || 0;
+    const advPaid = parseFloat(document.getElementById('int234AdvPaid')?.value) || 0;
+    const int234A = Math.round(tax * 0.01 * delay);
+    const unpaid = Math.max(0, tax - advPaid);
+    const int234B = advPaid < tax * 0.9 ? Math.round(unpaid * 0.01 * Math.max(1, delay)) : 0;
+    const r = document.getElementById('result234'); const b = document.getElementById('breakdown234');
+    if (!r || !b) return; r.style.display = 'block';
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    b.innerHTML = `
+      <div class="result-item"><span>234A (Filing Delay)</span><strong style="color:var(--danger)">${fmt2(int234A)}</strong></div>
+      <div class="result-item"><span>234B (Advance Tax &lt;90%)</span><strong style="color:var(--danger)">${fmt2(int234B)}</strong></div>
+      <div class="result-item"><span style="font-weight:700">Total Interest</span><strong style="color:var(--danger);font-size:1.1rem">${fmt2(int234A+int234B)}</strong></div>`;
+  }
+
+  // ===== 87A REBATE =====
+  function calc87A() {
+    const income = parseFloat(document.getElementById('r87aIncome')?.value) || 0;
+    const regime = document.getElementById('r87aRegime')?.value || 'new';
+    const eligible = regime === 'new' ? income <= 1200000 : income <= 500000;
+    const rebate = regime === 'new' ? 60000 : 12500;
+    const ra = document.getElementById('rebate87aAmt');
+    const rb = document.getElementById('breakdown87a');
+    if (!ra || !rb) return;
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    if (eligible) {
+      ra.textContent = '✅ Eligible — Rebate: ' + fmt2(rebate);
+      ra.style.color = 'var(--success)';
+      rb.innerHTML = `<div class="result-item"><span>Income</span><strong>${fmt2(income)}</strong></div>
+        <div class="result-item"><span>87A Rebate</span><strong style="color:var(--success)">${fmt2(rebate)}</strong></div>
+        <div class="result-item"><span>Regime Limit</span><strong>${regime === 'new' ? '≤ ₹12,00,000' : '≤ ₹5,00,000'}</strong></div>`;
+    } else {
+      ra.textContent = '❌ Not Eligible — Income too high';
+      ra.style.color = 'var(--danger)';
+      rb.innerHTML = `<div class="result-item"><span>Income</span><strong>${fmt2(income)}</strong></div>
+        <div class="result-item"><span>Limit</span><strong>${regime === 'new' ? '₹12,00,000' : '₹5,00,000'}</strong></div>
+        <div class="result-item"><span>Excess</span><strong style="color:var(--danger)">${fmt2(income - (regime==='new'?1200000:500000))}</strong></div>`;
+    }
+    document.getElementById('result87a').style.display = 'block';
+  }
+
+  // ===== SURCHARGE =====
+  function calcSurcharge() {
+    const income = parseFloat(document.getElementById('surchargeIncome')?.value) || 0;
+    const tax = parseFloat(document.getElementById('surchargeTax')?.value) || 0;
+    let surPct = 0;
+    if (income > 50000000) surPct = 0.25;
+    else if (income > 20000000) surPct = 0.25;
+    else if (income > 10000000) surPct = 0.15;
+    else if (income > 5000000) surPct = 0.10;
+    const sur = Math.round(tax * surPct);
+    const cess = Math.round((tax + sur) * 0.04);
+    const total = tax + sur + cess;
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    const r = document.getElementById('surchargeResult'); const b = document.getElementById('surchargeBreakdown');
+    const ra = document.getElementById('surchargeAmt');
+    if (!r || !b) return; r.style.display = 'block';
+    ra.textContent = fmt2(total);
+    b.innerHTML = `<div class="result-item"><span>Income Tax</span><strong>${fmt2(tax)}</strong></div>
+      <div class="result-item"><span>Surcharge (${(surPct*100).toFixed(0)}%)</span><strong>${fmt2(sur)}</strong></div>
+      <div class="result-item"><span>4% Health & Edu Cess</span><strong>${fmt2(cess)}</strong></div>
+      <div class="result-item"><span style="font-weight:700">Total Tax</span><strong style="color:var(--primary);font-size:1.1rem">${fmt2(total)}</strong></div>`;
+  }
+
+  // ===== EPF ENHANCED =====
+  function calculateEPF() {
+    const basic = parseFloat(document.getElementById('epfBasic')?.value) || 0;
+    const years = parseFloat(document.getElementById('epfYears')?.value) || 1;
+    const rate = (parseFloat(document.getElementById('epfRate')?.value) || 8.25) / 100;
+    const empContrib = basic * 0.12; const empyrContrib = basic * 0.0367;
+    const monthlyTotal = empContrib + empyrContrib;
+    let balance = 0;
+    for (let m = 0; m < years * 12; m++) { balance = (balance + monthlyTotal) * (1 + rate/12); }
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    const r = document.getElementById('epfResult'); const b = document.getElementById('epfBreakdown');
+    document.getElementById('epfCorpus').textContent = fmt2(balance);
+    if (r) r.style.display = 'block';
+    if (b) b.innerHTML = `<div class="result-item"><span>Monthly Employee (12%)</span><strong>${fmt2(empContrib)}</strong></div>
+      <div class="result-item"><span>Monthly Employer (3.67%)</span><strong>${fmt2(empyrContrib)}</strong></div>
+      <div class="result-item"><span>Total Invested</span><strong>${fmt2(monthlyTotal*years*12)}</strong></div>
+      <div class="result-item"><span>Interest Earned</span><strong style="color:var(--success)">${fmt2(balance - monthlyTotal*years*12)}</strong></div>
+      <div class="result-item"><span style="font-weight:700">Maturity Value</span><strong style="color:var(--primary);font-size:1.1rem">${fmt2(balance)}</strong></div>`;
+  }
+
+  // ===== NPS ENHANCED =====
+  function calculateNPS() {
+    const monthly = parseFloat(document.getElementById('npsMonthly')?.value) || 0;
+    const years = parseFloat(document.getElementById('npsYears')?.value) || 30;
+    const r = (parseFloat(document.getElementById('npsReturn')?.value) || 10) / 100 / 12;
+    const n = years * 12;
+    const corpus = Math.round(monthly * (Math.pow(1+r,n)-1) / r * (1+r));
+    const annuity = Math.round(corpus * 0.40);
+    const lumpsum = corpus - annuity;
+    const pension = Math.round(annuity * 0.06 / 12);
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    const res = document.getElementById('npsResult'); const b = document.getElementById('npsBreakdown');
+    document.getElementById('npsCorpus').textContent = fmt2(corpus);
+    if (res) res.style.display = 'block';
+    if (b) b.innerHTML = `<div class="result-item"><span>Total Corpus</span><strong>${fmt2(corpus)}</strong></div>
+      <div class="result-item"><span>Lumpsum (60%)</span><strong>${fmt2(lumpsum)}</strong></div>
+      <div class="result-item"><span>Annuity Fund (40%)</span><strong>${fmt2(annuity)}</strong></div>
+      <div class="result-item"><span>Est. Monthly Pension</span><strong style="color:var(--success)">${fmt2(pension)}</strong></div>`;
+  }
+
+  // ===== FD CALCULATOR =====
+  function calculateFD() {
+    const P = parseFloat(document.getElementById('fdPrincipal')?.value) || 0;
+    const r = (parseFloat(document.getElementById('fdRate')?.value) || 7.5) / 100;
+    const t = parseFloat(document.getElementById('fdYears')?.value) || 5;
+    const n = parseFloat(document.getElementById('fdComp')?.value) || 4;
+    const slab = (parseFloat(document.getElementById('fdTaxSlab')?.value) || 20) / 100;
+    const maturity = Math.round(P * Math.pow(1 + r/n, n*t));
+    const interest = maturity - P;
+    const tds = Math.round(interest * slab);
+    const netMaturity = maturity - tds;
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    const res = document.getElementById('fdResult'); const b = document.getElementById('fdBreakdown');
+    document.getElementById('fdMaturity').textContent = fmt2(netMaturity) + ' (net)';
+    if (res) res.style.display = 'block';
+    if (b) b.innerHTML = `<div class="result-item"><span>Principal</span><strong>${fmt2(P)}</strong></div>
+      <div class="result-item"><span>Gross Interest</span><strong style="color:var(--success)">${fmt2(interest)}</strong></div>
+      <div class="result-item"><span>TDS (${(slab*100).toFixed(0)}%)</span><strong style="color:var(--danger)">${fmt2(tds)}</strong></div>
+      <div class="result-item"><span>Gross Maturity</span><strong>${fmt2(maturity)}</strong></div>
+      <div class="result-item"><span style="font-weight:700">Net Maturity</span><strong style="color:var(--primary);font-size:1.1rem">${fmt2(netMaturity)}</strong></div>`;
+  }
+
+  // ===== SWP CALCULATOR =====
+  function calculateSWP() {
+    const corpus = parseFloat(document.getElementById('swpCorpus')?.value) || 0;
+    const monthly = parseFloat(document.getElementById('swpMonthly')?.value) || 0;
+    const r = (parseFloat(document.getElementById('swpReturn')?.value) || 10) / 100 / 12;
+    let balance = corpus; let months = 0;
+    while (balance > 0 && months < 600) {
+      balance = balance * (1 + r) - monthly;
+      months++;
+      if (monthly <= balance * r) { months = 9999; break; }
+    }
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    const res = document.getElementById('swpResult'); const b = document.getElementById('swpBreakdown');
+    const dur = document.getElementById('swpDuration');
+    if (months >= 9999) {
+      if (dur) dur.textContent = '♾️ Indefinite (returns cover withdrawals)';
+    } else {
+      const yrs = Math.floor(months/12); const mos = months%12;
+      if (dur) dur.textContent = `${yrs} years ${mos} months`;
+    }
+    if (res) res.style.display = 'block';
+    if (b) b.innerHTML = `<div class="result-item"><span>Corpus</span><strong>${fmt2(corpus)}</strong></div>
+      <div class="result-item"><span>Monthly Withdrawal</span><strong>${fmt2(monthly)}</strong></div>
+      <div class="result-item"><span>Total Withdrawn</span><strong style="color:var(--success)">${months>=9999 ? 'Ongoing' : fmt2(monthly * months)}</strong></div>`;
+  }
+
+  // ===== CAGR =====
+  function calculateCAGR() {
+    const initial = parseFloat(document.getElementById('cagrInitial')?.value) || 0;
+    const final = parseFloat(document.getElementById('cagrFinal')?.value) || 0;
+    const years = parseFloat(document.getElementById('cagrYears')?.value) || 1;
+    if (!initial || !final || !years) return;
+    const cagr = (Math.pow(final/initial, 1/years) - 1) * 100;
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    const res = document.getElementById('cagrResult'); const b = document.getElementById('cagrBreakdown');
+    const ra = document.getElementById('cagrRate');
+    if (ra) ra.textContent = cagr.toFixed(2) + '%';
+    if (res) res.style.display = 'block';
+    if (b) b.innerHTML = `<div class="result-item"><span>Initial Investment</span><strong>${fmt2(initial)}</strong></div>
+      <div class="result-item"><span>Final Value</span><strong>${fmt2(final)}</strong></div>
+      <div class="result-item"><span>Total Return</span><strong style="color:var(--success)">${((final-initial)/initial*100).toFixed(1)}%</strong></div>
+      <div class="result-item"><span style="font-weight:700">CAGR</span><strong style="color:var(--primary);font-size:1.3rem">${cagr.toFixed(2)}%</strong></div>`;
+  }
+
+  // ===== LEAVE ENCASHMENT =====
+  function calcLeaveEncashment() {
+    const basic = parseFloat(document.getElementById('leaveBasic')?.value) || 0;
+    const days = parseFloat(document.getElementById('leaveDays')?.value) || 0;
+    const type = document.getElementById('leaveType')?.value || 'private';
+    const perDay = basic / 26;
+    const amount = Math.round(perDay * days);
+    const exempt = type === 'govt' ? amount : Math.min(amount, 2500000);
+    const taxable = Math.max(0, amount - exempt);
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    const res = document.getElementById('leaveResult'); const b = document.getElementById('leaveBreakdown');
+    const ra = document.getElementById('leaveAmount');
+    if (ra) ra.textContent = fmt2(amount);
+    if (res) res.style.display = 'block';
+    if (b) b.innerHTML = `<div class="result-item"><span>Per Day (Basic÷26)</span><strong>${fmt2(perDay)}</strong></div>
+      <div class="result-item"><span>Leave Encashment</span><strong>${fmt2(amount)}</strong></div>
+      <div class="result-item"><span>Tax Exempt</span><strong style="color:var(--success)">${fmt2(exempt)}</strong></div>
+      <div class="result-item"><span>Taxable</span><strong style="color:${taxable>0?'var(--danger)':'var(--success)'}"> ${taxable>0?fmt2(taxable):'₹0 (fully exempt)'}</strong></div>`;
+  }
+
+  // ===== HOME LOAN ENHANCED =====
+  function calcHomeLoanTax() {
+    const principal = parseFloat(document.getElementById('hlPrincipal')?.value) || 0;
+    const interest = parseFloat(document.getElementById('hlInterest')?.value) || 0;
+    const type = document.getElementById('hlType')?.value || 'sop';
+    const slab = (parseFloat(document.getElementById('hlSlab')?.value) || 20) / 100;
+    const ded80C = Math.min(principal, 150000);
+    const ded24b = type === 'sop' ? Math.min(interest, 200000) : interest;
+    const saving = Math.round((ded80C + ded24b) * slab);
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    const res = document.getElementById('homeLoanResult'); const b = document.getElementById('homeLoanBreakdown');
+    const ra = document.getElementById('homeLoanSaving');
+    if (ra) ra.textContent = fmt2(saving) + ' saved';
+    if (res) res.style.display = 'block';
+    if (b) b.innerHTML = `<div class="result-item"><span>80C (Principal)</span><strong>${fmt2(ded80C)}</strong></div>
+      <div class="result-item"><span>24(b) (Interest)</span><strong>${fmt2(ded24b)}</strong></div>
+      <div class="result-item"><span>Total Deduction</span><strong>${fmt2(ded80C+ded24b)}</strong></div>
+      <div class="result-item"><span style="font-weight:700">Tax Saving (${(slab*100).toFixed(0)}% slab)</span><strong style="color:var(--success);font-size:1.1rem">${fmt2(saving)}</strong></div>`;
+  }
+
+  // ===== REVERSE GST =====
+  function calcReverseGST() {
+    const amt = parseFloat(document.getElementById('revGSTAmt')?.value) || 0;
+    const rate = (parseFloat(document.getElementById('revGSTRate')?.value) || 18) / 100;
+    const base = amt / (1 + rate);
+    const gstAmt = amt - base;
+    const fmt2 = n => '₹' + n.toFixed(2);
+    const ra = document.getElementById('revGSTBase');
+    const b = document.getElementById('revGSTBreakdown');
+    if (ra) ra.textContent = fmt2(base);
+    if (b) b.innerHTML = `<div class="result-item"><span>Base Price</span><strong>${fmt2(base)}</strong></div>
+      <div class="result-item"><span>GST (${(rate*100).toFixed(0)}%)</span><strong style="color:var(--warning)">${fmt2(gstAmt)}</strong></div>
+      <div class="result-item"><span>Total (inclusive)</span><strong>${fmt2(amt)}</strong></div>`;
+  }
+
+  // ===== QUICK TDS ON SALARY =====
+  function calcTDSSalary() {
+    const ctc = parseFloat(document.getElementById('calcTdsCTC')?.value) || 0;
+    const regime = document.getElementById('calcTdsRegime')?.value || 'new';
+    const d80c = Math.min(parseFloat(document.getElementById('calcTds80c')?.value) || 0, 150000);
+    let taxable = 0; let tax = 0;
+    if (regime === 'new') {
+      taxable = Math.max(0, ctc - 75000);
+      const slabs = [[400000,0],[400000,.05],[400000,.10],[400000,.15],[400000,.20],[400000,.25],[Infinity,.30]];
+      let rem = taxable;
+      for (const [lim,r] of slabs) { const t = Math.min(rem,lim); tax += t*r; rem -= t; if(rem<=0)break; }
+      if (taxable <= 1200000) tax = Math.max(0, tax - Math.min(tax, 60000));
+    } else {
+      taxable = Math.max(0, ctc - 50000 - d80c);
+      if (taxable <= 250000) tax = 0;
+      else if (taxable <= 500000) tax = (taxable-250000)*.05;
+      else if (taxable <= 1000000) tax = 12500 + (taxable-500000)*.20;
+      else tax = 112500 + (taxable-1000000)*.30;
+      if (taxable <= 500000) tax = Math.max(0, tax - 12500);
+    }
+    tax = tax * 1.04;
+    const monthly = Math.round(Math.max(0, tax) / 12);
+    const fmt2 = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    const res = document.getElementById('tdsSalResult'); const b = document.getElementById('tdsSalBreakdown');
+    const ra = document.getElementById('tdsSalMonthly');
+    if (ra) ra.textContent = fmt2(monthly) + '/month';
+    if (res) res.style.display = 'block';
+    if (b) b.innerHTML = `<div class="result-item"><span>Annual CTC</span><strong>${fmt2(ctc)}</strong></div>
+      <div class="result-item"><span>Taxable Income</span><strong>${fmt2(taxable)}</strong></div>
+      <div class="result-item"><span>Annual Tax (incl cess)</span><strong style="color:var(--danger)">${fmt2(tax)}</strong></div>
+      <div class="result-item"><span style="font-weight:700">Monthly TDS</span><strong style="color:var(--primary);font-size:1.1rem">${fmt2(monthly)}</strong></div>`;
+  }
+
+  // Auto-calc on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    calculateSIP();
+    calculateEMI();
+    calculatePPF();
+    calc87A();
+    calcReverseGST();
+    calculateFD();
+    calculateNPS();
+    calculateEPF();
+    calculateSWP();
+    calculateCAGR();
+    calcLeaveEncashment();
+    calcHomeLoanTax();
+    calcTDSSalary();
+  });
+
+    function downloadCalcPDF() {
+    if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    // Get result from currently visible result card
+    const resultCards = document.querySelectorAll('.result-card');
+    let content = '';
+    resultCards.forEach(card => {
+      if (card.style.display !== 'none' && getComputedStyle(card).display !== 'none') {
+        content += card.innerText + '\n\n';
+      }
+    });
+    if (!content.trim()) { showToast('Pehle calculate karo!','error'); return; }
+    doc.setFillColor(30,64,175); doc.rect(0,0,210,28,'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+    doc.text('TaxMitra Calculator Result', 105, 12, {align:'center'});
+    doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text('AY 2026-27 | Developed by Abhishek Agrahari', 105, 22, {align:'center'});
+    doc.setTextColor(30,30,30);
+    const lines = content.split('\n').filter(l => l.trim());
+    const rows = lines.map(l => { const parts = l.split(/\s{2,}|\t/); return parts.length >= 2 ? [parts[0], parts[parts.length-1]] : [l, '']; });
+    doc.autoTable({startY:36, head:[['Particulars','Value']], body:rows,
+      headStyles:{fillColor:[30,64,175],textColor:255,fontSize:9}, styles:{fontSize:9}});
+    doc.save('Calculator_Result_TaxMitra.pdf');
+    showToast('Calculator result PDF downloaded!','success');
+  }
+</script>
+
+<div id="234abc" style="height:0;overflow:hidden;display:block"></div>
+<div id="cagr" style="height:0;overflow:hidden;display:block"></div>
+<div id="education-loan" style="height:0;overflow:hidden;display:block"></div>
+<div id="epf" style="height:0;overflow:hidden;display:block"></div>
+<div id="fd" style="height:0;overflow:hidden;display:block"></div>
+<div id="home-loan" style="height:0;overflow:hidden;display:block"></div>
+<div id="leave" style="height:0;overflow:hidden;display:block"></div>
+<div id="nps" style="height:0;overflow:hidden;display:block"></div>
+<div id="reverse-gst" style="height:0;overflow:hidden;display:block"></div>
+<div id="surcharge" style="height:0;overflow:hidden;display:block"></div>
+<div id="swp" style="height:0;overflow:hidden;display:block"></div>
+<div id="tds-salary" style="height:0;overflow:hidden;display:block"></div>
+</body>
+</html>
