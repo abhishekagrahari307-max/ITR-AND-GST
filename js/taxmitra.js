@@ -29,7 +29,24 @@ window.addEventListener('scroll', () => {
 const hamburger = document.getElementById('hamburger');
 const navWrapper = document.getElementById('navLinksWrapper');
 if (hamburger && navWrapper) {
-  hamburger.addEventListener('click', () => navWrapper.classList.toggle('show'));
+  hamburger.addEventListener('click', () => {
+    navWrapper.classList.toggle('show');
+    hamburger.classList.toggle('open');
+  });
+  // Close nav when a link is clicked
+  navWrapper.addEventListener('click', (e) => {
+    if (e.target.tagName === 'A' || e.target.closest('a')) {
+      navWrapper.classList.remove('show');
+      hamburger.classList.remove('open');
+    }
+  });
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!navWrapper.contains(e.target) && !hamburger.contains(e.target)) {
+      navWrapper.classList.remove('show');
+      hamburger.classList.remove('open');
+    }
+  });
 }
 
 // ── Scroll to top ─────────────────────────────────────────────

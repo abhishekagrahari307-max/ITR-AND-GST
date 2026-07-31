@@ -2207,3 +2207,121 @@ body.dark-mode [style*="background:var(--bg-card)"] { background: var(--bg-card)
 body.dark-mode [style*="background:var(--bg-secondary)"] { background: var(--bg-secondary) !important; }
 body.dark-mode [style*="color:var(--text-primary)"] { color: var(--text-primary) !important; }
 body.dark-mode [style*="color:var(--text-secondary)"] { color: var(--text-secondary) !important; }
+
+/* ================================================================
+   UI POLISH v4.1 — Complete responsive fixes
+   Developer: Abhishek Agrahari
+   ================================================================ */
+
+/* ── Navbar inner pages (no inline style override) ─────────── */
+nav.navbar-main {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  background: var(--bg-glass) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* ── Active nav link indicator ─────────────────────────────── */
+.nav-link.active {
+  color: var(--primary) !important;
+  background: var(--primary-100) !important;
+  font-weight: var(--fw-semibold) !important;
+}
+
+/* ── Tab panels — globally ─────────────────────────────────── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: pageFadeIn .2s ease; }
+
+/* ── Form inputs — globally consistent ─────────────────────── */
+input[type="number"], input[type="text"], input[type="email"],
+input[type="tel"], input[type="password"], input[type="date"],
+select, textarea {
+  font-size: 16px !important; /* prevents iOS zoom */
+}
+
+/* ── Cards — hover effect ───────────────────────────────────── */
+.form-card:hover { box-shadow: var(--shadow-md); }
+
+/* ── Result cards — highlight ───────────────────────────────── */
+.result-card { transition: var(--t); }
+.result-card:hover { box-shadow: var(--shadow-md); }
+
+/* ── Module cards ───────────────────────────────────────────── */
+.module-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+/* ── Button states ──────────────────────────────────────────── */
+.btn-primary-solid:disabled,
+.btn-secondary-solid:disabled {
+  opacity: .5; cursor: not-allowed; transform: none !important;
+}
+
+/* ── Loading state ──────────────────────────────────────────── */
+.btn-loading { position: relative; pointer-events: none; }
+.btn-loading::after {
+  content: '';
+  position: absolute; right: .75rem; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+
+/* ── Computation sidebar fix ────────────────────────────────── */
+.comp-wrap { display: grid; grid-template-columns: 310px 1fr; gap: 1.25rem; }
+@media (max-width: 900px) { .comp-wrap { grid-template-columns: 1fr !important; } }
+
+/* ── ITR wizard ─────────────────────────────────────────────── */
+.itr-wizard { max-width: 960px; margin: 0 auto; }
+.wizard-header { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; }
+
+/* ── GST returns grid ───────────────────────────────────────── */
+.gst-returns-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+
+/* ── Dashboard stats ────────────────────────────────────────── */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.15rem; margin-bottom: 1.5rem; }
+@media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+
+/* ── Smooth page transitions ────────────────────────────────── */
+.container { animation: pageFadeIn .3s ease; }
+
+/* ── Fix inline-styled navbars on inner pages ───────────────── */
+.navbar-main .nav-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  height: 62px;
+}
+
+/* ── Scrollbar global ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Focus styles ───────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Toastify animation ─────────────────────────────────────── */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ── Mobile bottom padding for AI float btn ─────────────────── */
+@media (max-width: 768px) {
+  .container { padding-bottom: 5rem; }
+}
