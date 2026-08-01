@@ -584,7 +584,7 @@
 
         // Check if key is configured (show setup hint once)
         const _keys = JSON.parse(localStorage.getItem('tm_keys') || '{}');
-        const _hasKey = _keys.geminiApiKey && _keys.geminiApiKey.startsWith('AIzaSy') && _keys.geminiApiKey.length > 30;
+        const _hasKey = (_keys.geminiApiKey && (_keys.geminiApiKey.startsWith('AIzaSy') || _keys.geminiApiKey.startsWith('AQ.')) && _keys.geminiApiKey.length > 20);
         
         // ── Try Real Gemini AI (via ai-real.js TaxMitraAI) ─────
         if (_hasKey && window.TaxMitraAI && window.TaxMitraAI.callGemini) {
@@ -740,7 +740,7 @@
           const keys = JSON.parse(localStorage.getItem('tm_keys') || '{}');
           const geminiKey = keys.geminiApiKey || '';
           // Valid Gemini key must start with 'AIzaSy'
-          if (geminiKey && geminiKey.startsWith('AIzaSy') && geminiKey.length > 30) {
+          if ((geminiKey && (geminiKey.startsWith('AIzaSy') || geminiKey.startsWith('AQ.')) && geminiKey.length > 20)) {
             const prompt = `Extract all tax-relevant information from this ${docType}. Return a JSON object with fields: documentType, name, pan, aadhaar, grossSalary, tdsDeducted, employer, tan, assessmentYear, otherIncome, totalTax, refund, and any other relevant fields found. Mask PAN to XXXXXNNNNN format (last 4 visible). Return ONLY valid JSON.`;
             // Use x-goog-api-key header (Google recommended, July 2026)
             // Model: gemini-2.5-flash (1.5 & 2.0 retired June 2026)
@@ -766,7 +766,7 @@
             } else {
               console.error('[TaxMitra OCR] Gemini error:', resp.status, await resp.text());
             }
-          } else if (geminiKey && !geminiKey.startsWith('AIzaSy')) {
+          } else if ((geminiKey && !geminiKey.startsWith('AIzaSy') && !geminiKey.startsWith('AQ.'))) {
             console.error('[TaxMitra] Invalid Gemini key! Key must start with AIzaSy. Get key from: aistudio.google.com');
           }
         }

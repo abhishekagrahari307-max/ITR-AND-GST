@@ -457,8 +457,8 @@
     } catch(e) {}
 
     // Valid Gemini key must start with 'AIzaSy' (get from aistudio.google.com)
-    if (!apiKey || !apiKey.startsWith('AIzaSy') || apiKey.length < 35) {
-      if (apiKey && !apiKey.startsWith('AIzaSy')) {
+    if (!apiKey || (!apiKey.startsWith('AIzaSy') && !apiKey.startsWith('AQ.')) || apiKey.length < 20) {
+      if (apiKey && !apiKey.startsWith('AIzaSy') && !apiKey.startsWith('AQ.')) {
         console.error('[TaxMitra Documents] Invalid Gemini key! Must start with AIzaSy. Get from: aistudio.google.com');
       }
       // No valid API key — use structured fallback

@@ -110,12 +110,12 @@
     </div>
     
     <div class="tip-box">
-      💡 Key format: <code>AIzaSy...</code> (39 characters)<br>
+      💡 Key format: <code>AIzaSy...</code> (old) or <code>AQ....</code> (new 2026)<br>
       Get it free at: <strong>aistudio.google.com/app/apikey</strong>
     </div>
 
     <div class="key-input-wrap">
-      <input type="password" id="geminiKeyInput" placeholder="AIzaSy..." 
+      <input type="password" id="geminiKeyInput" placeholder="AIzaSy... or AQ...." 
              oninput="validateGeminiKey(this)" autocomplete="off" spellcheck="false"/>
       <span class="key-status" id="geminiKeyStatus"></span>
     </div>
@@ -199,7 +199,7 @@ function checkStatus() {
   const keys = JSON.parse(localStorage.getItem('tm_keys') || '{}');
   const gemini = keys.geminiApiKey || '';
   const or = keys.openrouterApiKey || '';
-  const gOk = gemini.startsWith('AIzaSy') && gemini.length > 30;
+  const gOk = gemini && (gemini.startsWith('AIzaSy') || gemini.startsWith('AQ.')) && gemini.length > 20;
   const oOk = or.startsWith('sk-or-') && or.length > 20;
 
   const gs = document.getElementById('geminiStatus');
@@ -231,7 +231,7 @@ function validateGeminiKey(input) {
   const v = input.value.trim();
   const statusEl = document.getElementById('geminiKeyStatus');
   if (!v) { input.className = 'key-input-wrap input'; statusEl.textContent = ''; return; }
-  if (v.startsWith('AIzaSy') && v.length >= 35) {
+  if (v && (v.startsWith('AIzaSy') || v.startsWith('AQ.')) && v.length >= 20) {
     input.style.borderColor = 'var(--success)';
     statusEl.textContent = '✅';
   } else if (v.length > 5) {
@@ -262,8 +262,8 @@ function toggleShowKey(id) {
 async function testGeminiKey() {
   const key = document.getElementById('geminiKeyInput').value.trim();
   const res = document.getElementById('geminiTestResult');
-  if (!key || !key.startsWith('AIzaSy')) {
-    showResult(res, '❌ Invalid key format. Must start with AIzaSy', 'error');
+  if (!key || (!key.startsWith('AIzaSy') && !key.startsWith('AQ.'))) {
+    showResult(res, '❌ Invalid key format. Must start with AIzaSy (old) or AQ. (new 2026)', 'error');
     return;
   }
   showResult(res, '⏳ Testing connection to Gemini 2.5 Flash...', 'loading');
@@ -331,13 +331,13 @@ function saveAllKeys() {
   const keysToSave = {};
   let msg = [];
 
-  if (gKey && gKey.startsWith('AIzaSy') && gKey.length > 30 && !gKey.includes('...')) {
+  if (gKey && (gKey.startsWith('AIzaSy') || gKey.startsWith('AQ.')) && gKey.length > 20 && !gKey.includes('...')) {
     keysToSave.geminiApiKey = gKey;
     msg.push('✅ Gemini AI key saved');
   } else if (gKey && gKey.includes('...')) {
     msg.push('ℹ️ Gemini key unchanged (showing masked)');
   } else if (gKey) {
-    showResult(res, '❌ Gemini key invalid — must start with AIzaSy and be 39 chars', 'error');
+    showResult(res, '❌ Gemini key invalid — must start with AIzaSy (old) or AQ. (new 2026)', 'error');
     return;
   }
 
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Pre-fill if key already exists
   const keys = JSON.parse(localStorage.getItem('tm_keys') || '{}');
-  if (keys.geminiApiKey && keys.geminiApiKey.startsWith('AIzaSy')) {
+  if (keys.geminiApiKey && (keys.geminiApiKey.startsWith('AIzaSy') || keys.geminiApiKey.startsWith('AQ.'))) {
     // Already configured - show success state
     document.getElementById('geminiKeyInput').value = keys.geminiApiKey.substring(0,8) + '...' + keys.geminiApiKey.slice(-4);
     document.getElementById('geminiKeyInput').style.borderColor = 'var(--success)';
