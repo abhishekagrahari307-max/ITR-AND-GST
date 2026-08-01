@@ -208,13 +208,15 @@ async function callGeminiAPI(message, mode, lang, history, apiKey, endpoint) {
       // Fall through to direct API call
     }
   }
-  // Direct API call with header-based auth (Google recommended over ?key= query param)
+  // Direct API call - support both key formats:
+  // AIzaSy... = Standard API Key -> x-goog-api-key header
+  // AQ..... = OAuth2 Access Token -> Authorization: Bearer header
+  const authHeaders = apiKey.startsWith('AQ.')
+    ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey }
+    : { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey };
   res = await fetch(ep, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-goog-api-key': apiKey,
-    },
+    headers: authHeaders,
     body: JSON.stringify({
       contents,
       generationConfig: {
@@ -391,13 +393,13 @@ Output ONLY the JSON.`,
   const base64 = fileDataUrl.split(',')[1];
   const imgMime = mimeType || 'image/jpeg';
   
-  // Use header auth (secure) + gemini-2.5-flash for vision
+  // Use header auth - support both AIzaSy (API key) and AQ. (OAuth2) formats
+  const visionAuthHeaders = keys.gemini.startsWith('AQ.')
+    ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + keys.gemini }
+    : { 'Content-Type': 'application/json', 'x-goog-api-key': keys.gemini };
   const res = await fetch(GEMINI_FLASH_EP, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-goog-api-key': keys.gemini,
-    },
+    headers: visionAuthHeaders,
     body: JSON.stringify({
       contents: [{
         parts: [
