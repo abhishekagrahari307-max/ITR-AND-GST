@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>AI Deduction Finder — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper"><ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+      </ul></div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero"><div class="container">
+  <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>AI Deduction Finder</span></div>
+  <h1>💡 AI Deduction Finder</h1>
+  <p>AY 2026-27 | Budget 2025 | Developed by <strong>Abhishek Agrahari</strong></p>
+</div></div>
+<div class="container" style="padding:1.5rem 0 4rem">
+<div style="background:linear-gradient(135deg,rgba(5,150,105,.08),rgba(16,185,129,.05));border:1px solid rgba(5,150,105,.2);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem;display:flex;gap:.85rem"><span style="font-size:1.75rem">💡</span><div><strong style="color:var(--success)">AI Deduction Finder — Personalized Tax Savings</strong><p style="font-size:.82rem;margin:.3rem 0 0;color:var(--text-secondary)">Enter your financial profile — AI finds ALL deductions you qualify for with exact savings calculation.</p></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+<div class="form-card"><h3 style="font-weight:800;margin-bottom:1.25rem">Your Financial Profile</h3>
+<div class="form-group"><label>Annual Income (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="dfInc" placeholder="0" oninput="findDed()"/></div></div>
+<div class="form-group"><label>Regime</label><select id="dfReg" onchange="findDed()"><option value="new">New Regime</option><option value="old">Old Regime</option></select></div>
+<div class="form-group"><label>Age</label><select id="dfAge" onchange="findDed()"><option value="below60">Below 60</option><option value="60to80">Senior (60-79)</option><option value="above80">Super Senior (80+)</option></select></div>
+<div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.85rem;margin-bottom:.85rem"><strong style="font-size:.82rem;color:var(--text-secondary)">Investments & Expenses</strong>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-top:.5rem">
+<div><label class="mg-label">PPF/ELSS/LIC</label><input type="number" class="mg-input" id="df80c" placeholder="0" oninput="findDed()"/></div>
+<div><label class="mg-label">Health Ins.</label><input type="number" class="mg-input" id="df80d" placeholder="0" oninput="findDed()"/></div>
+<div><label class="mg-label">Parents Ins.</label><input type="number" class="mg-input" id="df80dp" placeholder="0" oninput="findDed()"/></div>
+<div><label class="mg-label">NPS</label><input type="number" class="mg-input" id="dfNPS" placeholder="0" oninput="findDed()"/></div>
+<div><label class="mg-label">HL Interest</label><input type="number" class="mg-input" id="dfHL" placeholder="0" oninput="findDed()"/></div>
+<div><label class="mg-label">HL Principal</label><input type="number" class="mg-input" id="dfHLP" placeholder="0" oninput="findDed()"/></div>
+<div><label class="mg-label">HRA</label><input type="number" class="mg-input" id="dfHRA" placeholder="0" oninput="findDed()"/></div>
+<div><label class="mg-label">Rent Paid</label><input type="number" class="mg-input" id="dfRent" placeholder="0" oninput="findDed()"/></div>
+<div><label class="mg-label">Edu Loan Int.</label><input type="number" class="mg-input" id="df80e" placeholder="0" oninput="findDed()"/></div>
+<div><label class="mg-label">Employer NPS</label><input type="number" class="mg-input" id="dfENPS" placeholder="0" oninput="findDed()"/></div>
+</div></div>
+<button class="btn-primary-solid" onclick="findDed()" style="width:100%"><i class="fa fa-magic"></i> Find All Deductions</button></div>
+<div id="dfOut"><div class="form-card"><h4 style="font-weight:800;margin-bottom:.75rem">Quick Guide</h4><div style="font-size:.8rem;display:flex;flex-direction:column;gap:.35rem;color:var(--text-secondary)"><div style="padding:.4rem .6rem;background:rgba(5,150,105,.04);border-radius:6px">💡 80C: ₹1.5L (PPF,ELSS,LIC,NSC)</div><div style="padding:.4rem .6rem;background:rgba(5,150,105,.04);border-radius:6px">💡 80D: ₹25K self + ₹50K parents</div><div style="padding:.4rem .6rem;background:rgba(5,150,105,.04);border-radius:6px">💡 80CCD(1B): Extra ₹50K NPS</div><div style="padding:.4rem .6rem;background:rgba(5,150,105,.04);border-radius:6px">✅ 80CCD(2): Employer NPS — BOTH regimes!</div></div></div></div></div>
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+function findDed(){
+  const inc=parseFloat(document.getElementById('dfInc').value)||0;
+  const reg=document.getElementById('dfReg').value;
+  const age=document.getElementById('dfAge').value;
+  const r80c=parseFloat(document.getElementById('df80c').value)||0;
+  const r80d=parseFloat(document.getElementById('df80d').value)||0;
+  const r80dp=parseFloat(document.getElementById('df80dp').value)||0;
+  const nps=parseFloat(document.getElementById('dfNPS').value)||0;
+  const hl=parseFloat(document.getElementById('dfHL').value)||0;
+  const hlp=parseFloat(document.getElementById('dfHLP').value)||0;
+  const hra=parseFloat(document.getElementById('dfHRA').value)||0;
+  const rent=parseFloat(document.getElementById('dfRent').value)||0;
+  const edu=parseFloat(document.getElementById('df80e').value)||0;
+  const enps=parseFloat(document.getElementById('dfENPS').value)||0;
+  if(!inc){document.getElementById('dfOut').innerHTML='<div class="form-card"><p style="color:var(--text-muted)">Enter income to find deductions.</p></div>';return;}
+  const slab=inc>1000000?.30:inc>500000?.20:.05;
+  const deds=[];let total=0;
+  if(reg==='old'){
+    const d80c=Math.min(r80c+Math.min(hlp,150000),150000);
+    if(d80c>0)deds.push({s:'80C',d:'PPF/ELSS/LIC/Principal',a:d80c,sv:Math.round(d80c*slab*1.04)});
+    const d80d=Math.min(r80d,age==='below60'?25000:50000)+Math.min(r80dp,50000);
+    if(d80d>0)deds.push({s:'80D',d:'Health Insurance',a:d80d,sv:Math.round(d80d*slab*1.04)});
+    const d80nps=Math.min(nps,50000);
+    if(d80nps>0)deds.push({s:'80CCD(1B)',d:'NPS Extra',a:d80nps,sv:Math.round(d80nps*slab*1.04)});
+    const dhl=Math.min(hl,200000);
+    if(dhl>0)deds.push({s:'24(b)',d:'Home Loan Interest',a:dhl,sv:Math.round(dhl*slab*1.04)});
+    if(hra>0&&rent>0){const b=inc*.4;const hraEx=Math.max(0,Math.min(hra,rent-b*.1,b*.5));if(hraEx>0)deds.push({s:'HRA',d:'House Rent Allowance',a:hraEx,sv:Math.round(hraEx*slab*1.04)});}
+    if(edu>0)deds.push({s:'80E',d:'Education Loan Interest',a:edu,sv:Math.round(edu*slab*1.04)});
+    deds.push({s:'Std Ded',d:'Standard Deduction',a:50000,sv:Math.round(50000*slab*1.04)});
+  } else {
+    deds.push({s:'Std Ded',d:'Standard Deduction',a:75000,sv:Math.round(75000*slab*1.04)});
+  }
+  if(enps>0)deds.push({s:'80CCD(2)',d:'Employer NPS (Both Regimes!)',a:enps,sv:Math.round(enps*slab*1.04),hi:true});
+  const totalSv=deds.reduce((s,d)=>s+d.sv,0);
+  const opps=[];
+  if(reg==='old'&&r80c<150000)opps.push('💡 Invest '+fmt(150000-r80c)+' more in 80C — save '+fmt(Math.round((150000-r80c)*slab*1.04)));
+  if(reg==='old'&&nps<50000)opps.push('💡 NPS 80CCD(1B): '+fmt(50000-nps)+' more deduction possible');
+  if(enps===0)opps.push('✅ Ask employer for NPS 80CCD(2) — works in BOTH regimes!');
+  document.getElementById('dfOut').innerHTML='<div class="result-card" style="margin-bottom:1rem"><div class="result-label">Total Tax Savings</div><div class="result-main" style="font-size:2rem;color:var(--success)">'+fmt(totalSv)+'</div><div style="font-size:.8rem;color:var(--text-muted);margin-top:.35rem">Deductions total: '+fmt(deds.reduce((s,d)=>s+d.a,0))+'</div></div>'
+    +'<div class="form-card"><h4 style="font-weight:800;margin-bottom:.75rem">Qualifying Deductions</h4>'
+    +deds.map(d=>'<div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .7rem;background:'+(d.hi?'rgba(5,150,105,.08)':'var(--bg-secondary)')+';border-radius:6px;margin-bottom:.35rem;border-left:'+(d.hi?'3px solid var(--success)':'')+'"><div style="flex:1;font-size:.82rem"><strong style="color:'+(d.hi?'var(--success)':'var(--primary)')+'">'+d.s+'</strong> — '+d.d+'<br><span style="font-size:.75rem;color:var(--text-muted)">'+fmt(d.a)+'</span></div><strong style="color:var(--success)">'+fmt(d.sv)+'</strong></div>').join('')+'</div>'
+    +(opps.length?'<div class="form-card" style="margin-top:1rem"><h4 style="font-weight:800;margin-bottom:.75rem">More Opportunities</h4>'+opps.map(o=>'<div style="padding:.45rem .7rem;background:rgba(5,150,105,.04);border-radius:6px;font-size:.82rem;margin-bottom:.35rem">'+o+'</div>').join('')+'</div>':'');
+}
+document.addEventListener('DOMContentLoaded',findDed);
+</script>
+</body>
+</html>

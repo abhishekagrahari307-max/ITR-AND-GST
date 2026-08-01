@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>Crypto & VDA Tax Calculator — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Crypto & VDA Tax Calculator</span></div>
+    <h1>₿ Crypto & VDA Tax Calculator</h1>
+    <p>AY 2026-27 | Budget 2025 | Developed by <strong>Abhishek Agrahari</strong></p>
+  </div>
+</div>
+<div class="container" style="padding:1.5rem 0 4rem">
+
+<div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem">
+  <strong style="color:var(--warning)">⚠️ Section 115BBH: Flat 30% Tax on ALL VDA (Crypto/NFT) gains + 1% TDS u/s 194S</strong>
+  <p style="font-size:.82rem;margin:.25rem 0 0;color:var(--text-secondary)">No deduction except cost of acquisition. No set-off of losses against other income. Losses from one VDA CANNOT set off against another VDA.</p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+  <div class="form-card">
+    <h3 style="font-weight:800;margin-bottom:1.25rem">₿ Crypto Tax Calculator</h3>
+    <div id="cryptoTrades">
+      <div class="crypto-trade" style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.85rem;margin-bottom:.65rem">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+          <div class="form-group" style="margin:0"><label>Asset (BTC/ETH etc)</label><input class="mg-input" placeholder="BTC" id="c0_asset"/></div>
+          <div class="form-group" style="margin:0"><label>Transaction Type</label>
+            <select class="mg-input" id="c0_type">
+              <option value="sell">Sell / Exchange</option>
+              <option value="buy">Buy (Cost)</option>
+              <option value="gift">Received as Gift</option>
+              <option value="mining">Mining Income</option>
+            </select></div>
+          <div class="form-group" style="margin:0"><label>Sale Value (₹)</label><input type="number" class="mg-input" id="c0_sale" placeholder="0" oninput="calcCrypto()"/></div>
+          <div class="form-group" style="margin:0"><label>Cost of Acquisition (₹)</label><input type="number" class="mg-input" id="c0_cost" placeholder="0" oninput="calcCrypto()"/></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-secondary-solid" onclick="addCryptoTrade()" style="width:100%;margin-bottom:.5rem"><i class="fa fa-plus"></i> Add Transaction</button>
+    <button class="btn-primary-solid" onclick="calcCrypto()" style="width:100%"><i class="fa fa-calculator"></i> Calculate Tax</button>
+    <div class="form-card" style="margin-top:1rem;background:var(--bg-secondary)">
+      <h4 style="font-weight:700;font-size:.85rem;margin-bottom:.5rem">Key Rules (Sec 115BBH)</h4>
+      <ul style="font-size:.78rem;color:var(--text-secondary);list-style:none;padding:0;display:flex;flex-direction:column;gap:.3rem">
+        <li>🔴 Flat <strong>30% tax</strong> on ALL gains (no slab rate)</li>
+        <li>🔴 <strong>No loss set-off</strong> across different VDAs</li>
+        <li>🔴 No loss set-off against salary/business income</li>
+        <li>🔴 <strong>1% TDS u/s 194S</strong> on every sale >₹50,000</li>
+        <li>✅ Only deduction: Cost of acquisition</li>
+        <li>✅ Gift received from relative — exempt (only if from relative)</li>
+        <li>⚠️ File ITR-2 if only crypto gains + salary</li>
+      </ul>
+    </div>
+  </div>
+  <div>
+    <div class="result-card" id="cryptoResult" style="display:none">
+      <div class="result-label">Crypto Tax Summary</div>
+      <div class="result-main" id="cryptoTaxAmt" style="font-size:1.75rem">₹0</div>
+      <div id="cryptoBreakdown" style="margin-top:1rem"></div>
+    </div>
+    <div class="form-card" style="margin-top:1rem">
+      <h4 style="font-weight:800;margin-bottom:.75rem">📋 TDS u/s 194S</h4>
+      <div class="form-group"><label>Sale Amount for TDS check (₹)</label>
+        <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="tdsCryptoAmt" placeholder="0" oninput="calcCryptoTDS()"/></div></div>
+      <div id="tdsCryptoResult" style="margin-top:.5rem;font-size:.82rem"></div>
+    </div>
+    <div style="display:flex;gap:.65rem;margin-top:1rem">
+      <button class="btn-primary-solid" onclick="downloadCryptoPDF()" style="flex:1"><i class="fa fa-file-pdf"></i> PDF</button>
+      <button class="btn-secondary-solid" onclick="pushCryptoToITR()" style="flex:1"><i class="fa fa-file-export"></i> → ITR</button>
+    </div>
+  </div>
+</div>
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+let tradeCount = 0;
+
+function addCryptoTrade() {
+  tradeCount++;
+  const div = document.createElement('div');
+  div.className = 'crypto-trade';
+  div.style.cssText = 'background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.85rem;margin-bottom:.65rem';
+  div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+    <strong style="font-size:.8rem">Transaction ${tradeCount+1}</strong>
+    <button onclick="this.parentElement.parentElement.remove();calcCrypto()" style="background:none;border:none;cursor:pointer;color:var(--danger)">✕</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+    <div class="form-group" style="margin:0"><label>Asset</label><input class="mg-input" placeholder="ETH" id="c${tradeCount}_asset"/></div>
+    <div class="form-group" style="margin:0"><label>Type</label>
+      <select class="mg-input" id="c${tradeCount}_type"><option value="sell">Sell</option><option value="buy">Buy</option></select></div>
+    <div class="form-group" style="margin:0"><label>Sale Value (₹)</label><input type="number" class="mg-input" id="c${tradeCount}_sale" placeholder="0" oninput="calcCrypto()"/></div>
+    <div class="form-group" style="margin:0"><label>Cost (₹)</label><input type="number" class="mg-input" id="c${tradeCount}_cost" placeholder="0" oninput="calcCrypto()"/></div>
+  </div>`;
+  document.getElementById('cryptoTrades').appendChild(div);
+}
+
+function calcCrypto() {
+  const trades = document.querySelectorAll('.crypto-trade');
+  let totalGain = 0, totalLoss = 0, totalSale = 0;
+  const details = [];
+  trades.forEach((t, i) => {
+    const sale = parseFloat(t.querySelector('[id$="_sale"]')?.value) || 0;
+    const cost = parseFloat(t.querySelector('[id$="_cost"]')?.value) || 0;
+    const asset = t.querySelector('[id$="_asset"]')?.value || 'VDA';
+    const gain = sale - cost;
+    totalSale += sale;
+    if (gain > 0) totalGain += gain;
+    else totalLoss += Math.abs(gain);
+    if (sale > 0) details.push({ asset, sale, cost, gain });
+  });
+  // 30% flat tax on gains ONLY (no set-off)
+  const taxOnGain = Math.round(totalGain * 0.30);
+  const cess = Math.round(taxOnGain * 0.04);
+  const totalTax = taxOnGain + cess;
+  window._cryptoResult = { totalGain, totalLoss, totalSale, totalTax, details };
+  document.getElementById('cryptoResult').style.display = 'block';
+  document.getElementById('cryptoTaxAmt').textContent = fmt(totalTax);
+  document.getElementById('cryptoTaxAmt').style.color = totalTax > 0 ? 'var(--danger)' : 'var(--success)';
+  document.getElementById('cryptoBreakdown').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.82rem">
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Total Sale Value</span><strong>${fmt(totalSale)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:rgba(5,150,105,.06);border-radius:6px"><span>Total Gain</span><strong style="color:var(--success)">${fmt(totalGain)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:rgba(220,38,38,.06);border-radius:6px"><span>Total Loss (no set-off)</span><strong style="color:var(--danger)">${fmt(totalLoss)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Tax @30% on Gains</span><strong>${fmt(taxOnGain)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>4% Cess</span><strong>${fmt(cess)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.55rem .6rem;background:rgba(37,99,235,.08);border-radius:6px;font-size:.9rem"><span style="font-weight:700">TOTAL TAX</span><strong style="color:var(--primary)">${fmt(totalTax)}</strong></div>
+    </div>`;
+}
+
+function calcCryptoTDS() {
+  const amt = parseFloat(document.getElementById('tdsCryptoAmt').value) || 0;
+  const el = document.getElementById('tdsCryptoResult');
+  if (amt >= 50000) {
+    const tds = Math.round(amt * 0.01);
+    el.innerHTML = `<div style="padding:.55rem;background:rgba(220,38,38,.06);border-radius:6px"><strong style="color:var(--danger)">TDS @1% = ${fmt(tds)}</strong><br><span style="color:var(--text-muted);font-size:.75rem">Buyer will deduct TDS. You get net: ${fmt(amt-tds)}</span></div>`;
+  } else {
+    el.innerHTML = `<div style="padding:.55rem;background:rgba(5,150,105,.06);border-radius:6px;color:var(--success);font-size:.82rem">✅ No TDS (sale &lt;₹50,000)</div>`;
+  }
+}
+
+function downloadCryptoPDF() {
+  if (!window.jspdf || !window._cryptoResult) { showToast('Calculate first!','warning'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const r = window._cryptoResult;
+  doc.setFillColor(30,64,175); doc.rect(0,0,210,28,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('Crypto/VDA Tax Report — AY 2026-27', 105, 12, {align:'center'});
+  doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text('Section 115BBH | TaxMitra AI Enterprise | Abhishek Agrahari', 105, 22, {align:'center'});
+  doc.setTextColor(30,30,30);
+  doc.autoTable({startY:36,head:[['Particulars','Amount']],body:[
+    ['Total Sale Value', fmt(r.totalSale)],['Total Gains', fmt(r.totalGain)],
+    ['Total Losses (no set-off)', fmt(r.totalLoss)],['Tax @30% on Gains', fmt(r.totalTax)],
+    ['Applicable Section','115BBH'],['ITR Form','ITR-2 (salary+crypto) / ITR-3 (business+crypto)'],
+  ],headStyles:{fillColor:[30,64,175],textColor:255,fontSize:9},styles:{fontSize:9}});
+  doc.save('Crypto_Tax_AY2026-27_TaxMitra.pdf');
+  showToast('Crypto tax PDF downloaded!','success');
+}
+
+function pushCryptoToITR() {
+  const r = window._cryptoResult;
+  if (!r) { showToast('Calculate first!','warning'); return; }
+  const itrData = JSON.parse(localStorage.getItem('itr_draft_2') || '{}');
+  itrData.cryptoGain = r.totalGain;
+  itrData.cryptoTax = r.totalTax;
+  itrData._fromCrypto = true;
+  localStorage.setItem('itr_draft_2', JSON.stringify(itrData));
+  showToast('Crypto data → ITR saved!','success');
+  setTimeout(() => { window.location.href = 'itr-form.html?form=2'; }, 1500);
+}
+document.addEventListener('DOMContentLoaded', calcCrypto);
+</script>
+</body>
+</html>

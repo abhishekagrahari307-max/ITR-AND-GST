@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="description" content="TaxMitra AI — Multi-method Data Import Center. Import from JSON backup, CSV, Form 16, 26AS, AIS, manual entry, salary slip & more."/>
+<title>Data Import Center – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+/* ── Import Center Styles ─────────────────────────────── */
+.import-hero{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 50%,#7c3aed 100%);color:#fff;padding:2rem 0 1.5rem;text-align:center}
+.import-hero h1{font-size:clamp(1.4rem,3vw,1.9rem);font-weight:900;margin-bottom:.35rem}
+.import-hero p{font-size:.875rem;opacity:.82;max-width:600px;margin:0 auto}
+
+/* Method Cards */
+.methods-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.15rem;margin-bottom:2rem}
+.method-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:all .25s;cursor:pointer}
+.method-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.method-card.expanded{box-shadow:var(--shadow-lg)}
+.mc-header{padding:1.15rem;display:flex;align-items:center;gap:.85rem}
+.mc-icon{width:48px;height:48px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.mc-title{flex:1}
+.mc-title h3{font-size:.95rem;font-weight:800;margin-bottom:.18rem}
+.mc-title p{font-size:.75rem;color:var(--text-muted)}
+.mc-badge{font-size:.62rem;font-weight:800;padding:.15rem .55rem;border-radius:99px;flex-shrink:0}
+.mc-body{padding:0 1.15rem 1.15rem;display:none}
+.method-card.expanded .mc-body{display:block}
+.mc-toggle{background:none;border:none;cursor:pointer;font-size:.85rem;color:var(--text-muted);transition:.2s}
+.method-card.expanded .mc-toggle{transform:rotate(180deg)}
+
+/* Import actions */
+.import-btn{display:flex;align-items:center;gap:.5rem;padding:.65rem 1rem;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-size:.82rem;font-weight:600;cursor:pointer;transition:var(--t-fast);width:100%;justify-content:center;margin-top:.75rem}
+.import-btn:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.import-btn.secondary{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border)}
+.import-btn.secondary:hover{background:var(--border)}
+.import-btn.success{background:#059669}
+.import-btn.danger{background:#dc2626}
+
+/* File drop zone */
+.file-drop{border:2px dashed var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;cursor:pointer;transition:.2s;background:var(--bg-secondary)}
+.file-drop:hover,.file-drop.drag-over{border-color:var(--primary);background:rgba(37,99,235,.04)}
+.file-drop input[type=file]{display:none}
+
+/* Progress bar */
+.import-progress{height:6px;background:var(--bg-secondary);border-radius:3px;overflow:hidden;margin:.5rem 0}
+.import-progress-fill{height:100%;background:var(--grad-primary);border-radius:3px;transition:width .4s ease;width:0}
+
+/* Status items */
+.import-status{display:flex;flex-direction:column;gap:.4rem;margin-top:.65rem;max-height:200px;overflow-y:auto}
+.import-status-item{display:flex;align-items:center;gap:.5rem;padding:.42rem .65rem;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:.78rem}
+.import-status-item.success{background:rgba(5,150,105,.08);color:#065f46}
+.import-status-item.error{background:rgba(220,38,38,.08);color:#991b1b}
+.import-status-item.warn{background:rgba(217,119,6,.08);color:#92400e}
+.import-status-item i{font-size:.85rem;flex-shrink:0}
+
+/* Manual form */
+.manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+@media(max-width:480px){.manual-grid{grid-template-columns:1fr}}
+.mg-label{font-size:.72rem;font-weight:600;color:var(--text-secondary);margin-bottom:.25rem;display:block}
+.mg-input{width:100%;padding:.5rem .7rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:.82rem;background:var(--bg-card);color:var(--text-primary);font-family:inherit;transition:.2s}
+.mg-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+.mg-section{background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.75rem;margin-bottom:.65rem}
+.mg-section-title{font-size:.78rem;font-weight:800;color:var(--primary);margin-bottom:.55rem;display:flex;align-items:center;gap:.35rem}
+
+/* Preview table */
+.preview-table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:.65rem}
+.preview-table th{background:var(--bg-secondary);padding:.4rem .65rem;text-align:left;font-weight:700;color:var(--text-secondary);font-size:.7rem;border-bottom:1px solid var(--border)}
+.preview-table td{padding:.38rem .65rem;border-bottom:1px solid var(--border)}
+.preview-table tr:last-child td{border-bottom:none}
+.preview-table tr:hover td{background:rgba(37,99,235,.03)}
+
+/* Summary box */
+.import-summary{background:linear-gradient(135deg,rgba(37,99,235,.07),rgba(124,58,237,.05));border:1px solid rgba(37,99,235,.15);border-radius:var(--radius);padding:1rem;margin-top:.85rem}
+.import-summary h4{font-size:.85rem;font-weight:800;margin-bottom:.5rem;color:var(--primary)}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.summary-item{display:flex;justify-content:space-between;font-size:.78rem;padding:.3rem .5rem;background:rgba(255,255,255,.5);border-radius:5px}
+.summary-item span{color:var(--text-secondary)}
+.summary-item strong{font-weight:700}
+
+/* Tabs */
+.import-tabs{display:flex;gap:.2rem;background:var(--bg-secondary);padding:.3rem;border-radius:var(--radius-sm);margin-bottom:1rem;overflow-x:auto;scrollbar-width:none}
+.import-tabs::-webkit-scrollbar{display:none}
+.itab{padding:.38rem .85rem;border-radius:var(--radius-sm);font-size:.78rem;font-weight:600;color:var(--text-secondary);background:transparent;border:none;cursor:pointer;white-space:nowrap;transition:.2s}
+.itab.active{background:var(--bg-card);color:var(--primary);box-shadow:var(--shadow-sm)}
+.itab-panel{display:none}
+.itab-panel.active{display:block}
+
+/* Tooltip */
+.tip-box{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:var(--radius-sm);padding:.6rem .85rem;font-size:.78rem;color:#92400e;margin:.65rem 0}
+
+/* All data view */
+.all-data-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+.ads-header{padding:.85rem 1rem;background:var(--bg-secondary);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:.82rem;font-weight:700}
+.ads-body{padding:1rem}
+
+/* History */
+.import-history{display:flex;flex-direction:column;gap:.5rem}
+.ih-item{display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.8rem}
+.ih-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.ih-info{flex:1}
+.ih-info strong{display:block;font-size:.82rem}
+.ih-info span{font-size:.72rem;color:var(--text-muted)}
+.ih-time{font-size:.7rem;color:var(--text-muted);white-space:nowrap}
+
+/* Color accents */
+.blue{background:rgba(37,99,235,.1);color:#1d4ed8}
+.green{background:rgba(5,150,105,.1);color:#065f46}
+.purple{background:rgba(124,58,237,.1);color:#6d28d9}
+.orange{background:rgba(217,119,6,.1);color:#92400e}
+.red{background:rgba(220,38,38,.1);color:#991b1b}
+.cyan{background:rgba(6,182,212,.1);color:#0e7490}
+.teal{background:rgba(20,184,166,.1);color:#0f766e}
+.pink{background:rgba(236,72,153,.1);color:#be185d}
+
+/* Responsive */
+@media(max-width:768px){
+  .methods-grid{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.4rem"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="import-hero">
+  <div class="container">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">📥</div>
+    <h1>Data Import Center</h1>
+    <p>Sab jagah se data import karo — JSON backup, CSV, Form 16, 26AS, AIS, manual entry, salary slip, clipboard — sab methods ek jagah</p>
+    <p style="font-size:.72rem;opacity:.6;margin-top:.4rem">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+  </div>
+</div>
+
+<div class="container" style="padding-top:2rem;padding-bottom:3rem">
+
+  <!-- QUICK ACTIONS BAR -->
+  <div style="display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:1.75rem;align-items:center">
+    <button class="import-btn" style="width:auto;padding:.52rem 1.1rem" onclick="triggerFullBackupRestore()">
+      <i class="fa fa-cloud-upload-alt"></i> Full Backup Restore
+    </button>
+    <button class="import-btn secondary" style="width:auto;padding:.52rem 1.1rem" onclick="exportFullBackup()">
+      <i class="fa fa-download"></i> Export Full Backup
+    </button>
+    <button class="import-btn secondary" style="width:auto;padding:.52rem 1.1rem" onclick="showAllStoredData()">
+      <i class="fa fa-database"></i> View All Stored Data
+    </button>
+    <button class="import-btn danger" style="width:auto;padding:.52rem 1.1rem" onclick="clearAllData()">
+      <i class="fa fa-trash"></i> Clear All Data
+    </button>
+    <div style="margin-left:auto;font-size:.78rem;color:var(--text-muted)">
+      Storage: <strong id="storageUsed">Calculating...</strong>
+    </div>
+  </div>
+
+  <!-- IMPORT METHODS GRID -->
+  <div class="methods-grid">
+
+    <!-- METHOD 1: Full JSON Backup Restore -->
+    <div class="method-card" id="mc1">
+      <div class="mc-header" onclick="toggleCard('mc1')">
+        <div class="mc-icon blue">💾</div>
+        <div class="mc-title">
+          <h3>Full JSON Backup Restore</h3>
+          <p>TaxMitra ka pura backup ek click mein restore karo</p>
+        </div>
+        <span class="mc-badge" style="background:rgba(37,99,235,.1);color:var(--primary)">Recommended</span>
+        <button class="mc-toggle"><i class="fa fa-chevron-down"></i></button>
+      </div>
+      <div class="mc-body">
+        <div class="tip-box">💡 Pehle <strong>Export Full Backup</strong> karke JSON file save karo. Baad mein kisi bhi device pe restore kar sakte ho.</div>
+        <div class="file-drop" id="fd-json" onclick="document.getElementById('jsonFileInput').click()"
+             ondragover="fileDragOver(event,'fd-json')" ondragleave="fileDragLeave('fd-json')" ondrop="fileDrop(event,'fd-json','json')">
+          <div style="font-size:2rem;margin-bottom:.4rem">📁</div>
+          <strong style="font-size:.88rem">Click to select JSON file</strong>
+          <p style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem">ya drag & drop karo — .json (TaxMitra backup)</p>
+          <input type="file" id="jsonFileInput" accept=".json" onchange="importJSON(this)"/>
+        </div>
+        <div class="import-progress" id="prog-json"><div class="import-progress-fill" id="progfill-json"></div></div>
+        <div class="import-status" id="status-json"></div>
+        <button class="import-btn secondary" onclick="exportFullBackup()"><i class="fa fa-download"></i> First Export Backup</button>
+      </div>
+    </div>
+
+    <!-- METHOD 2: Form 16 Import -->
+    <div class="method-card" id="mc2">
+      <div class="mc-header" onclick="toggleCard('mc2')">
+        <div class="mc-icon green">📋</div>
+        <div class="mc-title">
+          <h3>Form 16 Data Import</h3>
+          <p>Employer Form 16 se salary & TDS data import karo</p>
+        </div>
+        <span class="mc-badge" style="background:rgba(5,150,105,.1);color:#065f46">AI Powered</span>
+        <button class="mc-toggle"><i class="fa fa-chevron-down"></i></button>
+      </div>
+      <div class="mc-body">
+        <div class="import-tabs">
+          <button class="itab active" onclick="switchITab('form16','manual')">📝 Manual Entry</button>
+          <button class="itab" onclick="switchITab('form16','paste')">📋 Paste Text</button>
+          <button class="itab" onclick="switchITab('form16','upload')">📤 Upload File</button>
+        </div>
+        <!-- Manual -->
+        <div class="itab-panel active" id="form16-manual">
+          <div class="mg-section">
+            <div class="mg-section-title">👤 Employer Details</div>
+            <div class="manual-grid">
+              <div><label class="mg-label">Employer Name</label><input class="mg-input" id="f16_empName" placeholder="e.g. ABC Pvt Ltd"/></div>
+              <div><label class="mg-label">TAN</label><input class="mg-input" id="f16_tan" placeholder="ABCD12345E" maxlength="10"/></div>
+            </div>
+          </div>
+          <div class="mg-section">
+            <div class="mg-section-title">💰 Salary Details (Annual ₹)</div>
+            <div class="manual-grid">
+              <div><label class="mg-label">Gross Salary</label><input class="mg-input" type="number" id="f16_gross" placeholder="0" oninput="previewForm16()"/></div>
+              <div><label class="mg-label">HRA Exemption</label><input class="mg-input" type="number" id="f16_hra" placeholder="0" oninput="previewForm16()"/></div>
+              <div><label class="mg-label">LTA Exemption</label><input class="mg-input" type="number" id="f16_lta" placeholder="0" oninput="previewForm16()"/></div>
+              <div><label class="mg-label">Professional Tax</label><input class="mg-input" type="number" id="f16_pt" placeholder="0" oninput="previewForm16()"/></div>
+              <div><label class="mg-label">Standard Deduction</label><input class="mg-input" type="number" id="f16_std" value="75000" readonly style="opacity:.6"/></div>
+              <div><label class="mg-label">TDS Deducted</label><input class="mg-input" type="number" id="f16_tds" placeholder="0" oninput="previewForm16()"/></div>
+            </div>
+          </div>
+          <div class="mg-section">
+            <div class="mg-section-title">💡 Deductions (Old Regime)</div>
+            <div class="manual-grid">
+              <div><label class="mg-label">80C Total</label><input class="mg-input" type="number" id="f16_80c" placeholder="0" oninput="previewForm16()"/></div>
+              <div><label class="mg-label">80D (Health Insurance)</label><input class="mg-input" type="number" id="f16_80d" placeholder="0" oninput="previewForm16()"/></div>
+            </div>
+          </div>
+          <div class="import-summary" id="f16-preview" style="display:none">
+            <h4>📊 Preview — Data to Import</h4>
+            <div class="summary-grid" id="f16-preview-content"></div>
+          </div>
+          <button class="import-btn" onclick="importForm16Manual()"><i class="fa fa-file-import"></i> Import to ITR Form & Computation</button>
+          <div class="import-status" id="status-form16"></div>
+        </div>
+        <!-- Paste -->
+        <div class="itab-panel" id="form16-paste">
+          <p style="font-size:.8rem;color:var(--text-secondary);margin-bottom:.65rem">Form 16 ka text copy karke yahan paste karo — AI extract karega:</p>
+          <textarea class="mg-input" id="f16_paste_text" rows="8" placeholder="Form 16 text paste karein...&#10;Example:&#10;Gross Salary: 8,40,000&#10;HRA Exemption: 1,20,000&#10;TDS Deducted: 45,000&#10;..."></textarea>
+          <button class="import-btn" onclick="importForm16Paste()"><i class="fa fa-magic"></i> AI Extract & Import</button>
+          <div class="import-status" id="status-form16-paste"></div>
+        </div>
+        <!-- Upload -->
+        <div class="itab-panel" id="form16-upload">
+          <div class="tip-box">📱 Gemini API key set hai to real OCR hoga. Warna text extraction trial hoga.</div>
+          <div class="file-drop" onclick="document.getElementById('f16FileInput').click()"
+               ondragover="fileDragOver(event,this.id)" ondragleave="fileDragLeave(this.id)" ondrop="fileDrop(event,this.id,'form16')">
+            <div style="font-size:2rem;margin-bottom:.4rem">📄</div>
+            <strong>Form 16 PDF/Image Upload</strong>
+            <p style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem">PDF, JPG, PNG — Gemini Vision OCR</p>
+            <input type="file" id="f16FileInput" accept=".pdf,.jpg,.jpeg,.png" onchange="importDocWithOCR(this,'form16')"/>
+          </div>
+          <div class="import-status" id="status-form16-upload"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- METHOD 3: 26AS / AIS Import -->
+    <div class="method-card" id="mc3">
+      <div class="mc-header" onclick="toggleCard('mc3')">
+        <div class="mc-icon purple">🔍</div>
+        <div class="mc-title">
+          <h3>Form 26AS / AIS Import</h3>
+          <p>TDS credit statement se data import karo</p>
+        </div>
+        <span class="mc-badge" style="background:rgba(124,58,237,.1);color:#6d28d9">TDS Data</span>
+        <button class="mc-toggle"><i class="fa fa-chevron-down"></i></button>
+      </div>
+      <div class="mc-body">
+        <div class="import-tabs">
+          <button class="itab active" onclick="switchITab('ais','manual')">📝 Manual Entry</button>
+          <button class="itab" onclick="switchITab('ais','paste')">📋 Paste Text</button>
+        </div>
+        <div class="itab-panel active" id="ais-manual">
+          <div class="mg-section">
+            <div class="mg-section-title">💳 TDS Credit Details</div>
+            <div class="manual-grid">
+              <div><label class="mg-label">TDS on Salary (192) ₹</label><input class="mg-input" type="number" id="ais_tdsSal" placeholder="0"/></div>
+              <div><label class="mg-label">TDS on Interest (194A) ₹</label><input class="mg-input" type="number" id="ais_tdsInt" placeholder="0"/></div>
+              <div><label class="mg-label">TDS Others ₹</label><input class="mg-input" type="number" id="ais_tdsOth" placeholder="0"/></div>
+              <div><label class="mg-label">Advance Tax Paid ₹</label><input class="mg-input" type="number" id="ais_advTax" placeholder="0"/></div>
+              <div><label class="mg-label">Self Assessment Tax ₹</label><input class="mg-input" type="number" id="ais_sat" placeholder="0"/></div>
+              <div><label class="mg-label">TCS ₹</label><input class="mg-input" type="number" id="ais_tcs" placeholder="0"/></div>
+            </div>
+          </div>
+          <div class="mg-section">
+            <div class="mg-section-title">📊 AIS Income Data</div>
+            <div class="manual-grid">
+              <div><label class="mg-label">Salary Income ₹</label><input class="mg-input" type="number" id="ais_salary" placeholder="0"/></div>
+              <div><label class="mg-label">Interest Income ₹</label><input class="mg-input" type="number" id="ais_interest" placeholder="0"/></div>
+              <div><label class="mg-label">Dividend Income ₹</label><input class="mg-input" type="number" id="ais_dividend" placeholder="0"/></div>
+              <div><label class="mg-label">Capital Gains ₹</label><input class="mg-input" type="number" id="ais_capgains" placeholder="0"/></div>
+            </div>
+          </div>
+          <button class="import-btn" onclick="importAISManual()"><i class="fa fa-file-import"></i> Import TDS & Income Data</button>
+          <div class="import-status" id="status-ais"></div>
+        </div>
+        <div class="itab-panel" id="ais-paste">
+          <p style="font-size:.8rem;color:var(--text-secondary);margin-bottom:.65rem">26AS ya AIS ka text copy karke paste karo:</p>
+          <textarea class="mg-input" id="ais_paste_text" rows="7" placeholder="26AS / AIS text paste karein...&#10;Example:&#10;TDS on Salary: 45,000&#10;TDS on Interest: 5,200&#10;Total Tax Paid: 50,200..."></textarea>
+          <button class="import-btn" onclick="importAISPaste()"><i class="fa fa-magic"></i> Extract & Import</button>
+          <div class="import-status" id="status-ais-paste"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- METHOD 4: CSV Import -->
+    <div class="method-card" id="mc4">
+      <div class="mc-header" onclick="toggleCard('mc4')">
+        <div class="mc-icon orange">📊</div>
+        <div class="mc-title">
+          <h3>CSV / Excel Data Import</h3>
+          <p>Transactions, salary data CSV se import karo</p>
+        </div>
+        <span class="mc-badge" style="background:rgba(217,119,6,.1);color:#92400e">Bulk Import</span>
+        <button class="mc-toggle"><i class="fa fa-chevron-down"></i></button>
+      </div>
+      <div class="mc-body">
+        <div class="import-tabs">
+          <button class="itab active" onclick="switchITab('csv','transactions')">💰 Transactions</button>
+          <button class="itab" onclick="switchITab('csv','salary')">💼 Salary CSV</button>
+          <button class="itab" onclick="switchITab('csv','gst')">🧾 GST Data</button>
+        </div>
+        <!-- Transactions CSV -->
+        <div class="itab-panel active" id="csv-transactions">
+          <div class="tip-box">📋 CSV Format: Date, Description, Amount, Category, Type (Income/Expense)</div>
+          <div class="file-drop" onclick="document.getElementById('csvFileInput').click()"
+               ondragover="fileDragOver(event,'fd-csv')" ondragleave="fileDragLeave('fd-csv')" ondrop="fileDrop(event,'fd-csv','csv-transactions')">
+            <div style="font-size:2rem;margin-bottom:.4rem">📊</div>
+            <strong>CSV / Excel Upload</strong>
+            <p style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem">.csv, .xlsx — Transactions data</p>
+            <input type="file" id="csvFileInput" accept=".csv,.xlsx,.xls" onchange="importCSV(this,'transactions')"/>
+          </div>
+          <div style="margin-top:.65rem">
+            <p style="font-size:.75rem;color:var(--text-secondary);margin-bottom:.4rem">Ya sample CSV format ke saath try karo:</p>
+            <button class="import-btn secondary" onclick="loadSampleCSV()"><i class="fa fa-table"></i> Load Sample CSV Data</button>
+          </div>
+          <div id="csv-preview" style="overflow-x:auto;display:none;margin-top:.75rem">
+            <table class="preview-table" id="csv-preview-table"></table>
+          </div>
+          <div class="import-status" id="status-csv"></div>
+          <button class="import-btn" id="csvImportBtn" style="display:none" onclick="confirmCSVImport()"><i class="fa fa-check"></i> Confirm Import to Accounting</button>
+        </div>
+        <!-- Salary CSV -->
+        <div class="itab-panel" id="csv-salary">
+          <div class="tip-box">📋 Format: Month, Basic, HRA, Special, Gross, PF, TDS, Net</div>
+          <div class="file-drop" onclick="document.getElementById('salCsvInput').click()"
+               ondragover="fileDragOver(event,'fd-salcsv')" ondragleave="fileDragLeave('fd-salcsv')" ondrop="fileDrop(event,'fd-salcsv','csv-salary')">
+            <div style="font-size:2rem">💼</div>
+            <strong>Salary CSV Upload</strong>
+            <input type="file" id="salCsvInput" accept=".csv" onchange="importCSV(this,'salary')"/>
+          </div>
+          <div class="import-status" id="status-salcsv"></div>
+        </div>
+        <!-- GST CSV -->
+        <div class="itab-panel" id="csv-gst">
+          <div class="tip-box">📋 Format: Date, Invoice No, GSTIN, Amount, CGST, SGST, IGST, Type</div>
+          <div class="file-drop" onclick="document.getElementById('gstCsvInput').click()">
+            <div style="font-size:2rem">🧾</div>
+            <strong>GST Transactions CSV</strong>
+            <input type="file" id="gstCsvInput" accept=".csv" onchange="importCSV(this,'gst')"/>
+          </div>
+          <div class="import-status" id="status-gstcsv"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- METHOD 5: Salary Slip Import -->
+    <div class="method-card" id="mc5">
+      <div class="mc-header" onclick="toggleCard('mc5')">
+        <div class="mc-icon teal">💵</div>
+        <div class="mc-title">
+          <h3>Salary Slip Import</h3>
+          <p>Monthly salary slip se annual ITR data calculate karo</p>
+        </div>
+        <span class="mc-badge" style="background:rgba(20,184,166,.1);color:#0f766e">Auto Calculate</span>
+        <button class="mc-toggle"><i class="fa fa-chevron-down"></i></button>
+      </div>
+      <div class="mc-body">
+        <p style="font-size:.8rem;color:var(--text-secondary);margin-bottom:.75rem">Ek month ki salary slip data daalo — annual ITR automatically calculate hogi:</p>
+        <div class="mg-section">
+          <div class="mg-section-title">💼 Monthly Salary Components</div>
+          <div class="manual-grid">
+            <div><label class="mg-label">Basic Salary ₹/month</label><input class="mg-input" type="number" id="slip_basic" placeholder="0" oninput="calcFromSlip()"/></div>
+            <div><label class="mg-label">HRA ₹/month</label><input class="mg-input" type="number" id="slip_hra" placeholder="0" oninput="calcFromSlip()"/></div>
+            <div><label class="mg-label">Special Allowance ₹</label><input class="mg-input" type="number" id="slip_special" placeholder="0" oninput="calcFromSlip()"/></div>
+            <div><label class="mg-label">LTA (annual ₹)</label><input class="mg-input" type="number" id="slip_lta" placeholder="0" oninput="calcFromSlip()"/></div>
+            <div><label class="mg-label">Other Allowances ₹</label><input class="mg-input" type="number" id="slip_other" placeholder="0" oninput="calcFromSlip()"/></div>
+            <div><label class="mg-label">Months Worked (1–12)</label><input class="mg-input" type="number" id="slip_months" value="12" min="1" max="12" oninput="calcFromSlip()"/></div>
+          </div>
+        </div>
+        <div class="mg-section">
+          <div class="mg-section-title">➖ Monthly Deductions</div>
+          <div class="manual-grid">
+            <div><label class="mg-label">PF (Employee) ₹</label><input class="mg-input" type="number" id="slip_pf" placeholder="0" oninput="calcFromSlip()"/></div>
+            <div><label class="mg-label">Professional Tax ₹</label><input class="mg-input" type="number" id="slip_pt" placeholder="0" oninput="calcFromSlip()"/></div>
+            <div><label class="mg-label">TDS ₹/month</label><input class="mg-input" type="number" id="slip_tds" placeholder="0" oninput="calcFromSlip()"/></div>
+            <div><label class="mg-label">Rent Paid ₹/month</label><input class="mg-input" type="number" id="slip_rent" placeholder="0" oninput="calcFromSlip()"/></div>
+          </div>
+        </div>
+        <div class="import-summary" id="slip-preview" style="display:none">
+          <h4>📊 Annual Calculation Preview</h4>
+          <div class="summary-grid" id="slip-preview-content"></div>
+        </div>
+        <button class="import-btn" onclick="importFromSalarySlip()"><i class="fa fa-calculator"></i> Calculate Annual & Import to ITR</button>
+        <div class="import-status" id="status-slip"></div>
+      </div>
+    </div>
+
+    <!-- METHOD 6: Clipboard / Text Paste -->
+    <div class="method-card" id="mc6">
+      <div class="mc-header" onclick="toggleCard('mc6')">
+        <div class="mc-icon cyan">📋</div>
+        <div class="mc-title">
+          <h3>Clipboard / Text Import</h3>
+          <p>Koi bhi tax text paste karo — AI data extract karega</p>
+        </div>
+        <span class="mc-badge" style="background:rgba(6,182,212,.1);color:#0e7490">Smart Parse</span>
+        <button class="mc-toggle"><i class="fa fa-chevron-down"></i></button>
+      </div>
+      <div class="mc-body">
+        <button class="import-btn secondary" style="margin-bottom:.65rem" onclick="pasteFromClipboard()">
+          <i class="fa fa-paste"></i> Paste from Clipboard (Ctrl+V)
+        </button>
+        <textarea class="mg-input" id="clipboard_text" rows="8"
+          placeholder="Koi bhi tax data paste karo:&#10;&#10;• Form 16 text&#10;• 26AS / AIS data&#10;• Salary slip text&#10;• Bank statement data&#10;• Any tax document text&#10;&#10;AI automatically fields extract karega..."
+          oninput="smartParseText()"></textarea>
+        <div class="import-summary" id="smart-parse-result" style="display:none;margin-top:.65rem">
+          <h4>🤖 AI Extracted Data</h4>
+          <div id="smart-parse-content"></div>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:.65rem">
+          <button class="import-btn" onclick="importSmartParsed()" style="flex:1"><i class="fa fa-file-import"></i> Import Extracted Data</button>
+          <button class="import-btn secondary" onclick="document.getElementById('clipboard_text').value='';document.getElementById('smart-parse-result').style.display='none'" style="width:auto;padding:.65rem"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="import-status" id="status-clipboard"></div>
+      </div>
+    </div>
+
+    <!-- METHOD 7: IT Portal JSON Import -->
+    <div class="method-card" id="mc7">
+      <div class="mc-header" onclick="toggleCard('mc7')">
+        <div class="mc-icon red">🌐</div>
+        <div class="mc-title">
+          <h3>IT Portal JSON Import</h3>
+          <p>incometax.gov.in se downloaded ITR JSON import karo</p>
+        </div>
+        <span class="mc-badge" style="background:rgba(220,38,38,.1);color:#991b1b">Portal Data</span>
+        <button class="mc-toggle"><i class="fa fa-chevron-down"></i></button>
+      </div>
+      <div class="mc-body">
+        <div class="tip-box">📥 <strong>Kaise download karein:</strong> incometax.gov.in → e-File → IT Returns → View Filed Returns → Download JSON</div>
+        <div class="file-drop" onclick="document.getElementById('itrJsonInput').click()"
+             ondragover="fileDragOver(event,'fd-itrjson')" ondragleave="fileDragLeave('fd-itrjson')" ondrop="fileDrop(event,'fd-itrjson','itr-json')">
+          <div style="font-size:2rem;margin-bottom:.4rem">🔴</div>
+          <strong>IT Portal ITR JSON Upload</strong>
+          <p style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem">.json file (ITR-1/2/3/4 schema)</p>
+          <input type="file" id="itrJsonInput" accept=".json" onchange="importITRPortalJSON(this)"/>
+        </div>
+        <div id="itr-json-preview" style="display:none;overflow-x:auto;margin-top:.65rem">
+          <div class="import-summary">
+            <h4>📊 ITR JSON Preview</h4>
+            <div id="itr-json-preview-content" class="summary-grid"></div>
+          </div>
+        </div>
+        <div class="import-status" id="status-itrjson"></div>
+      </div>
+    </div>
+
+    <!-- METHOD 8: Computation Sheet Import -->
+    <div class="method-card" id="mc8">
+      <div class="mc-header" onclick="toggleCard('mc8')">
+        <div class="mc-icon pink">🧮</div>
+        <div class="mc-title">
+          <h3>Computation Sheet Import</h3>
+          <p>Computation page ka saved draft import karo across pages</p>
+        </div>
+        <span class="mc-badge" style="background:rgba(236,72,153,.1);color:#be185d">Cross-Page</span>
+        <button class="mc-toggle"><i class="fa fa-chevron-down"></i></button>
+      </div>
+      <div class="mc-body">
+        <div id="comp-draft-status" style="padding:.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:.82rem;margin-bottom:.75rem">
+          Checking saved computation draft...
+        </div>
+        <button class="import-btn" onclick="importCompDraft()"><i class="fa fa-file-import"></i> Import Computation Draft to ITR Form</button>
+        <button class="import-btn secondary" style="margin-top:.5rem" onclick="importITRtoComp()"><i class="fa fa-exchange-alt"></i> Import ITR Draft to Computation</button>
+        <div class="import-status" id="status-comp"></div>
+      </div>
+    </div>
+
+    <!-- METHOD 9: Sample / Demo Data -->
+    <div class="method-card" id="mc9">
+      <div class="mc-header" onclick="toggleCard('mc9')">
+        <div class="mc-icon blue" style="background:rgba(99,102,241,.1);color:#4f46e5">🎯</div>
+        <div class="mc-title">
+          <h3>Sample Data Load</h3>
+          <p>Demo data load karo — testing ke liye</p>
+        </div>
+        <span class="mc-badge" style="background:rgba(99,102,241,.1);color:#4f46e5">Demo</span>
+        <button class="mc-toggle"><i class="fa fa-chevron-down"></i></button>
+      </div>
+      <div class="mc-body">
+        <p style="font-size:.8rem;color:var(--text-secondary);margin-bottom:.85rem">Ek realistic taxpayer ka sample data load karo — sab modules mein explore karne ke liye:</p>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <button class="import-btn" onclick="loadSampleProfile('salaried')">💼 Salaried Employee (₹12L salary, Old Regime)</button>
+          <button class="import-btn secondary" onclick="loadSampleProfile('business')">🏪 Small Business (44AD Presumptive)</button>
+          <button class="import-btn secondary" onclick="loadSampleProfile('freelancer')">💻 Freelancer / Professional (44ADA)</button>
+          <button class="import-btn secondary" onclick="loadSampleProfile('investor')">📈 Investor (Capital Gains)</button>
+          <button class="import-btn secondary" onclick="loadSampleProfile('senior')">🧓 Senior Citizen (Pension + FD)</button>
+        </div>
+        <div class="import-status" id="status-sample"></div>
+      </div>
+    </div>
+
+  </div><!-- .methods-grid -->
+
+  <!-- ── ALL STORED DATA VIEWER ───────────────────────────── -->
+  <div id="allDataSection" style="display:none;margin-top:1.5rem">
+    <div class="all-data-section">
+      <div class="ads-header">
+        <span>🗄️ All Stored Data (localStorage)</span>
+        <button class="import-btn secondary" style="width:auto;padding:.3rem .65rem;font-size:.72rem" onclick="document.getElementById('allDataSection').style.display='none'">✕ Close</button>
+      </div>
+      <div class="ads-body" id="allDataBody"></div>
+    </div>
+  </div>
+
+  <!-- ── IMPORT HISTORY ───────────────────────────────────── -->
+  <div style="margin-top:1.5rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem">
+      <h3 style="font-size:.95rem;font-weight:800">📜 Import History</h3>
+      <button class="import-btn secondary" style="width:auto;padding:.38rem .75rem;font-size:.75rem" onclick="clearHistory()"><i class="fa fa-trash"></i> Clear History</button>
+    </div>
+    <div class="import-history" id="importHistoryList">
+      <div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.85rem">No imports yet</div>
+    </div>
+  </div>
+
+</div><!-- .container -->
+
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27 | Data Import Center v1.0</p>
+
+<script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+
+// ── HELPERS ──────────────────────────────────────────────────────
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+const fmtNum = s => parseFloat((s+'').replace(/[₹,\s]/g,'')) || 0;
+
+function showToast(msg, type='success') {
+  const c = document.getElementById('toastContainer');
+  if (!c) return;
+  const d = document.createElement('div');
+  d.style.cssText = 'padding:.65rem 1rem;border-radius:8px;font-size:.82rem;font-weight:600;min-width:220px;max-width:340px;animation:toastIn .3s ease;display:flex;align-items:center;gap:.5rem;box-shadow:0 4px 16px rgba(0,0,0,.15)';
+  d.style.background = type==='error'?'#dc2626':type==='warning'?'#d97706':type==='info'?'#2563eb':'#059669';
+  d.style.color = '#fff';
+  d.innerHTML = (type==='error'?'❌':type==='warning'?'⚠️':type==='info'?'ℹ️':'✅') + ' ' + msg;
+  c.appendChild(d);
+  setTimeout(() => d.remove(), 4000);
+}
+
+function addStatus(containerId, msg, type='success') {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const d = document.createElement('div');
+  d.className = 'import-status-item ' + type;
+  d.innerHTML = `<i class="fa fa-${type==='success'?'check-circle':type==='error'?'times-circle':'exclamation-triangle'}"></i> ${msg}`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+function clearStatus(id) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = '';
+}
+
+function setProgress(id, pct) {
+  const el = document.getElementById(id);
+  if (el) el.style.width = pct + '%';
+}
+
+function addHistory(type, description, keys=[]) {
+  const hist = JSON.parse(localStorage.getItem('tm_import_history') || '[]');
+  hist.unshift({ type, description, keys, time: Date.now() });
+  localStorage.setItem('tm_import_history', JSON.stringify(hist.slice(0, 30)));
+  renderHistory();
+}
+
+function renderHistory() {
+  const hist = JSON.parse(localStorage.getItem('tm_import_history') || '[]');
+  const list = document.getElementById('importHistoryList');
+  if (!list) return;
+  if (!hist.length) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.85rem">No imports yet</div>';
+    return;
+  }
+  const icons = { json:'💾', form16:'📋', ais:'🔍', csv:'📊', slip:'💵', clipboard:'📋', itrjson:'🌐', comp:'🧮', sample:'🎯' };
+  list.innerHTML = hist.map(h => {
+    const ago = Math.round((Date.now()-h.time)/60000);
+    const timeStr = ago < 60 ? ago+'m ago' : ago < 1440 ? Math.round(ago/60)+'h ago' : new Date(h.time).toLocaleDateString('en-IN');
+    return `<div class="ih-item">
+      <div class="ih-icon blue">${icons[h.type]||'📥'}</div>
+      <div class="ih-info"><strong>${h.description}</strong><span>${h.keys.join(', ')||'Data imported'}</span></div>
+      <div class="ih-time">${timeStr}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── STORAGE SIZE ──────────────────────────────────────────────────
+function updateStorageSize() {
+  let total = 0;
+  for (let k in localStorage) {
+    if (localStorage.hasOwnProperty(k)) total += (localStorage.getItem(k)||'').length + k.length;
+  }
+  const kb = (total / 1024).toFixed(1);
+  const el = document.getElementById('storageUsed');
+  if (el) el.textContent = kb + ' KB / ~5 MB';
+}
+
+// ── CARD TOGGLE ───────────────────────────────────────────────────
+function toggleCard(id) {
+  const card = document.getElementById(id);
+  if (!card) return;
+  card.classList.toggle('expanded');
+}
+
+// ── TAB SWITCH ────────────────────────────────────────────────────
+function switchITab(section, tab) {
+  const panels = document.querySelectorAll(`[id^="${section}-"]`);
+  panels.forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(`${section}-${tab}`);
+  if (target) target.classList.add('active');
+  event?.target?.closest('.import-tabs')?.querySelectorAll('.itab')
+    .forEach(b => b.classList.remove('active'));
+  event?.target?.classList.add('active');
+}
+
+// ── FILE DRAG/DROP ────────────────────────────────────────────────
+function fileDragOver(e, id) {
+  e.preventDefault();
+  document.getElementById(id)?.classList.add('drag-over');
+}
+function fileDragLeave(id) {
+  document.getElementById(id)?.classList.remove('drag-over');
+}
+function fileDrop(e, dropId, mode) {
+  e.preventDefault();
+  document.getElementById(dropId)?.classList.remove('drag-over');
+  const file = e.dataTransfer?.files[0];
+  if (!file) return;
+  // Route to appropriate handler
+  const fakeInput = { files: [file] };
+  if (mode === 'json') importJSON(fakeInput);
+  else if (mode === 'form16') importDocWithOCR(fakeInput, 'form16');
+  else if (mode === 'csv-transactions') importCSV(fakeInput, 'transactions');
+  else if (mode === 'itr-json') importITRPortalJSON(fakeInput);
+}
+
+// ══════════════════════════════════════════════════════
+// METHOD 1: FULL JSON BACKUP RESTORE
+// ══════════════════════════════════════════════════════
+function exportFullBackup() {
+  const backup = {
+    _meta: { version:'2.0', exportedAt: new Date().toISOString(), app: 'TaxMitra AI Enterprise', by: 'Abhishek Agrahari' },
+    data: {}
+  };
+  for (let k in localStorage) {
+    if (localStorage.hasOwnProperty(k)) {
+      try { backup.data[k] = JSON.parse(localStorage.getItem(k)); }
+      catch { backup.data[k] = localStorage.getItem(k); }
+    }
+  }
+  const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `TaxMitra_Backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('Full backup exported!', 'success');
+  addHistory('json', 'Full Backup Exported', Object.keys(backup.data));
+}
+
+function triggerFullBackupRestore() {
+  document.getElementById('jsonFileInput').click();
+}
+
+function importJSON(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  clearStatus('status-json');
+  setProgress('progfill-json', 20);
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      setProgress('progfill-json', 60);
+      const raw = JSON.parse(e.target.result);
+      // Handle both TaxMitra backup format and plain object
+      const data = raw._meta && raw.data ? raw.data : raw;
+      let imported = 0, skipped = 0;
+      for (let k in data) {
+        if (k.startsWith('_')) continue;
+        try {
+          const val = typeof data[k] === 'string' ? data[k] : JSON.stringify(data[k]);
+          localStorage.setItem(k, val);
+          imported++;
+          addStatus('status-json', `Imported: ${k}`, 'success');
+        } catch { skipped++; }
+      }
+      setProgress('progfill-json', 100);
+      addStatus('status-json', `✅ ${imported} keys restored${skipped ? ', '+skipped+' skipped' : ''}`, 'success');
+      addHistory('json', `Full JSON Restore — ${imported} keys`, Object.keys(data).slice(0,5));
+      showToast(`${imported} data items restored!`, 'success');
+      updateStorageSize();
+      setTimeout(() => setProgress('progfill-json', 0), 2000);
+    } catch(err) {
+      addStatus('status-json', 'Invalid JSON file: ' + err.message, 'error');
+      setProgress('progfill-json', 0);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════════════════════
+// METHOD 2: FORM 16 IMPORT
+// ══════════════════════════════════════════════════════
+function previewForm16() {
+  const gross = fmtNum(document.getElementById('f16_gross')?.value);
+  const hra = fmtNum(document.getElementById('f16_hra')?.value);
+  const tds = fmtNum(document.getElementById('f16_tds')?.value);
+  if (!gross) { document.getElementById('f16-preview').style.display='none'; return; }
+  const stdDed = 75000;
+  const netSal = gross - hra - stdDed;
+  document.getElementById('f16-preview').style.display = 'block';
+  document.getElementById('f16-preview-content').innerHTML = `
+    <div class="summary-item"><span>Gross Salary</span><strong>${fmt(gross)}</strong></div>
+    <div class="summary-item"><span>HRA Exemption</span><strong>${fmt(hra)}</strong></div>
+    <div class="summary-item"><span>Standard Deduction</span><strong>${fmt(stdDed)}</strong></div>
+    <div class="summary-item"><span>Net Taxable Salary</span><strong>${fmt(Math.max(0,netSal))}</strong></div>
+    <div class="summary-item"><span>TDS Deducted</span><strong style="color:var(--success)">${fmt(tds)}</strong></div>`;
+}
+
+function importForm16Manual() {
+  clearStatus('status-form16');
+  const data = {
+    employer: document.getElementById('f16_empName')?.value || '',
+    tan: document.getElementById('f16_tan')?.value || '',
+    grossSalary: fmtNum(document.getElementById('f16_gross')?.value),
+    hraExempt: fmtNum(document.getElementById('f16_hra')?.value),
+    ltaExempt: fmtNum(document.getElementById('f16_lta')?.value),
+    profTax: fmtNum(document.getElementById('f16_pt')?.value),
+    stdDeduction: 75000,
+    tds: fmtNum(document.getElementById('f16_tds')?.value),
+    d80c: fmtNum(document.getElementById('f16_80c')?.value),
+    d80d: fmtNum(document.getElementById('f16_80d')?.value),
+    importedAt: new Date().toISOString(),
+    source: 'form16-manual'
+  };
+  if (!data.grossSalary) { addStatus('status-form16', 'Gross Salary required!', 'error'); return; }
+
+  // Save to multiple places for cross-page access
+  localStorage.setItem('tm_form16_import', JSON.stringify(data));
+
+  // Also update computation draft
+  const compDraft = JSON.parse(localStorage.getItem('tm_comp_draft') || '{}');
+  compDraft.grossSal = data.grossSalary;
+  compDraft.hraRcvd = data.hraExempt;
+  compDraft.ltaExempt = data.ltaExempt;
+  compDraft.profTax = data.profTax;
+  compDraft.tdsSal = data.tds;
+  compDraft.d80c = data.d80c;
+  compDraft.d80d = data.d80d;
+  localStorage.setItem('tm_comp_draft', JSON.stringify(compDraft));
+
+  // Update ITR draft
+  const itrDraft = JSON.parse(localStorage.getItem('itr_draft_1') || '{}');
+  itrDraft.grossSalary = data.grossSalary;
+  itrDraft.hraExempt = data.hraExempt;
+  itrDraft.ltaExempt = data.ltaExempt;
+  itrDraft.profTax = data.profTax;
+  itrDraft.tdsSalary = data.tds;
+  itrDraft.employerName = data.employer;
+  localStorage.setItem('itr_draft_1', JSON.stringify(itrDraft));
+
+  addStatus('status-form16', `Gross Salary: ${fmt(data.grossSalary)} imported`, 'success');
+  addStatus('status-form16', `TDS: ${fmt(data.tds)} saved`, 'success');
+  addStatus('status-form16', 'Data saved to ITR Form & Computation Sheet', 'success');
+  addHistory('form16', `Form 16 Import — ${data.employer||'Employer'}`, ['gross','hra','tds','80c']);
+  showToast('Form 16 data imported!', 'success');
+  updateStorageSize();
+}
+
+function importForm16Paste() {
+  const text = document.getElementById('f16_paste_text')?.value || '';
+  clearStatus('status-form16-paste');
+  if (!text.trim()) { addStatus('status-form16-paste','Text empty!','error'); return; }
+  const extracted = extractFromText(text, 'form16');
+  if (extracted.grossSalary || extracted.tds) {
+    localStorage.setItem('tm_form16_import', JSON.stringify({...extracted, source:'form16-paste', importedAt:new Date().toISOString()}));
+    // Save to drafts
+    const comp = JSON.parse(localStorage.getItem('tm_comp_draft')||'{}');
+    if (extracted.grossSalary) comp.grossSal = extracted.grossSalary;
+    if (extracted.tds) comp.tdsSal = extracted.tds;
+    if (extracted.hraExempt) comp.hraRcvd = extracted.hraExempt;
+    localStorage.setItem('tm_comp_draft', JSON.stringify(comp));
+    Object.entries(extracted).forEach(([k,v]) => {
+      if (v) addStatus('status-form16-paste', `${k}: ${typeof v==='number'?fmt(v):v}`, 'success');
+    });
+    addHistory('form16', 'Form 16 Paste Import', Object.keys(extracted));
+    showToast('Form 16 text parsed!', 'success');
+  } else {
+    addStatus('status-form16-paste','Could not extract data — try manual entry','warn');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// METHOD 3: 26AS / AIS IMPORT
+// ══════════════════════════════════════════════════════
+function importAISManual() {
+  clearStatus('status-ais');
+  const data = {
+    tdsSalary: fmtNum(document.getElementById('ais_tdsSal')?.value),
+    tdsInterest: fmtNum(document.getElementById('ais_tdsInt')?.value),
+    tdsOther: fmtNum(document.getElementById('ais_tdsOth')?.value),
+    advanceTax: fmtNum(document.getElementById('ais_advTax')?.value),
+    selfAssessmentTax: fmtNum(document.getElementById('ais_sat')?.value),
+    tcs: fmtNum(document.getElementById('ais_tcs')?.value),
+    salary: fmtNum(document.getElementById('ais_salary')?.value),
+    interest: fmtNum(document.getElementById('ais_interest')?.value),
+    dividend: fmtNum(document.getElementById('ais_dividend')?.value),
+    capitalGains: fmtNum(document.getElementById('ais_capgains')?.value),
+    importedAt: new Date().toISOString(),
+    source: 'ais-manual'
+  };
+  localStorage.setItem('tm_26as_import', JSON.stringify(data));
+
+  // Push to computation draft
+  const comp = JSON.parse(localStorage.getItem('tm_comp_draft')||'{}');
+  if (data.tdsSalary) comp.tdsSal = data.tdsSalary;
+  if (data.tdsInterest) comp.tdsInt = data.tdsInterest;
+  if (data.advanceTax) comp.advTax = data.advanceTax;
+  if (data.selfAssessmentTax) comp.sat = data.selfAssessmentTax;
+  if (data.salary) comp.grossSal = data.salary;
+  if (data.interest) comp.otherInt = data.interest;
+  if (data.dividend) comp.divInc = data.dividend;
+  localStorage.setItem('tm_comp_draft', JSON.stringify(comp));
+
+  const totalTDS = data.tdsSalary + data.tdsInterest + data.tdsOther + data.tcs;
+  addStatus('status-ais', `Total TDS: ${fmt(totalTDS)} imported`, 'success');
+  addStatus('status-ais', `Advance Tax: ${fmt(data.advanceTax)} saved`, 'success');
+  addStatus('status-ais', 'Saved to Computation Sheet & 26AS store', 'success');
+  addHistory('ais', '26AS / AIS Manual Import', ['tds-salary','advance-tax','income']);
+  showToast('26AS/AIS data imported!', 'success');
+  updateStorageSize();
+}
+
+function importAISPaste() {
+  const text = document.getElementById('ais_paste_text')?.value || '';
+  clearStatus('status-ais-paste');
+  if (!text.trim()) { addStatus('status-ais-paste','Text empty!','error'); return; }
+  const extracted = extractFromText(text, 'ais');
+  localStorage.setItem('tm_26as_import', JSON.stringify({...extracted, source:'ais-paste', importedAt:new Date().toISOString()}));
+  Object.entries(extracted).filter(([,v])=>v).forEach(([k,v]) =>
+    addStatus('status-ais-paste', `${k}: ${typeof v==='number'?fmt(v):v}`, 'success'));
+  addHistory('ais','26AS Paste Import', Object.keys(extracted));
+  showToast('AIS data parsed!','success');
+}
+
+// ══════════════════════════════════════════════════════
+// METHOD 4: CSV IMPORT
+// ══════════════════════════════════════════════════════
+let _csvParsed = [];
+function importCSV(input, mode) {
+  const file = input.files?.[0];
+  if (!file) return;
+  const statusId = mode==='salary'?'status-salcsv':mode==='gst'?'status-gstcsv':'status-csv';
+  clearStatus(statusId);
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    const rows = text.split('\n').filter(r=>r.trim()).map(r=>r.split(',').map(c=>c.trim().replace(/"/g,'')));
+    if (!rows.length) { addStatus(statusId,'Empty CSV!','error'); return; }
+    const headers = rows[0];
+    const data = rows.slice(1).filter(r=>r.length >= headers.length/2);
+    _csvParsed = data.map(row => {
+      const obj = {};
+      headers.forEach((h,i) => obj[h.toLowerCase().trim()] = row[i]||'');
+      return obj;
+    });
+    if (mode === 'transactions') {
+      // Preview
+      const preview = document.getElementById('csv-preview');
+      const table = document.getElementById('csv-preview-table');
+      if (preview && table) {
+        preview.style.display = 'block';
+        table.innerHTML = `<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+          <tbody>${data.slice(0,10).map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+      }
+      document.getElementById('csvImportBtn').style.display = 'flex';
+      addStatus(statusId, `${data.length} rows parsed, ${headers.length} columns`, 'success');
+      addStatus(statusId, 'Preview shown — click Confirm to import', 'warn');
+    } else if (mode === 'salary') {
+      // Salary CSV — annualise
+      let totalGross=0, totalTDS=0, totalPF=0;
+      data.forEach(row => {
+        const keys = Object.keys(row);
+        const grossKey = keys.find(k=>k.includes('gross'));
+        const tdsKey = keys.find(k=>k.includes('tds'));
+        const pfKey = keys.find(k=>k.includes('pf'));
+        if (grossKey) totalGross += fmtNum(row[grossKey]);
+        if (tdsKey) totalTDS += fmtNum(row[tdsKey]);
+        if (pfKey) totalPF += fmtNum(row[pfKey]);
+      });
+      const result = { grossSalary:totalGross, tdsSalary:totalTDS, pf:totalPF, months:data.length };
+      localStorage.setItem('tm_salary_csv_import', JSON.stringify({...result, importedAt:new Date().toISOString()}));
+      const comp = JSON.parse(localStorage.getItem('tm_comp_draft')||'{}');
+      comp.grossSal = totalGross; comp.tdsSal = totalTDS;
+      localStorage.setItem('tm_comp_draft', JSON.stringify(comp));
+      addStatus(statusId, `${data.length} months, Total Gross: ${fmt(totalGross)}`, 'success');
+      addStatus(statusId, `Total TDS: ${fmt(totalTDS)} | PF: ${fmt(totalPF)}`, 'success');
+      addHistory('csv', `Salary CSV — ${data.length} months`, ['gross','tds','pf']);
+      showToast('Salary CSV imported!','success');
+    } else if (mode === 'gst') {
+      let totalTaxable=0, totalCGST=0, totalSGST=0, totalIGST=0;
+      data.forEach(row => {
+        totalTaxable += fmtNum(row.amount||row.taxable||row.value||0);
+        totalCGST += fmtNum(row.cgst||0);
+        totalSGST += fmtNum(row.sgst||0);
+        totalIGST += fmtNum(row.igst||0);
+      });
+      addStatus(statusId, `${data.length} GST entries, Taxable: ${fmt(totalTaxable)}`, 'success');
+      addStatus(statusId, `CGST: ${fmt(totalCGST)} | SGST: ${fmt(totalSGST)} | IGST: ${fmt(totalIGST)}`, 'success');
+      addHistory('csv', `GST CSV — ${data.length} entries`, ['cgst','sgst','igst']);
+    }
+    updateStorageSize();
+  };
+  reader.readAsText(file);
+}
+
+function loadSampleCSV() {
+  const sampleData = `Date,Description,Amount,Category,Type
+2025-04-15,Salary Credit,50000,Salary,Income
+2025-04-20,Electricity Bill,2500,Utilities,Expense
+2025-04-25,Grocery Shopping,3800,Food,Expense
+2025-05-15,Salary Credit,50000,Salary,Income
+2025-05-10,PPF Investment,5000,Investment,Expense
+2025-05-18,Petrol,1500,Transport,Expense
+2025-06-15,Salary Credit,50000,Salary,Income
+2025-06-20,Health Insurance Premium,12000,Insurance,Expense
+2025-07-15,Salary Credit,50000,Salary,Income
+2025-07-01,Rent Payment,15000,Rent,Expense`;
+  const rows = sampleData.split('\n').filter(r=>r.trim()).map(r=>r.split(',').map(c=>c.trim()));
+  const headers = rows[0];
+  const data = rows.slice(1);
+  _csvParsed = data.map(row => {const obj={};headers.forEach((h,i)=>obj[h.toLowerCase()]=row[i]||'');return obj;});
+  const preview = document.getElementById('csv-preview');
+  const table = document.getElementById('csv-preview-table');
+  if (preview && table) {
+    preview.style.display = 'block';
+    table.innerHTML = `<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+      <tbody>${data.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  }
+  document.getElementById('csvImportBtn').style.display = 'flex';
+  addStatus('status-csv', `Sample data loaded — ${data.length} transactions`, 'success');
+  showToast('Sample CSV loaded!', 'info');
+}
+
+function confirmCSVImport() {
+  if (!_csvParsed.length) return;
+  const existing = JSON.parse(localStorage.getItem('tm_accounting_txns')||'[]');
+  const newTxns = _csvParsed.map((row,i) => ({
+    id: Date.now()+i,
+    date: row.date || new Date().toISOString().slice(0,10),
+    desc: row.description || row.desc || 'Imported Transaction',
+    amount: Math.abs(fmtNum(row.amount||row.credit||row.debit||0)),
+    category: row.category || 'Other',
+    type: (row.type||'').toLowerCase().includes('income')||fmtNum(row.credit||0)>0 ? 'income' : 'expense',
+    source: 'csv-import'
+  })).filter(t=>t.amount>0);
+  localStorage.setItem('tm_accounting_txns', JSON.stringify([...existing, ...newTxns]));
+  addStatus('status-csv', `${newTxns.length} transactions imported to Accounting!`, 'success');
+  addHistory('csv', `CSV Import — ${newTxns.length} transactions`, ['accounting','ledger']);
+  showToast(`${newTxns.length} transactions imported!`, 'success');
+  document.getElementById('csvImportBtn').style.display = 'none';
+  updateStorageSize();
+}
+
+// ══════════════════════════════════════════════════════
+// METHOD 5: SALARY SLIP
+// ══════════════════════════════════════════════════════
+function calcFromSlip() {
+  const m = parseInt(document.getElementById('slip_months')?.value)||12;
+  const basic = fmtNum(document.getElementById('slip_basic')?.value)*m;
+  const hra = fmtNum(document.getElementById('slip_hra')?.value)*m;
+  const special = fmtNum(document.getElementById('slip_special')?.value)*m;
+  const lta = fmtNum(document.getElementById('slip_lta')?.value);
+  const other = fmtNum(document.getElementById('slip_other')?.value)*m;
+  const gross = basic+hra+special+lta+other;
+  const pf = fmtNum(document.getElementById('slip_pf')?.value)*m;
+  const pt = fmtNum(document.getElementById('slip_pt')?.value)*m;
+  const tds = fmtNum(document.getElementById('slip_tds')?.value)*m;
+  const rent = fmtNum(document.getElementById('slip_rent')?.value)*m;
+  if (!gross) { document.getElementById('slip-preview').style.display='none'; return; }
+  const netSal = gross - pf - pt - tds;
+  // HRA exemption (rough — 50% of basic vs rent-10%basic)
+  const hraExempt = hra>0 && rent>0 ? Math.min(hra, rent - basic*0.1, basic*0.5) : 0;
+  document.getElementById('slip-preview').style.display='block';
+  document.getElementById('slip-preview-content').innerHTML = `
+    <div class="summary-item"><span>Annual Gross</span><strong>${fmt(gross)}</strong></div>
+    <div class="summary-item"><span>Basic (Annual)</span><strong>${fmt(basic)}</strong></div>
+    <div class="summary-item"><span>HRA Received</span><strong>${fmt(hra)}</strong></div>
+    <div class="summary-item"><span>HRA Exempt (est)</span><strong>${fmt(Math.max(0,hraExempt))}</strong></div>
+    <div class="summary-item"><span>PF (Employee)</span><strong>${fmt(pf)}</strong></div>
+    <div class="summary-item"><span>Annual TDS</span><strong style="color:var(--success)">${fmt(tds)}</strong></div>`;
+}
+
+function importFromSalarySlip() {
+  clearStatus('status-slip');
+  const m = parseInt(document.getElementById('slip_months')?.value)||12;
+  const basic = fmtNum(document.getElementById('slip_basic')?.value)*m;
+  const hra = fmtNum(document.getElementById('slip_hra')?.value)*m;
+  const special = fmtNum(document.getElementById('slip_special')?.value)*m;
+  const lta = fmtNum(document.getElementById('slip_lta')?.value);
+  const other = fmtNum(document.getElementById('slip_other')?.value)*m;
+  const gross = basic+hra+special+lta+other;
+  const pf = fmtNum(document.getElementById('slip_pf')?.value)*m;
+  const pt = fmtNum(document.getElementById('slip_pt')?.value)*m;
+  const tds = fmtNum(document.getElementById('slip_tds')?.value)*m;
+  const rent = fmtNum(document.getElementById('slip_rent')?.value)*m;
+  if (!gross) { addStatus('status-slip','Please fill salary details first!','error'); return; }
+  const hraExempt = hra>0 && rent>0 ? Math.max(0, Math.min(hra, rent-basic*0.1, basic*0.5)) : 0;
+  const data = {
+    grossSalary: gross, basicSalary: basic, hraReceived: hra, hraExempt,
+    ltaExempt: lta, profTax: pt, epfEmployee: pf, tds, months: m,
+    importedAt: new Date().toISOString(), source: 'salary-slip'
+  };
+  localStorage.setItem('tm_salary_slip_import', JSON.stringify(data));
+  // Push to comp draft
+  const comp = JSON.parse(localStorage.getItem('tm_comp_draft')||'{}');
+  comp.grossSal=gross; comp.basicSal=basic; comp.hraRcvd=hra; comp.rentPaid=rent;
+  comp.ltaExempt=lta; comp.profTax=pt; comp.tdsSal=tds;
+  localStorage.setItem('tm_comp_draft', JSON.stringify(comp));
+  // Push to ITR draft
+  const itr = JSON.parse(localStorage.getItem('itr_draft_1')||'{}');
+  itr.grossSalary=gross; itr.hraExempt=hraExempt; itr.ltaExempt=lta;
+  itr.profTax=pt; itr.tdsSalary=tds;
+  localStorage.setItem('itr_draft_1', JSON.stringify(itr));
+  addStatus('status-slip',`Annual Gross: ${fmt(gross)} (${m} months)`, 'success');
+  addStatus('status-slip',`TDS: ${fmt(tds)} | PF: ${fmt(pf)} | PT: ${fmt(pt)}`, 'success');
+  addStatus('status-slip','Data saved to ITR Form, Computation & TDS pages!', 'success');
+  addHistory('slip',`Salary Slip Import — ${m} months`,['gross','hra','tds','pf']);
+  showToast('Salary slip data imported!','success');
+  updateStorageSize();
+}
+
+// ══════════════════════════════════════════════════════
+// METHOD 6: SMART TEXT / CLIPBOARD
+// ══════════════════════════════════════════════════════
+async function pasteFromClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('clipboard_text').value = text;
+    smartParseText();
+  } catch {
+    showToast('Clipboard access denied — paste manually (Ctrl+V)','warning');
+  }
+}
+
+let _smartParsed = {};
+function smartParseText() {
+  const text = document.getElementById('clipboard_text')?.value || '';
+  if (text.length < 5) { document.getElementById('smart-parse-result').style.display='none'; return; }
+  _smartParsed = extractFromText(text, 'smart');
+  const entries = Object.entries(_smartParsed).filter(([,v])=>v);
+  if (entries.length) {
+    document.getElementById('smart-parse-result').style.display='block';
+    document.getElementById('smart-parse-content').innerHTML = `
+      <div class="summary-grid">${entries.map(([k,v])=>`
+        <div class="summary-item"><span>${k}</span><strong>${typeof v==='number'?fmt(v):v}</strong></div>`).join('')}
+      </div>`;
+  } else {
+    document.getElementById('smart-parse-result').style.display='none';
+  }
+}
+
+function importSmartParsed() {
+  clearStatus('status-clipboard');
+  if (!Object.keys(_smartParsed).length) { addStatus('status-clipboard','No data extracted!','error'); return; }
+  localStorage.setItem('tm_smart_import', JSON.stringify({..._smartParsed, importedAt:new Date().toISOString()}));
+  // Merge to comp draft
+  const comp = JSON.parse(localStorage.getItem('tm_comp_draft')||'{}');
+  const map = {grossSalary:'grossSal',hraExempt:'hraRcvd',tds:'tdsSal',advanceTax:'advTax',interest:'otherInt',dividend:'divInc'};
+  Object.entries(_smartParsed).forEach(([k,v])=>{ if(map[k]&&v) comp[map[k]]=v; });
+  localStorage.setItem('tm_comp_draft', JSON.stringify(comp));
+  Object.entries(_smartParsed).filter(([,v])=>v).forEach(([k,v])=>
+    addStatus('status-clipboard',`${k}: ${typeof v==='number'?fmt(v):v}`,'success'));
+  addHistory('clipboard','Smart Text Import', Object.keys(_smartParsed));
+  showToast('Text data imported!','success');
+  updateStorageSize();
+}
+
+// ══════════════════════════════════════════════════════
+// METHOD 7: IT PORTAL JSON
+// ══════════════════════════════════════════════════════
+function importITRPortalJSON(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  clearStatus('status-itrjson');
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const json = JSON.parse(e.target.result);
+      // IT Portal JSON structure (various ITR forms)
+      const extracted = {};
+      const personal = json.ITR?.ITR1?.PersonalInfo || json.ITR?.ITR2?.PersonalInfo || json.PersonalInfo || {};
+      const income = json.ITR?.ITR1?.ITR1_IncomeDeductions || json.IncomeDeductions || json.ScheduleS || {};
+      const taxComp = json.ITR?.ITR1?.TaxComputation || json.TaxComputation || {};
+      if (personal.PAN) extracted.PAN = personal.PAN;
+      if (personal.AssesseeName) extracted.name = personal.AssesseeName?.FirstName + ' ' + (personal.AssesseeName?.LastName||'');
+      if (income.GrossSalary || income.Salaries) extracted.grossSalary = income.GrossSalary || income.Salaries;
+      if (taxComp.TotalTaxPayable) extracted.totalTax = taxComp.TotalTaxPayable;
+      if (taxComp.TaxPayableOnTI) extracted.taxOnIncome = taxComp.TaxPayableOnTI;
+      // Save
+      localStorage.setItem('tm_itr_portal_import', JSON.stringify({...extracted, raw:json, importedAt:new Date().toISOString()}));
+      const prev = document.getElementById('itr-json-preview');
+      const content = document.getElementById('itr-json-preview-content');
+      if (prev && content && Object.keys(extracted).length) {
+        prev.style.display='block';
+        content.innerHTML = Object.entries(extracted).filter(([k])=>k!=='raw').map(([k,v])=>
+          `<div class="summary-item"><span>${k}</span><strong>${v}</strong></div>`).join('');
+      }
+      addStatus('status-itrjson',`IT Portal JSON parsed — ${Object.keys(extracted).length} fields`,'success');
+      if (extracted.grossSalary) {
+        const comp = JSON.parse(localStorage.getItem('tm_comp_draft')||'{}');
+        comp.grossSal = extracted.grossSalary;
+        localStorage.setItem('tm_comp_draft', JSON.stringify(comp));
+        addStatus('status-itrjson','Data synced to Computation Sheet','success');
+      }
+      addHistory('itrjson',`IT Portal ITR JSON`,Object.keys(extracted).filter(k=>k!=='raw'));
+      showToast('ITR Portal JSON imported!','success');
+      updateStorageSize();
+    } catch(err) {
+      addStatus('status-itrjson','Invalid ITR JSON: '+err.message,'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════════════════════
+// METHOD 8: COMP SHEET CROSS-IMPORT
+// ══════════════════════════════════════════════════════
+function checkCompDraft() {
+  const comp = localStorage.getItem('tm_comp_draft');
+  const itr1 = localStorage.getItem('itr_draft_1');
+  const el = document.getElementById('comp-draft-status');
+  if (!el) return;
+  const parts = [];
+  if (comp) {
+    const d = JSON.parse(comp);
+    parts.push(`📊 Computation Draft: Gross ₹${(d.grossSal||0).toLocaleString('en-IN')}`);
+  } else parts.push('❌ No Computation draft saved');
+  if (itr1) {
+    const d = JSON.parse(itr1);
+    parts.push(`📋 ITR-1 Draft: Gross ₹${(d.grossSalary||0).toLocaleString('en-IN')}`);
+  } else parts.push('❌ No ITR-1 draft saved');
+  el.innerHTML = parts.map(p=>`<div style="margin-bottom:.3rem">${p}</div>`).join('');
+}
+
+function importCompDraft() {
+  clearStatus('status-comp');
+  const comp = JSON.parse(localStorage.getItem('tm_comp_draft')||'{}');
+  if (!Object.keys(comp).length) { addStatus('status-comp','No Computation draft found!','error'); return; }
+  // Map comp fields to ITR draft
+  const itrMap = {
+    grossSal:'grossSalary', hraRcvd:'hraExempt', ltaExempt:'ltaExempt',
+    profTax:'profTax', tdsSal:'tdsSalary', tdsInt:'tdsInterest',
+    d80c:'deduction80c', d80d:'deduction80d', d80ccd1b:'deduction80ccdnps',
+    advTax:'advanceTax', sat:'selfAssessmentTax'
+  };
+  const itr = JSON.parse(localStorage.getItem('itr_draft_1')||'{}');
+  let count = 0;
+  Object.entries(itrMap).forEach(([compKey,itrKey]) => {
+    if (comp[compKey]) { itr[itrKey]=comp[compKey]; count++; }
+  });
+  localStorage.setItem('itr_draft_1', JSON.stringify(itr));
+  addStatus('status-comp',`${count} fields synced to ITR Form`,'success');
+  addStatus('status-comp','Reload ITR Form page to see changes','warn');
+  addHistory('comp','Computation → ITR Sync',Object.keys(itr).slice(0,5));
+  showToast('Computation data synced to ITR!','success');
+  updateStorageSize();
+}
+
+function importITRtoComp() {
+  clearStatus('status-comp');
+  const itr = JSON.parse(localStorage.getItem('itr_draft_1')||'{}');
+  if (!Object.keys(itr).length) { addStatus('status-comp','No ITR-1 draft found!','error'); return; }
+  const compMap = {
+    grossSalary:'grossSal', hraExempt:'hraRcvd', ltaExempt:'ltaExempt',
+    profTax:'profTax', tdsSalary:'tdsSal', tdsInterest:'tdsInt',
+    deduction80c:'d80c', deduction80d:'d80d', advanceTax:'advTax', selfAssessmentTax:'sat'
+  };
+  const comp = JSON.parse(localStorage.getItem('tm_comp_draft')||'{}');
+  let count = 0;
+  Object.entries(compMap).forEach(([itrKey,compKey]) => {
+    if (itr[itrKey]) { comp[compKey]=itr[itrKey]; count++; }
+  });
+  localStorage.setItem('tm_comp_draft', JSON.stringify(comp));
+  addStatus('status-comp',`${count} fields synced to Computation Sheet`,'success');
+  addStatus('status-comp','Reload Computation page to see changes','warn');
+  addHistory('comp','ITR → Computation Sync',Object.keys(comp).slice(0,5));
+  showToast('ITR data synced to Computation!','success');
+  updateStorageSize();
+}
+
+// ══════════════════════════════════════════════════════
+// METHOD 9: SAMPLE DATA
+// ══════════════════════════════════════════════════════
+const sampleProfiles = {
+  salaried: {
+    name:'Ravi Kumar', pan:'ABCDE1234F', regime:'old', ay:'2026-27',
+    comp:{ grossSal:1200000, basicSal:600000, hraRcvd:240000, rentPaid:180000, city:'metro',
+           profTax:2400, tdsSal:72000, d80c:150000, d80d:25000 },
+    itr:{ firstName:'Ravi', lastName:'Kumar', grossSalary:1200000, hraExempt:90000, profTax:2400, tdsSalary:72000, deduction80c:150000, deduction80d:25000 },
+    label:'Salaried — ₹12L, Old Regime, HRA, 80C maxed'
+  },
+  business: {
+    name:'Priya Sharma', pan:'FGHIJ5678K', regime:'new', ay:'2026-27',
+    comp:{ bizTODig:2500000, bizScheme:'44AD', tdsSal:0, advTax:25000 },
+    itr:{ firstName:'Priya', lastName:'Sharma', bizTO_Digital:2500000, bizType:'44AD', advanceTax:25000 },
+    label:'Small Business — ₹25L turnover, 44AD, New Regime'
+  },
+  freelancer: {
+    name:'Arjun Mehta', pan:'KLMNO9012P', regime:'new', ay:'2026-27',
+    comp:{ bizTO_ADA:1500000, bizScheme:'44ADA', tdsSal:0, advTax:15000 },
+    itr:{ firstName:'Arjun', lastName:'Mehta', professionalReceipts:1500000, bizType:'44ADA', advanceTax:15000 },
+    label:'Freelancer — ₹15L receipts, 44ADA, New Regime'
+  },
+  investor: {
+    name:'Sunita Patel', pan:'QRSTU3456V', regime:'old', ay:'2026-27',
+    comp:{ grossSal:800000, stcgEqSale:500000, stcgEqCost:400000, ltcgEqSale:1000000, ltcgEqCost:600000, ltcgEqExempt:125000, tdsSal:45000 },
+    itr:{ firstName:'Sunita', lastName:'Patel', grossSalary:800000, stcgEquity:100000, ltcgEquity:275000, tdsSalary:45000 },
+    label:'Investor — Salary + STCG ₹1L + LTCG ₹4L'
+  },
+  senior: {
+    name:'Ram Prasad', pan:'WXYZA7890B', regime:'new', ay:'2026-27',
+    age:'60to80',
+    comp:{ grossSal:600000, d80ttb:50000, tdsInt:8000, tdsSal:0 },
+    itr:{ firstName:'Ram', lastName:'Prasad', pension:600000, fdInterest:200000, deduction80ttb:50000, tdsInterest:8000 },
+    label:'Senior Citizen — Pension + FD interest, New Regime'
+  }
+};
+
+function loadSampleProfile(type) {
+  clearStatus('status-sample');
+  const profile = sampleProfiles[type];
+  if (!profile) return;
+  // Save user
+  localStorage.setItem('tm_user', JSON.stringify({ name:profile.name, pan:profile.pan, regime:profile.regime }));
+  // Save comp draft
+  if (profile.comp) localStorage.setItem('tm_comp_draft', JSON.stringify({...profile.comp, _sample:type}));
+  // Save ITR draft
+  if (profile.itr) localStorage.setItem('itr_draft_1', JSON.stringify({...profile.itr, _sample:type}));
+  if (type==='salaried') {
+    // Add some accounting transactions
+    const txns = [
+      {id:1,date:'2025-04-15',desc:'Salary',amount:100000,category:'Salary',type:'income'},
+      {id:2,date:'2025-04-20',desc:'LIC Premium',amount:12500,category:'Investment',type:'expense'},
+      {id:3,date:'2025-04-25',desc:'PPF',amount:5000,category:'Investment',type:'expense'},
+    ];
+    localStorage.setItem('tm_accounting_txns', JSON.stringify(txns));
+  }
+  addStatus('status-sample',`✅ ${profile.label}`, 'success');
+  addStatus('status-sample','Data saved to all modules — reload pages to see','warn');
+  addHistory('sample',`Sample Profile: ${type}`,[type]);
+  showToast(`${type} sample data loaded!`, 'success');
+  updateStorageSize();
+}
+
+// ══════════════════════════════════════════════════════
+// SMART TEXT EXTRACTOR
+// ══════════════════════════════════════════════════════
+function extractFromText(text, mode) {
+  const t = text.replace(/[,₹]/g,'');
+  const result = {};
+  // Gross Salary patterns
+  const grossMatch = t.match(/gross\s*(?:salary|income)[\s:₹]*(\d+)/i) ||
+    t.match(/(?:total\s+)?salary[\s:₹]+(\d{4,})/i) ||
+    t.match(/(?:annual\s+)?ctc[\s:₹]+(\d{4,})/i);
+  if (grossMatch) result.grossSalary = parseInt(grossMatch[1]);
+  // HRA
+  const hraMatch = t.match(/hra[\s:₹]+(\d{3,})/i) || t.match(/house\s+rent\s+allowance[\s:₹]+(\d{3,})/i);
+  if (hraMatch) result.hraExempt = parseInt(hraMatch[1]);
+  // TDS
+  const tdsMatch = t.match(/(?:tds|tax\s+deducted)[\s:₹]*(\d{3,})/i) ||
+    t.match(/tds\s+deducted[\s:₹]*(\d{3,})/i);
+  if (tdsMatch) result.tds = parseInt(tdsMatch[1]);
+  // Advance tax
+  const advMatch = t.match(/advance\s+tax[\s:₹]*(\d{3,})/i);
+  if (advMatch) result.advanceTax = parseInt(advMatch[1]);
+  // Interest income
+  const intMatch = t.match(/(?:interest|fd\s+interest)[\s:₹]*(\d{3,})/i);
+  if (intMatch) result.interest = parseInt(intMatch[1]);
+  // Dividend
+  const divMatch = t.match(/dividend[\s:₹]*(\d{3,})/i);
+  if (divMatch) result.dividend = parseInt(divMatch[1]);
+  // 80C
+  const c80Match = t.match(/80c[\s:₹]*(\d{3,})/i) || t.match(/section\s+80c[\s:₹]*(\d{3,})/i);
+  if (c80Match) result.deduction80c = Math.min(parseInt(c80Match[1]),150000);
+  // PAN
+  const panMatch = text.match(/\b[A-Z]{5}[0-9]{4}[A-Z]\b/);
+  if (panMatch) result.PAN = panMatch[0];
+  // AY
+  const ayMatch = text.match(/(?:ay|assessment year)\s*[\s:]*(20\d{2}-\d{2})/i);
+  if (ayMatch) result.assessmentYear = ayMatch[1];
+  return result;
+}
+
+// ══════════════════════════════════════════════════════
+// OCR UPLOAD (Gemini)
+// ══════════════════════════════════════════════════════
+async function importDocWithOCR(input, docType) {
+  const file = input.files?.[0];
+  const statusId = `status-${docType}-upload`;
+  if (!file) return;
+  clearStatus(statusId);
+  addStatus(statusId, 'Reading file...', 'warn');
+  const reader = new FileReader();
+  reader.onload = async e => {
+    const base64 = e.target.result.split(',')[1];
+    const mime = file.type || 'image/jpeg';
+    addStatus(statusId, 'Sending to Gemini Vision OCR...', 'warn');
+    // Use TaxMitraAI if available
+    let result = null;
+    if (window.TaxMitraAI?.analyseDocumentWithAI) {
+      try {
+        result = await window.TaxMitraAI.analyseDocumentWithAI(e.target.result, 'Form 16', mime);
+      } catch(err) { console.warn(err); }
+    }
+    if (result && result._source === 'gemini-vision') {
+      // Map to storage
+      const data = {...result, importedAt:new Date().toISOString()};
+      localStorage.setItem('tm_form16_import', JSON.stringify(data));
+      if (result.gross_salary) {
+        const comp = JSON.parse(localStorage.getItem('tm_comp_draft')||'{}');
+        comp.grossSal = parseFloat(result.gross_salary)||0;
+        localStorage.setItem('tm_comp_draft', JSON.stringify(comp));
+      }
+      Object.entries(result).filter(([k,v])=>!k.startsWith('_')&&v).forEach(([k,v])=>
+        addStatus(statusId, `${k}: ${v}`, 'success'));
+      addHistory(docType, `OCR Upload — ${file.name}`, Object.keys(result).filter(k=>!k.startsWith('_')));
+      showToast('OCR successful!', 'success');
+    } else {
+      addStatus(statusId, 'Gemini API key needed for OCR — set via console: TaxMitra.setKeys({geminiApiKey:"AIzaSy..."})', 'warn');
+      addStatus(statusId, 'Or use Manual Entry tab', 'warn');
+    }
+    updateStorageSize();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ══════════════════════════════════════════════════════
+// ALL DATA VIEWER
+// ══════════════════════════════════════════════════════
+function showAllStoredData() {
+  const section = document.getElementById('allDataSection');
+  const body = document.getElementById('allDataBody');
+  section.style.display = 'block';
+  if (!body) return;
+  const keys = Object.keys(localStorage).sort();
+  if (!keys.length) { body.innerHTML='<p style="color:var(--text-muted);text-align:center;padding:1rem">No data stored yet</p>'; return; }
+  body.innerHTML = keys.map(k => {
+    let val = localStorage.getItem(k);
+    let display = val;
+    try {
+      const parsed = JSON.parse(val);
+      display = JSON.stringify(parsed, null, 2);
+      if (display.length > 300) display = display.substring(0,300) + '...';
+    } catch {}
+    const size = (val||'').length;
+    return `<div style="margin-bottom:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm);overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem .85rem;background:var(--border);font-size:.78rem">
+        <strong>${k}</strong>
+        <span style="color:var(--text-muted);font-size:.7rem">${(size/1024).toFixed(1)} KB</span>
+      </div>
+      <pre style="padding:.65rem .85rem;font-size:.72rem;overflow-x:auto;max-height:120px;margin:0;white-space:pre-wrap">${display.replace(/</g,'&lt;')}</pre>
+      <div style="padding:.35rem .85rem;background:var(--border)">
+        <button onclick="deleteStoredKey('${k}')" style="font-size:.7rem;color:var(--danger);background:none;border:none;cursor:pointer">🗑 Delete</button>
+        <button onclick="copyStoredKey('${k}')" style="font-size:.7rem;color:var(--primary);background:none;border:none;cursor:pointer;margin-left:.5rem">📋 Copy</button>
+      </div>
+    </div>`;
+  }).join('');
+  section.scrollIntoView({behavior:'smooth'});
+}
+
+function deleteStoredKey(key) {
+  if (!confirm(`Delete "${key}"?`)) return;
+  localStorage.removeItem(key);
+  showToast(`"${key}" deleted`,'warning');
+  showAllStoredData();
+  updateStorageSize();
+}
+
+function copyStoredKey(key) {
+  const val = localStorage.getItem(key)||'';
+  navigator.clipboard.writeText(val).then(()=>showToast('Copied!','success')).catch(()=>{});
+}
+
+function clearAllData() {
+  if (!confirm('⚠️ ALL data clear hoga — backup export karo pehle!\n\nConfirm?')) return;
+  const keysToKeep = ['tm-theme', 'tm_keys'];
+  const backup = {};
+  keysToKeep.forEach(k => { backup[k] = localStorage.getItem(k); });
+  localStorage.clear();
+  keysToKeep.forEach(k => { if(backup[k]) localStorage.setItem(k,backup[k]); });
+  showToast('All data cleared! (API keys & theme kept)','warning');
+  updateStorageSize();
+  renderHistory();
+}
+
+function clearHistory() {
+  localStorage.removeItem('tm_import_history');
+  renderHistory();
+  showToast('Import history cleared','info');
+}
+
+// ══════════════════════════════════════════════════════
+// FULL BACKUP RESTORE trigger
+// ══════════════════════════════════════════════════════
+// (already handled by importJSON above)
+
+// ── INIT ────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  updateStorageSize();
+  renderHistory();
+  checkCompDraft();
+});
+</script>
+</body>
+</html>

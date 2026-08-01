@@ -1,0 +1,8 @@
+*.env
+.env*
+
+# Safe placeholder firebase-config.js is tracked
+# Secret keys go in localStorage only via TaxMitra.setKeys()
+js/firebase-config.local.js
+
+# js/config-generated.js tracked with empty keys (CI fills in real keys)

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>F&O Tax Calculator — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="capital-gains.html" class="nav-link">📈 Cap Gains</a></li>
+        <li><a href="crypto-tax.html" class="nav-link">₿ Crypto</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>F&O Tax</span></div>
+    <h1>📊 F&O Trading Tax Calculator</h1>
+    <p>Futures & Options — Business Income u/s 43(5) | AY 2026-27 | Budget 2025 | Developed by <strong>Abhishek Agrahari</strong></p>
+  </div>
+</div>
+
+<div class="container" style="padding:1.5rem 0 4rem">
+  
+  <!-- Info Banner -->
+  <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;gap:.75rem;align-items:flex-start">
+    <span style="font-size:1.3rem">⚠️</span>
+    <div>
+      <strong style="color:var(--warning)">F&O = Business Income (Not Capital Gains!)</strong>
+      <p style="font-size:.82rem;margin:.25rem 0 0;color:var(--text-secondary)">SEBI/IT Dept: F&O trading is deemed speculative/non-speculative business income u/s 43(5). File ITR-3 or ITR-4. Turnover calculated on absolute profit+loss basis. Tax Audit if turnover >₹10Cr.</p>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+    
+    <!-- LEFT: Calculator -->
+    <div>
+      <div class="form-card">
+        <h3 style="font-weight:800;margin-bottom:1.25rem">📊 F&O Turnover & Tax Calculator</h3>
+        
+        <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.75rem;margin-bottom:1rem">
+          <strong style="font-size:.82rem;color:var(--primary)">Turnover = |Profits| + |Losses| (Absolute basis)</strong>
+        </div>
+
+        <div class="form-group">
+          <label>Total Profit from winning trades (₹)</label>
+          <div class="input-with-prefix"><span class="input-prefix">₹</span>
+            <input type="number" id="fnoProfit" placeholder="0" oninput="calcFnO()"/></div>
+        </div>
+        <div class="form-group">
+          <label>Total Loss from losing trades (₹)</label>
+          <div class="input-with-prefix"><span class="input-prefix">₹</span>
+            <input type="number" id="fnoLoss" placeholder="0" oninput="calcFnO()"/></div>
+        </div>
+        <div class="form-group">
+          <label>Total Expenses (Brokerage, STT, Taxes etc ₹)</label>
+          <div class="input-with-prefix"><span class="input-prefix">₹</span>
+            <input type="number" id="fnoExpenses" placeholder="0" oninput="calcFnO()"/></div>
+          <small style="color:var(--text-muted);font-size:.72rem">STT, Brokerage, Exchange charges, GST on brokerage allowed</small>
+        </div>
+        <div class="form-group">
+          <label>Other Business Income (₹)</label>
+          <div class="input-with-prefix"><span class="input-prefix">₹</span>
+            <input type="number" id="fnoOtherIncome" placeholder="0" oninput="calcFnO()"/></div>
+        </div>
+        <div class="form-group">
+          <label>Salary Income (₹) for slab</label>
+          <div class="input-with-prefix"><span class="input-prefix">₹</span>
+            <input type="number" id="fnoSalary" placeholder="0" oninput="calcFnO()"/></div>
+        </div>
+        <div class="form-group">
+          <label>Regime</label>
+          <select id="fnoRegime" onchange="calcFnO()">
+            <option value="new">New Regime (Default)</option>
+            <option value="old">Old Regime</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>B/F F&O Loss (from prev years ₹)</label>
+          <div class="input-with-prefix"><span class="input-prefix">₹</span>
+            <input type="number" id="fnoBFLoss" placeholder="0" oninput="calcFnO()"/></div>
+        </div>
+      </div>
+
+      <!-- Turnover Guide -->
+      <div class="form-card" style="margin-top:1rem">
+        <h4 style="font-weight:800;margin-bottom:.85rem">📋 Tax Audit Threshold</h4>
+        <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.82rem">
+          <div style="display:flex;justify-content:space-between;padding:.42rem .65rem;background:rgba(5,150,105,.06);border-radius:6px">
+            <span>F&O Turnover ≤ ₹10 Crore</span><strong style="color:var(--success)">No Audit Required</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:.42rem .65rem;background:rgba(220,38,38,.06);border-radius:6px">
+            <span>F&O Turnover &gt; ₹10 Crore</span><strong style="color:var(--danger)">Tax Audit u/s 44AB</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:.42rem .65rem;background:rgba(245,158,11,.06);border-radius:6px">
+            <span>Loss + No ITR-3 filed</span><strong style="color:var(--warning)">Cannot Carry Forward</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:.42rem .65rem;background:var(--bg-secondary);border-radius:6px">
+            <span>Loss Carry Forward (if filed)</span><strong>8 Years (same income head)</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div>
+      <div class="result-card" id="fnoResult" style="display:none">
+        <div class="result-label">F&O Tax Analysis</div>
+        <div class="result-main" id="fnoTaxAmt" style="font-size:1.75rem">₹0</div>
+        <div id="fnoBreakdown" style="margin-top:1rem"></div>
+      </div>
+
+      <div class="form-card" id="fnoAuditCard" style="margin-top:1rem;display:none">
+        <h4 style="font-weight:800;margin-bottom:.75rem" id="fnoAuditTitle">📋 Audit Status</h4>
+        <div id="fnoAuditContent"></div>
+      </div>
+
+      <div class="form-card" style="margin-top:1rem">
+        <h4 style="font-weight:800;margin-bottom:.75rem">📂 Which ITR Form?</h4>
+        <div style="font-size:.82rem;display:flex;flex-direction:column;gap:.5rem">
+          <div style="padding:.55rem .75rem;background:rgba(37,99,235,.06);border-radius:6px;border-left:3px solid var(--primary)">
+            <strong>ITR-3</strong> — F&O + Capital Gains + Salary (Full Books required)
+          </div>
+          <div style="padding:.55rem .75rem;background:rgba(5,150,105,.06);border-radius:6px;border-left:3px solid var(--success)">
+            <strong>ITR-4</strong> — Only if opting Presumptive u/s 44AD (NOT recommended for F&O)
+          </div>
+          <div style="padding:.55rem .75rem;background:rgba(220,38,38,.06);border-radius:6px;border-left:3px solid var(--danger)">
+            <strong>ITR-1/2</strong> — CANNOT be used for F&O income
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card" style="margin-top:1rem">
+        <h4 style="font-weight:800;margin-bottom:.75rem">💡 F&O Tax Planning Tips</h4>
+        <ul style="font-size:.8rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:.4rem;padding-left:0;list-style:none">
+          <li>✅ Claim ALL expenses: brokerage, STT, exchange charges, internet, advisory fees</li>
+          <li>✅ F&O loss can be set off against NORMAL business income (not salary)</li>
+          <li>✅ Carry forward F&O loss for 8 years — MUST file ITR-3 before due date</li>
+          <li>✅ Maintain proper books of accounts — trade logs from broker</li>
+          <li>⚠️ F&O loss CANNOT be set off against salary income</li>
+          <li>⚠️ If turnover &gt;₹10Cr — mandatory CA audit before filing</li>
+        </ul>
+      </div>
+
+      <div style="display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap">
+        <button class="btn-primary-solid" onclick="calcFnO()" style="flex:1"><i class="fa fa-calculator"></i> Calculate</button>
+        <button class="btn-secondary-solid" onclick="downloadFnOPDF()" style="flex:1"><i class="fa fa-file-pdf"></i> PDF Report</button>
+        <button class="btn-secondary-solid" onclick="pushFnOtoITR()" style="flex:1"><i class="fa fa-file-export"></i> → ITR-3</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Guide -->
+  <div class="form-card" style="margin-top:2rem">
+    <h3 style="font-weight:800;margin-bottom:1.25rem">📚 F&O Tax — Complete Guide</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem">
+      <div style="padding:1rem;background:var(--bg-secondary);border-radius:var(--radius-sm)">
+        <strong style="color:var(--primary)">📊 Turnover Calculation</strong>
+        <p style="font-size:.8rem;margin:.5rem 0 0;color:var(--text-secondary)">Turnover = Sum of all |Profit| + Sum of all |Loss| on absolute basis. NOT net profit/loss. Example: +₹5L profit + ₹3L loss = ₹8L turnover.</p>
+      </div>
+      <div style="padding:1rem;background:var(--bg-secondary);border-radius:var(--radius-sm)">
+        <strong style="color:var(--success)">💡 Expenses Allowed</strong>
+        <p style="font-size:.8rem;margin:.5rem 0 0;color:var(--text-secondary)">Brokerage, STT, Exchange charges, SEBI charges, GST on brokerage, internet charges, advisory fees, depreciation on computer/software.</p>
+      </div>
+      <div style="padding:1rem;background:var(--bg-secondary);border-radius:var(--radius-sm)">
+        <strong style="color:var(--warning)">⚠️ Loss Set-off Rules</strong>
+        <p style="font-size:.8rem;margin:.5rem 0 0;color:var(--text-secondary)">F&O = Non-speculative business. Loss can set off against other business income. CANNOT set off against salary/capital gains. Carry forward 8 years.</p>
+      </div>
+      <div style="padding:1rem;background:var(--bg-secondary);border-radius:var(--radius-sm)">
+        <strong style="color:var(--danger)">🔴 Audit Requirements</strong>
+        <p style="font-size:.8rem;margin:.5rem 0 0;color:var(--text-secondary)">If turnover &gt;₹10Crore: Mandatory audit u/s 44AB. If turnover ≤₹10Cr and profit &gt;6%: No audit. If profit &lt;6%: Audit required (u/s 44AD not applicable).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+
+function calcFnO() {
+  const profit = parseFloat(document.getElementById('fnoProfit').value) || 0;
+  const loss = parseFloat(document.getElementById('fnoLoss').value) || 0;
+  const expenses = parseFloat(document.getElementById('fnoExpenses').value) || 0;
+  const otherIncome = parseFloat(document.getElementById('fnoOtherIncome').value) || 0;
+  const salary = parseFloat(document.getElementById('fnoSalary').value) || 0;
+  const regime = document.getElementById('fnoRegime').value;
+  const bfLoss = parseFloat(document.getElementById('fnoBFLoss').value) || 0;
+
+  // Turnover = |profit| + |loss|
+  const turnover = profit + loss;
+  // Net F&O income (profit - loss - expenses)
+  const netFnO = profit - loss - expenses;
+  // After set-off B/F loss
+  const netAfterBF = Math.max(0, netFnO - bfLoss);
+  const lossCF = netFnO < 0 ? Math.abs(netFnO) : 0;
+  
+  // Total income for tax
+  const totalIncome = salary + netAfterBF + otherIncome;
+  
+  // Tax calculation
+  let tax = 0;
+  if (regime === 'new') {
+    const taxable = Math.max(0, totalIncome - 75000); // std ded only for salary
+    const slabs = [[400000,0],[400000,.05],[400000,.10],[400000,.15],[400000,.20],[400000,.25],[Infinity,.30]];
+    let rem = taxable;
+    for (const [lim,r] of slabs) { const t=Math.min(rem,lim); tax+=t*r; rem-=t; if(rem<=0)break; }
+    if (taxable <= 1200000) tax = Math.max(0, tax - Math.min(tax, 60000));
+  } else {
+    const taxable = Math.max(0, totalIncome - 50000);
+    if (taxable <= 250000) tax = 0;
+    else if (taxable <= 500000) tax = (taxable-250000)*.05;
+    else if (taxable <= 1000000) tax = 12500+(taxable-500000)*.20;
+    else tax = 112500+(taxable-1000000)*.30;
+    if (taxable <= 500000) tax = Math.max(0, tax - 12500);
+  }
+  const cess = Math.round(tax * .04);
+  const total = Math.round(tax + cess);
+
+  const auditRequired = turnover > 10000000;
+  const profitPct = turnover > 0 ? (netFnO / turnover * 100).toFixed(1) : 0;
+
+  // Show result
+  document.getElementById('fnoResult').style.display = 'block';
+  document.getElementById('fnoAuditCard').style.display = 'block';
+  
+  document.getElementById('fnoTaxAmt').textContent = total > 0 ? fmt(total) : (lossCF > 0 ? 'Loss — No Tax' : '₹0');
+  document.getElementById('fnoTaxAmt').style.color = total > 0 ? 'var(--danger)' : 'var(--success)';
+
+  document.getElementById('fnoBreakdown').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.82rem">
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>F&O Turnover</span><strong>${fmt(turnover)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Gross Profit</span><strong>${fmt(profit)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Gross Loss</span><strong style="color:var(--danger)">(${fmt(loss)})</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Expenses</span><strong style="color:var(--danger)">(${fmt(expenses)})</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Net F&O Income</span><strong style="color:${netFnO>=0?'var(--success)':'var(--danger)'}">${netFnO>=0?fmt(netFnO):'('+fmt(Math.abs(netFnO))+')'}</strong></div>
+      ${bfLoss > 0 ? `<div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>B/F Loss Set-off</span><strong style="color:var(--success)">(${fmt(bfLoss)})</strong></div>` : ''}
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Total Taxable Income</span><strong>${fmt(Math.max(0,totalIncome))}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Income Tax</span><strong>${fmt(Math.round(tax))}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>4% Cess</span><strong>${fmt(cess)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.5rem .6rem;background:rgba(37,99,235,.08);border-radius:6px;font-size:.9rem"><span style="font-weight:700">TOTAL TAX</span><strong style="color:var(--primary)">${fmt(total)}</strong></div>
+      ${lossCF > 0 ? `<div style="padding:.5rem .6rem;background:rgba(5,150,105,.08);border-radius:6px;font-size:.82rem"><strong style="color:var(--success)">✅ Loss Carry Forward: ${fmt(lossCF)} (8 years)</strong></div>` : ''}
+      <div style="padding:.4rem .6rem;background:var(--bg-secondary);border-radius:6px;font-size:.75rem">Profit % of Turnover: <strong>${profitPct}%</strong> ${parseFloat(profitPct) < 6 && netFnO > 0 ? '⚠️ <6% — Audit may be required' : ''}</div>
+    </div>`;
+
+  // Audit card
+  document.getElementById('fnoAuditTitle').textContent = auditRequired ? '🔴 TAX AUDIT REQUIRED' : '✅ No Mandatory Audit';
+  document.getElementById('fnoAuditContent').innerHTML = auditRequired
+    ? `<p style="font-size:.82rem;color:var(--danger)">Turnover ${fmt(turnover)} &gt; ₹10 Crore. Mandatory audit u/s 44AB. Get CA audit done before filing ITR-3.</p>`
+    : `<p style="font-size:.82rem;color:var(--success)">Turnover ${fmt(turnover)} ≤ ₹10 Crore. No mandatory audit required. File ITR-3 by 31 July 2026.</p>`;
+
+  // Save for push to ITR
+  window._fnoResult = { turnover, netFnO, totalIncome, total, lossCF, auditRequired, regime };
+}
+
+function downloadFnOPDF() {
+  if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+  const r = window._fnoResult;
+  if (!r) { showToast('Pehle calculate karein!','warning'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFillColor(30,64,175); doc.rect(0,0,210,28,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('F&O Trading Tax Report — AY 2026-27', 105, 12, {align:'center'});
+  doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text('TaxMitra AI Enterprise | Developed by Abhishek Agrahari', 105, 22, {align:'center'});
+  doc.setTextColor(30,30,30);
+  const rows = [
+    ['F&O Turnover', fmt(r.turnover)],
+    ['Net F&O Income', r.netFnO >= 0 ? fmt(r.netFnO) : '(' + fmt(Math.abs(r.netFnO)) + ')'],
+    ['Total Taxable Income', fmt(Math.max(0, r.totalIncome))],
+    ['Total Tax + Cess', fmt(r.total)],
+    ['Loss Carry Forward', r.lossCF > 0 ? fmt(r.lossCF) : 'Nil'],
+    ['Tax Audit Required', r.auditRequired ? 'YES (>₹10Cr)' : 'NO'],
+    ['ITR Form', 'ITR-3'],
+    ['Regime', r.regime === 'new' ? 'New Regime' : 'Old Regime'],
+  ];
+  doc.autoTable({startY:36,head:[['Particulars','Amount']],body:rows,headStyles:{fillColor:[30,64,175],textColor:255,fontSize:9},styles:{fontSize:9}});
+  doc.save('FnO_Tax_AY2026-27_TaxMitra.pdf');
+  showToast('F&O Tax PDF downloaded!','success');
+}
+
+function pushFnOtoITR() {
+  const r = window._fnoResult;
+  if (!r) { showToast('Pehle calculate karein!','warning'); return; }
+  const itrData = JSON.parse(localStorage.getItem('itr_draft_3') || '{}');
+  itrData.fnoTurnover = r.turnover;
+  itrData.fnoNetIncome = r.netFnO;
+  itrData.fnoLossCF = r.lossCF;
+  itrData.taxRegime = r.regime;
+  itrData._fromFnO = true;
+  localStorage.setItem('itr_draft_3', JSON.stringify(itrData));
+  showToast('F&O data ITR-3 form mein save ho gaya!','success');
+  setTimeout(() => { window.location.href = 'itr-form.html?form=3'; }, 1500);
+}
+
+document.addEventListener('DOMContentLoaded', () => calcFnO());
+</script>
+</body>
+</html>

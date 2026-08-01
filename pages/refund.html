@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>Income Tax Refund Tracker — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Income Tax Refund Tracker</span></div>
+    <h1>💰 Income Tax Refund Tracker</h1>
+    <p>AY 2026-27 | Budget 2025 | Developed by <strong>Abhishek Agrahari</strong></p>
+  </div>
+</div>
+<div class="container" style="padding:1.5rem 0 4rem">
+
+<div style="background:rgba(5,150,105,.06);border:1px solid rgba(5,150,105,.2);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem">
+  <strong style="color:var(--success)">💰 ITR refund check karo — Status, Timeline aur Action Guide</strong>
+  <p style="font-size:.82rem;margin:.25rem 0 0;color:var(--text-secondary)">Refund bank mein credit hone mein usually 15-45 days lagte hain after e-verification. Delay hai to neeche check karo.</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+<div>
+  <div class="form-card">
+    <h3 style="font-weight:800;margin-bottom:1.25rem">🔍 Refund Status Check</h3>
+    <div class="form-group"><label>PAN Number</label>
+      <input class="mg-input" id="refundPAN" placeholder="ABCDE1234F" maxlength="10" oninput="this.value=this.value.toUpperCase()"/></div>
+    <div class="form-group"><label>Assessment Year</label>
+      <select class="mg-input" id="refundAY">
+        <option value="2026-27">AY 2026-27 (FY 2025-26)</option>
+        <option value="2025-26">AY 2025-26 (FY 2024-25)</option>
+        <option value="2024-25">AY 2024-25 (FY 2023-24)</option>
+      </select></div>
+    <div class="form-group"><label>ITR Filing Date</label><input type="date" id="refundFilingDate"/></div>
+    <div class="form-group"><label>E-Verification Date</label><input type="date" id="refundVerDate"/></div>
+    <div class="form-group"><label>Refund Amount Expected (₹)</label>
+      <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="refundAmt" placeholder="0"/></div></div>
+    <div class="form-group"><label>Current Status</label>
+      <select class="mg-input" id="refundStatus" onchange="calcRefundStatus()">
+        <option value="not_filed">Not yet filed</option>
+        <option value="filed">Filed, not verified</option>
+        <option value="verified">Filed + E-verified</option>
+        <option value="processed">Return processed</option>
+        <option value="refund_issued">Refund issued (NEFT)</option>
+        <option value="failed">Refund failed</option>
+        <option value="adjusted">Refund adjusted</option>
+      </select></div>
+    <button class="btn-primary-solid" onclick="calcRefundStatus()" style="width:100%;margin-top:.5rem"><i class="fa fa-search"></i> Check Status & Next Steps</button>
+    <div style="margin-top:1rem;padding:.75rem;background:rgba(245,158,11,.06);border-radius:var(--radius-sm)">
+      <strong style="font-size:.82rem">🔗 Official Refund Check:</strong>
+      <p style="font-size:.78rem;margin:.3rem 0 0;color:var(--text-secondary)">
+        <a href="https://tin.tin.nsdl.com/oltas/refundstatuslogin.html" target="_blank" style="color:var(--primary)">tin.tin.nsdl.com/oltas/refundstatuslogin</a><br>
+        OR: <a href="https://www.incometax.gov.in" target="_blank" style="color:var(--primary)">incometax.gov.in</a> → e-File → Refund Status
+      </p>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div id="refundAnalysis" style="display:none">
+    <div class="form-card" id="refundStatusCard">
+      <h4 style="font-weight:800;margin-bottom:.85rem" id="refundStatusTitle">Status Analysis</h4>
+      <div id="refundStatusContent"></div>
+    </div>
+    <div class="form-card" style="margin-top:1rem">
+      <h4 style="font-weight:800;margin-bottom:.75rem">📋 Next Steps</h4>
+      <div id="refundNextSteps"></div>
+    </div>
+  </div>
+
+  <div class="form-card" style="margin-top:1rem">
+    <h4 style="font-weight:800;margin-bottom:.85rem">📅 Typical Refund Timeline</h4>
+    <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.8rem">
+      <div style="display:flex;justify-content:space-between;padding:.42rem .65rem;background:var(--bg-secondary);border-radius:6px"><span>Filing → E-Verification</span><strong>Same day (Aadhaar OTP)</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .65rem;background:var(--bg-secondary);border-radius:6px"><span>E-Verification → Processing</span><strong>7-15 days</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .65rem;background:var(--bg-secondary);border-radius:6px"><span>Processing → Refund Credit</span><strong>15-30 days</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .65rem;background:rgba(5,150,105,.08);border-radius:6px"><span>Total (Normal)</span><strong style="color:var(--success)">15-45 days from e-verification</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .65rem;background:rgba(220,38,38,.08);border-radius:6px"><span>Complex case / Scrutiny</span><strong style="color:var(--danger)">3-6 months</strong></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Refund Calculator -->
+<div class="form-card" style="margin-top:2rem">
+  <h3 style="font-weight:800;margin-bottom:1.25rem">🧮 Refund + Interest Calculator</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+    <div class="form-group"><label>Refund Amount (₹)</label>
+      <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="refIntAmt" placeholder="0" oninput="calcRefundInterest()"/></div></div>
+    <div class="form-group"><label>Due Date (31 Mar)</label>
+      <input type="date" id="refIntDue" value="2026-03-31" oninput="calcRefundInterest()"/></div>
+    <div class="form-group"><label>Expected Credit Date</label>
+      <input type="date" id="refIntCred" oninput="calcRefundInterest()"/></div>
+  </div>
+  <div id="refIntResult" style="margin-top:.75rem"></div>
+  <p style="font-size:.78rem;color:var(--text-muted);margin-top:.5rem">u/s 244A: If refund &gt;10% of tax and delayed beyond 1 Apr — 6% interest per annum on refund amount.</p>
+</div>
+
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+
+const STATUS_DATA = {
+  not_filed: { icon:'📝', color:'var(--text-muted)', title:'Not Yet Filed', 
+    content: 'ITR abhi file nahi hua. 31 July 2026 se pehle file karo.',
+    steps: ['Login incometax.gov.in','e-File → Income Tax Returns → File ITR','Select AY 2026-27','Complete and submit'] },
+  filed: { icon:'⏳', color:'var(--warning)', title:'Filed — Pending E-Verification',
+    content: 'ITR filed hai but e-verify nahi hua. Without e-verification — ITR invalid!',
+    steps: ['incometax.gov.in login → e-File → e-Verify Return','Aadhaar OTP se (instant)','Or Net Banking / EVC','Deadline: 30 days from filing'] },
+  verified: { icon:'✅', color:'var(--primary)', title:'Verified — Processing Under Way',
+    content: 'ITR e-verified. Processing mein hai. Usually 7-30 days mein refund credit hoga.',
+    steps: ['Wait 7-15 days for processing','Check tin.nsdl.com for refund status','Bank details validate hain? Check on portal','No action needed'] },
+  processed: { icon:'🎯', color:'var(--success)', title:'Return Processed',
+    content: 'Return process ho gaya. Refund jald hi credit hoga.',
+    steps: ['Refund 10-15 days mein credit hoga','SMS/Email notification aayegi','Bank account pre-validated hona chahiye'] },
+  refund_issued: { icon:'💰', color:'var(--success)', title:'Refund Issued — Check Bank',
+    content: 'NEFT se refund credit ho gaya. 2-3 banking days mein bank mein dikhega.',
+    steps: ['Bank statement check karo','NEFT reference number note karo','Tax credit slip download karo from portal'] },
+  failed: { icon:'❌', color:'var(--danger)', title:'Refund Failed — Action Required',
+    content: 'Refund bounce hua. Wrong bank details ya inactive account.',
+    steps: ['incometax.gov.in → Services → Refund Re-issue','Update correct bank account (pre-validate karo pehle)','Re-issue request submit karo','Usually 15-30 days mein re-credit'] },
+  adjusted: { icon:'⚖️', color:'var(--accent)', title:'Refund Adjusted Against Demand',
+    content: 'Refund kisi purani demand ke against adjust ho gaya (u/s 245).',
+    steps: ['Check which demand was adjusted','If demand wrong → file u/s 154 rectification','If demand correct → accept adjustment'] },
+};
+
+function calcRefundStatus() {
+  const status = document.getElementById('refundStatus').value;
+  const data = STATUS_DATA[status];
+  if (!data) return;
+  document.getElementById('refundAnalysis').style.display = 'block';
+  document.getElementById('refundStatusCard').style.borderLeft = '4px solid ' + data.color;
+  document.getElementById('refundStatusTitle').innerHTML = data.icon + ' ' + data.title;
+  document.getElementById('refundStatusContent').innerHTML = '<p style="font-size:.82rem;color:var(--text-secondary)">' + data.content + '</p>';
+  document.getElementById('refundNextSteps').innerHTML = data.steps.map(s => 
+    '<div style="display:flex;gap:.5rem;padding:.42rem .65rem;background:var(--bg-secondary);border-radius:6px;font-size:.82rem;margin-bottom:.3rem"><span style="color:var(--primary);flex-shrink:0">→</span><span>' + s + '</span></div>'
+  ).join('');
+}
+
+function calcRefundInterest() {
+  const amt = parseFloat(document.getElementById('refIntAmt').value) || 0;
+  const due = document.getElementById('refIntDue').value;
+  const cred = document.getElementById('refIntCred').value;
+  const el = document.getElementById('refIntResult');
+  if (!amt || !due || !cred) { el.innerHTML = ''; return; }
+  const dueDate = new Date(due);
+  const credDate = new Date(cred);
+  const months = Math.max(0, Math.ceil((credDate - dueDate) / (1000*60*60*24*30.44)));
+  const interest = months > 0 ? Math.round(amt * 0.06 * months / 12) : 0;
+  el.innerHTML = `<div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:.82rem">
+    <div style="padding:.55rem .75rem;background:rgba(5,150,105,.06);border-radius:6px;flex:1">Delay: <strong>${months} months</strong></div>
+    <div style="padding:.55rem .75rem;background:rgba(5,150,105,.06);border-radius:6px;flex:1">Interest @6% p.a.: <strong style="color:var(--success)">${fmt(interest)}</strong></div>
+    <div style="padding:.55rem .75rem;background:rgba(37,99,235,.08);border-radius:6px;flex:1">Total Refund + Interest: <strong style="color:var(--primary)">${fmt(amt + interest)}</strong></div>
+  </div>`;
+}
+
+document.addEventListener('DOMContentLoaded', () => calcRefundStatus());
+</script>
+</body>
+</html>
