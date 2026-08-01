@@ -25,6 +25,8 @@
 // ── ENDPOINTS (Updated July 2026) ────────────────────────────
 // gemini-2.5-flash: latest stable, free tier available, multimodal
 const GEMINI_FLASH_EP    = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+// gemini-flash-latest: AI Studio default model (cURL quickstart Aug 2026)
+const GEMINI_LATEST_EP   = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 // Fallback: gemini-2.5-flash-lite (faster, lower quota usage)
 const GEMINI_LITE_EP     = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
 const OPENROUTER_EP      = 'https://openrouter.ai/api/v1/chat/completions';
@@ -208,15 +210,14 @@ async function callGeminiAPI(message, mode, lang, history, apiKey, endpoint) {
       // Fall through to direct API call
     }
   }
-  // Direct API call - support both key formats:
-  // AIzaSy... = Standard API Key -> x-goog-api-key header
-  // AQ..... = OAuth2 Access Token -> Authorization: Bearer header
-  const authHeaders = apiKey.startsWith('AQ.')
-    ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey }
-    : { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey };
+  // Direct API call - x-goog-api-key works for BOTH AIzaSy AND AQ. format keys
+  // Confirmed from Google AI Studio cURL quickstart (Aug 2026)
   res = await fetch(ep, {
     method: 'POST',
-    headers: authHeaders,
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey,
+    },
     body: JSON.stringify({
       contents,
       generationConfig: {
@@ -236,7 +237,11 @@ async function callGeminiAPI(message, mode, lang, history, apiKey, endpoint) {
     const errText = await res.text();
     // If 404 on main model, try lite model automatically
     if (res.status === 404 && ep === GEMINI_FLASH_EP) {
-      console.warn('[TaxMitra] gemini-2.5-flash 404, trying gemini-2.5-flash-lite...');
+      console.warn('[TaxMitra] gemini-2.5-flash 404, trying gemini-flash-latest...');
+      return await callGeminiAPI(message, mode, lang, history, apiKey, GEMINI_LATEST_EP);
+    }
+    if (res.status === 404 && ep === GEMINI_LATEST_EP) {
+      console.warn('[TaxMitra] gemini-flash-latest 404, trying gemini-2.5-flash-lite...');
       return await callGeminiAPI(message, mode, lang, history, apiKey, GEMINI_LITE_EP);
     }
     throw new Error('Gemini API ' + res.status + ': ' + errText.substring(0, 200));
@@ -393,13 +398,13 @@ Output ONLY the JSON.`,
   const base64 = fileDataUrl.split(',')[1];
   const imgMime = mimeType || 'image/jpeg';
   
-  // Use header auth - support both AIzaSy (API key) and AQ. (OAuth2) formats
-  const visionAuthHeaders = keys.gemini.startsWith('AQ.')
-    ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + keys.gemini }
-    : { 'Content-Type': 'application/json', 'x-goog-api-key': keys.gemini };
+  // x-goog-api-key works for both AIzaSy and AQ. keys (confirmed Aug 2026)
   const res = await fetch(GEMINI_FLASH_EP, {
     method: 'POST',
-    headers: visionAuthHeaders,
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': keys.gemini,
+    },
     body: JSON.stringify({
       contents: [{
         parts: [
