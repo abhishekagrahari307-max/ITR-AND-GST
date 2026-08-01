@@ -24,7 +24,9 @@ const BUILD_SHA = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.substring(0, 7
 const BUILD_BRANCH = process.env.GITHUB_REF_NAME || 'dev';
 
 // Validate keys
-const isGeminiValid = GEMINI_KEY.startsWith('AIzaSy') && GEMINI_KEY.length > 30;
+// Google changed Gemini key format in 2026: new keys start with 'AQ.' (not 'AIzaSy')
+// Both formats supported
+const isGeminiValid = (GEMINI_KEY.startsWith('AIzaSy') || GEMINI_KEY.startsWith('AQ.')) && GEMINI_KEY.length > 20;
 const isORValid = OR_KEY.startsWith('sk-or-') && OR_KEY.length > 20;
 
 console.log('=== TaxMitra AI Build Script ===');

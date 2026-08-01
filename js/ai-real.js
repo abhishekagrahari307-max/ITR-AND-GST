@@ -46,7 +46,7 @@ function isKeyValid(k) {
   if (!k || k.trim().length < 10) return false;
   const key = k.trim();
   // Reject placeholder strings
-  if (key.startsWith('AIzaSyXXX') || key.includes('YOUR_') ||
+  if (key.startsWith('AIzaSyXXX') || key.startsWith('AQ.XXXX') || key.includes('YOUR_') ||
       key.includes('AAPKI') || key.includes('sk-or-XXXX') ||
       key.includes('YOUR-OPEN') || key === '') return false;
   // Gemini key MUST start with AIzaSy (39 chars total)
@@ -56,8 +56,11 @@ function isKeyValid(k) {
 }
 
 function isGeminiKey(k) {
-  // Valid Gemini API key always starts with 'AIzaSy'
-  return k && k.trim().startsWith('AIzaSy') && k.trim().length > 30;
+  // Google updated Gemini key format in 2026
+  // Old format: AIzaSy... (39 chars) | New format: AQ.... (20+ chars)
+  if (!k || !k.trim()) return false;
+  const key = k.trim();
+  return (key.startsWith('AIzaSy') && key.length > 30) || (key.startsWith('AQ.') && key.length > 20);
 }
 
 // ── PRIVACY MASKER ─────────────────────────────────────────────
@@ -158,7 +161,7 @@ function selectModel(mode, keys) {
   }
   // No valid keys → warn user
   if (isKeyValid(keys.gemini) && !isGeminiKey(keys.gemini)) {
-    console.warn('[TaxMitra] Invalid Gemini key format! Gemini keys start with AIzaSy. Get key from: aistudio.google.com');
+    console.warn('[TaxMitra] Invalid Gemini key format! Keys start with AIzaSy (old) or AQ. (new 2026). Get key from: aistudio.google.com');
   }
   return { type: 'none', model: '', label: 'Rule-based' };
 }
@@ -617,5 +620,5 @@ window.TaxMitraAI = {
 
 console.log('%c⚡ TaxMitra AI v3.1', 'color:#1e40af;font-weight:900;font-size:14px');
 console.log('%cMulti-model: Gemini 2.5 Flash + DeepSeek R1 + Llama 3.3 70B', 'color:#7c3aed;font-size:11px');
-console.log('%cGemini key must start with AIzaSy → get from: aistudio.google.com', 'color:#dc2626;font-size:10px');
-console.log('%cSet keys: TaxMitra.setKeys({geminiApiKey:"AIzaSy...", openrouterApiKey:"sk-or-..."})', 'color:#059669;font-size:10px');
+console.log('%cGemini key: AIzaSy... (old) or AQ.... (new 2026) → get from: aistudio.google.com', 'color:#dc2626;font-size:10px');
+console.log('%cSet keys: TaxMitra.setKeys({geminiApiKey:"AIzaSy... or AQ....", openrouterApiKey:"sk-or-..."})', 'color:#059669;font-size:10px');

@@ -295,7 +295,7 @@ document.getElementById('demoInput')?.addEventListener('keypress', e => { if (e.
 function _showAFWKeyPrompt() {
   // Show one-time setup prompt if no key configured
   const keys = JSON.parse(localStorage.getItem('tm_keys') || '{}');
-  const hasKey = keys.geminiApiKey && keys.geminiApiKey.startsWith('AIzaSy') && keys.geminiApiKey.length > 30;
+  const hasKey = keys.geminiApiKey && (keys.geminiApiKey.startsWith('AIzaSy') || keys.geminiApiKey.startsWith('AQ.')) && keys.geminiApiKey.length > 20;
   const shown = sessionStorage.getItem('tm_afwKeyPromptShown');
   if (!hasKey && !shown) {
     sessionStorage.setItem('tm_afwKeyPromptShown', '1');
@@ -517,9 +517,9 @@ window.TaxMitra = {
     const set = [];
     const warnings = [];
 
-    // Validate Gemini key format (must start with AIzaSy)
+    // Validate Gemini key format (old: AIzaSy... | new 2026: AQ....)
     if (keys.geminiApiKey) {
-      if (keys.geminiApiKey.startsWith('AIzaSy') && keys.geminiApiKey.length > 30) {
+      if ((keys.geminiApiKey.startsWith('AIzaSy') || keys.geminiApiKey.startsWith('AQ.')) && keys.geminiApiKey.length > 20) {
         set.push('Gemini 2.5 Flash ✅');
       } else {
         warnings.push('⚠️ Gemini key invalid! Must start with "AIzaSy". Get from: aistudio.google.com');
@@ -556,13 +556,13 @@ window.TaxMitra = {
     const keys = JSON.parse(localStorage.getItem('tm_keys') || '{}');
     const gemini = keys.geminiApiKey || '';
     const openrouter = keys.openrouterApiKey || '';
-    // Gemini key MUST start with AIzaSy (format enforced July 2026)
-    const gOk = gemini.startsWith('AIzaSy') && gemini.length > 30;
-    const gWrong = gemini && !gemini.startsWith('AIzaSy'); // set but wrong format
+    // Gemini key format: old=AIzaSy... | new 2026=AQ....
+    const gOk = gemini && (gemini.startsWith('AIzaSy') || gemini.startsWith('AQ.')) && gemini.length > 20;
+    const gWrong = gemini && !gemini.startsWith('AIzaSy') && !gemini.startsWith('AQ.'); // set but wrong format
     const oOk = openrouter && openrouter.length > 10 && !openrouter.includes('XXX');
     console.group('%c⚡ TaxMitra AI Key Status (v3.1 — July 2026)', 'color:#1e40af;font-weight:900;font-size:14px');
     if (gWrong) {
-      console.log('%c🔑 Gemini API: ❌ WRONG FORMAT! Key must start with "AIzaSy"', 'color:#dc2626;font-weight:700');
+      console.log('%c🔑 Gemini API: ❌ WRONG FORMAT! Key must start with "AIzaSy" (old) or "AQ." (new 2026)', 'color:#dc2626;font-weight:700');
       console.log('%c   Your key starts with: ' + gemini.substring(0, 8) + '...', 'color:#dc2626');
       console.log('%c   👉 Get correct key: https://aistudio.google.com/app/apikey', 'color:#dc2626');
     } else {
