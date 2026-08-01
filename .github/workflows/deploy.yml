@@ -31,18 +31,20 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
-      - name: Commit injected config to branch
+      - name: Push config via GitHub API
+        continue-on-error: true
         run: |
-          git config user.name "TaxMitra CI"
-          git config user.email "ci@taxmitra.dev"
-          git add js/config-generated.js
-          if ! git diff --staged --quiet; then
-            git commit -m "ci: inject API keys into config [skip ci]"
-            git push origin HEAD:arena/019fabf8-itr-and-gst
-            echo "✅ Config with keys pushed!"
-          else
-            echo "ℹ️ No changes"
-          fi
+          FILE_SHA=$(curl -s \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/contents/js/config-generated.js?ref=arena/019fabf8-itr-and-gst" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin).get('sha',''))" 2>/dev/null)
+          NEW_CONTENT=$(base64 -w 0 js/config-generated.js)
+          curl -s -X PUT \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            "https://api.github.com/repos/${{ github.repository }}/contents/js/config-generated.js" \
+            -d "{\"message\":\"ci: inject API keys [skip ci]\",\"content\":\"${NEW_CONTENT}\",\"sha\":\"${FILE_SHA}\",\"branch\":\"arena/019fabf8-itr-and-gst\"}" \
+            | python3 -c "import sys,json; r=json.load(sys.stdin); print('Keys injected!' if 'content' in r else r.get('message',''))" 2>/dev/null
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
