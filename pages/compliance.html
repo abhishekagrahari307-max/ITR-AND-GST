@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="description" content="Tax Compliance Calendar AY 2026-27 — IT, GST, TDS, ROC due dates. AI reminders, penalty calculator 234A/B/C. Never miss a deadline."/>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Compliance Hub – TaxMitra AI Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css">
+  <style>
+    .calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+    .cal-header { font-size: 0.72rem; font-weight: 700; text-align: center; padding: 0.4rem; color: var(--text-muted); text-transform: uppercase; }
+    .cal-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: var(--radius-sm); font-size: 0.8rem; cursor: pointer; transition: var(--transition); position: relative; }
+    .cal-day:hover { background: var(--bg-secondary); }
+    .cal-day.today { background: var(--primary); color: #fff; font-weight: 700; }
+    .cal-day.has-event::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--danger); }
+    .cal-day.today.has-event::after { background: #fff; }
+    .cal-day.empty { cursor: default; }
+    .compliance-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .compliance-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 1.25rem; transition: var(--transition); }
+    .compliance-item:hover { box-shadow: var(--shadow); }
+    .compliance-item.urgent { border-left: 4px solid var(--danger); }
+    .compliance-item.warning { border-left: 4px solid var(--warning); }
+    .compliance-item.safe { border-left: 4px solid var(--success); }
+    .ci-date { text-align: center; min-width: 60px; }
+    .ci-date .day { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .ci-date .month { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .ci-info { flex: 1; }
+    .ci-info strong { display: block; font-size: 0.9rem; font-weight: 700; }
+    .ci-info span { font-size: 0.78rem; color: var(--text-secondary); }
+    .ci-badge { font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: var(--radius-full); white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Compliance Hub</span></div>
+      <h1>📅 Compliance Hub</h1>
+      <p>AI-powered compliance calendar – ITR, GST, TDS, ROC due dates track karo aur kabhi koi deadline miss mat karo</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding:2rem 0 3rem">
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:2rem;align-items:start">
+      <div>
+        <div class="tab-nav">
+          <button class="tab-btn active" onclick="switchTab('all',this)">📅 All Deadlines</button>
+          <button class="tab-btn" onclick="switchTab('gst',this)">🧾 GST</button>
+          <button class="tab-btn" onclick="switchTab('it',this)">💰 Income Tax</button>
+          <button class="tab-btn" onclick="switchTab('tds',this)">💼 TDS</button>
+          <button class="tab-btn" onclick="switchTab('roc',this)">🏢 ROC / Other</button>
+        </div>
+
+        <div class="tab-panel active" id="tab-all">
+          <div class="compliance-list" id="complianceList"></div>
+        </div>
+        <div class="tab-panel" id="tab-gst">
+          <div class="compliance-list" id="gstList"></div>
+        </div>
+        <div class="tab-panel" id="tab-it">
+          <div class="compliance-list" id="itList"></div>
+        </div>
+        <div class="tab-panel" id="tab-tds">
+          <div class="compliance-list" id="tdsList"></div>
+        </div>
+        <div class="tab-panel" id="tab-roc">
+          <div class="compliance-list" id="rocList"></div>
+        </div>
+      </div>
+
+      <!-- CALENDAR + ALERTS -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem">
+        <div class="form-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+            <h3 style="font-size:1rem">📆 August 2026</h3>
+            <div style="display:flex;gap:0.5rem">
+              <button style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.25rem 0.5rem;cursor:pointer">‹</button>
+              <button style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.25rem 0.5rem;cursor:pointer">›</button>
+            </div>
+          </div>
+          <div class="calendar-grid">
+            <div class="cal-header">Sun</div><div class="cal-header">Mon</div><div class="cal-header">Tue</div><div class="cal-header">Wed</div><div class="cal-header">Thu</div><div class="cal-header">Fri</div><div class="cal-header">Sat</div>
+            <!-- August 2026 -->
+            <div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div>
+            <div class="cal-day">1</div><div class="cal-day">2</div>
+            <div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day has-event" title="TDS Payment Due">7</div><div class="cal-day">8</div><div class="cal-day">9</div>
+            <div class="cal-day">10</div><div class="cal-day has-event" title="GSTR-1 Due">11</div><div class="cal-day">12</div><div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day">15</div><div class="cal-day">16</div>
+            <div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day has-event" title="GSTR-3B Due">20</div><div class="cal-day">21</div><div class="cal-day">22</div><div class="cal-day">23</div>
+            <div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day today">29</div><div class="cal-day">30</div>
+            <div class="cal-day">31</div>
+          </div>
+          <div style="display:flex;gap:1rem;margin-top:0.75rem;font-size:0.72rem">
+            <span style="display:flex;align-items:center;gap:0.3rem"><span style="width:8px;height:8px;background:var(--danger);border-radius:50%;display:inline-block"></span>Due Date</span>
+            <span style="display:flex;align-items:center;gap:0.3rem"><span style="width:8px;height:8px;background:var(--primary);border-radius:50%;display:inline-block"></span>Today</span>
+          </div>
+        </div>
+
+        <!-- AI REMINDER -->
+        <div class="form-card">
+          <h3 style="font-size:1rem">🤖 AI Reminder Setup</h3>
+          <div style="margin-top:0.75rem;display:flex;flex-direction:column;gap:0.75rem">
+            <div class="form-group"><label>Email for Reminders</label><input type="email" placeholder="your@email.com" value=""/></div>
+            <div class="form-group"><label>Mobile for SMS</label><input type="tel" placeholder="" value=""/></div>
+            <div class="form-group"><label>Remind me before (days)</label><select><option>1 day</option><option selected>3 days</option><option>7 days</option><option>15 days</option></select></div>
+            <button class="btn-primary-solid" onclick="realActivateReminders()">🔔 Activate AI Reminders</button>
+          </div>
+        </div>
+
+        <!-- PENALTIES CALCULATOR -->
+        <div class="form-card">
+          <h3 style="font-size:1rem">⚠️ Penalty Calculator</h3>
+          <p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:0.75rem">Miss hone wali deadline ka penalty estimate karo</p>
+          <div class="form-group" style="margin-bottom:0.75rem"><label>Filing Type</label><select id="penType"><option>ITR Late Filing</option><option>GSTR-3B Late</option><option>TDS Late Payment</option><option>TDS Late Return</option></select></div>
+          <div class="form-group" style="margin-bottom:0.75rem"><label>Days Delayed</label><input type="number" id="penDays" placeholder="e.g. 10" value="30"/></div>
+          <div class="form-group" style="margin-bottom:0.75rem"><label>Tax Amount (₹)</label><input type="number" id="penTax" placeholder="e.g. 50000" value="50000"/></div>
+          <button class="btn-primary-solid" style="width:100%" onclick="calcPenalty()">Calculate Penalty</button>
+          <div id="penResult" style="margin-top:0.75rem;display:none;padding:0.75rem;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius-sm);font-size:0.82rem"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="../js/taxmitra.js"></script>
+  <script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script>
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-'+id).classList.add('active');
+    }
+
+    const allDates = [
+      { day:'31', month:'Jul', title:'ITR Filing – Non-Audit Cases', sub:'Income Tax Return filing deadline (AY 2026-27)', cat:'it', urgency:'urgent', action:'File ITR' },
+      { day:'31', month:'Jul', title:'Form 24Q / 26Q (Q1 TDS Return)', sub:'TDS Return for April–June quarter', cat:'tds', urgency:'urgent', action:'File TDS Return' },
+      { day:'7', month:'Aug', title:'TDS / TCS Payment – July 2026', sub:'Monthly TDS payment due (Challan 281)', cat:'tds', urgency:'warning', action:'Pay TDS' },
+      { day:'11', month:'Aug', title:'GSTR-1 – July 2026', sub:'Outward supplies statement for July', cat:'gst', urgency:'warning', action:'File GSTR-1' },
+      { day:'20', month:'Aug', title:'GSTR-3B – July 2026', sub:'Monthly summary return + tax payment', cat:'gst', urgency:'warning', action:'File GSTR-3B' },
+      { day:'15', month:'Sep', title:'Advance Tax – Q2 Installment (45%)', sub:'Second installment of advance tax', cat:'it', urgency:'safe', action:'Pay Tax' },
+      { day:'30', month:'Sep', title:'GSTR-9 / GSTR-9C (FY 2023-24)', sub:'Annual GST return filing', cat:'gst', urgency:'safe', action:'File Annual' },
+      { day:'31', month:'Oct', title:'ITR – Audit Cases', sub:'Companies + tax audit required cases', cat:'it', urgency:'safe', action:'File ITR' },
+      { day:'31', month:'Oct', title:'Form 24Q / 26Q (Q2 TDS)', sub:'TDS Return for July–September', cat:'tds', urgency:'safe', action:'File Return' },
+      { day:'15', month:'Dec', title:'Advance Tax – Q3 Installment (75%)', sub:'Third installment of advance tax', cat:'it', urgency:'safe', action:'Pay Tax' },
+      { day:'31', month:'Dec', title:'GSTR-9 Annual Return', sub:'FY 2025-26 annual GST return', cat:'gst', urgency:'safe', action:'File Annual' },
+      { day:'30', month:'Sep', title:'ROC Annual Filing (AOC-4 / MGT-7)', sub:'Company annual return with Registrar of Companies', cat:'roc', urgency:'safe', action:'File ROC' },
+      { day:'31', month:'Mar', title:'MSME Payment Settlement', sub:'Pay MSME suppliers within 45 days to avoid disallowance', cat:'roc', urgency:'safe', action:'Make Payment' },
+    ];
+
+    const urgencyColors = { urgent: 'var(--danger)', warning: 'var(--warning)', safe: 'var(--success)' };
+    const urgencyLabels = { urgent: '🔴 Urgent', warning: '🟡 Soon', safe: '🟢 Upcoming' };
+    const urgencyBg = { urgent: 'rgba(239,68,68,0.1)', warning: 'rgba(245,158,11,0.1)', safe: 'rgba(16,185,129,0.1)' };
+
+    function renderList(containerId, filter) {
+      const items = filter === 'all' ? allDates : allDates.filter(d => d.cat === filter);
+      document.getElementById(containerId).innerHTML = items.map(d => `
+        <div class="compliance-item ${d.urgency}">
+          <div class="ci-date">
+            <div class="day" style="color:${urgencyColors[d.urgency]}">${d.day}</div>
+            <div class="month">${d.month}</div>
+          </div>
+          <div class="ci-info">
+            <strong>${d.title}</strong>
+            <span>${d.sub}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem">
+            <span class="ci-badge" style="background:${urgencyBg[d.urgency]};color:${urgencyColors[d.urgency]}">${urgencyLabels[d.urgency]}</span>
+            <button style="font-size:0.72rem;padding:0.25rem 0.65rem;background:var(--primary);color:#fff;border-radius:var(--radius-sm);cursor:pointer;border:none" onclick="realComplianceAction('${d.action}')">${d.action} →</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    renderList('complianceList', 'all');
+    renderList('gstList', 'gst');
+    renderList('itList', 'it');
+    renderList('tdsList', 'tds');
+    renderList('rocList', 'roc');
+
+    function calcPenalty() {
+      const type = document.getElementById('penType').value;
+      const days = parseInt(document.getElementById('penDays').value) || 0;
+      const tax = parseFloat(document.getElementById('penTax').value) || 0;
+      let penalty = 0, desc = '';
+
+      if (type === 'ITR Late Filing') {
+        if (tax > 0) penalty = Math.min(days * 200 + tax * 0.01, 10000);
+        else penalty = Math.min(days <= 31 ? 1000 : 5000, 10000);
+        desc = 'ITR late filing fee u/s 234F: ₹1,000–₹5,000 + 1% interest u/s 234A per month';
+      } else if (type === 'GSTR-3B Late') {
+        penalty = Math.min(50 * days, 5000);
+        const interest = Math.round(tax * 0.18 * days / 365);
+        penalty += interest;
+        desc = `Late fee: ₹50/day (max ₹5,000) + 18% p.a. interest = ₹${interest.toLocaleString('en-IN')}`;
+      } else if (type === 'TDS Late Payment') {
+        penalty = Math.round(tax * 0.015 * Math.ceil(days / 30));
+        desc = '1.5% per month interest u/s 201(1A) for late TDS payment';
+      } else {
+        penalty = Math.round(Math.min(200 * days, 100000));
+        desc = 'TDS return late fee: ₹200/day (max ₹1 lakh) u/s 234E';
+      }
+
+      const res = document.getElementById('penResult');
+      res.style.display = 'block';
+      res.innerHTML = `<strong style="color:var(--danger)">Estimated Penalty: ₹${Math.round(penalty).toLocaleString('en-IN')}</strong><br><small>${desc}</small>`;
+    }
+  
+    async function realExportCompliancePDF() {
+      if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const today = new Date().toLocaleDateString('en-IN');
+      doc.setFillColor(30,64,175); doc.rect(0,0,210,28,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+      doc.text('GST & Tax Compliance Calendar', 105, 12, {align:'center'});
+      doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text('AY 2026-27 | TaxMitra AI Enterprise | Abhishek Agrahari | '+today, 105, 22, {align:'center'});
+      doc.setTextColor(30,30,30);
+      const rows = [
+        ['31 July 2026','Income Tax','ITR Filing – Non-Audit Cases','Urgent'],
+        ['7 Aug 2026','TDS','TDS/TCS Payment – July 2026','Warning'],
+        ['11 Aug 2026','GST','GSTR-1 – July 2026','Warning'],
+        ['20 Aug 2026','GST','GSTR-3B – July 2026','Warning'],
+        ['15 Sep 2026','Income Tax','Advance Tax Q2 (45%)','Normal'],
+        ['31 Oct 2026','Income Tax','ITR – Audit Cases','Normal'],
+        ['31 Dec 2026','GST','GSTR-9 Annual Return FY 2025-26','Normal'],
+        ['31 Mar 2027','Income Tax','Updated Return ITR-U (last chance)','Normal'],
+      ];
+      doc.autoTable({
+        startY:36,
+        head:[['Due Date','Category','Compliance','Priority']],
+        body:rows,
+        headStyles:{fillColor:[30,64,175],textColor:255,fontSize:8,fontStyle:'bold'},
+        styles:{fontSize:8},
+        didParseCell:(data)=>{
+          if(data.row.index===0&&data.column.index===3){data.cell.styles.textColor=[220,38,38];data.cell.styles.fontStyle='bold';}
+        }
+      });
+      const y = doc.lastAutoTable.finalY + 10;
+      doc.setFontSize(8); doc.setTextColor(100);
+      doc.text('Late Filing: ITR penalty u/s 234F | GST late fee u/s 47 | Always verify from official portals.', 105, y, {align:'center'});
+      doc.save('TaxMitra_Compliance_Calendar_2026.pdf');
+      if (typeof showToast === 'function') showToast('Compliance calendar PDF downloaded!','success');
+    }
+    function realActivateReminders() {
+      // Create ICS calendar with all compliance dates
+      const today = new Date();
+      const yr = today.getFullYear();
+      const events = [
+        {dt:yr+'0731', title:'ITR Filing Deadline (Non-Audit) AY 2026-27', desc:'File Income Tax Return by 31 July'},
+        {dt:yr+'0807', title:'TDS Payment – July 2026', desc:'Monthly TDS challan 281 payment due'},
+        {dt:yr+'0811', title:'GSTR-1 – July 2026', desc:'Outward supplies return filing due'},
+        {dt:yr+'0820', title:'GSTR-3B – July 2026', desc:'Monthly summary return + tax payment'},
+        {dt:yr+'0915', title:'Advance Tax Q2 (45%)', desc:'Second installment of advance tax'},
+        {dt:yr+'1031', title:'ITR – Audit Cases Deadline', desc:'Tax audit ITR filing deadline'},
+        {dt:yr+'1231', title:'GSTR-9 Annual Return', desc:'FY 2025-26 annual GST return due'},
+      ];
+      const makeEvent = (e) => [
+        'BEGIN:VEVENT',
+        'DTSTART;VALUE=DATE:'+e.dt,
+        'DTEND;VALUE=DATE:'+e.dt,
+        'SUMMARY:'+e.title,
+        'DESCRIPTION:'+e.desc+' | TaxMitra AI Enterprise',
+        'BEGIN:VALARM\nTRIGGER:-P3D\nACTION:DISPLAY\nDESCRIPTION:Reminder: '+e.title+'\nEND:VALARM',
+        'END:VEVENT'
+      ].join('\n');
+      const ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//TaxMitra AI//EN','CALSCALE:GREGORIAN',
+        ...events.map(makeEvent), 'END:VCALENDAR'].join('\n');
+      const blob = new Blob([ics], {type:'text/calendar'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'TaxMitra_Compliance_Calendar_'+yr+'.ics'; a.click();
+      URL.revokeObjectURL(url);
+      if (typeof showToast === 'function') showToast('📅 Compliance calendar downloaded! Open to add to Google/Outlook.','success');
+    }
+
+    function realComplianceAction(action) {
+      const actions = {
+        'File ITR': 'itr-form.html?form=1',
+        'File GSTR-1': 'gst.html',
+        'File GSTR-3B': 'gst.html',
+        'File GSTR-9': 'gst.html',
+        'Pay TDS': 'https://onlineservices.tin.egov-nsdl.com/etaxnew/tdsnontds.jsp',
+        'Pay Tax': 'https://www.incometax.gov.in/iec/foportal/',
+        'File Annual': 'gst.html',
+      };
+      const url = actions[action];
+      if (url) {
+        if (url.startsWith('http')) { window.open(url, '_blank'); }
+        else { window.location.href = url; }
+      } else {
+        if (typeof showToast === 'function') showToast('Opening: '+action,'success');
+      }
+    }
+  </script>
+
+<p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong></p>
+</body>
+</html>

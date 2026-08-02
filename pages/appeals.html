@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="Appeals & Rectification Guide — ITR Rectification u/s 154, CIT Appeals, ITAT, High Court. Penalty waiver. TaxMitra AI Enterprise."/>
+<title>Appeals & Rectification – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.appeals-layout{display:grid;grid-template-columns:260px 1fr;gap:1.25rem;padding:1.25rem 0 3rem;align-items:start}
+@media(max-width:900px){.appeals-layout{grid-template-columns:1fr}}
+.module-nav{list-style:none;padding:0;margin:0}
+.module-nav li a{display:flex;align-items:center;gap:.5rem;padding:.6rem .8rem;border-radius:var(--radius-sm);font-size:.83rem;font-weight:500;color:var(--text-secondary);text-decoration:none;transition:var(--transition)}
+.module-nav li a:hover,.module-nav li a.active{background:rgba(30,64,175,.08);color:var(--primary);font-weight:600}
+.module-nav li a .icon{width:20px;text-align:center;font-size:1rem}
+.appeal-timeline{position:relative;padding-left:2rem}
+.appeal-timeline::before{content:'';position:absolute;left:0.65rem;top:0;bottom:0;width:2px;background:var(--border)}
+.timeline-step{position:relative;margin-bottom:1.25rem}
+.timeline-step::before{content:'';position:absolute;left:-1.45rem;top:.35rem;width:14px;height:14px;border-radius:50%;background:var(--primary);border:2px solid var(--bg-card)}
+.timeline-step.done::before{background:var(--success)}
+.timeline-step.warning::before{background:#f59e0b}
+.timeline-step.danger::before{background:var(--danger)}
+.timeline-step .step-head{font-weight:700;font-size:.88rem;margin-bottom:.25rem}
+.timeline-step .step-body{font-size:.8rem;color:var(--text-secondary);line-height:1.6}
+.timeline-step .step-meta{font-size:.72rem;color:var(--text-muted);margin-top:.2rem;display:flex;gap:.75rem}
+.badge-time{display:inline-flex;align-items:center;gap:.25rem;background:rgba(245,158,11,.1);color:#d97706;border-radius:99px;padding:.15rem .55rem;font-size:.68rem;font-weight:700}
+.badge-section{display:inline-flex;align-items:center;background:rgba(30,64,175,.1);color:var(--primary);border-radius:99px;padding:.15rem .55rem;font-size:.68rem;font-weight:700}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.65rem}
+.fg label{font-size:.72rem;font-weight:600;color:var(--text-secondary)}
+.fg input,.fg select,.fg textarea{padding:.42rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.82rem;font-family:inherit;transition:var(--transition)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--primary)}
+.notice-card{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius-sm);padding:.85rem;margin-bottom:.65rem;font-size:.82rem}
+.notice-card h4{font-size:.85rem;font-weight:700;color:#dc2626;margin:0 0 .25rem}
+.checklist-item{display:flex;align-items:flex-start;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.8rem}
+.checklist-item:last-child{border-bottom:none}
+.checklist-item input[type=checkbox]{margin-top:2px;accent-color:var(--primary)}
+.remedy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;margin-bottom:1rem}
+@media(max-width:600px){.remedy-grid{grid-template-columns:1fr}}
+.remedy-card{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:1rem;cursor:pointer;transition:var(--transition)}
+.remedy-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.remedy-card .icon{font-size:1.5rem;margin-bottom:.4rem}
+.remedy-card h4{font-size:.85rem;font-weight:700;margin:0 0 .2rem}
+.remedy-card p{font-size:.72rem;color:var(--text-muted);margin:0}
+.section-pill{display:inline-flex;background:var(--primary);color:#fff;border-radius:99px;padding:.15rem .6rem;font-size:.68rem;font-weight:700;margin-right:.25rem}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="notices.html" class="nav-link">📬 Notices</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> › 
+      <span style="color:var(--primary)">Appeals & Rectification</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">⚖️ Appeals & Rectification Guide</h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">Sec 154 Rectification · CIT Appeals · ITAT · Penalty Waiver · Assessment Orders | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <div class="appeals-layout">
+    <!-- Sidebar -->
+    <div>
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-compass"></i> Navigate</div>
+        <div class="card-body" style="padding:.5rem">
+          <ul class="module-nav">
+            <li><a href="#rectification" class="active"><span class="icon">✏️</span> Sec 154 Rectification</a></li>
+            <li><a href="#cit-appeal"><span class="icon">🏛️</span> CIT Appeal (Sec 246A)</a></li>
+            <li><a href="#itat"><span class="icon">⚖️</span> ITAT Appeal</a></li>
+            <li><a href="#penalty-waiver"><span class="icon">🛡️</span> Penalty Waiver</a></li>
+            <li><a href="#stay"><span class="icon">⏸️</span> Stay of Demand</a></li>
+            <li><a href="#faceless"><span class="icon">💻</span> Faceless Appeals</a></li>
+            <li><a href="#revisions"><span class="icon">🔄</span> Revision u/s 263/264</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="fa fa-exclamation-triangle"></i> Quick Check</div>
+        <div class="card-body">
+          <div class="fg">
+            <label>Notice Type</label>
+            <select id="quickNoticeType" onchange="quickGuide()">
+              <option value="">Select Notice</option>
+              <option value="intimation_143">Intimation u/s 143(1)</option>
+              <option value="scrutiny_143_2">Scrutiny u/s 143(2)</option>
+              <option value="assessment_143_3">Assessment u/s 143(3)</option>
+              <option value="reassessment_148">Reassessment u/s 148</option>
+              <option value="penalty_271">Penalty u/s 271/271A</option>
+              <option value="demand_220">Demand u/s 220</option>
+            </select>
+          </div>
+          <div id="quickGuideResult" style="font-size:.78rem;color:var(--text-secondary);display:none;padding:.65rem;background:rgba(30,64,175,.06);border-radius:var(--radius-sm);margin-top:.25rem"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div>
+      <!-- Appeal Remedies Overview -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-route"></i> Choose Your Remedy</div>
+        <div class="card-body">
+          <div class="remedy-grid">
+            <div class="remedy-card" onclick="scrollTo('rectification')">
+              <div class="icon">✏️</div>
+              <h4>Rectification <span class="section-pill">Sec 154</span></h4>
+              <p>Mistake apparent from record — file online on IT Portal</p>
+              <div style="margin-top:.4rem"><span class="badge-time">⏱ 30 days</span></div>
+            </div>
+            <div class="remedy-card" onclick="scrollTo('cit-appeal')">
+              <div class="icon">🏛️</div>
+              <h4>CIT(A) Appeal <span class="section-pill">Sec 246A</span></h4>
+              <p>Against assessment order — file Form 35 within 30 days</p>
+              <div style="margin-top:.4rem"><span class="badge-time">⏱ 30 days from order</span></div>
+            </div>
+            <div class="remedy-card" onclick="scrollTo('itat')">
+              <div class="icon">⚖️</div>
+              <h4>ITAT Appeal <span class="section-pill">Sec 253</span></h4>
+              <p>Against CIT(A) order — file Form 36 within 60 days</p>
+              <div style="margin-top:.4rem"><span class="badge-time">⏱ 60 days</span></div>
+            </div>
+            <div class="remedy-card" onclick="scrollTo('penalty-waiver')">
+              <div class="icon">🛡️</div>
+              <h4>Penalty Waiver <span class="section-pill">Sec 273A/B</span></h4>
+              <p>Apply for penalty reduction/waiver to CIT</p>
+              <div style="margin-top:.4rem"><span class="badge-time">⏱ Any time</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 154 Rectification -->
+      <div class="card" id="rectification" style="margin-bottom:1rem">
+        <div class="card-header">
+          <i class="fa fa-edit"></i> Section 154 — Rectification of Mistake
+          <span class="badge-section" style="margin-left:.5rem">Sec 154</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <div>
+              <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.65rem">When to File?</h4>
+              <div class="appeal-timeline">
+                <div class="timeline-step done">
+                  <div class="step-head">Arithmetic Mistake in Order</div>
+                  <div class="step-body">Calculation error by AO in assessment order</div>
+                  <div class="step-meta"><span class="badge-time">✓ Eligible</span></div>
+                </div>
+                <div class="timeline-step done">
+                  <div class="step-head">Wrong Tax Rate Applied</div>
+                  <div class="step-body">Wrong slab, wrong surcharge, wrong cess</div>
+                  <div class="step-meta"><span class="badge-time">✓ Eligible</span></div>
+                </div>
+                <div class="timeline-step done">
+                  <div class="step-head">Deduction Not Given</div>
+                  <div class="step-body">80C/80D claimed in ITR but not allowed</div>
+                  <div class="step-meta"><span class="badge-time">✓ Common case</span></div>
+                </div>
+                <div class="timeline-step warning">
+                  <div class="step-head">Time Limit: 4 Years</div>
+                  <div class="step-body">From end of FY in which order was passed</div>
+                  <div class="step-meta"><span class="badge-time">⏱ 4 years</span></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.65rem">Steps to File</h4>
+              <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.8rem">
+                <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm);display:flex;gap:.5rem">
+                  <span style="color:var(--primary);font-weight:700;min-width:18px">1.</span>
+                  Login to <a href="https://www.incometax.gov.in" target="_blank" style="color:var(--primary)">incometax.gov.in</a>
+                </div>
+                <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm);display:flex;gap:.5rem">
+                  <span style="color:var(--primary);font-weight:700;min-width:18px">2.</span>
+                  e-File → Rectification → Income Tax Return
+                </div>
+                <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm);display:flex;gap:.5rem">
+                  <span style="color:var(--primary);font-weight:700;min-width:18px">3.</span>
+                  Select AY → Choose Rectification Type
+                </div>
+                <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm);display:flex;gap:.5rem">
+                  <span style="color:var(--primary);font-weight:700;min-width:18px">4.</span>
+                  Types: Reprocess / Schedules / Donation/Capital Gains
+                </div>
+                <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm);display:flex;gap:.5rem">
+                  <span style="color:var(--primary);font-weight:700;min-width:18px">5.</span>
+                  Submit with explanation → AO must respond in 6 months
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:var(--radius-sm);padding:.75rem;font-size:.78rem">
+            <strong>⚠️ Remember:</strong> Sec 154 is ONLY for "mistake apparent from record" — not for debatable points or new claims. For those, file appeal u/s 246A.
+          </div>
+        </div>
+      </div>
+
+      <!-- CIT Appeal -->
+      <div class="card" id="cit-appeal" style="margin-bottom:1rem">
+        <div class="card-header">
+          <i class="fa fa-building"></i> CIT(A) Appeal — Section 246A
+          <span class="badge-section" style="margin-left:.5rem">Form 35</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+            <div>
+              <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">Appealable Orders</h4>
+              <ul style="list-style:none;padding:0;font-size:.8rem;display:flex;flex-direction:column;gap:.3rem">
+                <li>✅ Assessment order u/s 143(3)</li>
+                <li>✅ Reassessment order u/s 147</li>
+                <li>✅ Penalty order u/s 271/272</li>
+                <li>✅ Intimation u/s 143(1) — limited grounds</li>
+                <li>✅ Order refusing registration u/s 12AA</li>
+                <li>❌ Preliminary inquiry notices NOT appealable</li>
+              </ul>
+            </div>
+            <div>
+              <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">Filing Details</h4>
+              <div style="font-size:.8rem;display:flex;flex-direction:column;gap:.3rem">
+                <div><strong>Form:</strong> Form 35 (online only)</div>
+                <div><strong>Time Limit:</strong> 30 days from receipt of order</div>
+                <div><strong>Fees:</strong> Assessed income < ₹1L → ₹250 | ₹1L-₹2L → ₹500 | >₹2L → ₹1,000</div>
+                <div><strong>Portal:</strong> e-File → Income Tax Forms → Form 35</div>
+                <div><strong>20% of demand:</strong> May need to deposit 20% of disputed tax</div>
+              </div>
+            </div>
+          </div>
+          
+          <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">Document Checklist for CIT(A)</h4>
+          <div style="columns:2;gap:1rem;font-size:.78rem">
+            <div class="checklist-item"><input type="checkbox"> Copy of Assessment Order</div>
+            <div class="checklist-item"><input type="checkbox"> Copy of ITR filed</div>
+            <div class="checklist-item"><input type="checkbox"> Form 16/16A</div>
+            <div class="checklist-item"><input type="checkbox"> Notice under which assessment made</div>
+            <div class="checklist-item"><input type="checkbox"> Grounds of appeal (written)</div>
+            <div class="checklist-item"><input type="checkbox"> Evidence supporting your claim</div>
+            <div class="checklist-item"><input type="checkbox"> Bank statements</div>
+            <div class="checklist-item"><input type="checkbox"> Tax computation working</div>
+          </div>
+
+          <div style="margin-top:.85rem;background:rgba(30,64,175,.06);border-radius:var(--radius-sm);padding:.75rem;font-size:.78rem;color:var(--text-secondary)">
+            <strong>💡 Faceless Appeals:</strong> All CIT(A) proceedings are now faceless under Faceless Appeal Scheme 2021 — no personal hearing by default. Upload all documents online.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITAT -->
+      <div class="card" id="itat" style="margin-bottom:1rem">
+        <div class="card-header">
+          <i class="fa fa-gavel"></i> ITAT — Income Tax Appellate Tribunal (Sec 253)
+          <span class="badge-section" style="margin-left:.5rem">Form 36</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <div>
+              <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">Who Can File?</h4>
+              <ul style="list-style:none;padding:0;font-size:.8rem;display:flex;flex-direction:column;gap:.3rem">
+                <li>✅ Assessee (taxpayer) against CIT(A) order</li>
+                <li>✅ Department against CIT(A) order</li>
+                <li>⏱ Time limit: <strong>60 days</strong> from CIT(A) order</li>
+                <li>📋 Form 36 (assessee) / Form 36A (Dept)</li>
+              </ul>
+            </div>
+            <div>
+              <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">Filing Fees</h4>
+              <div style="font-size:.8rem;display:flex;flex-direction:column;gap:.3rem">
+                <div>• Assessed income ≤ ₹1L: <strong>₹500</strong></div>
+                <div>• ₹1L to ₹2L: <strong>₹1,500</strong></div>
+                <div>• ₹2L to ₹5L: <strong>₹5,000</strong></div>
+                <div>• Above ₹5L: <strong>₹10,000</strong></div>
+                <div>• Penalty/interest only: <strong>₹500</strong></div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:.75rem;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.15);border-radius:var(--radius-sm);padding:.75rem;font-size:.78rem">
+            <strong>📌 Important:</strong> ITAT is the last fact-finding body. High Court / Supreme Court only on questions of law. Consider hiring a CA/Advocate for ITAT proceedings.
+          </div>
+        </div>
+      </div>
+
+      <!-- Penalty Waiver -->
+      <div class="card" id="penalty-waiver" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-shield-alt"></i> Penalty Waiver — Section 273A/273B</div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <div>
+              <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">Sec 273A — Waiver of Penalty</h4>
+              <ul style="list-style:none;padding:0;font-size:.8rem;display:flex;flex-direction:column;gap:.3rem">
+                <li>✅ Penalty under 270A, 271 etc.</li>
+                <li>✅ Voluntary disclosure before detection</li>
+                <li>✅ Cooperation with AO proceedings</li>
+                <li>✅ No previous penalty conviction</li>
+                <li>📋 Apply to <strong>PCIT / CIT</strong></li>
+              </ul>
+            </div>
+            <div>
+              <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">Sec 273B — Reasonable Cause</h4>
+              <ul style="list-style:none;padding:0;font-size:.8rem;display:flex;flex-direction:column;gap:.3rem">
+                <li>✅ Delay due to illness/death in family</li>
+                <li>✅ Natural disaster / COVID impact</li>
+                <li>✅ Bank strike / technical issues</li>
+                <li>✅ Incorrect professional advice</li>
+                <li>📋 Attach supporting documents</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Penalty Calculator -->
+          <h4 style="font-size:.85rem;font-weight:700;margin:.85rem 0 .5rem">Penalty Calculator</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+            <div class="fg" style="margin-bottom:0">
+              <label>Penalty Type</label>
+              <select id="penaltyType" onchange="calcPenalty()">
+                <option value="271_1_c">271(1)(c) — Concealment</option>
+                <option value="270A">270A — Under-reporting</option>
+                <option value="234A">234A — Late Filing</option>
+                <option value="234B">234B — Advance Tax</option>
+                <option value="234C">234C — Deferred Tax</option>
+              </select>
+            </div>
+            <div class="fg" style="margin-bottom:0">
+              <label>Tax / Income Involved (₹)</label>
+              <input type="number" id="penaltyBase" placeholder="100000" oninput="calcPenalty()"/>
+            </div>
+            <div class="fg" style="margin-bottom:0">
+              <label>Months of Delay</label>
+              <input type="number" id="penaltyMonths" placeholder="3" oninput="calcPenalty()"/>
+            </div>
+          </div>
+          <div id="penaltyResult" style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius-sm);padding:.75rem;font-size:.82rem;display:none"></div>
+        </div>
+      </div>
+
+      <!-- Stay of Demand -->
+      <div class="card" id="stay" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-pause-circle"></i> Stay of Demand — Section 220(6)</div>
+        <div class="card-body">
+          <div style="font-size:.82rem;color:var(--text-secondary);line-height:1.7">
+            <p>जब assessment demand आए और appeal file करें, तब demand stay ke liye application:</p>
+            <div style="display:flex;flex-direction:column;gap:.35rem;margin-top:.5rem">
+              <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)">
+                <strong>Step 1:</strong> Appeal file करें CIT(A) में u/s 246A
+              </div>
+              <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)">
+                <strong>Step 2:</strong> AO को Sec 220(6) under stay application दें — 20% deposit की request
+              </div>
+              <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)">
+                <strong>Step 3:</strong> Generally, 20% pay करने पर demand stay हो जाती है during CIT(A) pendency
+              </div>
+              <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)">
+                <strong>Step 4:</strong> ITAT में भी stay application — typically 15-20% deposit
+              </div>
+              <div style="background:rgba(16,185,129,.06);padding:.6rem .8rem;border-radius:var(--radius-sm);border:1px solid rgba(16,185,129,.2)">
+                <strong>✅ CBDT Circular 1914:</strong> No coercive recovery during stay period if cooperation given
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faceless Appeals -->
+      <div class="card" id="faceless">
+        <div class="card-header"><i class="fa fa-laptop"></i> Faceless Appeal Scheme 2021</div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:.82rem">
+            <div>
+              <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.4rem">Key Features</h4>
+              <ul style="padding-left:1.1rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:.3rem">
+                <li>All appeals now online — no physical appearance</li>
+                <li>Random allocation to CIT(A) officers</li>
+                <li>No territorial jurisdiction</li>
+                <li>All communication via email/portal</li>
+                <li>Video conferencing for personal hearings</li>
+              </ul>
+            </div>
+            <div>
+              <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.4rem">How to Submit Documents</h4>
+              <ul style="padding-left:1.1rem;color:var(--text-secondary);display:flex;flex-direction:column;gap:.3rem">
+                <li>Login IT Portal → e-Proceedings → Appeal</li>
+                <li>Submit via Response to Outstanding Demand</li>
+                <li>Upload as PDF/JPEG — max 50MB per file</li>
+                <li>Submit within response time given</li>
+                <li>Track status in portal dashboard</li>
+              </ul>
+            </div>
+          </div>
+          <div style="margin-top:.85rem;background:rgba(30,64,175,.06);border-radius:var(--radius-sm);padding:.75rem;font-size:.78rem;color:var(--text-secondary)">
+            <strong>🔗 IT Portal:</strong> <a href="https://www.incometax.gov.in" target="_blank" style="color:var(--primary)">incometax.gov.in</a> → Login → e-File → Income Tax Forms → Form 35<br>
+            <strong>📞 Helpline:</strong> 1800-103-0025 (IT Portal) | 1800-419-0025
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+function scrollTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function quickGuide() {
+  var type = document.getElementById('quickNoticeType').value;
+  var result = document.getElementById('quickGuideResult');
+  if (!type) { result.style.display = 'none'; return; }
+  
+  var guides = {
+    intimation_143: '✅ <strong>Intimation 143(1):</strong> Aapke ITR aur IT Dept ka calculation match nahi hua. Demand: file rectification u/s 154 within 30 days. No demand: no action needed.',
+    scrutiny_143_2: '⚠️ <strong>Scrutiny Notice 143(2):</strong> Case selected for detailed scrutiny. Respond within time given. Submit all documents as asked. Consider hiring CA.',
+    assessment_143_3: '🏛️ <strong>Assessment Order 143(3):</strong> AO ne final order pass kiya. Appeal file karein CIT(A) mein within 30 days — Form 35 online.',
+    reassessment_148: '🔄 <strong>Reassessment 148:</strong> Old case reopen. File objection within 30 days first. If upheld, then appeal options open.',
+    penalty_271: '🛡️ <strong>Penalty 271:</strong> Penalty laga hai. Respond with "reasonable cause" within time. If upheld, appeal CIT(A). Also apply u/s 273A for waiver.',
+    demand_220: '💳 <strong>Demand 220:</strong> Tax demand. File appeal + apply for stay. Pay 20% to avoid coercive recovery. Respond within 30 days.'
+  };
+  
+  result.innerHTML = guides[type] || '';
+  result.style.display = 'block';
+}
+
+function calcPenalty() {
+  var type = document.getElementById('penaltyType').value;
+  var base = parseFloat(document.getElementById('penaltyBase').value) || 0;
+  var months = parseInt(document.getElementById('penaltyMonths').value) || 0;
+  var result = document.getElementById('penaltyResult');
+  
+  if (base <= 0) { result.style.display = 'none'; return; }
+  
+  var penalty = 0, details = '';
+  
+  if (type === '271_1_c') {
+    // 100% to 300% of tax evaded
+    penalty = base * 2; // 200% typical
+    details = '271(1)(c) Concealment Penalty: 100%-300% of tax evaded<br>Typical: <strong>200% = ₹' + fmtN(penalty) + '</strong><br>Range: ₹' + fmtN(base) + ' to ₹' + fmtN(base*3);
+  } else if (type === '270A') {
+    // Under-reporting: 50% | Misreporting: 200%
+    var ur = base * 0.5;
+    var mr = base * 2;
+    details = '270A Under-reporting: <strong>50% = ₹' + fmtN(ur) + '</strong><br>Misreporting: <strong>200% = ₹' + fmtN(mr) + '</strong>';
+    penalty = ur;
+  } else if (type === '234A') {
+    // 1% per month on tax due
+    penalty = Math.round(base * 0.01 * months);
+    details = '234A Late Filing Interest: 1% per month<br>₹' + fmtN(base) + ' × 1% × ' + months + ' months = <strong>₹' + fmtN(penalty) + '</strong>';
+  } else if (type === '234B') {
+    penalty = Math.round(base * 0.01 * months);
+    details = '234B Advance Tax Default: 1% per month<br>₹' + fmtN(base) + ' × 1% × ' + months + ' months = <strong>₹' + fmtN(penalty) + '</strong>';
+  } else if (type === '234C') {
+    // Deferment of advance tax
+    penalty = Math.round(base * 0.01 * 3); // 3 months simple
+    details = '234C Deferred Advance Tax: 1% per installment period<br>Estimated: <strong>₹' + fmtN(penalty) + '</strong>';
+  }
+  
+  result.innerHTML = details;
+  result.style.display = 'block';
+}
+
+function fmtN(n) {
+  return Math.round(n).toLocaleString('en-IN');
+}
+</script>
+</body>
+</html>

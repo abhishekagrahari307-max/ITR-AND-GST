@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="AI Tax Risk Score — Scrutiny Risk Assessment, AIS mismatch detection, High-value transaction flags, Notice probability. TaxMitra AI Enterprise."/>
+<title>AI Risk Score – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.risk-layout{display:grid;grid-template-columns:320px 1fr;gap:1.25rem;padding:1.25rem 0 3rem;align-items:start}
+@media(max-width:900px){.risk-layout{grid-template-columns:1fr}}
+.risk-meter{width:100%;aspect-ratio:2/1;position:relative;overflow:hidden;margin:1rem 0}
+.risk-gauge-bg{fill:none;stroke:var(--border);stroke-width:18;stroke-linecap:round}
+.risk-gauge-fill{fill:none;stroke-width:18;stroke-linecap:round;transition:stroke-dashoffset 1s ease,stroke 1s ease}
+.risk-score-display{position:absolute;bottom:0;left:50%;transform:translateX(-50%);text-align:center}
+.risk-score-num{font-size:2.8rem;font-weight:900;line-height:1}
+.risk-score-lbl{font-size:.78rem;color:var(--text-muted);margin-top:.15rem}
+.risk-category{font-size:1rem;font-weight:700;margin-top:.2rem}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.65rem}
+.fg label{font-size:.72rem;font-weight:600;color:var(--text-secondary)}
+.fg input,.fg select{padding:.42rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.82rem;font-family:inherit;transition:var(--transition)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary)}
+.risk-factor{display:flex;align-items:center;justify-content:space-between;padding:.55rem .75rem;border-radius:var(--radius-sm);margin-bottom:.4rem;font-size:.8rem;border-left:3px solid transparent}
+.risk-factor.high{background:rgba(239,68,68,.06);border-left-color:var(--danger)}
+.risk-factor.medium{background:rgba(245,158,11,.06);border-left-color:#f59e0b}
+.risk-factor.low{background:rgba(16,185,129,.06);border-left-color:var(--success)}
+.risk-factor .label{flex:1}
+.risk-factor .score{font-weight:700;font-size:.75rem;padding:.15rem .5rem;border-radius:99px}
+.score-high{background:rgba(239,68,68,.15);color:var(--danger)}
+.score-medium{background:rgba(245,158,11,.15);color:#d97706}
+.score-low{background:rgba(16,185,129,.15);color:var(--success)}
+.recommendation{background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.75rem;margin-bottom:.5rem;font-size:.8rem;display:flex;gap:.5rem}
+.recommendation .icon{font-size:1rem;flex-shrink:0;margin-top:.1rem}
+.heat-map{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin:.5rem 0}
+.heat-cell{padding:.5rem .3rem;border-radius:4px;text-align:center;font-size:.65rem;font-weight:700}
+.heat-cell.h0{background:rgba(16,185,129,.15);color:var(--success)}
+.heat-cell.h1{background:rgba(16,185,129,.25);color:var(--success)}
+.heat-cell.h2{background:rgba(245,158,11,.2);color:#d97706}
+.heat-cell.h3{background:rgba(239,68,68,.2);color:var(--danger)}
+.heat-cell.h4{background:rgba(239,68,68,.4);color:var(--danger)}
+.comparison-bar{background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.85rem;margin-bottom:.6rem}
+.comparison-bar .title{font-size:.75rem;font-weight:700;margin-bottom:.4rem}
+.bar-container{height:10px;background:var(--border);border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;transition:width 1s ease}
+.bar-red{background:linear-gradient(90deg,#ef4444,#dc2626)}
+.bar-orange{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.bar-green{background:linear-gradient(90deg,#10b981,#059669)}
+.bar-blue{background:linear-gradient(90deg,#3b82f6,#2563eb)}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="notices.html" class="nav-link">📬 Notices</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> › 
+      <span style="color:var(--primary)">AI Tax Risk Score</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">🎯 AI Tax Risk Score <span style="font-size:.9rem;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;padding:.18rem .6rem;border-radius:99px;font-weight:700;vertical-align:middle">AI</span></h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">Scrutiny risk analysis · AIS mismatch · High-value flags · Notice probability · Prevention tips | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <div class="risk-layout">
+    <!-- Input Panel -->
+    <div>
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-user"></i> Taxpayer Profile</div>
+        <div class="card-body">
+          <div class="fg">
+            <label>ITR Form Type</label>
+            <select id="itrType" onchange="calcRisk()">
+              <option value="1">ITR-1 (Salaried)</option>
+              <option value="2">ITR-2 (Capital Gains/Multiple house)</option>
+              <option value="3">ITR-3 (Business/Profession)</option>
+              <option value="4">ITR-4 (Presumptive)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Annual Income (₹)</label>
+            <input type="number" id="annualIncome" placeholder="1200000" oninput="calcRisk()"/>
+          </div>
+          <div class="fg">
+            <label>Business/Professional Income (₹)</label>
+            <input type="number" id="businessIncome" placeholder="0" value="0" oninput="calcRisk()"/>
+          </div>
+          <div class="fg">
+            <label>Total Deductions Claimed (₹)</label>
+            <input type="number" id="deductions" placeholder="150000" oninput="calcRisk()"/>
+          </div>
+          <div class="fg">
+            <label>High-Value Transactions in FY</label>
+            <select id="highValueTxn" onchange="calcRisk()">
+              <option value="0">None</option>
+              <option value="1">Cash deposit > ₹10L in savings</option>
+              <option value="2">Property purchase > ₹30L</option>
+              <option value="3">Credit card spend > ₹1L/month</option>
+              <option value="4">Multiple (2+) high-value txns</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>AIS/26AS Mismatch?</label>
+            <select id="aisMismatch" onchange="calcRisk()">
+              <option value="no">No mismatch</option>
+              <option value="minor">Minor (< ₹10,000)</option>
+              <option value="moderate">Moderate (₹10K - ₹1L)</option>
+              <option value="major">Major (> ₹1L)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Previous Scrutiny/Notice?</label>
+            <select id="prevNotice" onchange="calcRisk()">
+              <option value="no">No notice in past 3 years</option>
+              <option value="intimation">Only 143(1) intimation</option>
+              <option value="scrutiny">Scrutiny u/s 143(2)</option>
+              <option value="penalty">Penalty levied</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>ITR Filing Date</label>
+            <select id="filingDate" onchange="calcRisk()">
+              <option value="ontime">Before due date</option>
+              <option value="late">After due date (u/s 139(4))</option>
+              <option value="revised">Revised return</option>
+              <option value="belated">Belated + Revised</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Jurisdiction Type</label>
+            <select id="jurisdiction" onchange="calcRisk()">
+              <option value="metro">Metro (Delhi/Mumbai/Bangalore)</option>
+              <option value="tier1">Tier-1 City</option>
+              <option value="tier2">Tier-2/3 City</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:.25rem" onclick="calcRisk()">
+            <i class="fa fa-robot"></i> Calculate Risk Score
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div>
+      <!-- Risk Gauge -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-tachometer-alt"></i> Tax Scrutiny Risk Meter</div>
+        <div class="card-body" style="text-align:center">
+          <div class="risk-meter" id="riskMeter">
+            <svg width="100%" viewBox="0 0 300 150" style="overflow:visible">
+              <!-- Background arc -->
+              <path d="M 20 140 A 130 130 0 0 1 280 140" fill="none" stroke="var(--border)" stroke-width="22" stroke-linecap="round"/>
+              <!-- Green zone -->
+              <path d="M 20 140 A 130 130 0 0 1 110 30" fill="none" stroke="rgba(16,185,129,.3)" stroke-width="22" stroke-linecap="round"/>
+              <!-- Yellow zone -->
+              <path d="M 110 30 A 130 130 0 0 1 200 30" fill="none" stroke="rgba(245,158,11,.3)" stroke-width="22" stroke-linecap="round"/>
+              <!-- Red zone -->
+              <path d="M 200 30 A 130 130 0 0 1 280 140" fill="none" stroke="rgba(239,68,68,.3)" stroke-width="22" stroke-linecap="round"/>
+              <!-- Needle -->
+              <line id="riskNeedle" x1="150" y1="140" x2="150" y2="30" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" transform-origin="150 140" transform="rotate(-90, 150, 140)"/>
+              <circle cx="150" cy="140" r="8" fill="var(--primary)"/>
+            </svg>
+            <div class="risk-score-display">
+              <div class="risk-score-num" id="riskScoreNum" style="color:var(--primary)">--</div>
+              <div class="risk-score-lbl">Risk Score (0-100)</div>
+              <div class="risk-category" id="riskCategory">Enter Details</div>
+            </div>
+          </div>
+
+          <!-- Risk Bands -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin:.5rem 0;font-size:.7rem">
+            <div style="background:rgba(16,185,129,.1);border-radius:4px;padding:.35rem;color:var(--success);font-weight:700">0-25<br>LOW</div>
+            <div style="background:rgba(245,158,11,.1);border-radius:4px;padding:.35rem;color:#d97706;font-weight:700">26-50<br>MEDIUM</div>
+            <div style="background:rgba(239,68,68,.1);border-radius:4px;padding:.35rem;color:var(--danger);font-weight:700">51-75<br>HIGH</div>
+            <div style="background:rgba(239,68,68,.2);border-radius:4px;padding:.35rem;color:var(--danger);font-weight:700">76-100<br>CRITICAL</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Risk Factors Breakdown -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-list-alt"></i> Risk Factor Analysis</div>
+        <div class="card-body" id="riskFactors">
+          <div style="color:var(--text-muted);font-size:.82rem;text-align:center;padding:1rem">Details enter karein risk analysis ke liye</div>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-lightbulb"></i> AI Recommendations</div>
+        <div class="card-body" id="riskRecs">
+          <div style="color:var(--text-muted);font-size:.82rem;text-align:center;padding:1rem">Risk calculate karne ke baad recommendations dikhengi</div>
+        </div>
+      </div>
+
+      <!-- Historical Context -->
+      <div class="card">
+        <div class="card-header"><i class="fa fa-chart-bar"></i> Scrutiny Rate by Income Bracket (AY 2024-25)</div>
+        <div class="card-body">
+          <div class="comparison-bar">
+            <div class="title">Income ≤ ₹5L — Scrutiny Rate: ~0.1%</div>
+            <div class="bar-container"><div class="bar-fill bar-green" style="width:5%"></div></div>
+          </div>
+          <div class="comparison-bar">
+            <div class="title">₹5L - ₹10L — Scrutiny Rate: ~0.25%</div>
+            <div class="bar-container"><div class="bar-fill bar-green" style="width:12%"></div></div>
+          </div>
+          <div class="comparison-bar">
+            <div class="title">₹10L - ₹50L — Scrutiny Rate: ~0.5%</div>
+            <div class="bar-container"><div class="bar-fill bar-orange" style="width:25%"></div></div>
+          </div>
+          <div class="comparison-bar">
+            <div class="title">₹50L - ₹1Cr — Scrutiny Rate: ~2%</div>
+            <div class="bar-container"><div class="bar-fill bar-orange" style="width:40%"></div></div>
+          </div>
+          <div class="comparison-bar">
+            <div class="title">₹1Cr - ₹5Cr — Scrutiny Rate: ~8%</div>
+            <div class="bar-container"><div class="bar-fill bar-red" style="width:65%"></div></div>
+          </div>
+          <div class="comparison-bar">
+            <div class="title">Above ₹5Cr — Scrutiny Rate: ~15%</div>
+            <div class="bar-container"><div class="bar-fill bar-red" style="width:90%"></div></div>
+          </div>
+          <div style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">* Approximate rates based on CBDT annual reports. Faceless scrutiny also targets high AIS mismatches.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+function calcRisk() {
+  var income = parseFloat(document.getElementById('annualIncome').value) || 0;
+  var bizIncome = parseFloat(document.getElementById('businessIncome').value) || 0;
+  var deductions = parseFloat(document.getElementById('deductions').value) || 0;
+  var itrType = document.getElementById('itrType').value;
+  var highValue = document.getElementById('highValueTxn').value;
+  var mismatch = document.getElementById('aisMismatch').value;
+  var prevNotice = document.getElementById('prevNotice').value;
+  var filing = document.getElementById('filingDate').value;
+  var jurisdiction = document.getElementById('jurisdiction').value;
+  
+  // Calculate risk score (0-100)
+  var score = 0;
+  var factors = [];
+  
+  // Income level risk
+  if (income > 50000000) { score += 25; factors.push({label:'Income > ₹5 Crore',level:'high',pts:25}); }
+  else if (income > 10000000) { score += 18; factors.push({label:'Income > ₹1 Crore',level:'high',pts:18}); }
+  else if (income > 5000000) { score += 12; factors.push({label:'Income > ₹50L',level:'medium',pts:12}); }
+  else if (income > 1000000) { score += 6; factors.push({label:'Income > ₹10L',level:'low',pts:6}); }
+  else { factors.push({label:'Income ≤ ₹10L — Low base risk',level:'low',pts:0}); }
+  
+  // Business income
+  if (bizIncome > 0) {
+    if (bizIncome > 5000000) { score += 15; factors.push({label:'Business income > ₹50L (detailed books needed)',level:'high',pts:15}); }
+    else if (bizIncome > 1000000) { score += 8; factors.push({label:'Business/profession income reported',level:'medium',pts:8}); }
+    else { score += 3; factors.push({label:'Small business income',level:'low',pts:3}); }
+  }
+  
+  // Deductions ratio
+  if (income > 0) {
+    var dedRatio = deductions / income;
+    if (dedRatio > 0.5) { score += 15; factors.push({label:'Deductions > 50% of income — unusual',level:'high',pts:15}); }
+    else if (dedRatio > 0.3) { score += 8; factors.push({label:'Deductions 30-50% of income',level:'medium',pts:8}); }
+    else if (deductions > 150000) { score += 4; factors.push({label:'Substantial deductions claimed',level:'low',pts:4}); }
+    else { factors.push({label:'Normal deduction ratio',level:'low',pts:0}); }
+  }
+  
+  // High-value transactions
+  if (highValue === '4') { score += 20; factors.push({label:'Multiple high-value transactions (SFT reported)',level:'high',pts:20}); }
+  else if (highValue !== '0') { score += 12; factors.push({label:'High-value transaction detected',level:'high',pts:12}); }
+  else { factors.push({label:'No high-value SFT transactions',level:'low',pts:0}); }
+  
+  // AIS mismatch
+  if (mismatch === 'major') { score += 20; factors.push({label:'Major AIS mismatch > ₹1L — high notice risk',level:'high',pts:20}); }
+  else if (mismatch === 'moderate') { score += 10; factors.push({label:'Moderate AIS mismatch',level:'medium',pts:10}); }
+  else if (mismatch === 'minor') { score += 3; factors.push({label:'Minor AIS mismatch',level:'low',pts:3}); }
+  else { factors.push({label:'No AIS/26AS mismatch',level:'low',pts:0}); }
+  
+  // Previous notice history
+  if (prevNotice === 'penalty') { score += 12; factors.push({label:'Previous penalty — red flag on PAN',level:'high',pts:12}); }
+  else if (prevNotice === 'scrutiny') { score += 8; factors.push({label:'Previous scrutiny — AO may revisit',level:'medium',pts:8}); }
+  else if (prevNotice === 'intimation') { score += 2; factors.push({label:'Only intimation received — normal',level:'low',pts:2}); }
+  else { factors.push({label:'Clean record — no notices',level:'low',pts:0}); }
+  
+  // Filing quality
+  if (filing === 'belated') { score += 8; factors.push({label:'Belated + revised return — higher scrutiny',level:'high',pts:8}); }
+  else if (filing === 'late') { score += 5; factors.push({label:'Late filing u/s 139(4)',level:'medium',pts:5}); }
+  else if (filing === 'revised') { score += 3; factors.push({label:'Revised return filed',level:'low',pts:3}); }
+  else { factors.push({label:'Filed before due date — good',level:'low',pts:0}); }
+  
+  // Jurisdiction
+  if (jurisdiction === 'metro') { score += 5; factors.push({label:'Metro jurisdiction — more scrutiny officers',level:'medium',pts:5}); }
+  
+  // ITR type complexity
+  if (itrType === '3') { score += 5; factors.push({label:'ITR-3 — more complex, higher scrutiny chance',level:'medium',pts:5}); }
+  
+  score = Math.min(100, score);
+  
+  // Update UI
+  updateGauge(score);
+  renderFactors(factors);
+  renderRecommendations(score, factors, income, mismatch, highValue);
+}
+
+function updateGauge(score) {
+  var scoreEl = document.getElementById('riskScoreNum');
+  var catEl = document.getElementById('riskCategory');
+  var needle = document.getElementById('riskNeedle');
+  
+  scoreEl.textContent = score;
+  
+  // Rotate needle: -90deg = score 0, +90deg = score 100
+  var rotation = (score / 100) * 180 - 90;
+  needle.setAttribute('transform', 'rotate(' + rotation + ', 150, 140)');
+  
+  if (score <= 25) {
+    scoreEl.style.color = 'var(--success)';
+    catEl.textContent = '✅ Low Risk';
+    catEl.style.color = 'var(--success)';
+  } else if (score <= 50) {
+    scoreEl.style.color = '#d97706';
+    catEl.textContent = '⚠️ Medium Risk';
+    catEl.style.color = '#d97706';
+  } else if (score <= 75) {
+    scoreEl.style.color = 'var(--danger)';
+    catEl.textContent = '🔴 High Risk';
+    catEl.style.color = 'var(--danger)';
+  } else {
+    scoreEl.style.color = 'var(--danger)';
+    catEl.textContent = '🚨 Critical Risk';
+    catEl.style.color = 'var(--danger)';
+  }
+}
+
+function renderFactors(factors) {
+  var container = document.getElementById('riskFactors');
+  container.innerHTML = factors.map(function(f) {
+    var cls = f.level === 'high' ? 'high' : f.level === 'medium' ? 'medium' : 'low';
+    var scoreCls = f.level === 'high' ? 'score-high' : f.level === 'medium' ? 'score-medium' : 'score-low';
+    return '<div class="risk-factor ' + cls + '">' +
+      '<span class="label">' + f.label + '</span>' +
+      '<span class="score ' + scoreCls + '">+' + f.pts + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function renderRecommendations(score, factors, income, mismatch, highValue) {
+  var recs = [];
+  
+  if (mismatch === 'major' || mismatch === 'moderate') {
+    recs.push({icon:'🔴', text:'AIS mismatch resolve karein — IT Portal par AIS dekh ke mismatch explain karein ya ITR correct karein'});
+  }
+  
+  if (highValue !== '0') {
+    recs.push({icon:'💳', text:'High-value transactions ke liye source of funds ka proof rakhein — bank statements, salary slips, gift deeds'});
+  }
+  
+  var dedPct = income > 0 ? (parseFloat(document.getElementById('deductions').value)||0)/income*100 : 0;
+  if (dedPct > 40) {
+    recs.push({icon:'📋', text:'High deductions ke liye sab investment proofs rakhein — LIC, PPF receipts, medical bills, rent receipts'});
+  }
+  
+  if (score > 50) {
+    recs.push({icon:'⚖️', text:'High risk hai — CA se tax audit review karwayein aur all documents 6 years tak preserve karein'});
+  }
+  
+  if (score <= 25) {
+    recs.push({icon:'✅', text:'Low risk — Aapka ITR compliant lag raha hai. AIS download kar ke verify karo annually'});
+  }
+  
+  recs.push({icon:'📅', text:'Hamesha due date se pehle ITR file karein (July 31) — late filing automatically risk badhata hai'});
+  recs.push({icon:'🔍', text:'26AS aur AIS match zaroor karein before filing — Form 26AS puri taxpayer credit statement hai'});
+  
+  if (income > 5000000) {
+    recs.push({icon:'📊', text:'Income > ₹50L — tax audit u/s 44AB likely if business income > ₹1Cr. CA audit compulsory'});
+  }
+  
+  document.getElementById('riskRecs').innerHTML = recs.map(function(r) {
+    return '<div class="recommendation"><span class="icon">' + r.icon + '</span><span>' + r.text + '</span></div>';
+  }).join('');
+}
+
+// Auto calculate on page load with defaults
+window.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('annualIncome').value = '1500000';
+  document.getElementById('deductions').value = '150000';
+  calcRisk();
+});
+</script>
+</body>
+</html>

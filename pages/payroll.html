@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="description" content="Payroll Management System India — Salary processing, TDS on salary, payslip PDF, Form 16 generation, EPF/ESI calculations."/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>Payroll Management System — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper"><ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+      </ul></div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero"><div class="container">
+  <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Payroll Management System</span></div>
+  <h1>👥 Payroll Management System</h1>
+  <p>AY 2026-27 | Budget 2025 | Developed by <strong>Abhishek Agrahari</strong></p>
+</div></div>
+<div class="container" style="padding:1.5rem 0 4rem">
+<div style="background:rgba(5,150,105,.06);border:1px solid rgba(5,150,105,.2);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem"><strong style="color:var(--success)">Complete Payroll — Salary, PF, ESI, PT, TDS</strong><p style="font-size:.82rem;margin:.25rem 0 0;color:var(--text-secondary)">Process monthly payroll, calculate statutory deductions, generate payslips.</p></div>
+<div class="tab-nav" style="margin-bottom:1.5rem"><button class="tab-btn active" onclick="showPTab('sal',this)">💰 Salary</button><button class="tab-btn" onclick="showPTab('stat',this)">📋 Statutory</button><button class="tab-btn" onclick="showPTab('emp',this)">👥 Employees</button></div>
+<div class="tab-panel active" id="p-sal"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem"><div class="form-card"><h3 style="font-weight:800;margin-bottom:1.25rem">Salary Processing</h3>
+<div class="form-group"><label>Employee Name</label><input id="prName" class="mg-input" placeholder="Full Name"/></div>
+<div class="form-group"><label>Month</label><select id="prMonth"><option>July 2026</option><option>June 2026</option></select></div>
+<div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.75rem;margin-bottom:.75rem"><strong style="font-size:.82rem;color:var(--primary)">EARNINGS</strong><div class="manual-grid" style="margin-top:.5rem">
+<div><label class="mg-label">Basic</label><input type="number" class="mg-input" id="prBasic" placeholder="0" oninput="calcPay()"/></div>
+<div><label class="mg-label">HRA</label><input type="number" class="mg-input" id="prHRA" placeholder="0" oninput="calcPay()"/></div>
+<div><label class="mg-label">Special Allow.</label><input type="number" class="mg-input" id="prSpl" placeholder="0" oninput="calcPay()"/></div>
+<div><label class="mg-label">Other</label><input type="number" class="mg-input" id="prOth" placeholder="0" oninput="calcPay()"/></div></div></div>
+<div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.75rem"><strong style="font-size:.82rem;color:var(--danger)">DEDUCTIONS</strong><div class="manual-grid" style="margin-top:.5rem">
+<div><label class="mg-label">PF (12%)</label><input type="number" class="mg-input" id="prPF" placeholder="Auto" oninput="calcPay()"/></div>
+<div><label class="mg-label">ESI (0.75%)</label><input type="number" class="mg-input" id="prESI" placeholder="Auto" oninput="calcPay()"/></div>
+<div><label class="mg-label">Prof. Tax</label><input type="number" class="mg-input" id="prPT" placeholder="200" oninput="calcPay()"/></div>
+<div><label class="mg-label">TDS</label><input type="number" class="mg-input" id="prTDS" placeholder="0" oninput="calcPay()"/></div></div></div>
+<div style="display:flex;gap:.65rem;margin-top:.85rem"><button class="btn-primary-solid" onclick="calcPay()" style="flex:1"><i class="fa fa-calculator"></i> Process</button><button class="btn-secondary-solid" onclick="genPayslipPDF()" style="flex:1"><i class="fa fa-file-pdf"></i> Payslip</button></div></div>
+<div><div class="result-card" id="prResult" style="display:none"><div class="result-label">Net Take Home</div><div class="result-main" id="prNet" style="color:var(--success);font-size:2rem"></div><div id="prBreak" style="margin-top:.75rem"></div></div></div></div></div>
+<div class="tab-panel" id="p-stat"><div class="form-card"><h3 style="font-weight:800;margin-bottom:1rem">Statutory Rates</h3><div style="font-size:.82rem;display:flex;flex-direction:column;gap:.5rem"><div style="padding:.65rem;background:var(--bg-secondary);border-radius:6px"><strong>EPF:</strong> Employee 12% | Employer 12% (8.33% EPS + 3.67% EPF)</div><div style="padding:.65rem;background:var(--bg-secondary);border-radius:6px"><strong>ESI:</strong> Employee 0.75% | Employer 3.25% | Applicable if gross ≤₹21,000/month</div><div style="padding:.65rem;background:var(--bg-secondary);border-radius:6px"><strong>Professional Tax:</strong> Maharashtra/Karnataka max ₹200/month</div><div style="padding:.65rem;background:var(--bg-secondary);border-radius:6px"><strong>Gratuity:</strong> 15/26 × Basic × Years | Max ₹20L exempt</div></div></div></div>
+<div class="tab-panel" id="p-emp"><div class="form-card"><h3 style="font-weight:800;margin-bottom:1rem">Employee Registry</h3><div style="display:flex;gap:.5rem;margin-bottom:.75rem"><button class="btn-primary-solid" onclick="addEmp()"><i class="fa fa-plus"></i> Add</button><button class="btn-secondary-solid" onclick="expEmpCSV()"><i class="fa fa-file-csv"></i> CSV</button></div><div id="empList"></div></div></div>
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+let emps=JSON.parse(localStorage.getItem('tm_emp')||'[]');
+function showPTab(id,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));const p=document.getElementById('p-'+id);if(p)p.classList.add('active');if(btn)btn.classList.add('active');}
+function calcPay(){
+  const basic=parseFloat(document.getElementById('prBasic').value)||0;
+  const hra=parseFloat(document.getElementById('prHRA').value)||0;
+  const spl=parseFloat(document.getElementById('prSpl').value)||0;
+  const oth=parseFloat(document.getElementById('prOth').value)||0;
+  const gross=basic+hra+spl+oth;
+  const pf=parseFloat(document.getElementById('prPF').value)||Math.min(basic*.12,1800);
+  const esi=parseFloat(document.getElementById('prESI').value)||(gross<=21000?Math.round(gross*.0075):0);
+  const pt=parseFloat(document.getElementById('prPT').value)||200;
+  const tds=parseFloat(document.getElementById('prTDS').value)||0;
+  const net=gross-pf-esi-pt-tds;
+  document.getElementById('prResult').style.display='block';
+  document.getElementById('prNet').textContent=fmt(Math.round(net));
+  document.getElementById('prBreak').innerHTML='<div style="display:flex;flex-direction:column;gap:.35rem;font-size:.8rem">'
+    +'<div style="display:flex;justify-content:space-between;padding:.38rem .55rem;background:var(--bg-secondary);border-radius:5px"><span>Gross</span><strong>'+fmt(gross)+'</strong></div>'
+    +'<div style="display:flex;justify-content:space-between;padding:.38rem .55rem;background:var(--bg-secondary);border-radius:5px"><span>PF</span><strong style="color:var(--danger)">('+fmt(Math.round(pf))+')</strong></div>'
+    +'<div style="display:flex;justify-content:space-between;padding:.38rem .55rem;background:var(--bg-secondary);border-radius:5px"><span>ESI</span><strong style="color:var(--danger)">('+fmt(esi)+')</strong></div>'
+    +'<div style="display:flex;justify-content:space-between;padding:.38rem .55rem;background:var(--bg-secondary);border-radius:5px"><span>PT</span><strong style="color:var(--danger)">('+fmt(pt)+')</strong></div>'
+    +'<div style="display:flex;justify-content:space-between;padding:.45rem .55rem;background:rgba(5,150,105,.08);border-radius:5px"><span style="font-weight:700">NET</span><strong style="color:var(--success)">'+fmt(Math.round(net))+'</strong></div></div>';
+  window._pay={name:document.getElementById('prName').value,month:document.getElementById('prMonth').value,gross,pf:Math.round(pf),esi,pt,tds,net:Math.round(net)};
+}
+function genPayslipPDF(){
+  if(!window.jspdf){showToast('PDF loading...','error');return;}if(!window._pay){calcPay();}
+  const r=window._pay;const{jsPDF}=window.jspdf;const doc=new jsPDF();
+  doc.setFillColor(30,64,175);doc.rect(0,0,210,28,'F');doc.setTextColor(255,255,255);doc.setFontSize(14);doc.setFont('helvetica','bold');
+  doc.text('SALARY SLIP — '+r.month,105,12,{align:'center'});doc.setFontSize(8);doc.setFont('helvetica','normal');
+  doc.text('TaxMitra AI | Abhishek Agrahari',105,22,{align:'center'});doc.setTextColor(30,30,30);doc.setFontSize(10);
+  doc.text('Employee: '+(r.name||'Employee'),15,38);
+  doc.autoTable({startY:45,head:[['Earnings','Amt','Deductions','Amt']],
+    body:[['Gross',fmt(r.gross),'PF',fmt(r.pf)],['','','ESI',fmt(r.esi)],['','','PT',fmt(r.pt)],['NET',fmt(r.net),'','']],
+    headStyles:{fillColor:[30,64,175],textColor:255,fontSize:9},styles:{fontSize:9},
+    didParseCell:(d)=>{if(d.row.index===3){d.cell.styles.fontStyle='bold';d.cell.styles.fillColor=[220,230,250];}}});
+  doc.save('Payslip_'+r.month+'.pdf');showToast('Payslip downloaded!','success');
+}
+function addEmp(){const n=prompt('Name:');if(!n)return;const id=prompt('ID:')||'EMP'+Date.now();const b=parseFloat(prompt('Basic:'))||0;emps.push({n,id,b});localStorage.setItem('tm_emp',JSON.stringify(emps));renderEmps();}
+function renderEmps(){
+  var l=document.getElementById('empList');
+  if(!emps.length){l.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-muted)">No employees.</div>';return;}
+  l.innerHTML=emps.map(function(e,i){
+    return '<div style="display:flex;align-items:center;gap:.65rem;padding:.55rem .75rem;background:var(--bg-secondary);border-radius:6px;margin-bottom:.35rem;font-size:.82rem">'
+      +'<strong style="flex:1">'+e.n+' ('+e.id+')</strong>'
+      +'<span>Basic: '+fmt(e.b)+'</span>'
+      +'<button onclick="delEmp('+i+')" style="background:none;border:none;cursor:pointer;color:var(--danger)">✕</button></div>';
+  }).join('');
+}
+function delEmp(i){emps.splice(i,1);localStorage.setItem('tm_emp',JSON.stringify(emps));renderEmps();}
+function expEmpCSV(){const csv='Name,ID,Basic\n'+emps.map(e=>e.n+','+e.id+','+e.b).join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Employees.csv';a.click();}
+document.addEventListener('DOMContentLoaded',()=>{renderEmps();calcPay();});
+</script>
+</body>
+</html>

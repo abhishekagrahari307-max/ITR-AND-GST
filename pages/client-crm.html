@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="description" content="CA Client CRM — Manage clients, track filing status, assign tasks, billing. Professional practice management for Chartered Accountants."/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>Client CRM — CA Practice Management — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper"><ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+      </ul></div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero"><div class="container">
+  <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Client CRM — CA Practice Management</span></div>
+  <h1>👔 Client CRM — CA Practice Management</h1>
+  <p>AY 2026-27 | Budget 2025 | Developed by <strong>Abhishek Agrahari</strong></p>
+</div></div>
+<div class="container" style="padding:1.5rem 0 4rem">
+<div style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(37,99,235,.05));border:1px solid rgba(124,58,237,.2);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem"><strong style="color:var(--accent)">CA Practice — Client CRM, Tasks, Billing, Stats</strong></div>
+<div class="tab-nav" style="margin-bottom:1.5rem"><button class="tab-btn active" onclick="showCTab('cl',this)">👥 Clients</button><button class="tab-btn" onclick="showCTab('tsk',this)">✅ Tasks</button><button class="tab-btn" onclick="showCTab('bil',this)">💰 Billing</button><button class="tab-btn" onclick="showCTab('stat',this)">📊 Stats</button></div>
+<div class="tab-panel active" id="crm-cl"><div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap"><button class="btn-primary-solid" onclick="addCl()"><i class="fa fa-plus"></i> Add Client</button><button class="btn-secondary-solid" onclick="expCl()"><i class="fa fa-file-csv"></i> Export</button><input id="clSearch" placeholder="Search..." style="flex:1;min-width:180px;padding:.5rem .8rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-primary);font-family:inherit" oninput="renderCl()"/></div><div id="clGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem"></div></div>
+<div class="tab-panel" id="crm-tsk"><div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap"><button class="btn-primary-solid" onclick="addTask()"><i class="fa fa-plus"></i> Add Task</button><select id="tskFilter" onchange="renderTasks()" style="padding:.5rem .8rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-primary)"><option value="all">All</option><option value="pending">Pending</option><option value="done">Done</option></select></div><div id="taskList" style="display:flex;flex-direction:column;gap:.45rem"></div></div>
+<div class="tab-panel" id="crm-bil"><div class="form-card"><h3 style="font-weight:800;margin-bottom:1.25rem">Professional Fee Invoice</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem"><div class="form-group"><label>Client</label><input id="bilCl" class="mg-input" placeholder="Client Name"/></div><div class="form-group"><label>Invoice No.</label><input id="bilInv" class="mg-input" placeholder="INV-001"/></div><div class="form-group"><label>Service</label><select id="bilSvc" class="mg-input"><option>ITR Filing</option><option>GST Returns</option><option>TDS Returns</option><option>Tax Audit</option><option>Consultation</option></select></div><div class="form-group"><label>Fee (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="bilFee" placeholder="0" oninput="calcBil()"/></div></div><div class="form-group"><label>GST @18%</label><input type="number" id="bilGST" readonly style="opacity:.7;background:var(--bg-secondary);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:.5rem .8rem;width:100%;color:var(--text-primary)"/></div><div class="form-group"><label>Total</label><input type="number" id="bilTot" readonly style="opacity:.7;background:rgba(37,99,235,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:var(--radius-sm);padding:.5rem .8rem;width:100%;color:var(--primary);font-weight:700"/></div></div><div style="display:flex;gap:.6rem;margin-top:.5rem"><button class="btn-primary-solid" onclick="genInv()" style="flex:1"><i class="fa fa-file-pdf"></i> Invoice PDF</button><button class="btn-secondary-solid" onclick="saveBil()" style="flex:1"><i class="fa fa-save"></i> Save</button></div></div></div>
+<div class="tab-panel" id="crm-stat"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem"><div class="stat-card"><div class="stat-card-label">Clients</div><div class="stat-card-value" id="stCl">0</div><div class="stat-card-icon">👥</div></div><div class="stat-card green"><div class="stat-card-label">Tasks Done</div><div class="stat-card-value" id="stDn">0</div><div class="stat-card-icon">✅</div></div><div class="stat-card orange"><div class="stat-card-label">Pending</div><div class="stat-card-value" id="stPn">0</div><div class="stat-card-icon">⏳</div></div><div class="stat-card purple"><div class="stat-card-label">Revenue</div><div class="stat-card-value" id="stRev">₹0</div><div class="stat-card-icon">💰</div></div></div><button class="btn-primary-solid" onclick="calcStats()" style="margin-top:1rem"><i class="fa fa-sync"></i> Refresh</button></div>
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+let cls=JSON.parse(localStorage.getItem('tm_cls')||'[]');
+let tsks=JSON.parse(localStorage.getItem('tm_tsks')||'[]');
+let bils=JSON.parse(localStorage.getItem('tm_bils')||'[]');
+function showCTab(id,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));const p=document.getElementById('crm-'+id);if(p)p.classList.add('active');if(btn)btn.classList.add('active');if(id==='stat')calcStats();}
+function addCl(){const n=prompt('Client Name:');if(!n)return;const pan=prompt('PAN:')||'';const mob=prompt('Mobile:')||'';const type=prompt('Type (Individual/Business):')||'Individual';cls.push({id:Date.now(),n,pan,mob,type});localStorage.setItem('tm_cls',JSON.stringify(cls));renderCl();showToast(n+' added!','success');}
+function renderCl(){
+  var s=(document.getElementById('clSearch')?document.getElementById('clSearch').value:'').toLowerCase();
+  var f=cls.filter(function(c){return c.n.toLowerCase().includes(s)||(c.pan||'').toLowerCase().includes(s);});
+  var g=document.getElementById('clGrid');
+  var cols=['var(--primary)','var(--success)','var(--accent)','var(--warning)'];
+  if(!f.length){g.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-muted)">No clients.</div>';return;}
+  g.innerHTML=f.map(function(c,i){
+    var idx=cls.indexOf(c);
+    return '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;border-top:3px solid '+cols[i%4]+'">'
+      +'<div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.65rem">'
+      +'<div style="width:34px;height:34px;background:'+cols[i%4]+';border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800">'+c.n[0]+'</div>'
+      +'<div><strong>'+c.n+'</strong><br><span style="font-size:.72rem;color:var(--text-muted)">'+c.type+(c.pan?' | '+c.pan:'')+'</span></div></div>'
+      +(c.mob?'<div style="font-size:.78rem;color:var(--text-secondary)">&#128241; '+c.mob+'</div>':'')
+      +'<button onclick="delCl('+idx+')" style="margin-top:.65rem;width:100%;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);color:var(--danger);border-radius:5px;padding:.3rem;font-size:.75rem;cursor:pointer">&#128465; Remove</button></div>';
+  }).join('');
+}
+function delCl(i){if(!confirm('Remove '+cls[i].n+'?'))return;cls.splice(i,1);localStorage.setItem('tm_cls',JSON.stringify(cls));renderCl();}
+function addTask(){const cl=prompt('Client:');if(!cl)return;const t=prompt('Task:');if(!t)return;const due=prompt('Due (YYYY-MM-DD):')||new Date().toISOString().slice(0,10);tsks.push({id:Date.now(),cl,t,due,status:'pending'});localStorage.setItem('tm_tsks',JSON.stringify(tsks));renderTasks();showToast('Task added!','success');}
+function renderTasks(){
+  var filter=document.getElementById('tskFilter')?document.getElementById('tskFilter').value:'all';
+  var flt=tsks.filter(function(t){return filter==='all'||t.status===filter;});
+  var l=document.getElementById('taskList');
+  var today=new Date();
+  if(!flt.length){l.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-muted)">No tasks.</div>';return;}
+  l.innerHTML=flt.map(function(t){
+    var due=new Date(t.due);
+    var ov=due<today&&t.status!=='done';
+    var idx=tsks.indexOf(t);
+    return '<div style="display:flex;align-items:center;gap:.65rem;padding:.6rem .8rem;background:var(--bg-card);border:1px solid '+(ov?'rgba(220,38,38,.3)':'var(--border)')+';border-radius:6px">'
+      +'<input type="checkbox" '+(t.status==='done'?'checked':'')+' onchange="toggleTask('+idx+')" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer"/>'
+      +'<div style="flex:1"><strong style="font-size:.85rem;'+(t.status==='done'?'text-decoration:line-through;opacity:.5':'')+'">'+t.t+'</strong><br>'
+      +'<span style="font-size:.72rem;color:var(--text-muted)">'+t.cl+' | Due: '+t.due+(ov?' ❌ OVERDUE':'')+'</span></div>'
+      +'<button onclick="delTask('+idx+')" style="background:none;border:none;cursor:pointer;color:var(--danger)">✕</button></div>';
+  }).join('');
+}
+function toggleTask(i){if(tsks[i]){tsks[i].status=tsks[i].status==='done'?'pending':'done';localStorage.setItem('tm_tsks',JSON.stringify(tsks));renderTasks();}}
+function delTask(i){tsks.splice(i,1);localStorage.setItem('tm_tsks',JSON.stringify(tsks));renderTasks();}
+function calcBil(){const f=parseFloat(document.getElementById('bilFee').value)||0;const g=Math.round(f*.18);document.getElementById('bilGST').value=g;document.getElementById('bilTot').value=f+g;}
+function saveBil(){const f=parseFloat(document.getElementById('bilFee').value)||0;if(!f){showToast('Enter fee!','warning');return;}bils.push({cl:document.getElementById('bilCl').value,svc:document.getElementById('bilSvc').value,fee:f,date:new Date().toLocaleDateString('en-IN')});localStorage.setItem('tm_bils',JSON.stringify(bils));showToast('Saved!','success');}
+function genInv(){if(!window.jspdf){showToast('PDF loading...','error');return;}const{jsPDF}=window.jspdf;const doc=new jsPDF();const fee=parseFloat(document.getElementById('bilFee').value)||0;const gst=Math.round(fee*.18);const tot=fee+gst;doc.setFillColor(124,58,237);doc.rect(0,0,210,28,'F');doc.setTextColor(255,255,255);doc.setFontSize(16);doc.setFont('helvetica','bold');doc.text('Professional Fee Invoice',105,12,{align:'center'});doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text('TaxMitra AI | CA Practice | Abhishek Agrahari',105,22,{align:'center'});doc.setTextColor(30,30,30);doc.setFontSize(10);doc.text('To: '+(document.getElementById('bilCl').value||'Client'),15,38);doc.text('Invoice: '+(document.getElementById('bilInv').value||'INV-001'),130,38);doc.autoTable({startY:50,head:[['Description','Amount']],body:[[document.getElementById('bilSvc').value,fmt(fee)],['GST @18%',fmt(gst)],['TOTAL',fmt(tot)]],headStyles:{fillColor:[124,58,237],textColor:255,fontSize:10},styles:{fontSize:10},didParseCell:(d)=>{if(d.row.index===2){d.cell.styles.fontStyle='bold';}}});doc.save('Invoice_TaxMitra.pdf');showToast('Invoice downloaded!','success');}
+function calcStats(){document.getElementById('stCl').textContent=cls.length;document.getElementById('stDn').textContent=tsks.filter(t=>t.status==='done').length;document.getElementById('stPn').textContent=tsks.filter(t=>t.status!=='done').length;document.getElementById('stRev').textContent=fmt(bils.reduce((s,b)=>s+b.fee,0));}
+document.addEventListener('DOMContentLoaded',()=>{renderCl();renderTasks();calcStats();calcBil();});
+</script>
+</body>
+</html>

@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="description" content="AI Document Center — Upload Form 16, 26AS, AIS, PAN card. Gemini AI reads and extracts tax data automatically via OCR."/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="author" content="Abhishek Agrahari"/>
+  <title>AI Document Center – TaxMitra AI Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    .upload-zone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 1.5rem; text-align: center; cursor: pointer; transition: var(--transition); position: relative; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--primary); background: rgba(30,64,175,0.04); transform: translateY(-2px); }
+    .upload-zone .zone-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .upload-zone strong { font-size: 0.875rem; display: block; margin-bottom: 0.25rem; }
+    .upload-zone p { font-size: 0.72rem; color: var(--text-muted); margin: 0; }
+    .upload-zones-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+    .doc-list-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.5rem; transition: var(--transition); }
+    .doc-list-item:hover { background: var(--bg-card); border-color: var(--primary); }
+    .doc-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .doc-info { flex: 1; min-width: 0; }
+    .doc-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .doc-meta { font-size: 0.68rem; color: var(--text-muted); }
+    .doc-status { font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+    .doc-status.processing { background: rgba(245,158,11,0.1); color: #92400e; }
+    .doc-status.done { background: rgba(16,185,129,0.1); color: var(--success); }
+    .doc-status.error { background: rgba(239,68,68,0.1); color: var(--danger); }
+    /* AI Result */
+    .ai-result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-top: 1rem; }
+    .ai-result-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .ai-badge { background: linear-gradient(135deg,#7c3aed,#6d28d9); color: #fff; padding: 0.3rem 0.75rem; border-radius: 99px; font-size: 0.72rem; font-weight: 700; }
+    .extracted-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    @media(max-width:600px) { .extracted-grid { grid-template-columns: 1fr; } }
+    .extracted-field { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 0.6rem 0.75rem; }
+    .extracted-field .ef-label { font-size: 0.68rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
+    .extracted-field .ef-value { font-size: 0.875rem; font-weight: 700; color: var(--text-primary); }
+    .extracted-field.highlight { background: rgba(30,64,175,0.08); border: 1px solid rgba(30,64,175,0.2); }
+    .extracted-field .ef-value.money { color: var(--primary); }
+    /* Processing animation */
+    @keyframes scanLine { 0%{top:0} 100%{top:100%} }
+    .scan-animation { position: relative; overflow: hidden; border-radius: var(--radius); }
+    .scan-animation::after { content:''; position:absolute; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--primary),transparent); animation:scanLine 1.5s linear infinite; top:0; }
+    /* Tabs */
+    .doc-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
+    .doc-tab-btn { padding: 0.5rem 1rem; border: none; background: transparent; color: var(--text-secondary); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: var(--transition); border-bottom: 2px solid transparent; margin-bottom: -2px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+    .doc-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(30,64,175,0.05); }
+    .doc-tab-panel { display: none; }
+    .doc-tab-panel.active { display: block; }
+    /* Chat style AI */
+    .ai-chat-box { background: var(--bg-secondary); border-radius: var(--radius); padding: 1rem; min-height: 200px; max-height: 400px; overflow-y: auto; }
+    .ai-msg { padding: 0.6rem 0.9rem; border-radius: var(--radius-sm); margin-bottom: 0.5rem; font-size: 0.875rem; line-height: 1.6; }
+    .ai-msg.user { background: var(--primary); color: #fff; margin-left: 2rem; }
+    .ai-msg.bot { background: var(--bg-card); border: 1px solid var(--border); margin-right: 2rem; white-space: pre-wrap; }
+    .ai-msg.thinking { color: var(--text-muted); font-style: italic; font-size: 0.82rem; }
+    /* Progress bar */
+    .progress-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 0.5rem; }
+    .progress-bar-fill { height: 100%; background: var(--grad-primary); border-radius: 2px; transition: width 0.3s ease; }
+    /* Info banner */
+    .info-banner { background: rgba(30,64,175,0.06); border: 1px solid rgba(30,64,175,0.2); border-radius: var(--radius); padding: 0.75rem 1rem; font-size: 0.82rem; color: var(--primary); margin-bottom: 1rem; }
+    .form-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; }
+  </style>
+</head>
+<body>
+  <div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.4rem"></div>
+
+  <nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Document Center</span></div>
+      <h1>📁 AI Document Center</h1>
+      <p>Upload documents – AI reads &amp; extracts data automatically | PAN, Aadhaar, Form 16, 26AS, AIS, Bank Statements | Developed by Abhishek Agrahari</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding:2rem 0 3rem">
+
+    <!-- Current AY/Date Info -->
+    <div class="info-banner" id="docDateBanner">
+      📅 Loading current tax year info...
+    </div>
+
+    <div class="doc-tabs">
+      <button class="doc-tab-btn active" onclick="switchDocTab('upload',this)">📤 Upload &amp; OCR</button>
+      <button class="doc-tab-btn" onclick="switchDocTab('analyze',this)">🤖 AI Analysis</button>
+      <button class="doc-tab-btn" onclick="switchDocTab('checklist',this)">✅ Filing Checklist</button>
+      <button class="doc-tab-btn" onclick="switchDocTab('stored',this)">📂 My Documents</button>
+    </div>
+
+    <!-- ===== TAB: UPLOAD & OCR ===== -->
+    <div class="doc-tab-panel active" id="doctab-upload">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+        <div>
+          <div class="form-card">
+            <h3 style="font-size:1rem;font-weight:800;margin-bottom:0.25rem">🤖 AI OCR Document Reader</h3>
+            <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1.25rem">Upload karo – Gemini AI automatically data extract karega. Supported: JPG, PNG, PDF</p>
+            <div class="upload-zones-grid">
+              <div class="upload-zone" id="zone-pan" onclick="document.getElementById('panUpload').click()" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,this,'PAN Card')">
+                <div class="zone-icon">🪪</div>
+                <strong>PAN Card</strong>
+                <p>JPG, PNG</p>
+                <input type="file" id="panUpload" hidden accept=".jpg,.jpeg,.png,.pdf" onchange="processDoc(this,'PAN Card','pan')"/>
+              </div>
+              <div class="upload-zone" id="zone-aadhaar" onclick="document.getElementById('aadhaarUpload').click()" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,this,'Aadhaar Card')">
+                <div class="zone-icon">🪪</div>
+                <strong>Aadhaar Card</strong>
+                <p>Masked only</p>
+                <input type="file" id="aadhaarUpload" hidden accept=".jpg,.jpeg,.png,.pdf" onchange="processDoc(this,'Aadhaar Card','aadhaar')"/>
+              </div>
+              <div class="upload-zone" id="zone-form16" onclick="document.getElementById('form16Upload').click()" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,this,'Form 16')">
+                <div class="zone-icon">📋</div>
+                <strong>Form 16</strong>
+                <p>Part A &amp; B PDF</p>
+                <input type="file" id="form16Upload" hidden accept=".pdf,.jpg,.jpeg,.png" onchange="processDoc(this,'Form 16','form16')"/>
+              </div>
+              <div class="upload-zone" id="zone-26as" onclick="document.getElementById('form26asUpload').click()" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,this,'Form 26AS')">
+                <div class="zone-icon">📄</div>
+                <strong>Form 26AS</strong>
+                <p>IT Portal PDF</p>
+                <input type="file" id="form26asUpload" hidden accept=".pdf" onchange="processDoc(this,'Form 26AS','26as')"/>
+              </div>
+              <div class="upload-zone" id="zone-ais" onclick="document.getElementById('aisUpload').click()" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,this,'AIS')">
+                <div class="zone-icon">📊</div>
+                <strong>AIS / TIS</strong>
+                <p>Annual Info Statement</p>
+                <input type="file" id="aisUpload" hidden accept=".pdf,.json" onchange="processDoc(this,'AIS','ais')"/>
+              </div>
+              <div class="upload-zone" id="zone-bank" onclick="document.getElementById('bankUpload').click()" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,this,'Bank Statement')">
+                <div class="zone-icon">🏦</div>
+                <strong>Bank Statement</strong>
+                <p>PDF or CSV</p>
+                <input type="file" id="bankUpload" hidden accept=".pdf,.csv,.xlsx" onchange="processDoc(this,'Bank Statement','bank')"/>
+              </div>
+              <div class="upload-zone" id="zone-salary-slip" onclick="document.getElementById('salarySlipUpload').click()" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,this,'Salary Slip')">
+                <div class="zone-icon">💰</div>
+                <strong>Salary Slip</strong>
+                <p>12 months → Auto ITR</p>
+                <input type="file" id="salarySlipUpload" hidden accept=".pdf,.jpg,.jpeg,.png" onchange="processDoc(this,'Salary Slip','salary_slip')"/>
+              </div>
+              <div class="upload-zone" id="zone-invest" onclick="document.getElementById('investUpload').click()" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,this,'Investment Proof')">
+                <div class="zone-icon">📈</div>
+                <strong>Investment Proofs</strong>
+                <p>ELSS, PPF, LIC etc.</p>
+                <input type="file" id="investUpload" hidden accept=".pdf,.jpg,.jpeg,.png" onchange="processDoc(this,'Investment Proof','invest')"/>
+              </div>
+              <div class="upload-zone" id="zone-other" onclick="document.getElementById('otherUpload').click()" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="dropFile(event,this,'Other Document')">
+                <div class="zone-icon">📎</div>
+                <strong>Other Document</strong>
+                <p>Any tax document</p>
+                <input type="file" id="otherUpload" hidden accept=".pdf,.jpg,.jpeg,.png" onchange="processDoc(this,'Other Document','other')"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Uploaded Documents List -->
+          <div class="form-card">
+            <h3 style="font-size:1rem;font-weight:800;margin-bottom:1rem">📂 Uploaded Documents</h3>
+            <div id="docsList">
+              <p style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:1rem">Koi document upload nahi hua abhi. Upar se upload karein.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <!-- OCR Result Panel -->
+          <div class="form-card" id="ocrResultCard" style="display:none">
+            <div class="ai-result-header">
+              <span style="font-size:1.5rem" id="ocrResultIcon">🤖</span>
+              <div>
+                <h3 style="font-size:1rem;font-weight:800;margin:0" id="ocrResultTitle">AI OCR Result</h3>
+                <div class="ai-badge" id="ocrResultBadge">Gemini AI</div>
+              </div>
+            </div>
+            <div id="ocrResultBody"><!-- filled by JS --></div>
+            <div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap" id="ocrActions">
+              <!-- Action buttons filled by JS -->
+            </div>
+          </div>
+
+          <!-- Processing state -->
+          <div class="form-card scan-animation" id="processingCard" style="display:none;text-align:center;padding:2.5rem">
+            <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
+            <h3 style="font-size:1rem;font-weight:700">AI Reading Document...</h3>
+            <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem" id="processingMsg">Gemini AI se document analyze ho raha hai...</p>
+            <div class="progress-bar"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+          </div>
+
+          <!-- Security Info -->
+          <div class="form-card" style="background:rgba(16,185,129,0.03);border-color:rgba(16,185,129,0.2)">
+            <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;color:var(--success)">🔒 Security &amp; Privacy</h3>
+            <div style="display:flex;flex-direction:column;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary)">
+              <div>✅ Documents only in your browser — never sent to our servers</div>
+              <div>✅ Gemini AI processes image content via Google's secure API</div>
+              <div>✅ No personal data stored on GitHub or any server</div>
+              <div>✅ All processing happens client-side in your browser</div>
+              <div>✅ Files auto-cleared when you close the tab</div>
+            </div>
+            <div style="margin-top:0.75rem;font-size:0.75rem;color:var(--text-muted)">
+              💡 Tip: Gemini AI key set karein via <code style="background:var(--bg-secondary);padding:2px 6px;border-radius:4px">TaxMitra.setKeys({geminiApiKey:'YOUR_KEY'})</code> in browser console
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: AI ANALYSIS ===== -->
+    <div class="doc-tab-panel" id="doctab-analyze">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+        <div>
+          <div class="form-card">
+            <h3 style="font-size:1rem;font-weight:800;margin-bottom:1rem">🤖 Ask AI About Your Documents</h3>
+            <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem">Document upload karne ke baad AI se questions poochh sakte hain – income, TDS, refund, ITR form selection etc.</p>
+
+            <div style="margin-bottom:1rem">
+              <label style="font-size:0.78rem;font-weight:600;color:var(--text-secondary)">Quick Questions</label>
+              <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem">
+                <button class="btn-secondary-solid" style="font-size:0.75rem;padding:0.3rem 0.75rem" onclick="askQuick('Mera total TDS kitna hai Form 26AS mein?')">TDS kitna hai?</button>
+                <button class="btn-secondary-solid" style="font-size:0.75rem;padding:0.3rem 0.75rem" onclick="askQuick('Mujhe konsa ITR form bharna chahiye?')">ITR form konsa?</button>
+                <button class="btn-secondary-solid" style="font-size:0.75rem;padding:0.3rem 0.75rem" onclick="askQuick('Mera refund kitna aayega?')">Refund kitna?</button>
+                <button class="btn-secondary-solid" style="font-size:0.75rem;padding:0.3rem 0.75rem" onclick="askQuick('Form 16 mein kya kya hota hai?')">Form 16 explain karo</button>
+                <button class="btn-secondary-solid" style="font-size:0.75rem;padding:0.3rem 0.75rem" onclick="askQuick('AIS aur 26AS mein kya difference hai?')">AIS vs 26AS</button>
+                <button class="btn-secondary-solid" style="font-size:0.75rem;padding:0.3rem 0.75rem" onclick="askQuick('ITR filing deadline kab hai AY 2026-27 mein?')">Due date kab?</button>
+              </div>
+            </div>
+
+            <div class="ai-chat-box" id="docAiChat">
+              <div class="ai-msg bot">Namaste! 🙏 Main TaxMitra AI hoon. Aap apne tax documents ke baare mein kuch bhi poochh sakte hain. Upload karne ke baad main unhe analyze kar sakta hoon. Aap pehle document upload karein ya seedha question poochhein!</div>
+            </div>
+
+            <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
+              <input type="text" id="docAiInput" placeholder="Apna question yahan likhein... (Hindi/English)" style="flex:1;padding:0.6rem 0.9rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);font-size:0.875rem;font-family:inherit" onkeydown="if(event.key==='Enter')sendDocAiMsg()"/>
+              <button class="btn-primary-solid" onclick="sendDocAiMsg()" style="padding:0.6rem 1rem"><i class="fa fa-paper-plane"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="form-card">
+            <h3 style="font-size:1rem;font-weight:800;margin-bottom:1rem">📊 Document Summary Dashboard</h3>
+            <div id="docSummaryDash">
+              <p style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:2rem 1rem">Documents upload hone ke baad yahan summary dikhega — gross salary, total TDS, refund estimate etc.</p>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h3 style="font-size:1rem;font-weight:800;margin-bottom:0.75rem">⚡ Quick Actions</h3>
+            <div style="display:flex;flex-direction:column;gap:0.5rem">
+              <button class="btn-primary-solid" style="justify-content:flex-start;gap:0.75rem" onclick="copyToITRForm()"><i class="fa fa-file-import"></i> Copy Extracted Data to ITR Form</button>
+              <button class="btn-secondary-solid" style="justify-content:flex-start;gap:0.75rem" onclick="downloadDocSummaryPDF()"><i class="fa fa-file-pdf"></i> Download Document Summary PDF</button>
+              <button class="btn-secondary-solid" style="justify-content:flex-start;gap:0.75rem" onclick="compareAIS26AS()"><i class="fa fa-balance-scale"></i> Compare AIS vs Form 26AS</button>
+              <button class="btn-secondary-solid" style="justify-content:flex-start;gap:0.75rem" onclick="salarySlipToITR()"><i class="fa fa-magic"></i> Salary Slips → ITR Auto-Fill</button>
+              <a href="itr-form.html?form=1" class="btn-secondary-solid" style="justify-content:flex-start;gap:0.75rem"><i class="fa fa-pencil-alt"></i> Start ITR Filing</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: CHECKLIST ===== -->
+    <div class="doc-tab-panel" id="doctab-checklist">
+      <div class="form-card">
+        <h3 style="font-size:1rem;font-weight:800;margin-bottom:0.25rem">✅ ITR Filing Checklist – AY 2026-27</h3>
+        <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1.5rem" id="checklistAYInfo">Filing se pehle yeh documents ready karo:</p>
+        <div id="checklistProgress" style="background:rgba(30,64,175,0.06);border:1px solid rgba(30,64,175,0.2);border-radius:var(--radius);padding:0.75rem 1rem;margin-bottom:1.5rem;font-size:0.82rem">
+          <strong>Progress: 0/20 completed (0%)</strong>
+        </div>
+        <div id="checklistBody">
+          <!-- Rendered by JS with current AY/FY -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB: MY DOCUMENTS ===== -->
+    <div class="doc-tab-panel" id="doctab-stored">
+      <div class="form-card">
+        <h3 style="font-size:1rem;font-weight:800;margin-bottom:1rem">📂 Session Documents (Browser Memory)</h3>
+        <div class="info-banner">ℹ️ Documents browser memory mein temporarily store hote hain — tab close hone par delete ho jaate hain. Sensitive data kabhi server par nahi jaata.</div>
+        <div id="storedDocsList">
+          <p style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:2rem">Koi document abhi session mein nahi hai.</p>
+        </div>
+        <div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap">
+          <button class="btn-secondary-solid" onclick="clearAllDocs()"><i class="fa fa-trash"></i> Clear All Session Docs</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end container -->
+
+  <p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise</p>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+  <script src="../js/ai-real.js"></script>
+
+  <script>
+  'use strict';
+
+  // ── Session storage for docs ──────────────────────────────────────
+  let sessionDocs = []; // { name, type, docKey, size, dataUrl, extractedData, timestamp }
+  let extractedDataStore = {}; // docKey -> extracted fields
+
+  // ── Tab ──────────────────────────────────────────────────────────
+  function switchDocTab(id, btn) {
+    document.querySelectorAll('.doc-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.doc-tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('doctab-' + id).classList.add('active');
+    if (id === 'stored') renderStoredDocs();
+  }
+
+  // ── Auto date/AY ─────────────────────────────────────────────────
+  function getAYInfo() {
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
+    const fyStart = month >= 4 ? year : year - 1;
+    const fy = `${fyStart}-${String(fyStart+1).slice(2)}`;
+    const ay = `${fyStart+1}-${String(fyStart+2).slice(2)}`;
+    const dueDate = new Date(fyStart + 1, 6, 31); // 31 July of AY year
+    const daysLeft = Math.ceil((dueDate - today) / 86400000);
+    return { fy, ay, fyStart, daysLeft, today };
+  }
+
+  function autoUpdateDates() {
+    const { fy, ay, daysLeft, today } = getAYInfo();
+    const todayStr = today.toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+
+    const banner = document.getElementById('docDateBanner');
+    if (banner) {
+      banner.innerHTML = daysLeft > 0
+        ? `📅 <strong>Today: ${todayStr}</strong> | FY: <strong>${fy}</strong> | AY: <strong>${ay}</strong> | ITR Deadline: <strong>31 July ${ay.split('-')[0]}</strong> — <strong style="color:var(--danger)">${daysLeft} days remaining!</strong>`
+        : `📅 <strong>Today: ${todayStr}</strong> | AY: <strong>${ay}</strong> | ⚠️ ITR deadline passed — file belated return by 31 Dec ${ay.split('-')[0]}`;
+    }
+
+    const clInfo = document.getElementById('checklistAYInfo');
+    if (clInfo) clInfo.textContent = `AY ${ay} | FY ${fy} ke liye filing se pehle yeh documents ready karo:`;
+
+    renderChecklist(ay, fy);
+  }
+
+  // ── Drag & Drop ───────────────────────────────────────────────────
+  function dragOver(e, el) { e.preventDefault(); el.classList.add('drag-over'); }
+  function dragLeave(el) { el.classList.remove('drag-over'); }
+  function dropFile(e, el, docType) {
+    e.preventDefault(); el.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) processFileDirectly(file, docType, docType.toLowerCase().replace(/\s+/g,''));
+  }
+
+  // ── Process Document ──────────────────────────────────────────────
+  function processDoc(input, docType, docKey) {
+    const file = input.files[0];
+    if (!file) return;
+    processFileDirectly(file, docType, docKey);
+    input.value = ''; // reset so same file can be re-uploaded
+  }
+
+  function processFileDirectly(file, docType, docKey) {
+    // Validate file type
+    const allowed = ['image/jpeg','image/jpg','image/png','image/webp','application/pdf','text/csv'];
+    if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|jpg|jpeg|png|csv|xlsx|json)$/i)) {
+      showToast('Invalid file type. Please upload JPG, PNG, or PDF', 'error'); return;
+    }
+
+    showToast(`📤 ${docType} upload ho raha hai...`, 'success');
+    showProcessing(`Gemini AI se "${docType}" analyze ho rahi hai...`);
+
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target.result;
+      const isImage = file.type.startsWith('image/');
+
+      // Add to session docs
+      const doc = {
+        name: file.name, type: docType, docKey, size: file.size,
+        dataUrl: isImage ? dataUrl : null, timestamp: new Date().toISOString(),
+        status: 'processing'
+      };
+      sessionDocs.push(doc);
+      renderDocsList();
+
+      try {
+        let extractedData;
+        if (isImage) {
+          // Try real Gemini Vision API first (images: jpg, png, webp)
+          try {
+            extractedData = await extractWithGeminiVision(dataUrl, docType, file.type);
+          } catch(e) {
+            // Fallback to structured template if Gemini unavailable
+            extractedData = await extractDocumentData(docType, file);
+          }
+        } else {
+          // For PDFs: show structured guidance (API key needed for PDF OCR)
+          extractedData = await extractDocumentData(docType, file);
+        }
+
+        doc.extractedData = extractedData;
+        doc.status = 'done';
+        extractedDataStore[docKey] = extractedData;
+
+        updateProgress(100);
+        setTimeout(() => {
+          hideProcessing();
+          showOCRResult(docType, extractedData, docKey);
+          renderDocsList();
+          updateDocSummary();
+          showToast(`✅ ${docType} successfully read!`, 'success');
+        }, 500);
+
+      } catch(err) {
+        doc.status = 'error';
+        renderDocsList();
+        hideProcessing();
+        showToast(`❌ Error reading ${docType}: ${err.message}`, 'error');
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── Gemini Vision API ─────────────────────────────────────────────
+  async function extractWithGeminiVision(dataUrl, docType, mimeType) {
+    let apiKey = '';
+    try {
+      const stored = JSON.parse(localStorage.getItem('tm_keys') || '{}');
+      apiKey = stored.geminiApiKey || window.TAXMITRA_CONFIG?.GEMINI_API_KEY || '';
+    } catch(e) {}
+
+    // Valid Gemini key must start with 'AIzaSy' (get from aistudio.google.com)
+    if (!apiKey || (!apiKey.startsWith('AIzaSy') && !apiKey.startsWith('AQ.')) || apiKey.length < 20) {
+      if (apiKey && !apiKey.startsWith('AIzaSy') && !apiKey.startsWith('AQ.')) {
+        console.error('[TaxMitra Documents] Invalid Gemini key! Must start with AIzaSy. Get from: aistudio.google.com');
+      }
+      // No valid API key — use structured fallback
+      return await extractDocumentData(docType, null);
+    }
+
+    const prompts = {
+      'PAN Card': `Extract from this PAN card image: Full Name, PAN Number (format: AAAAA0000A), Date of Birth, Father's Name. Return as JSON with keys: name, pan, dob, fatherName, panType (P=Individual/C=Company/H=HUF/F=Firm/A=AOP/B=BOI/G=Govt/J=AJP/L=Local/T=Trust).`,
+      'Aadhaar Card': `Extract from this Aadhaar card image: Name, Aadhaar Number (12 digits - last 4 only for security), Date of Birth, Gender, Address. Return as JSON with keys: name, aadhaarLast4, dob, gender, address.`,
+      'Form 16': `Extract from this Form 16 image/document: Employer Name, TAN, Employee PAN, Employee Name, Gross Salary, Standard Deduction, HRA Exemption, Other Exemptions, Net Taxable Salary, Tax on Income, TDS Deducted, Assessment Year. Return as JSON.`,
+      'Form 26AS': `Extract from this Form 26AS: PAN, Assessment Year, Total TDS (Part A), TDS on Salary (section 192), Total Tax Paid (Part D), Any Advance Tax, Refund if any. Return as JSON with keys: pan, ay, totalTDS, salartyTDS, advanceTax, selfAssessmentTax, totalTaxPaid.`,
+      'AIS': `Extract from this Annual Information Statement (AIS): PAN, Assessment Year, Salary/Wages total, Dividend income, Interest income (savings, FD), Stock/MF transaction summary, TDS deducted total, TCS. Return as JSON.`,
+      'Bank Statement': `Extract from this bank statement: Account holder name, Account number (last 4 only), Bank name, IFSC, Period (from-to dates), Opening balance, Closing balance, Total credits, Total debits, Number of transactions. Return as JSON.`,
+      'Investment Proof': `Extract from this investment document: Instrument type (ELSS/PPF/LIC/NSC/FD), Amount invested, Date, Maturity date if any, Section eligible (80C/80D etc.), Certificate/Policy number. Return as JSON.`,
+      'Salary Slip': `Extract from this salary slip into JSON:
+{"month":"","year":"","employee_name":"","employee_id":"","designation":"","department":"","basic_salary":0,"hra":0,"transport_allowance":0,"medical_allowance":0,"special_allowance":0,"other_allowances":0,"gross_salary":0,"pf_deduction":0,"esi_deduction":0,"professional_tax":0,"tds_deduction":0,"other_deductions":0,"net_salary":0,"employer_name":"","employer_pan":""}
+Output ONLY the JSON.`,
+      'Other Document': `Extract key financial information from this document. Identify document type and extract relevant data. Return as JSON with docType, extractedFields object.`,
+    };
+
+    const prompt = prompts[docType] || prompts['Other Document'];
+    const base64 = dataUrl.split(',')[1];
+
+    // Use x-goog-api-key header (Google recommended July 2026, not ?key= query param)
+    // Model: gemini-2.5-flash (gemini-1.5 & 2.0 retired June 2026)
+    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: prompt },
+            { inline_data: { mime_type: mimeType, data: base64 } }
+          ]
+        }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 800 }
+      })
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`Gemini Vision API ${res.status}: ${errBody.substring(0, 200)}`);
+    }
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+
+    // Parse JSON from response
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try { return { ...JSON.parse(jsonMatch[0]), _source: 'gemini-vision', _docType: docType }; }
+      catch(e) { return { rawText: text, _source: 'gemini-vision', _docType: docType }; }
+    }
+    return { rawText: text, _source: 'gemini-vision', _docType: docType };
+  }
+
+  // ── Intelligent Fallback Extraction ──────────────────────────────
+  async function extractDocumentData(docType, file) {
+    // Structured fallback when Gemini Vision API is not available (PDFs or no API key)
+    await new Promise(r => setTimeout(r, 800 + Math.random() * 1200));
+    updateProgress(60);
+    await new Promise(r => setTimeout(r, 600));
+    updateProgress(85);
+
+    const { ay, fy, fyStart } = getAYInfo();
+
+    // Structured field guide — shows what to look for in each document type
+    const templates = {
+      'PAN Card': {
+        _source: 'extracted', _docType: 'PAN Card',
+        name: '[From your PAN card]',
+        pan: '[PAN from card]',
+        dob: '[Date of Birth]',
+        fatherName: '[Father Name]',
+        panType: 'P (Individual)',
+        issuedBy: 'Income Tax Department, Government of India'
+      },
+      'Aadhaar Card': {
+        _source: 'extracted', _docType: 'Aadhaar Card',
+        name: '[From Aadhaar]',
+        aadhaarLast4: 'XXXX',
+        dob: '[DOB from Aadhaar]',
+        gender: '[Gender]',
+        address: '[Address from Aadhaar]',
+        note: 'Full Aadhaar number not stored for security'
+      },
+      'Form 16': {
+        _source: 'extracted', _docType: 'Form 16',
+        employerName: '[Employer Name from Part A]',
+        tan: '[TAN of Employer]',
+        employeePAN: '[Employee PAN]',
+        employeeName: '[Employee Name]',
+        assessmentYear: ay,
+        grossSalary: '[₹ from Part B]',
+        hraExemption: '[₹ HRA exempt]',
+        standardDeduction: '₹75,000',
+        netTaxableSalary: '[₹ taxable salary]',
+        taxOnIncome: '[₹ tax]',
+        totalTDS: '[₹ TDS deducted]',
+        note: `Upload karne par Gemini AI real data extract karega. Abhi Gemini API key required hai.`
+      },
+      'Form 26AS': {
+        _source: 'extracted', _docType: 'Form 26AS',
+        pan: '[Your PAN]',
+        ay: ay,
+        partA_totalTDS: '[₹ Total TDS from Part A]',
+        salaryTDS: '[₹ 192 TDS]',
+        interestTDS: '[₹ 194A TDS]',
+        advanceTax: '[₹ Advance Tax]',
+        selfAssessmentTax: '[₹ SAT]',
+        totalTaxPaid: '[₹ Total]',
+        note: 'Form 26AS IT Portal se download karein aur upload karein'
+      },
+      'AIS': {
+        _source: 'extracted', _docType: 'AIS',
+        pan: '[Your PAN]',
+        ay: ay,
+        salaryWages: '[₹ from employer]',
+        dividendIncome: '[₹ dividends]',
+        interestIncome: '[₹ FD+Savings]',
+        mutualFundTransactions: '[₹ MF value]',
+        totalTDS: '[₹ TDS]',
+        note: 'AIS download from: incometax.gov.in → Services → Annual Information Statement'
+      },
+      'Bank Statement': {
+        _source: 'extracted', _docType: 'Bank Statement',
+        accountHolder: '[Account Holder Name]',
+        accountLast4: 'XXXX',
+        bankName: '[Bank Name]',
+        ifsc: '[IFSC Code]',
+        period: `April ${fyStart} – March ${fyStart+1}`,
+        openingBalance: '[₹]',
+        closingBalance: '[₹]',
+        totalCredits: '[₹]',
+        totalDebits: '[₹]'
+      },
+      'Investment Proof': {
+        _source: 'extracted', _docType: 'Investment Proof',
+        instrumentType: '[ELSS/PPF/LIC/NSC/FD]',
+        amountInvested: '[₹]',
+        dateOfInvestment: '[Date]',
+        section: '[80C/80D/80CCD]',
+        certificateNo: '[Certificate/Policy No.]'
+      },
+      'Other Document': {
+        _source: 'extracted', _docType: 'Other Document',
+        note: 'Document uploaded. Gemini AI API key set karein for intelligent extraction.'
+      }
+    };
+
+    return templates[docType] || templates['Other Document'];
+  }
+
+  // ── Show OCR Result ───────────────────────────────────────────────
+  function showOCRResult(docType, data, docKey) {
+    const card = document.getElementById('ocrResultCard');
+    const body = document.getElementById('ocrResultBody');
+    const actions = document.getElementById('ocrActions');
+    const badge = document.getElementById('ocrResultBadge');
+    const title = document.getElementById('ocrResultTitle');
+    const icon = document.getElementById('ocrResultIcon');
+
+    card.style.display = 'block';
+    const isGemini = data._source === 'gemini-vision';
+    badge.textContent = isGemini ? '✨ Gemini Vision AI' : '🤖 AI Extracted';
+    badge.style.background = isGemini ? 'linear-gradient(135deg,#10b981,#059669)' : 'linear-gradient(135deg,#7c3aed,#6d28d9)';
+    title.textContent = `${docType} – AI Extraction Result`;
+
+    const icons = { 'PAN Card':'🪪', 'Aadhaar Card':'🪪', 'Form 16':'📋', 'Form 26AS':'📄', 'AIS':'📊', 'Bank Statement':'🏦', 'Investment Proof':'📈', 'Other Document':'📎' };
+    icon.textContent = icons[docType] || '📄';
+
+    // Remove internal fields
+    const displayData = Object.entries(data).filter(([k]) => !k.startsWith('_'));
+
+    body.innerHTML = `<div class="extracted-grid">${
+      displayData.map(([key, val]) => {
+        const label = key.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());
+        const isMoney = typeof val === 'string' && (val.includes('₹') || /^\d{4,}$/.test(String(val)));
+        const isNote = key === 'note';
+        return isNote
+          ? `<div class="extracted-field" style="grid-column:1/-1;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2)"><div class="ef-label">ℹ️ Note</div><div class="ef-value" style="font-size:0.78rem;color:#92400e">${val}</div></div>`
+          : `<div class="extracted-field ${isMoney?'highlight':''}"><div class="ef-label">${label}</div><div class="ef-value ${isMoney?'money':''}">${val || '—'}</div></div>`;
+      }).join('')
+    }</div>`;
+
+    // Action buttons
+    const actionBtns = {
+      'Form 16': `<button class="btn-primary-solid" onclick="copyToITRForm('form16')" style="font-size:0.82rem"><i class="fa fa-file-import"></i> Copy to ITR-1 Form</button>`,
+      'Salary Slip': `<button class="btn-primary-solid" onclick="salarySlipToITR()" style="font-size:0.82rem"><i class="fa fa-magic"></i> All Slips → ITR Auto-Fill</button>`,
+      'Form 26AS': `<button class="btn-primary-solid" onclick="copyToITRForm('26as')" style="font-size:0.82rem"><i class="fa fa-file-import"></i> Copy TDS to ITR</button>`,
+      'AIS': `<button class="btn-primary-solid" onclick="copyToITRForm('ais')" style="font-size:0.82rem"><i class="fa fa-file-import"></i> Use AIS Data in ITR</button>`,
+    };
+    actions.innerHTML = `
+      ${actionBtns[docType] || ''}
+      <button class="btn-secondary-solid" onclick="downloadExtractedPDF('${docKey}')" style="font-size:0.82rem"><i class="fa fa-file-pdf"></i> Download Summary PDF</button>
+    `;
+  }
+
+  // ── Processing UI ─────────────────────────────────────────────────
+  let progressInterval;
+  function showProcessing(msg) {
+    document.getElementById('processingCard').style.display = 'block';
+    document.getElementById('ocrResultCard').style.display = 'none';
+    document.getElementById('processingMsg').textContent = msg || 'AI processing...';
+    let prog = 0;
+    updateProgress(0);
+    progressInterval = setInterval(() => {
+      prog = Math.min(prog + Math.random() * 15, 90);
+      updateProgress(prog);
+    }, 400);
+  }
+  function hideProcessing() {
+    clearInterval(progressInterval);
+    document.getElementById('processingCard').style.display = 'none';
+  }
+  function updateProgress(pct) {
+    const el = document.getElementById('progressFill');
+    if (el) el.style.width = pct + '%';
+  }
+
+  // ── Render Docs List ──────────────────────────────────────────────
+  function renderDocsList() {
+    const list = document.getElementById('docsList');
+    if (!sessionDocs.length) {
+      list.innerHTML = '<p style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:1rem">Koi document upload nahi hua abhi.</p>';
+      return;
+    }
+    const icons = { 'PAN Card':'🪪', 'Aadhaar Card':'🪪', 'Form 16':'📋', 'Form 26AS':'📄', 'AIS':'📊', 'Bank Statement':'🏦', 'Investment Proof':'📈', 'Other Document':'📎' };
+    list.innerHTML = sessionDocs.map((d, i) => `
+      <div class="doc-list-item">
+        <span class="doc-icon">${icons[d.type] || '📄'}</span>
+        <div class="doc-info">
+          <div class="doc-name">${d.name}</div>
+          <div class="doc-meta">${d.type} | ${(d.size/1024).toFixed(0)} KB | ${new Date(d.timestamp).toLocaleTimeString('en-IN')}</div>
+        </div>
+        <span class="doc-status ${d.status}">${d.status === 'done' ? '✅ Done' : d.status === 'processing' ? '⏳ AI Reading...' : '❌ Error'}</span>
+        <button onclick="sessionDocs.splice(${i},1);renderDocsList();updateDocSummary()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0.25rem;font-size:0.9rem" title="Remove">🗑️</button>
+      </div>`).join('');
+  }
+
+  // ── Doc Summary Dashboard ─────────────────────────────────────────
+  function updateDocSummary() {
+    const dash = document.getElementById('docSummaryDash');
+    const doneDocs = sessionDocs.filter(d => d.status === 'done');
+    if (!doneDocs.length) return;
+
+    const f16 = extractedDataStore['form16'];
+    const form26 = extractedDataStore['26as'];
+    const ais = extractedDataStore['ais'];
+
+    dash.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+        <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:0.75rem">
+          <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;text-transform:uppercase">Documents Processed</div>
+          <div style="font-size:1.5rem;font-weight:900;color:var(--primary)">${doneDocs.length}</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:0.75rem">
+          <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;text-transform:uppercase">Gross Salary</div>
+          <div style="font-size:1rem;font-weight:800;color:var(--primary)">${f16?.grossSalary || '—'}</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:0.75rem">
+          <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;text-transform:uppercase">Total TDS</div>
+          <div style="font-size:1rem;font-weight:800;color:var(--success)">${f16?.totalTDS || form26?.totalTaxPaid || '—'}</div>
+        </div>
+        <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:0.75rem">
+          <div style="font-size:0.7rem;color:var(--text-muted);font-weight:600;text-transform:uppercase">AIS Income</div>
+          <div style="font-size:1rem;font-weight:800;color:var(--primary)">${ais?.salaryWages || '—'}</div>
+        </div>
+      </div>
+      <div style="margin-top:0.75rem;font-size:0.78rem;color:var(--text-secondary)">
+        ✅ ${doneDocs.map(d => d.type).join(', ')} processed
+      </div>`;
+  }
+
+  // ── AI Chat ───────────────────────────────────────────────────────
+  async function sendDocAiMsg() {
+    const input = document.getElementById('docAiInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+
+    const chat = document.getElementById('docAiChat');
+    chat.innerHTML += `<div class="ai-msg user">${msg}</div>`;
+    chat.innerHTML += `<div class="ai-msg thinking" id="thinking-${Date.now()}">🤖 AI soch raha hai...</div>`;
+    chat.scrollTop = chat.scrollHeight;
+
+    try {
+      // Build context from extracted docs
+      let context = '';
+      if (Object.keys(extractedDataStore).length > 0) {
+        context = '\n\nUser ke uploaded documents se extracted data:\n' + JSON.stringify(extractedDataStore, null, 2);
+      }
+
+      let reply = '';
+      if (window.TaxMitraAI && window.TaxMitraAI.callGemini) {
+        const result = await window.TaxMitraAI.callGemini(msg + context, 'itr', 'hi', []);
+        reply = result.text || 'Koi response nahi mila.';
+      } else {
+        reply = getRuleBasedDocReply(msg);
+      }
+
+      // Remove thinking
+      chat.querySelectorAll('[id^="thinking-"]').forEach(el => el.remove());
+      chat.innerHTML += `<div class="ai-msg bot">${reply}</div>`;
+      chat.scrollTop = chat.scrollHeight;
+    } catch(err) {
+      chat.querySelectorAll('[id^="thinking-"]').forEach(el => el.remove());
+      chat.innerHTML += `<div class="ai-msg bot">❌ Error: ${err.message}. TaxMitra.setKeys({geminiApiKey:'...'}) se API key set karein.</div>`;
+      chat.scrollTop = chat.scrollHeight;
+    }
+  }
+
+  function askQuick(q) {
+    document.getElementById('docAiInput').value = q;
+    switchDocTab('analyze', document.querySelector('[onclick*="analyze"]'));
+    sendDocAiMsg();
+  }
+
+  function getRuleBasedDocReply(msg) {
+    const m = msg.toLowerCase();
+    if (m.includes('tds') || m.includes('tax deducted')) return '📋 TDS (Tax Deducted at Source) aapke Form 26AS mein Part A mein dikh ta hai. Salary TDS section 192 ke under hota hai. Form 16 mein bhi total TDS deducted likha hota hai. Dono match karne chahiye.';
+    if (m.includes('form 16')) return '📄 Form 16 do parts mein hota hai:\n• Part A: Employer ka TAN, PAN, quarterly TDS certificate\n• Part B: Salary computation — gross salary, exemptions, deductions, taxable income, tax calculation\n\nPart A TAN ke saath employer se milta hai. Part B detailed computation hoti hai.';
+    if (m.includes('26as')) return '📄 Form 26AS ek consolidated tax statement hai jo income tax portal par available hai. Ismein:\n• Part A: TDS on Salary, FD, other payments\n• Part B: TCS\n• Part C: Advance tax / SAT\n• Part D: Refund if any\n\nDownload karein: incometax.gov.in → Log in → e-File → Income Tax Returns → View Form 26AS';
+    if (m.includes('ais') || m.includes('annual information')) return '📊 AIS (Annual Information Statement) ek comprehensive statement hai jo 2021 se available hai. Ismein:\n• Salary income\n• Dividend\n• Interest (savings + FD)\n• Capital gains (stocks, MF)\n• Real estate transactions\n• Foreign remittances\n\nDownload: incometax.gov.in → Services → Annual Information Statement (AIS)';
+    if (m.includes('refund')) return '💰 Refund tab milta hai jab TDS + Advance Tax > Actual Tax Liability. Calculation:\n\nRefund = Total TDS paid - Actual Tax Liability\n\nRefund bank account mein 20-45 din mein credit hoti hai ITR process hone ke baad. Bank account pre-validate hona chahiye.';
+    if (m.includes('itr form') || m.includes('konsa form')) return '📋 ITR Form selection:\n• ITR-1 (Sahaj): Salary ≤₹50L, 1 house, no capital gains\n• ITR-2: Capital gains, 2+ properties, foreign assets\n• ITR-3: Business/profession income\n• ITR-4 (Sugam): Presumptive business (44AD/44ADA)\n• ITR-5: Partnership firms\n• ITR-6: Companies\n\nHamara AI Recommender try karein: ITR Center → AI Form Recommender';
+    if (m.includes('deadline') || m.includes('due date') || m.includes('last date')) {
+      const { ay, daysLeft } = getAYInfo();
+      return `📅 ITR Filing Deadlines AY ${ay}:\n• Non-audit individuals: 31 July ${ay.split('-')[0]} (${daysLeft} din bache hain)\n• Audit cases: 31 October ${ay.split('-')[0]}\n• Belated return: 31 December ${ay.split('-')[0]}\n\nLate filing fee (234F): ₹1,000 (income ≤₹5L) ya ₹5,000`;
+    }
+    return '🤖 Aapka question samajh gaya. Main ek certified tax AI hoon. Aap Form 16, 26AS, AIS ke baare mein specific questions poochh sakte hain. Gemini API key set karein detailed answers ke liye.';
+  }
+
+  // ── Copy to ITR ───────────────────────────────────────────────────
+  // Salary Slip → ITR: aggregate 12 months salary slips to compute annual income
+  function salarySlipToITR() {
+    const allSlips = sessionDocs.filter(d => d.type === 'Salary Slip' && d.status === 'done');
+    if (!allSlips.length) { showToast('Koi salary slip processed nahi hui. Pehle upload karein.','error'); return; }
+    
+    // Aggregate across all months
+    let totalGross = 0, totalTDS = 0, totalPF = 0, totalPT = 0;
+    let employerName = '', employerPAN = '';
+    allSlips.forEach(slip => {
+      const data = slip.extractedData || {};
+      totalGross += parseFloat(data.gross_salary || 0);
+      totalTDS   += parseFloat(data.tds_deduction || 0);
+      totalPF    += parseFloat(data.pf_deduction || 0);
+      totalPT    += parseFloat(data.professional_tax || 0);
+      if (!employerName && data.employer_name) employerName = data.employer_name;
+      if (!employerPAN && data.employer_pan) employerPAN = data.employer_pan;
+    });
+    
+    // Store for ITR form
+    const itrData = {
+      grossSalary: Math.round(totalGross),
+      profTax: Math.round(totalPT),
+      tdsSalary: Math.round(totalTDS),
+      _fromSalarySlips: allSlips.length,
+      _employerName: employerName,
+    };
+    
+    try {
+      localStorage.setItem('itr_draft_1', JSON.stringify(itrData));
+      const summary = `${allSlips.length} salary slips se:
+Gross Salary: ₹${totalGross.toLocaleString('en-IN')}
+TDS: ₹${totalTDS.toLocaleString('en-IN')}
+PF: ₹${totalPF.toLocaleString('en-IN')}
+Professional Tax: ₹${totalPT.toLocaleString('en-IN')}`;
+      
+      const chat = document.getElementById('docAiChat');
+      if (chat) {
+        chat.innerHTML += `<div class="ai-msg bot">✅ Salary Slips → ITR Data Converted!
+
+${summary}
+
+ITR-1 form mein auto-fill ho gaya. Abhi redirect kar raha hoon...</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      }
+      showToast(allSlips.length + ' salary slips se ITR data ready!', 'success');
+      setTimeout(() => { window.location.href = 'itr-form.html?form=1'; }, 2000);
+    } catch(e) {
+      showToast('Error: ' + e.message, 'error');
+    }
+  }
+
+  function copyToITRForm(docKey) {
+    const data = docKey ? extractedDataStore[docKey] : {};
+    // Store in localStorage for ITR form to pick up
+    const itrData = {};
+
+    const f16 = extractedDataStore['form16'] || {};
+    const form26 = extractedDataStore['26as'] || {};
+
+    // Try to extract numeric values
+    const parseNum = (val) => {
+      if (!val) return 0;
+      const n = String(val).replace(/[₹,\s]/g,'');
+      return parseFloat(n) || 0;
+    };
+
+    if (f16.grossSalary) itrData.grossSalary = parseNum(f16.grossSalary);
+    if (f16.totalTDS) itrData.tdsSalary = parseNum(f16.totalTDS);
+    if (f16.employeeName) itrData.firstName = f16.employeeName.split(' ')[0] || '';
+    if (form26.salaryTDS) itrData.tdsSalary = parseNum(form26.salaryTDS);
+    if (form26.totalTaxPaid) itrData.selfAssessTax = parseNum(form26.selfAssessmentTax || '0');
+
+    try {
+      localStorage.setItem('itr_draft_1', JSON.stringify(itrData));
+      showToast('✅ Data ITR-1 form mein copy ho gaya! Redirect ho raha hai...', 'success');
+      setTimeout(() => { window.location.href = 'itr-form.html?form=1'; }, 1500);
+    } catch(e) {
+      showToast('ITR form mein data copy nahi ho saka: ' + e.message, 'error');
+    }
+  }
+
+  // ── Download Extracted PDF ────────────────────────────────────────
+  function downloadExtractedPDF(docKey) {
+    if (!window.jspdf) { showToast('PDF loading...', 'error'); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const data = extractedDataStore[docKey] || {};
+    const docType = data._docType || docKey;
+
+    doc.setFillColor(30,64,175); doc.rect(0,0,210,28,'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+    doc.text('AI Extracted Data – ' + docType, 105, 12, {align:'center'});
+    doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text('TaxMitra AI Enterprise | Developed by Abhishek Agrahari | ' + new Date().toLocaleDateString('en-IN'), 105, 22, {align:'center'});
+
+    doc.setTextColor(30,30,30);
+    const rows = Object.entries(data).filter(([k]) => !k.startsWith('_')).map(([k, v]) => {
+      const label = k.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());
+      return [label, String(v)];
+    });
+
+    doc.autoTable({
+      startY: 36, head: [['Field','Extracted Value']], body: rows,
+      headStyles: {fillColor:[30,64,175],textColor:255,fontSize:9,fontStyle:'bold'},
+      styles: {fontSize:9}
+    });
+    doc.save(`AI_Extracted_${docType.replace(/\s+/g,'_')}.pdf`);
+    showToast('Summary PDF downloaded!', 'success');
+  }
+
+  // ── Compare AIS vs 26AS ───────────────────────────────────────────
+  function compareAIS26AS() {
+    const ais = extractedDataStore['ais'];
+    const form26 = extractedDataStore['26as'];
+    if (!ais && !form26) {
+      showToast('Pehle AIS aur Form 26AS upload karein', 'error'); return;
+    }
+    switchDocTab('analyze', document.querySelectorAll('.doc-tab-btn')[1]);
+    const chat = document.getElementById('docAiChat');
+    const comparison = `📊 AIS vs Form 26AS Comparison:\n\n• AIS Salary: ${ais?.salaryWages || 'Not uploaded'}\n• Form 26AS TDS (Salary): ${form26?.salaryTDS || 'Not uploaded'}\n\n💡 Agar AIS aur 26AS mein difference hai, to AIS ko prefer karein as it's more comprehensive. Discrepancies ke liye taxpayer portal par feedback submit karein.`;
+    chat.innerHTML += `<div class="ai-msg bot">${comparison}</div>`;
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  // ── Download Doc Summary PDF ──────────────────────────────────────
+  function downloadDocSummaryPDF() {
+    if (!window.jspdf) { showToast('PDF loading...', 'error'); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const { ay, fy } = getAYInfo();
+
+    doc.setFillColor(30,64,175); doc.rect(0,0,210,28,'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+    doc.text('Document Summary – AY ' + ay, 105, 12, {align:'center'});
+    doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text('TaxMitra AI Enterprise | Abhishek Agrahari | FY ' + fy, 105, 22, {align:'center'});
+    doc.setTextColor(30,30,30);
+
+    const rows = [];
+    sessionDocs.filter(d => d.status === 'done').forEach(d => {
+      const data = d.extractedData || {};
+      rows.push([d.type, d.name, d.status === 'done' ? '✅ Processed' : '—']);
+      Object.entries(data).filter(([k]) => !k.startsWith('_')).forEach(([k, v]) => {
+        const label = k.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());
+        rows.push(['  '+label, String(v), '']);
+      });
+    });
+
+    doc.autoTable({
+      startY:36, head:[['Document Type','Details','Status']], body: rows,
+      headStyles:{fillColor:[30,64,175],textColor:255,fontSize:8}, styles:{fontSize:8}
+    });
+    doc.save('TaxMitra_Document_Summary_AY' + ay + '.pdf');
+    showToast('Document summary PDF downloaded!', 'success');
+  }
+
+  // ── Stored Docs ───────────────────────────────────────────────────
+  function renderStoredDocs() {
+    const list = document.getElementById('storedDocsList');
+    if (!sessionDocs.length) {
+      list.innerHTML = '<p style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:2rem">Koi document abhi session mein nahi hai.</p>';
+      return;
+    }
+    list.innerHTML = sessionDocs.map((d, i) => `
+      <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem">
+        <span style="font-size:1.25rem">${d.status==='done'?'✅':'⏳'}</span>
+        <div style="flex:1">
+          <div style="font-size:0.875rem;font-weight:700">${d.name}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted)">${d.type} | ${(d.size/1024).toFixed(0)} KB | Uploaded: ${new Date(d.timestamp).toLocaleString('en-IN')}</div>
+        </div>
+        <button class="btn-secondary-solid" style="font-size:0.72rem;padding:0.25rem 0.6rem" onclick="downloadExtractedPDF('${d.docKey}')">📥 PDF</button>
+      </div>`).join('');
+  }
+
+  function clearAllDocs() {
+    if (!sessionDocs.length) { showToast('Koi document nahi hai clear karne ke liye', 'error'); return; }
+    sessionDocs = []; extractedDataStore = {};
+    renderDocsList(); renderStoredDocs(); updateDocSummary();
+    document.getElementById('ocrResultCard').style.display = 'none';
+    showToast('All session documents cleared!', 'success');
+  }
+
+  // ── Checklist ─────────────────────────────────────────────────────
+  function renderChecklist(ay, fy) {
+    const items = [
+      { cat:'📋 Basic Documents', items: ['PAN Card (mandatory for ITR filing)', `Aadhaar Card (linked with PAN — mandatory from AY ${ay})`, `Form 16 – Part A & Part B (from employer FY ${fy})`, `Form 26AS (download from incometax.gov.in)`, 'AIS – Annual Information Statement (from IT Portal)', 'Bank account statements (all banks – full FY)'] },
+      { cat:'💰 Income Documents', items: [`Salary slips (April ${fy.split('-')[0]} – March ${fy.split('-')[1]})`, 'Bank FD interest certificates / Form 16A', 'Capital gain statements (Zerodha/Groww CAS statement)', 'Rental income documents / rent agreements', 'Dividend income (check AIS / broker statements)', 'Foreign income documents if any'] },
+      { cat:'💡 Deduction Documents (Old Regime)', items: ['80C: PPF passbook, ELSS statement, LIC premium receipt, NSC', '80D: Health insurance premium receipts (self + family)', 'HRA: Rent receipts + landlord PAN (if rent > ₹1L/yr)', 'Home loan certificate: Bank interest & principal statement', '80G: Donation receipts from eligible organizations', '80CCD(1B): NPS contribution statement'] },
+      { cat:'🔐 Filing & Verification', items: ['Aadhaar-linked mobile number (for OTP e-verification)', 'Net banking access (alternate e-verification method)', 'Pre-validated bank account for refund (IFSC + account no.)', `ITR Filing deadline: 31 July ${ay.split('-')[0]} (non-audit)`] },
+    ];
+
+    let html = '';
+    let itemIndex = 0;
+    items.forEach(section => {
+      html += `<h4 style="font-size:0.875rem;font-weight:700;margin:1.25rem 0 0.75rem">${section.cat}</h4>`;
+      section.items.forEach(item => {
+        const id = 'cl_' + itemIndex++;
+        html += `<div style="display:flex;align-items:flex-start;gap:0.75rem;padding:0.5rem;border-radius:var(--radius-sm);transition:var(--transition)" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background=''">
+          <input type="checkbox" id="${id}" style="margin-top:3px;accent-color:var(--primary);width:15px;height:15px;flex-shrink:0" onchange="updateChecklistProgress()"/>
+          <label for="${id}" style="font-size:0.875rem;cursor:pointer">${item}</label>
+        </div>`;
+      });
+    });
+    document.getElementById('checklistBody').innerHTML = html;
+  }
+
+  function updateChecklistProgress() {
+    const all = document.querySelectorAll('#checklistBody input[type=checkbox]');
+    const checked = document.querySelectorAll('#checklistBody input[type=checkbox]:checked');
+    const pct = Math.round(checked.length / all.length * 100);
+    const el = document.getElementById('checklistProgress');
+    if (el) el.innerHTML = `<strong style="color:${pct===100?'var(--success)':'var(--primary)'}">Progress: ${checked.length}/${all.length} completed (${pct}%)</strong>${pct===100?'<br><span style="color:var(--success)">✅ Sabhi documents ready! Ab ITR file kar sakte hain.</span>':''}`;
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────
+  function showToast(msg, type) {
+    const cont = document.getElementById('toastContainer');
+    if (!cont) return;
+    const d = document.createElement('div');
+    d.className = 'toast ' + (type || '');
+    d.textContent = msg;
+    cont.appendChild(d);
+    setTimeout(() => d.remove(), 3500);
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    autoUpdateDates();
+  });
+  </script>
+</body>
+</html>

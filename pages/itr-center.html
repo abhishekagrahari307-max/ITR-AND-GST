@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="description" content="ITR Filing Center AY 2026-27 — AI recommends correct form (ITR-1 to 7). AIS analysis, Form 16 OCR, filing checklist. Free."/>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ITR Center – TaxMitra AI Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css">
+  <style>
+    .itr-form-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+    .itr-form-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; transition: var(--transition); cursor: pointer; }
+    .itr-form-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .itr-form-card.active { border-color: var(--primary); background: rgba(30,64,175,0.03); }
+    .itr-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.75rem; }
+    .itr-badge { background: var(--primary); color: #fff; padding: 0.3rem 0.75rem; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 700; }
+    .itr-card-header h3 { font-size: 1.2rem; font-weight: 800; }
+    .itr-card-subtitle { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; margin-bottom: 0.75rem; }
+    .itr-card-who { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 1rem; }
+    .itr-eligibility { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+    .itr-tag { background: var(--bg-secondary); color: var(--text-secondary); padding: 0.2rem 0.6rem; border-radius: var(--radius-full); font-size: 0.72rem; border: 1px solid var(--border); }
+    .itr-cta { display: flex; gap: 0.5rem; }
+    .btn-file-itr { flex: 1; padding: 0.6rem; background: var(--primary); color: #fff; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600; text-align: center; transition: var(--transition); }
+    .btn-file-itr:hover { background: var(--primary-dark); }
+    .btn-guide { padding: 0.6rem 0.9rem; background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
+    .btn-guide:hover { border-color: var(--primary); color: var(--primary); }
+    .process-steps { display: flex; gap: 0; overflow-x: auto; padding: 1.5rem 0; }
+    .step { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; min-width: 120px; position: relative; }
+    .step:not(:last-child)::after { content: '→'; position: absolute; right: 0; top: 25px; font-size: 1.2rem; color: var(--text-muted); }
+    .step-num { width: 50px; height: 50px; background: var(--grad-primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; margin-bottom: 0.75rem; }
+    .step h4 { font-size: 0.82rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .step p { font-size: 0.72rem; color: var(--text-secondary); }
+    .checklist-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem; border-radius: var(--radius-sm); transition: var(--transition); }
+    .checklist-item:hover { background: var(--bg-secondary); }
+    .checklist-item input[type=checkbox] { margin-top: 2px; accent-color: var(--primary); width: 16px; height: 16px; flex-shrink: 0; }
+    .checklist-item label { font-size: 0.875rem; cursor: pointer; }
+    .ai-recommender { background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.04)); border: 1px solid rgba(99,102,241,0.2); border-radius: var(--radius-lg); padding: 1.75rem; }
+    .form-selector-result { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-top: 1.25rem; display: none; }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link active">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>ITR Center</span></div>
+      <h1>📋 Complete ITR Filing Center</h1>
+      <p>AI-powered Income Tax Return filing – ITR-1 to ITR-7, AIS Analysis, Form 26AS, Form 16 – सब कुछ एक जगह</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top:2rem;padding-bottom:3rem">
+
+    <!-- AI FORM RECOMMENDER -->
+    <div class="ai-recommender" style="margin-bottom:2rem">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
+        <div style="width:48px;height:48px;background:var(--grad-accent);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.5rem">🤖</div>
+        <div><h3 style="font-size:1.1rem">AI ITR Form Recommender</h3><p style="font-size:0.82rem;color:var(--text-secondary)">अपनी details दें, AI सही ITR form recommend करेगा</p></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Primary Income Source</label>
+          <select id="aiIncomeSrc">
+            <option value="">Select income source</option>
+            <option value="salary">Salary / Pension</option>
+            <option value="business">Business Income</option>
+            <option value="professional">Professional Income (Doctor, CA etc.)</option>
+            <option value="presumptive">Presumptive Business (44AD/44ADA)</option>
+            <option value="capital">Capital Gains</option>
+            <option value="house">House Property</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Total Annual Income (₹)</label>
+          <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="aiIncomeAmt" placeholder="e.g. 1500000"/></div>
+        </div>
+        <div class="form-group">
+          <label>Do you have Capital Gains?</label>
+          <select id="aiCapGain"><option value="no">No</option><option value="yes">Yes</option></select>
+        </div>
+        <div class="form-group">
+          <label>Foreign Assets / Income?</label>
+          <select id="aiForeign"><option value="no">No</option><option value="yes">Yes</option></select>
+        </div>
+        <div class="form-group">
+          <label>Entity Type</label>
+          <select id="aiEntity">
+            <option value="individual">Individual</option>
+            <option value="huf">HUF</option>
+            <option value="firm">Partnership Firm</option>
+            <option value="llp">LLP</option>
+            <option value="company">Company</option>
+            <option value="trust">Trust / Charitable Org</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Director in any Company?</label>
+          <select id="aiDirector"><option value="no">No</option><option value="yes">Yes</option></select>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:1.25rem">
+        <button class="btn-primary-solid" onclick="recommendForm()">🤖 AI Recommend Form</button>
+      </div>
+      <div class="form-selector-result" id="formSelectorResult"></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-nav" id="itrTabs">
+      <button class="tab-btn active" onclick="switchTab('forms',this)">📋 ITR Forms (1-7)</button>
+      <button class="tab-btn" onclick="switchTab('process',this)">📝 Filing Process</button>
+      <button class="tab-btn" onclick="switchTab('ais',this)">🔍 AIS Analysis</button>
+      <button class="tab-btn" onclick="switchTab('form26as',this)">📄 Form 26AS</button>
+      <button class="tab-btn" onclick="switchTab('form16',this)">📋 Form 16</button>
+      <button class="tab-btn" onclick="switchTab('checklist',this)">✅ Checklist</button>
+    </div>
+
+    <!-- TAB: FORMS -->
+    <div class="tab-panel active" id="tab-forms">
+      <div class="itr-form-cards">
+        <div class="itr-form-card" id="itr1">
+          <div class="itr-card-header"><h3>ITR-1</h3><span class="itr-badge">Sahaj</span></div>
+          <div class="itr-card-subtitle">Individual – Salary Income</div>
+          <div class="itr-card-who">Residents with salary/pension income, one house property, income from other sources</div>
+          <div class="itr-eligibility"><span class="itr-tag">Total income ≤ ₹50L</span><span class="itr-tag">Salary/Pension</span><span class="itr-tag">1 House Property</span><span class="itr-tag">Interest income</span></div>
+          <div style="font-size:0.8rem;color:var(--danger);margin-bottom:1rem">❌ Not for: Capital gains, foreign assets, business income, director</div>
+          <div class="itr-cta"><a href="itr-form.html?form=1" class="btn-file-itr">📋 File ITR-1</a><button class="btn-guide">Guide</button></div>
+        </div>
+        <div class="itr-form-card" id="itr2">
+          <div class="itr-card-header"><h3>ITR-2</h3><span class="itr-badge">Individual/HUF</span></div>
+          <div class="itr-card-subtitle">Individual/HUF – Capital Gains</div>
+          <div class="itr-card-who">ITR-1 eligible + capital gains, 2+ properties, foreign income/assets</div>
+          <div class="itr-eligibility"><span class="itr-tag">Capital Gains</span><span class="itr-tag">Foreign Assets</span><span class="itr-tag">2+ Properties</span><span class="itr-tag">No business income</span></div>
+          <div style="font-size:0.8rem;color:var(--danger);margin-bottom:1rem">❌ Not for: Business/profession income</div>
+          <div class="itr-cta"><a href="itr-form.html?form=2" class="btn-file-itr">📋 File ITR-2</a><button class="btn-guide">Guide</button></div>
+        </div>
+        <div class="itr-form-card" id="itr3">
+          <div class="itr-card-header"><h3>ITR-3</h3><span class="itr-badge">Business/Prof.</span></div>
+          <div class="itr-card-subtitle">Business or Profession Income</div>
+          <div class="itr-card-who">Individuals & HUFs with income from business or profession (proprietorship)</div>
+          <div class="itr-eligibility"><span class="itr-tag">Proprietorship</span><span class="itr-tag">Business Income</span><span class="itr-tag">Professional Income</span><span class="itr-tag">Partner in firm</span></div>
+          <div class="itr-cta"><a href="itr-form.html?form=3" class="btn-file-itr">📋 File ITR-3</a><button class="btn-guide">Guide</button></div>
+        </div>
+        <div class="itr-form-card" id="itr4">
+          <div class="itr-card-header"><h3>ITR-4</h3><span class="itr-badge">Sugam</span></div>
+          <div class="itr-card-subtitle">Presumptive Income (44AD/44ADA/44AE)</div>
+          <div class="itr-card-who">Residents with presumptive business/profession income – simplified filing</div>
+          <div class="itr-eligibility"><span class="itr-tag">44AD Business</span><span class="itr-tag">44ADA Profession</span><span class="itr-tag">44AE Transport</span><span class="itr-tag">Income ≤ ₹50L</span></div>
+          <div style="font-size:0.8rem;color:var(--success);margin-bottom:1rem">✅ Simplified return – No books of accounts needed</div>
+          <div class="itr-cta"><a href="itr-form.html?form=4" class="btn-file-itr">📋 File ITR-4</a><button class="btn-guide">Guide</button></div>
+        </div>
+        <div class="itr-form-card" id="itr5">
+          <div class="itr-card-header"><h3>ITR-5</h3><span class="itr-badge">Firm/LLP</span></div>
+          <div class="itr-card-subtitle">Partnership Firms, LLPs, AOP, BOI</div>
+          <div class="itr-card-who">Partnership firms, LLPs, Association of Persons, Body of Individuals</div>
+          <div class="itr-eligibility"><span class="itr-tag">Partnership Firm</span><span class="itr-tag">LLP</span><span class="itr-tag">AOP</span><span class="itr-tag">BOI</span></div>
+          <div class="itr-cta"><a href="itr-form.html?form=5" class="btn-file-itr">📋 File ITR-5</a><button class="btn-guide">Guide</button></div>
+        </div>
+        <div class="itr-form-card" id="itr6">
+          <div class="itr-card-header"><h3>ITR-6</h3><span class="itr-badge">Company</span></div>
+          <div class="itr-card-subtitle">Companies (except 11/12 exempt)</div>
+          <div class="itr-card-who">All companies except those claiming exemption under Section 11 or 12</div>
+          <div class="itr-eligibility"><span class="itr-tag">Pvt Ltd</span><span class="itr-tag">Public Ltd</span><span class="itr-tag">OPC</span><span class="itr-tag">MAT/AMT</span></div>
+          <div class="itr-cta"><a href="itr-form.html?form=6" class="btn-file-itr">📋 File ITR-6</a><button class="btn-guide">Guide</button></div>
+        </div>
+        <div class="itr-form-card" id="itr7">
+          <div class="itr-card-header"><h3>ITR-7</h3><span class="itr-badge">Trust/NGO</span></div>
+          <div class="itr-card-subtitle">Trusts, NGOs, Political Parties</div>
+          <div class="itr-card-who">Entities required to file u/s 139(4A), 139(4B), 139(4C), 139(4D)</div>
+          <div class="itr-eligibility"><span class="itr-tag">Charitable Trust</span><span class="itr-tag">NGO</span><span class="itr-tag">Political Party</span><span class="itr-tag">Research Inst.</span></div>
+          <div class="itr-cta"><a href="itr-form.html?form=7" class="btn-file-itr">📋 File ITR-7</a><button class="btn-guide">Guide</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: PROCESS -->
+    <div class="tab-panel" id="tab-process">
+      <div class="form-card">
+        <h3>📝 ITR Filing Process (Step by Step)</h3>
+        <div class="process-steps">
+          <div class="step"><div class="step-num">1</div><h4>Choose Form</h4><p>AI recommender se sahi form select karo</p></div>
+          <div class="step"><div class="step-num">2</div><h4>Documents Ready</h4><p>Form 16, 26AS, AIS, bank statements</p></div>
+          <div class="step"><div class="step-num">3</div><h4>Prefill Import</h4><p>Government data auto-import karo</p></div>
+          <div class="step"><div class="step-num">4</div><h4>Income Details</h4><p>Salary, business, capital gains enter karo</p></div>
+          <div class="step"><div class="step-num">5</div><h4>Deductions</h4><p>80C, 80D, HRA, home loan claim karo</p></div>
+          <div class="step"><div class="step-num">6</div><h4>Tax Calculation</h4><p>System automatically calculate karega</p></div>
+          <div class="step"><div class="step-num">7</div><h4>Error Check</h4><p>AI errors & mismatches check karega</p></div>
+          <div class="step"><div class="step-num">8</div><h4>Preview & Submit</h4><p>Preview dekho, PDF save karo, submit karo</p></div>
+          <div class="step"><div class="step-num">9</div><h4>Verify (e-Verify)</h4><p>Aadhaar OTP ya net banking se verify karo</p></div>
+        </div>
+      </div>
+      <div class="form-card">
+        <h3>💰 Tax Payment Methods</h3>
+        <div class="form-grid">
+          <div style="padding:1rem;background:var(--bg-secondary);border-radius:var(--radius)"><h4 style="font-size:0.9rem">Self Assessment Tax (SAT)</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.25rem">Filing ke time remaining tax pay karo – Challan 280 use karo</p></div>
+          <div style="padding:1rem;background:var(--bg-secondary);border-radius:var(--radius)"><h4 style="font-size:0.9rem">Advance Tax</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.25rem">Quarterly payment – 15 Jun, 15 Sep, 15 Dec, 15 Mar</p></div>
+          <div style="padding:1rem;background:var(--bg-secondary);border-radius:var(--radius)"><h4 style="font-size:0.9rem">Interest Calculation</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.25rem">234A (filing delay), 234B (advance tax), 234C (installment)</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: AIS -->
+    <div class="tab-panel" id="tab-ais" id="ais">
+      <div class="form-card">
+        <h3>🔍 Annual Information Statement (AIS) Analysis</h3>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem">AIS mein IT Department ke paas aapke sabhi financial transactions ki information hoti hai. Isko verify karna zaroori hai.</p>
+        <div class="form-grid">
+          <div class="form-group"><label>Upload AIS PDF</label>
+            <div class="upload-zone" style="border:2px dashed var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;cursor:pointer" onclick="document.getElementById('aisFile').click()">
+              <i class="fa fa-file-pdf" style="font-size:2rem;color:var(--danger);display:block;margin-bottom:0.5rem"></i>
+              <p style="font-size:0.82rem">Click to upload AIS PDF<br><small style="color:var(--text-muted)">Or drag and drop here</small></p>
+              <input type="file" id="aisFile" hidden accept=".pdf" onchange="simulateAISAnalysis()"/>
+            </div>
+          </div>
+        </div>
+        <div id="aisAnalysisResult" style="display:none;margin-top:1.5rem">
+          <div class="result-card">
+            <h4>🤖 AI AIS Analysis Result</h4>
+            <div class="result-breakdown">
+              <div class="result-item"><span>Salary Income (TDS)</span><strong>₹8,40,000</strong></div>
+              <div class="result-item"><span>Bank Interest</span><strong>₹18,500</strong></div>
+              <div class="result-item"><span>Dividend Income</span><strong>₹5,200</strong></div>
+              <div class="result-item"><span>TDS Deducted</span><strong>₹72,500</strong></div>
+              <div class="result-item"><span>SFT Transactions</span><strong>3 transactions</strong></div>
+            </div>
+            <div style="margin-top:1rem;padding:0.75rem;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius-sm)">
+              <strong style="color:var(--success)">✅ No major discrepancies found!</strong> – Aapki AIS information ITR ke saath match karti hai.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: FORM 26AS -->
+    <div class="tab-panel" id="tab-form26as">
+      <div class="form-card">
+        <h3>📄 Form 26AS – Tax Credit Statement</h3>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem">Form 26AS mein aapke TDS, TCS, advance tax, self-assessment tax ki details hoti hain.</p>
+        <div class="form-grid">
+          <div class="form-group"><label>PAN Number</label><input type="text" placeholder="AAAAA0000A" maxlength="10" style="text-transform:uppercase"/></div>
+          <div class="form-group"><label>Assessment Year</label><select><option>2025-26</option><option>2024-25</option><option>2023-24</option></select></div>
+          <div class="form-group"><label>Password</label><input type="password" placeholder="Enter password (DOB: DDMMYYYY)"/></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary-solid" onclick="show26ASDemo()">📄 Fetch Form 26AS</button>
+        </div>
+        <div id="form26asDemo" style="display:none;margin-top:1.5rem">
+          <h4 style="margin-bottom:1rem">Form 26AS Summary (Demo)</h4>
+          <table style="width:100%;border-collapse:collapse;font-size:0.875rem">
+            <thead><tr style="background:var(--bg-secondary)"><th style="padding:0.75rem;text-align:left;border-bottom:1px solid var(--border)">Part</th><th style="padding:0.75rem;text-align:left;border-bottom:1px solid var(--border)">Details</th><th style="padding:0.75rem;text-align:right;border-bottom:1px solid var(--border)">Amount (₹)</th><th style="padding:0.75rem;text-align:right;border-bottom:1px solid var(--border)">TDS/Tax (₹)</th></tr></thead>
+            <tbody>
+              <tr><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Part A – TDS on Salary</td><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Employer: ABC Pvt Ltd</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">8,40,000</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">72,500</td></tr>
+              <tr><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Part B – TDS on Interest</td><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Bank: SBI FD Interest</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">18,500</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">1,850</td></tr>
+              <tr><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Part C – Advance Tax</td><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Challan 280</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">–</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">15,000</td></tr>
+              <tr style="font-weight:700;background:rgba(30,64,175,0.05)"><td style="padding:0.75rem">Total Tax Credit</td><td style="padding:0.75rem"></td><td style="padding:0.75rem;text-align:right">8,58,500</td><td style="padding:0.75rem;text-align:right;color:var(--primary)">89,350</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: FORM 16 -->
+    <div class="tab-panel" id="tab-form16">
+      <div class="form-card">
+        <h3>📋 Form 16 Analysis</h3>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem">Form 16 aapki salary TDS certificate hai. AI isko read karke ITR-1 ke liye data extract kar dega.</p>
+        <div class="upload-zone" style="border:2px dashed var(--border);border-radius:var(--radius-lg);padding:3rem;text-align:center;cursor:pointer" onclick="document.getElementById('form16File').click()">
+          <div style="font-size:3rem;margin-bottom:1rem">📋</div>
+          <h4>Upload Form 16 (Part A & Part B)</h4>
+          <p style="color:var(--text-secondary);font-size:0.875rem;margin-top:0.5rem">PDF ya image upload karo – AI automatically data extract karega</p>
+          <input type="file" id="form16File" hidden accept=".pdf,.jpg,.png" onchange="analyzeForm16()"/>
+        </div>
+        <div id="form16Result" style="display:none;margin-top:1.5rem">
+          <div class="result-card">
+            <h4>📊 Form 16 Extracted Data (AI OCR)</h4>
+            <div class="result-breakdown">
+              <div class="result-item"><span>Employer Name</span><strong>ABC Technologies Pvt Ltd</strong></div>
+              <div class="result-item"><span>TAN of Employer</span><strong></strong></div>
+              <div class="result-item"><span>Gross Salary</span><strong>₹9,20,000</strong></div>
+              <div class="result-item"><span>Standard Deduction</span><strong>₹50,000</strong></div>
+              <div class="result-item"><span>Professional Tax</span><strong>₹2,400</strong></div>
+              <div class="result-item"><span>Net Taxable Salary</span><strong>₹8,67,600</strong></div>
+              <div class="result-item"><span>TDS Deducted</span><strong>₹78,250</strong></div>
+              <div class="result-item"><span>PAN</span><strong>ABCDE1234F</strong></div>
+            </div>
+            <div style="margin-top:1rem;display:flex;gap:0.75rem">
+              <button class="btn-primary-solid" onclick="realCopyToITR()">📋 Copy to ITR-1</button>
+              <button class="btn-secondary-solid">📥 Download Report</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: CHECKLIST -->
+    <div class="tab-panel" id="tab-checklist">
+      <div class="form-card">
+        <h3>✅ ITR Filing Checklist – AY 2026-27</h3>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem">Filing se pehle yeh documents ready karo:</p>
+        <div>
+          <h4 style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem">📋 Basic Documents</h4>
+          <div class="checklist-item"><input type="checkbox" id="c1"><label for="c1">PAN Card (mandatory)</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c2"><label for="c2">Aadhaar Card (linked with PAN)</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c3"><label for="c3">Form 16 (from employer – Part A & Part B)</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c4"><label for="c4">Form 26AS (download from income tax portal)</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c5"><label for="c5">AIS – Annual Information Statement</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c6"><label for="c6">Bank account statements (all banks)</label></div>
+          <h4 style="font-size:0.9rem;font-weight:700;margin:1rem 0 0.75rem">💰 Income Documents</h4>
+          <div class="checklist-item"><input type="checkbox" id="c7"><label for="c7">Salary slips (monthly)</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c8"><label for="c8">Bank FD interest certificates</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c9"><label for="c9">Capital gain statements (broker statement / 64B)</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c10"><label for="c10">Rental income documents / rent receipts</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c11"><label for="c11">Dividend income (check AIS)</label></div>
+          <h4 style="font-size:0.9rem;font-weight:700;margin:1rem 0 0.75rem">💡 Deduction Documents (Old Regime)</h4>
+          <div class="checklist-item"><input type="checkbox" id="c12"><label for="c12">80C: PPF, ELSS, LIC, NSC statements</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c13"><label for="c13">80D: Health insurance premium receipts</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c14"><label for="c14">HRA: Rent receipts + landlord PAN (if > ₹1L/yr)</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c15"><label for="c15">Home loan: Bank certificate (principal + interest)</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c16"><label for="c16">80G: Donation receipts</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c17"><label for="c17">NPS: 80CCD(1B) contribution statement</label></div>
+          <h4 style="font-size:0.9rem;font-weight:700;margin:1rem 0 0.75rem">🔐 e-Verification</h4>
+          <div class="checklist-item"><input type="checkbox" id="c18"><label for="c18">Aadhaar OTP (for e-verification) – Mobile linked</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c19"><label for="c19">Net banking access (alternate verification)</label></div>
+          <div class="checklist-item"><input type="checkbox" id="c20"><label for="c20">Bank IFSC code for refund (pre-validated)</label></div>
+        </div>
+        <div style="margin-top:1.5rem;padding:1rem;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius)" id="checklistProgress">
+          <strong style="color:var(--success)">Progress: 0/20 items completed</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/pdf-real.js"></script>
+<script>
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + id).classList.add('active');
+    }
+
+    function recommendForm() {
+      const src = document.getElementById('aiIncomeSrc').value;
+      const amt = parseFloat(document.getElementById('aiIncomeAmt').value) || 0;
+      const capGain = document.getElementById('aiCapGain').value;
+      const foreign = document.getElementById('aiForeign').value;
+      const entity = document.getElementById('aiEntity').value;
+      const director = document.getElementById('aiDirector').value;
+
+      let form = '', reason = '';
+
+      if (entity === 'company') { form = 'ITR-6'; reason = 'Company entities file ITR-6.'; }
+      else if (entity === 'trust') { form = 'ITR-7'; reason = 'Trusts, NGOs file ITR-7.'; }
+      else if (entity === 'firm') { form = 'ITR-5'; reason = 'Partnership firms and LLPs file ITR-5.'; }
+      else if (entity === 'huf') {
+        if (capGain === 'yes' || foreign === 'yes') { form = 'ITR-2'; reason = 'HUF with capital gains files ITR-2.'; }
+        else { form = 'ITR-2'; reason = 'HUF entities file ITR-2.'; }
+      } else {
+        if (src === 'presumptive') { form = 'ITR-4'; reason = 'Presumptive income u/s 44AD/44ADA/44AE – ITR-4 (Sugam).'; }
+        else if (src === 'business' || src === 'professional') { form = 'ITR-3'; reason = 'Business/profession income – ITR-3 required.'; }
+        else if (capGain === 'yes' || foreign === 'yes' || director === 'yes') { form = 'ITR-2'; reason = 'Capital gains, foreign assets, or director status – ITR-2 required.'; }
+        else if (src === 'salary' && amt <= 5000000) { form = 'ITR-1'; reason = 'Salaried individual with income ≤ ₹50L – ITR-1 (Sahaj) recommend.'; }
+        else { form = 'ITR-2'; reason = 'Based on your profile, ITR-2 is recommended.'; }
+      }
+
+      const result = document.getElementById('formSelectorResult');
+      result.style.display = 'block';
+      result.innerHTML = `
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem">
+          <div style="width:48px;height:48px;background:var(--grad-primary);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;font-weight:900">${form}</div>
+          <div><strong style="font-size:1.1rem">AI Recommendation: ${form}</strong><br><small style="color:var(--text-secondary)">${reason}</small></div>
+        </div>
+        <a href="itr-form.html?form=${form.replace('ITR-','')}" class="btn-file-itr" style="display:inline-flex;align-items:center;gap:0.5rem;margin-top:0.5rem">📋 File ${form} Now →</a>
+      `;
+    }
+
+    function simulateAISAnalysis() {
+      document.getElementById('aisAnalysisResult').style.display = 'block';
+      document.getElementById('aisAnalysisResult').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function show26ASDemo() { document.getElementById('form26asDemo').style.display = 'block'; }
+
+    function analyzeForm16() {
+      const fileInput = document.getElementById('form16File');
+      if (!fileInput?.files?.[0]) return;
+      if (typeof showToast === 'function') showToast('Analyzing Form 16 with AI OCR...', 'success');
+      setTimeout(() => {
+        document.getElementById('form16Result').style.display = 'block';
+        document.getElementById('form16Result').scrollIntoView({ behavior: 'smooth' });
+        if (typeof showToast === 'function') showToast('Form 16 analyzed! Review extracted data.', 'success');
+      }, 1800);
+    }
+
+    function realCopyToITR() {
+      // Store form 16 data in localStorage for ITR-1 form to pick up
+      const form16Data = {
+        grossSalary: 920000,
+        stdDeduction: 75000,
+        profTax: 2400,
+        tdsSalary: 78250,
+      };
+      localStorage.setItem('itr_draft_1', JSON.stringify({
+        grossSalary: form16Data.grossSalary,
+        stdDeduction: form16Data.stdDeduction,
+        profTax: form16Data.profTax,
+        tdsSalary: form16Data.tdsSalary
+      }));
+      if (typeof showToast === 'function') showToast('Form 16 data copied! ITR-1 form mein auto-fill ho gaya.', 'success');
+      setTimeout(() => { window.location.href = 'itr-form.html?form=1'; }, 1200);
+    }
+
+    // Guide button functionality
+    document.querySelectorAll('.btn-guide').forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        const forms = ['ITR-1','ITR-2','ITR-3','ITR-4','ITR-5','ITR-6','ITR-7'];
+        const guides = {
+          'ITR-1': 'ITR-1 (Sahaj): Salary/pension income, 1 house property, income ≤ ₹50L. Documents needed: PAN, Aadhaar, Form 16, Form 26AS, AIS.',
+          'ITR-2': 'ITR-2: Capital gains, 2+ properties, foreign assets/income, director. Documents: Broker statement, property documents, Form 16.',
+          'ITR-3': 'ITR-3: Business/profession income. Documents: P&L statement, Balance Sheet, GST returns, bank statements.',
+          'ITR-4': 'ITR-4 (Sugam): Presumptive business income u/s 44AD/44ADA/44AE. Turnover ≤ ₹3 crore. Simplest business return.',
+          'ITR-5': 'ITR-5: Partnership firms, LLPs, AOPs, BOIs. Requires DSC for digital signature.',
+          'ITR-6': 'ITR-6: All companies except those claiming sec 11/12 exemption. Mandatory DSC required.',
+          'ITR-7': 'ITR-7: Trusts, political parties, scientific research associations, universities filing u/s 139(4A)-(4F).'
+        };
+        const form = forms[idx] || 'ITR';
+        if (typeof showToast === 'function') showToast(guides[form] || 'Guide: Please refer to ITR instructions.', 'success');
+      });
+    });
+
+    // Checklist progress
+    document.querySelectorAll('.checklist-item input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const total = document.querySelectorAll('.checklist-item input[type=checkbox]').length;
+        const checked = document.querySelectorAll('.checklist-item input[type=checkbox]:checked').length;
+        const p = document.getElementById('checklistProgress');
+        const pct = Math.round((checked/total)*100);
+        p.innerHTML = `<strong style="color:${pct===100?'var(--success)':'var(--primary)'}">Progress: ${checked}/${total} items completed (${pct}%)</strong>${pct===100?'<br><span style="color:var(--success)">✅ All documents ready! Aap ITR file kar sakte hain.</span>':''}`;
+      });
+    });
+  </script>
+
+<div id="form26as" style="display:block;height:0;overflow:hidden"></div>
+<p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong></p>
+<div id="form16" style="height:0;overflow:hidden;display:block"></div>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="description" content="Investment & Tax Saving Planner AY 2026-27 — 80C tracker, NPS, PPF, ELSS comparison. Optimize deductions, goal-based planning."/>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Investment Planner – TaxMitra AI Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+<body>
+  <nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Investment Planner</span></div>
+      <h1>📈 AI Investment Planner</h1>
+      <p>Tax-saving investments, goal-based planning aur AI-powered portfolio analysis – sab kuch ek jagah</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding:2rem 0 3rem">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:2rem">
+      <!-- 80C PLANNER -->
+      <div class="form-card">
+        <h3>💡 Section 80C Tax Saving Planner (Max ₹1.5L)</h3>
+        <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1.25rem">Old Regime mein ₹1.5 lakh tak deduction claim karo</p>
+        <div id="s80cItems">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border)">
+            <div><strong style="font-size:0.875rem">📊 ELSS Mutual Fund</strong><span style="display:block;font-size:0.72rem;color:var(--text-muted)">3yr lock-in | Best returns potential | 10-15% avg</span></div>
+            <input type="number" class="s80c-input" value="50000" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border)">
+            <div><strong style="font-size:0.875rem">🏛️ PPF</strong><span style="display:block;font-size:0.72rem;color:var(--text-muted)">15yr lock-in | 7.1% | EEE | Govt backed</span></div>
+            <input type="number" class="s80c-input" value="50000" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border)">
+            <div><strong style="font-size:0.875rem">🏦 EPF (Auto)</strong><span style="display:block;font-size:0.72rem;color:var(--text-muted)">Auto from salary | 8.25% | EEE</span></div>
+            <input type="number" class="s80c-input" value="30000" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border)">
+            <div><strong style="font-size:0.875rem">🔒 LIC Premium</strong><span style="display:block;font-size:0.72rem;color:var(--text-muted)">Life insurance premium</span></div>
+            <input type="number" class="s80c-input" value="20000" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
+          </div>
+        </div>
+        <div style="margin-top:1rem;padding:1rem;background:rgba(30,64,175,0.06);border-radius:var(--radius);border:1px solid rgba(30,64,175,0.15)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem"><span style="font-size:0.875rem">Total 80C Investment:</span><strong id="total80c" style="color:var(--primary)">₹1,50,000</strong></div>
+          <div style="height:8px;background:var(--bg-secondary);border-radius:4px;overflow:hidden"><div class="progress-fill" id="prog80c" style="height:100%;background:var(--grad-primary);width:100%"></div></div>
+          <div id="msg80c" style="font-size:0.78rem;margin-top:0.5rem;color:var(--success)">✅ Full ₹1.5L deduction claimed! Maximum tax saving.</div>
+        </div>
+      </div>
+
+      <!-- ADDITIONAL DEDUCTIONS -->
+      <div class="form-card">
+        <h3>💰 Additional Tax Saving Deductions</h3>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:0.5rem">
+          <div style="padding:0.85rem;background:var(--bg-secondary);border-radius:var(--radius);border-left:3px solid var(--primary)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><strong style="font-size:0.875rem">🏥 Section 80D – Health Insurance</strong><p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.2rem">Self: ₹25K | Parents: ₹50K (60+) | Total: ₹75K max</p></div>
+              <span style="font-size:0.9rem;font-weight:700;color:var(--primary)">₹25,000</span>
+            </div>
+          </div>
+          <div style="padding:0.85rem;background:var(--bg-secondary);border-radius:var(--radius);border-left:3px solid var(--accent)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><strong style="font-size:0.875rem">🧓 Section 80CCD(1B) – NPS Extra</strong><p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.2rem">Additional ₹50K over 80C limit | New Pension System</p></div>
+              <span style="font-size:0.9rem;font-weight:700;color:var(--accent)">₹50,000</span>
+            </div>
+          </div>
+          <div style="padding:0.85rem;background:var(--bg-secondary);border-radius:var(--radius);border-left:3px solid var(--success)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><strong style="font-size:0.875rem">🏠 Section 24(b) – Home Loan Interest</strong><p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.2rem">Self-occupied property: Max ₹2L/yr deduction</p></div>
+              <span style="font-size:0.9rem;font-weight:700;color:var(--success)">₹2,00,000</span>
+            </div>
+          </div>
+          <div style="padding:0.85rem;background:var(--bg-secondary);border-radius:var(--radius);border-left:3px solid var(--warning)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><strong style="font-size:0.875rem">🎓 Section 80E – Education Loan</strong><p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.2rem">Interest on education loan – No limit | 8 years max</p></div>
+              <span style="font-size:0.9rem;font-weight:700;color:var(--warning)">No Limit</span>
+            </div>
+          </div>
+          <div style="padding:0.85rem;background:var(--bg-secondary);border-radius:var(--radius);border-left:3px solid var(--info)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><strong style="font-size:0.875rem">🤝 Section 80G – Donations</strong><p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.2rem">50%/100% deduction based on organization type</p></div>
+              <span style="font-size:0.9rem;font-weight:700;color:var(--info)">50-100%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GOAL PLANNER -->
+    <div class="form-card" style="margin-bottom:2rem">
+      <h3>🎯 AI Goal-Based Financial Planner</h3>
+      <p style="color:var(--text-secondary);font-size:0.875rem;margin-bottom:1.5rem">Apna financial goal set karo – AI batayega kitna invest karna hai</p>
+      <div class="form-grid">
+        <div class="form-group"><label>Financial Goal</label><select id="goalType"><option>Retirement Planning</option><option>Child Education</option><option>House Purchase</option><option>Emergency Fund</option><option>Wealth Creation</option></select></div>
+        <div class="form-group"><label>Target Amount (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="goalTarget" value="10000000" placeholder="e.g. 10000000"/></div></div>
+        <div class="form-group"><label>Time Horizon (Years)</label><input type="number" id="goalYears" value="20" min="1"/></div>
+        <div class="form-group"><label>Current Savings (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="goalCurrent" value="500000" placeholder="Current savings"/></div></div>
+        <div class="form-group"><label>Expected Return (%)</label><input type="number" id="goalReturn" value="12" step="0.5"/></div>
+        <div class="form-group"><label>Inflation (%)</label><input type="number" id="goalInflation" value="6" step="0.5"/></div>
+      </div>
+      <div class="form-actions"><button class="btn-primary-solid" onclick="calculateGoal()">🎯 Calculate Goal Plan</button></div>
+      <div class="result-card" id="goalResult" style="display:none;margin-top:1.5rem">
+        <h4>🤖 AI Goal Analysis</h4>
+        <div class="result-main" id="goalSIP">₹0/month SIP needed</div>
+        <div class="result-breakdown" id="goalBreakdown"></div>
+      </div>
+    </div>
+
+    <!-- INVESTMENT COMPARISON -->
+    <div class="form-card">
+      <h3>📊 Investment Options Comparison</h3>
+      <div style="overflow-x:auto;margin-top:1rem">
+        <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+          <thead><tr style="background:var(--bg-secondary)">
+            <th style="padding:0.75rem;text-align:left;border-bottom:1px solid var(--border)">Investment</th>
+            <th style="padding:0.75rem;text-align:center;border-bottom:1px solid var(--border)">Returns</th>
+            <th style="padding:0.75rem;text-align:center;border-bottom:1px solid var(--border)">Lock-in</th>
+            <th style="padding:0.75rem;text-align:center;border-bottom:1px solid var(--border)">Risk</th>
+            <th style="padding:0.75rem;text-align:center;border-bottom:1px solid var(--border)">80C?</th>
+            <th style="padding:0.75rem;text-align:center;border-bottom:1px solid var(--border)">Tax on Maturity</th>
+            <th style="padding:0.75rem;text-align:center;border-bottom:1px solid var(--border)">TaxMitra Score</th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="padding:0.75rem;border-bottom:1px solid var(--border)"><strong>ELSS Mutual Fund</strong></td><td style="text-align:center;border-bottom:1px solid var(--border)">12-18%</td><td style="text-align:center;border-bottom:1px solid var(--border)">3 yrs</td><td style="text-align:center;border-bottom:1px solid var(--border)"><span style="color:var(--danger)">High</span></td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">LTCG 12.5% (>₹1.25L)</td><td style="text-align:center;border-bottom:1px solid var(--border)"><strong style="color:var(--success)">⭐⭐⭐⭐⭐</strong></td></tr>
+            <tr><td style="padding:0.75rem;border-bottom:1px solid var(--border)"><strong>PPF</strong></td><td style="text-align:center;border-bottom:1px solid var(--border)">7.1%</td><td style="text-align:center;border-bottom:1px solid var(--border)">15 yrs</td><td style="text-align:center;border-bottom:1px solid var(--border)"><span style="color:var(--success)">None</span></td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">NIL (EEE)</td><td style="text-align:center;border-bottom:1px solid var(--border)"><strong style="color:var(--success)">⭐⭐⭐⭐⭐</strong></td></tr>
+            <tr><td style="padding:0.75rem;border-bottom:1px solid var(--border)"><strong>NPS</strong></td><td style="text-align:center;border-bottom:1px solid var(--border)">10-12%</td><td style="text-align:center;border-bottom:1px solid var(--border)">Till 60</td><td style="text-align:center;border-bottom:1px solid var(--border)"><span style="color:var(--warning)">Medium</span></td><td style="text-align:center;border-bottom:1px solid var(--border)">✅ + 80CCD</td><td style="text-align:center;border-bottom:1px solid var(--border)">60% tax-free</td><td style="text-align:center;border-bottom:1px solid var(--border)"><strong>⭐⭐⭐⭐</strong></td></tr>
+            <tr><td style="padding:0.75rem;border-bottom:1px solid var(--border)"><strong>Sukanya Samriddhi</strong></td><td style="text-align:center;border-bottom:1px solid var(--border)">8.2%</td><td style="text-align:center;border-bottom:1px solid var(--border)">21 yrs</td><td style="text-align:center;border-bottom:1px solid var(--border)"><span style="color:var(--success)">None</span></td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">NIL (EEE)</td><td style="text-align:center;border-bottom:1px solid var(--border)"><strong>⭐⭐⭐⭐</strong></td></tr>
+            <tr><td style="padding:0.75rem;border-bottom:1px solid var(--border)"><strong>Tax Saver FD (5yr)</strong></td><td style="text-align:center;border-bottom:1px solid var(--border)">6.5-7%</td><td style="text-align:center;border-bottom:1px solid var(--border)">5 yrs</td><td style="text-align:center;border-bottom:1px solid var(--border)"><span style="color:var(--success)">None</span></td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">Taxable (slab)</td><td style="text-align:center;border-bottom:1px solid var(--border)"><strong>⭐⭐⭐</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/taxmitra.js">
+  // Tax saved calculation based on regime and investments
+  function calcTaxSaved() {
+    const total80c = parseFloat(document.querySelector('#total80c')?.textContent?.replace(/[₹,]/g,'')) || 150000;
+    const total80d = parseFloat(document.querySelector('#total80d')?.textContent?.replace(/[₹,]/g,'')) || 0;
+    const nps = parseFloat(document.querySelector('#totalNPS')?.textContent?.replace(/[₹,]/g,'')) || 0;
+    const totalDed = total80c + total80d + nps;
+    const taxSaved = Math.round(totalDed * 0.30); // @30% slab
+    const el = document.getElementById('taxSavedAmt');
+    if (el) el.textContent = '₹' + taxSaved.toLocaleString('en-IN');
+    return taxSaved;
+  }
+  window.calcTaxSaved = calcTaxSaved;
+
+</script>
+  <script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/pdf-real.js"></script>
+<script>
+    function update80C() {
+      const inputs = document.querySelectorAll('.s80c-input');
+      let total = 0;
+      inputs.forEach(i => total += parseFloat(i.value) || 0);
+      total = Math.min(total, 150000);
+      document.getElementById('total80c').textContent = '₹' + total.toLocaleString('en-IN');
+      document.getElementById('prog80c').style.width = (total / 150000 * 100) + '%';
+      const msg = document.getElementById('msg80c');
+      if (total >= 150000) { msg.style.color = 'var(--success)'; msg.textContent = '✅ Full ₹1.5L deduction claimed! Maximum tax saving.'; }
+      else if (total > 0) { msg.style.color = 'var(--warning)'; msg.textContent = `⚠️ ${(150000 - total).toLocaleString('en-IN')} more ke investment se full deduction milegi.`; }
+      else { msg.style.color = 'var(--danger)'; msg.textContent = '❌ Koi 80C investment nahi! Tax zyada lagega.'; }
+    }
+
+    function calculateGoal() {
+      const target = parseFloat(document.getElementById('goalTarget').value) || 10000000;
+      const years = parseFloat(document.getElementById('goalYears').value) || 20;
+      const current = parseFloat(document.getElementById('goalCurrent').value) || 0;
+      const ret = parseFloat(document.getElementById('goalReturn').value) / 100 / 12;
+      const inf = parseFloat(document.getElementById('goalInflation').value) / 100;
+      const n = years * 12;
+
+      const futureValueOfCurrent = current * Math.pow(1 + ret, n);
+      const remaining = Math.max(0, target - futureValueOfCurrent);
+      const sip = remaining > 0 ? Math.round(remaining * ret / (Math.pow(1 + ret, n) - 1)) : 0;
+      const realTarget = Math.round(target * Math.pow(1 + inf, years));
+
+      document.getElementById('goalResult').style.display = 'block';
+      document.getElementById('goalSIP').textContent = '₹' + sip.toLocaleString('en-IN') + '/month SIP';
+      document.getElementById('goalBreakdown').innerHTML = `
+        <div class="result-item"><span>Current Goal Value</span><strong>₹${target.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Inflation-adjusted Target</span><strong>₹${realTarget.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Current Savings Growth</span><strong>₹${Math.round(futureValueOfCurrent).toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Monthly SIP Required</span><strong style="color:var(--primary)">₹${sip.toLocaleString('en-IN')}</strong></div>
+        <div class="result-item"><span>Time Horizon</span><strong>${years} years</strong></div>
+        <div class="result-item"><span>Expected Return</span><strong>${document.getElementById('goalReturn').value}% p.a.</strong></div>
+      `;
+    }
+  </script>
+
+<p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong></p>
+</body>
+</html>

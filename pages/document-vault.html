@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="Document Vault — Secure local storage for tax documents, Form 16, invoices, certificates. Organize, tag, and retrieve instantly. TaxMitra AI Enterprise."/>
+<title>Document Vault – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.vault-layout{display:grid;grid-template-columns:240px 1fr;gap:1.25rem;padding:1.25rem 0 3rem;align-items:start}
+@media(max-width:900px){.vault-layout{grid-template-columns:1fr}}
+.vault-sidebar{position:sticky;top:72px}
+.cat-nav{list-style:none;padding:0;margin:0}
+.cat-nav li a{display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;border-radius:var(--radius-sm);font-size:.83rem;font-weight:500;color:var(--text-secondary);text-decoration:none;transition:var(--transition);cursor:pointer}
+.cat-nav li a:hover,.cat-nav li a.active{background:rgba(30,64,175,.08);color:var(--primary);font-weight:600}
+.cat-nav li a .count-badge{background:var(--primary);color:#fff;border-radius:99px;padding:.1rem .45rem;font-size:.68rem;font-weight:700}
+.upload-zone{border:2.5px dashed var(--primary);border-radius:var(--radius);padding:2rem;text-align:center;cursor:pointer;transition:var(--transition);background:rgba(30,64,175,.02);margin-bottom:1rem}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--success);background:rgba(16,185,129,.04)}
+.upload-zone i{font-size:2.5rem;color:var(--primary);display:block;margin-bottom:.65rem}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem;margin-top:1rem}
+.doc-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:var(--transition);position:relative}
+.doc-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow)}
+.doc-card-preview{height:110px;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg-secondary)}
+.doc-card-body{padding:.65rem}
+.doc-card-name{font-size:.8rem;font-weight:700;margin-bottom:.2rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-card-meta{font-size:.68rem;color:var(--text-muted)}
+.doc-card-tags{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.4rem}
+.doc-tag{background:rgba(30,64,175,.1);color:var(--primary);border-radius:99px;padding:.1rem .45rem;font-size:.62rem;font-weight:700}
+.doc-card-actions{display:flex;gap:.3rem;padding:.5rem .65rem;border-top:1px solid var(--border);background:var(--bg-secondary)}
+.btn-icon{padding:.3rem .5rem;border:none;border-radius:4px;cursor:pointer;font-size:.75rem;transition:var(--transition)}
+.btn-icon.view{background:rgba(30,64,175,.1);color:var(--primary)}
+.btn-icon.del{background:rgba(239,68,68,.1);color:var(--danger)}
+.btn-icon.download{background:rgba(16,185,129,.1);color:var(--success)}
+.btn-icon:hover{opacity:.8;transform:scale(1.05)}
+.storage-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:.3rem 0}
+.storage-fill{height:100%;border-radius:4px;background:var(--grad-primary);transition:width .8s}
+.expiry-warning{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius-sm);padding:.6rem .85rem;font-size:.78rem;color:var(--danger);display:flex;align-items:center;gap:.4rem;margin-bottom:.65rem}
+.search-filter-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.85rem;align-items:center}
+.search-filter-row input,.search-filter-row select{padding:.38rem .7rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.8rem;font-family:inherit}
+.search-filter-row input:focus,.search-filter-row select:focus{outline:none;border-color:var(--primary)}
+.empty-vault{text-align:center;padding:4rem 2rem;color:var(--text-muted)}
+.empty-vault i{font-size:4rem;opacity:.25;display:block;margin-bottom:1rem}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.5rem}
+.fg label{font-size:.72rem;font-weight:600;color:var(--text-secondary)}
+.fg input,.fg select{padding:.38rem .6rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.82rem;font-family:inherit}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--bg-card);border-radius:var(--radius);padding:1.5rem;max-width:420px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-box h3{font-size:1rem;font-weight:800;margin:0 0 1rem}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="documents.html" class="nav-link">📄 Docs</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> › 
+      <span style="color:var(--primary)">Document Vault</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">🔐 Document Vault</h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">Secure local storage · Organize by type · Expiry alerts · Quick retrieval · All data stays on your device | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <div class="vault-layout">
+    <!-- Sidebar -->
+    <div class="vault-sidebar">
+      <!-- Storage stats -->
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-hdd"></i> Storage</div>
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.25rem">
+            <span>Used</span><span id="storageUsed">0 KB</span>
+          </div>
+          <div class="storage-bar"><div class="storage-fill" id="storageBar" style="width:0%"></div></div>
+          <div style="font-size:.68rem;color:var(--text-muted);margin-top:.2rem">Local storage (approx 5MB limit)</div>
+          <div style="margin-top:.65rem;display:grid;grid-template-columns:1fr 1fr;gap:.4rem;font-size:.75rem">
+            <div style="background:var(--bg-secondary);padding:.4rem .6rem;border-radius:4px">
+              <div style="font-weight:700;color:var(--primary)" id="docCount">0</div>
+              <div style="color:var(--text-muted)">Documents</div>
+            </div>
+            <div style="background:var(--bg-secondary);padding:.4rem .6rem;border-radius:4px">
+              <div style="font-weight:700;color:#f59e0b" id="expiryCount">0</div>
+              <div style="color:var(--text-muted)">Expiring soon</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-folder"></i> Categories</div>
+        <div class="card-body" style="padding:.5rem">
+          <ul class="cat-nav" id="catNav">
+            <li><a onclick="filterCat('')" class="active">📁 All Documents <span class="count-badge" id="countAll">0</span></a></li>
+            <li><a onclick="filterCat('itr')">📋 ITR & Assessment <span class="count-badge" id="countItr">0</span></a></li>
+            <li><a onclick="filterCat('form16')">📄 Form 16/16A <span class="count-badge" id="countForm16">0</span></a></li>
+            <li><a onclick="filterCat('investment')">📈 Investments/80C <span class="count-badge" id="countInvestment">0</span></a></li>
+            <li><a onclick="filterCat('gst')">🧾 GST Invoices <span class="count-badge" id="countGst">0</span></a></li>
+            <li><a onclick="filterCat('property')">🏠 Property/Rent <span class="count-badge" id="countProperty">0</span></a></li>
+            <li><a onclick="filterCat('bank')">🏦 Bank Statements <span class="count-badge" id="countBank">0</span></a></li>
+            <li><a onclick="filterCat('notice')">📬 Notices/Orders <span class="count-badge" id="countNotice">0</span></a></li>
+            <li><a onclick="filterCat('other')">📌 Other <span class="count-badge" id="countOther">0</span></a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Quick Add -->
+      <div class="card">
+        <div class="card-header"><i class="fa fa-plus"></i> Quick Note</div>
+        <div class="card-body">
+          <div class="fg"><label>Title</label><input type="text" id="noteTitle" placeholder="Note title"/></div>
+          <div class="fg"><label>Content</label><textarea id="noteContent" rows="3" style="width:100%;padding:.38rem .6rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.78rem;resize:vertical;font-family:inherit" placeholder="Tax notes, reminders..."></textarea></div>
+          <button class="btn btn-primary" style="width:100%" onclick="addNote()"><i class="fa fa-save"></i> Save Note</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div>
+      <!-- Upload zone -->
+      <div class="upload-zone" id="dropZone" onclick="document.getElementById('vaultFileInput').click()"
+           ondragover="event.preventDefault();this.classList.add('drag')"
+           ondragleave="this.classList.remove('drag')"
+           ondrop="handleVaultDrop(event)">
+        <i class="fa fa-cloud-upload-alt"></i>
+        <strong style="font-size:1rem">Click ya Drag & Drop karein</strong>
+        <p style="font-size:.82rem;color:var(--text-muted);margin:.25rem 0">PDF, JPG, PNG, CSV, XLSX — koi bhi file</p>
+        <p style="font-size:.72rem;color:var(--text-muted)">⚠️ Saari files sirf aapke device par store hoti hain (localStorage)</p>
+      </div>
+      <input type="file" id="vaultFileInput" multiple style="display:none" onchange="handleVaultFiles(this)"/>
+
+      <!-- Expiry warnings -->
+      <div id="expiryWarnings"></div>
+
+      <!-- Search & Filter -->
+      <div class="search-filter-row">
+        <input type="text" id="vaultSearch" placeholder="🔍 Documents search..." style="flex:1;min-width:140px" oninput="renderDocs()"/>
+        <select id="catFilter" onchange="renderDocs()">
+          <option value="">All Categories</option>
+          <option value="itr">ITR & Assessment</option>
+          <option value="form16">Form 16/16A</option>
+          <option value="investment">Investments</option>
+          <option value="gst">GST</option>
+          <option value="property">Property/Rent</option>
+          <option value="bank">Bank</option>
+          <option value="notice">Notices</option>
+          <option value="other">Other</option>
+        </select>
+        <select id="sortFilter" onchange="renderDocs()">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="name">Name A-Z</option>
+          <option value="expiry">Expiry Soon</option>
+        </select>
+        <button class="btn" style="background:var(--danger);color:#fff;font-size:.78rem" onclick="clearVault()">🗑️ Clear All</button>
+      </div>
+
+      <!-- Document Grid -->
+      <div id="docGrid">
+        <div class="empty-vault">
+          <i class="fa fa-vault"></i>
+          <h3>Document Vault Empty</h3>
+          <p>Koi bhi tax document upload karein ya note add karein<br>Sab kuch sirf aapke browser mein stored hota hai</p>
+          <button class="btn btn-primary" style="margin-top:1rem" onclick="addSampleDocs()">
+            <i class="fa fa-magic"></i> Demo Documents Add Karein
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal-box">
+    <h3>📤 Document Details</h3>
+    <div id="uploadFileInfo" style="background:var(--bg-secondary);padding:.65rem;border-radius:var(--radius-sm);margin-bottom:.85rem;font-size:.82rem"></div>
+    <div class="fg"><label>Category</label>
+      <select id="uploadCat">
+        <option value="itr">ITR & Assessment</option>
+        <option value="form16">Form 16/16A</option>
+        <option value="investment">Investments/80C</option>
+        <option value="gst">GST Invoice</option>
+        <option value="property">Property/Rent</option>
+        <option value="bank">Bank Statement</option>
+        <option value="notice">Notice/Order</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="fg"><label>Financial Year</label>
+      <select id="uploadFY">
+        <option value="2025-26">FY 2025-26</option>
+        <option value="2024-25">FY 2024-25</option>
+        <option value="2023-24">FY 2023-24</option>
+        <option value="2022-23">FY 2022-23</option>
+      </select>
+    </div>
+    <div class="fg"><label>Custom Tags (comma separated)</label>
+      <input type="text" id="uploadTags" placeholder="Form 16, employer, TDS"/></div>
+    <div class="fg"><label>Expiry / Deadline Date (optional)</label>
+      <input type="date" id="uploadExpiry"/></div>
+    <div class="fg"><label>Notes</label>
+      <input type="text" id="uploadNotes" placeholder="Any notes..."/></div>
+    <div style="display:flex;gap:.5rem;margin-top:.85rem">
+      <button class="btn btn-primary" style="flex:1" onclick="saveUpload()"><i class="fa fa-save"></i> Save</button>
+      <button class="btn" style="background:var(--bg-secondary);border:1px solid var(--border)" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+var VAULT_KEY = 'tm_vault_docs';
+var pendingFiles = [];
+var currentCat = '';
+
+function loadVault() {
+  try { return JSON.parse(localStorage.getItem(VAULT_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function saveVault(docs) {
+  try { localStorage.setItem(VAULT_KEY, JSON.stringify(docs)); } catch(e) { showToast('Storage full! Kuch documents delete karein', 'error'); }
+}
+
+function handleVaultDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag');
+  handleFilesArr(Array.from(e.dataTransfer.files));
+}
+
+function handleVaultFiles(input) {
+  handleFilesArr(Array.from(input.files));
+}
+
+function handleFilesArr(files) {
+  if (files.length === 0) return;
+  pendingFiles = files;
+  
+  var info = files.map(f => '📄 ' + f.name + ' (' + formatSize(f.size) + ')').join('<br>');
+  document.getElementById('uploadFileInfo').innerHTML = info;
+  document.getElementById('uploadModal').classList.add('show');
+}
+
+function saveUpload() {
+  var docs = loadVault();
+  var cat = document.getElementById('uploadCat').value;
+  var fy = document.getElementById('uploadFY').value;
+  var tags = document.getElementById('uploadTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  var expiry = document.getElementById('uploadExpiry').value;
+  var notes = document.getElementById('uploadNotes').value;
+
+  pendingFiles.forEach(function(file) {
+    // Read file as base64 for small files, or just store metadata
+    var doc = {
+      id: Date.now() + Math.random(),
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      cat: cat,
+      fy: fy,
+      tags: tags,
+      expiry: expiry,
+      notes: notes,
+      added: new Date().toISOString(),
+      // For small files < 100KB, store data
+      data: null
+    };
+    
+    if (file.size < 100000) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        doc.data = e.target.result;
+        var d = loadVault();
+        d.push(doc);
+        saveVault(d);
+        renderDocs();
+        updateStats();
+      };
+      reader.readAsDataURL(file);
+    } else {
+      docs.push(doc);
+    }
+  });
+  
+  saveVault(docs);
+  closeModal();
+  renderDocs();
+  updateStats();
+  showToast('✅ ' + pendingFiles.length + ' document(s) saved to vault!', 'success');
+  pendingFiles = [];
+}
+
+function closeModal() {
+  document.getElementById('uploadModal').classList.remove('show');
+  document.getElementById('vaultFileInput').value = '';
+}
+
+function addNote() {
+  var title = document.getElementById('noteTitle').value.trim();
+  var content = document.getElementById('noteContent').value.trim();
+  if (!title) { showToast('Title enter karein', 'warning'); return; }
+  
+  var docs = loadVault();
+  docs.push({
+    id: Date.now(),
+    name: title,
+    type: 'text/plain',
+    size: content.length,
+    cat: 'other',
+    fy: '2025-26',
+    tags: ['note'],
+    expiry: '',
+    notes: content,
+    added: new Date().toISOString(),
+    data: 'data:text/plain;base64,' + btoa(unescape(encodeURIComponent(content)))
+  });
+  saveVault(docs);
+  
+  document.getElementById('noteTitle').value = '';
+  document.getElementById('noteContent').value = '';
+  renderDocs();
+  updateStats();
+  showToast('✅ Note saved!', 'success');
+}
+
+function filterCat(cat) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-nav li a').forEach(a => a.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('catFilter').value = cat;
+  renderDocs();
+}
+
+function renderDocs() {
+  var docs = loadVault();
+  var search = (document.getElementById('vaultSearch').value || '').toLowerCase();
+  var cat = document.getElementById('catFilter').value || currentCat;
+  var sort = document.getElementById('sortFilter').value;
+  
+  var filtered = docs.filter(function(d) {
+    if (cat && d.cat !== cat) return false;
+    if (search && !d.name.toLowerCase().includes(search) && !(d.tags||[]).join(' ').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  
+  // Sort
+  if (sort === 'newest') filtered.sort((a,b) => new Date(b.added) - new Date(a.added));
+  else if (sort === 'oldest') filtered.sort((a,b) => new Date(a.added) - new Date(b.added));
+  else if (sort === 'name') filtered.sort((a,b) => a.name.localeCompare(b.name));
+  else if (sort === 'expiry') filtered.sort((a,b) => { if(!a.expiry) return 1; if(!b.expiry) return -1; return new Date(a.expiry)-new Date(b.expiry); });
+  
+  var grid = document.getElementById('docGrid');
+  
+  if (filtered.length === 0) {
+    grid.innerHTML = docs.length === 0 ? 
+      '<div class="empty-vault"><i class="fa fa-vault"></i><h3>Vault is Empty</h3><p>Documents upload karein ya demo data add karein</p><button class="btn btn-primary" style="margin-top:1rem" onclick="addSampleDocs()"><i class="fa fa-magic"></i> Demo Docs Add Karein</button></div>' :
+      '<div class="empty-vault"><i class="fa fa-search"></i><h3>No Results</h3><p>Search ya filter adjust karein</p></div>';
+    return;
+  }
+  
+  grid.innerHTML = '<div class="doc-grid">' + filtered.map(function(doc) {
+    var icon = getDocIcon(doc.type, doc.cat);
+    var dateAdded = new Date(doc.added).toLocaleDateString('en-IN');
+    var expiryHtml = doc.expiry ? '<div style="font-size:.65rem;color:' + (isExpiringSoon(doc.expiry) ? 'var(--danger)' : 'var(--text-muted)') + '">' + (isExpiringSoon(doc.expiry) ? '⚠️ ' : '') + 'Exp: ' + new Date(doc.expiry).toLocaleDateString('en-IN') + '</div>' : '';
+    var tagsHtml = (doc.tags||[]).slice(0,3).map(t => '<span class="doc-tag">' + t + '</span>').join('');
+    
+    return '<div class="doc-card">' +
+      '<div class="doc-card-preview">' + icon + '</div>' +
+      '<div class="doc-card-body">' +
+        '<div class="doc-card-name" title="' + doc.name + '">' + doc.name + '</div>' +
+        '<div class="doc-card-meta">' + dateAdded + ' · ' + formatSize(doc.size) + '</div>' +
+        expiryHtml +
+        '<div class="doc-card-tags">' + tagsHtml + '<span class="doc-tag" style="background:rgba(139,92,246,.1);color:#7c3aed">' + doc.fy + '</span></div>' +
+      '</div>' +
+      '<div class="doc-card-actions">' +
+        (doc.data ? '<button class="btn-icon view" onclick="viewDoc(' + JSON.stringify(doc.id) + ')" title="View">👁️</button>' : '') +
+        (doc.data ? '<button class="btn-icon download" onclick="downloadDoc(' + JSON.stringify(doc.id) + ')" title="Download">⬇️</button>' : '') +
+        '<button class="btn-icon del" onclick="deleteDoc(' + JSON.stringify(doc.id) + ')" title="Delete">🗑️</button>' +
+      '</div>' +
+    '</div>';
+  }).join('') + '</div>';
+  
+  updateStats();
+  renderExpiryWarnings(docs);
+}
+
+function getDocIcon(type, cat) {
+  if (cat === 'form16') return '📋';
+  if (cat === 'investment') return '📈';
+  if (cat === 'gst') return '🧾';
+  if (cat === 'notice') return '📬';
+  if (cat === 'property') return '🏠';
+  if (cat === 'bank') return '🏦';
+  if (type && type.includes('image')) return '🖼️';
+  if (type && type.includes('pdf')) return '📄';
+  if (type && type.includes('sheet')) return '📊';
+  return '📌';
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+function isExpiringSoon(expiryDate) {
+  if (!expiryDate) return false;
+  var exp = new Date(expiryDate);
+  var diff = (exp - new Date()) / (1000*60*60*24);
+  return diff >= 0 && diff <= 30;
+}
+
+function renderExpiryWarnings(docs) {
+  var warnings = docs.filter(d => isExpiringSoon(d.expiry));
+  var container = document.getElementById('expiryWarnings');
+  container.innerHTML = warnings.map(function(d) {
+    var days = Math.round((new Date(d.expiry) - new Date()) / (1000*60*60*24));
+    return '<div class="expiry-warning">⚠️ <strong>' + d.name + '</strong> — ' + days + ' din mein expire hoga (' + new Date(d.expiry).toLocaleDateString('en-IN') + ')</div>';
+  }).join('');
+}
+
+function updateStats() {
+  var docs = loadVault();
+  var cats = {itr:0, form16:0, investment:0, gst:0, property:0, bank:0, notice:0, other:0};
+  var expiring = 0;
+  var totalSize = 0;
+  
+  docs.forEach(function(d) {
+    cats[d.cat] = (cats[d.cat] || 0) + 1;
+    if (isExpiringSoon(d.expiry)) expiring++;
+    totalSize += d.size || 0;
+  });
+  
+  document.getElementById('countAll').textContent = docs.length;
+  document.getElementById('countItr').textContent = cats.itr || 0;
+  document.getElementById('countForm16').textContent = cats.form16 || 0;
+  document.getElementById('countInvestment').textContent = cats.investment || 0;
+  document.getElementById('countGst').textContent = cats.gst || 0;
+  document.getElementById('countProperty').textContent = cats.property || 0;
+  document.getElementById('countBank').textContent = cats.bank || 0;
+  document.getElementById('countNotice').textContent = cats.notice || 0;
+  document.getElementById('countOther').textContent = cats.other || 0;
+  document.getElementById('docCount').textContent = docs.length;
+  document.getElementById('expiryCount').textContent = expiring;
+  document.getElementById('storageUsed').textContent = formatSize(totalSize);
+  document.getElementById('storageBar').style.width = Math.min(totalSize/52428*100, 100) + '%';
+}
+
+function viewDoc(id) {
+  var docs = loadVault();
+  var doc = docs.find(d => d.id === id);
+  if (!doc || !doc.data) { showToast('Preview unavailable (large file)', 'info'); return; }
+  
+  if (doc.type && doc.type.startsWith('image')) {
+    var win = window.open('');
+    win.document.write('<img src="' + doc.data + '" style="max-width:100%"/>');
+  } else if (doc.type === 'text/plain') {
+    var content = atob(doc.data.split(',')[1]);
+    var win = window.open('');
+    win.document.write('<pre style="padding:1rem;font-family:monospace">' + content + '</pre>');
+  } else {
+    var win = window.open(doc.data);
+  }
+}
+
+function downloadDoc(id) {
+  var docs = loadVault();
+  var doc = docs.find(d => d.id === id);
+  if (!doc || !doc.data) { showToast('Download unavailable', 'info'); return; }
+  var a = document.createElement('a');
+  a.href = doc.data;
+  a.download = doc.name;
+  a.click();
+  showToast('✅ Downloading: ' + doc.name, 'success');
+}
+
+function deleteDoc(id) {
+  var docs = loadVault().filter(d => d.id !== id);
+  saveVault(docs);
+  renderDocs();
+  showToast('Document deleted', 'info');
+}
+
+function clearVault() {
+  var docs = loadVault();
+  if (docs.length === 0) return;
+  if (!confirm('Sare ' + docs.length + ' documents delete karein? This cannot be undone.')) return;
+  localStorage.removeItem(VAULT_KEY);
+  renderDocs();
+  showToast('Vault cleared', 'info');
+}
+
+function addSampleDocs() {
+  var samples = [
+    {id:Date.now()+1, name:'Form 16 FY 2025-26.pdf', type:'application/pdf', size:245760, cat:'form16', fy:'2025-26', tags:['Form 16','Infosys','TDS'], expiry:'2026-07-31', notes:'Employer TDS certificate', added:new Date().toISOString(), data:null},
+    {id:Date.now()+2, name:'ITR-1 AY 2026-27 Filed.pdf', type:'application/pdf', size:102400, cat:'itr', fy:'2025-26', tags:['ITR-1','Filed','AY2026-27'], expiry:'', notes:'Filed ITR copy', added:new Date().toISOString(), data:null},
+    {id:Date.now()+3, name:'LIC Premium Receipt 2026.pdf', type:'application/pdf', size:51200, cat:'investment', fy:'2025-26', tags:['LIC','80C','₹50000'], expiry:'2027-03-31', notes:'80C deduction proof', added:new Date().toISOString(), data:null},
+    {id:Date.now()+4, name:'26AS AY 2026-27.pdf', type:'application/pdf', size:153600, cat:'itr', fy:'2025-26', tags:['26AS','TDS','Credit'], expiry:'', notes:'Annual tax credit statement', added:new Date().toISOString(), data:null},
+    {id:Date.now()+5, name:'Rent Receipt April 2025.jpg', type:'image/jpeg', size:30720, cat:'property', fy:'2025-26', tags:['Rent','HRA','₹25000'], expiry:'', notes:'April rent receipt', added:new Date().toISOString(), data:null}
+  ];
+  
+  var docs = loadVault();
+  saveVault([...docs, ...samples]);
+  renderDocs();
+  showToast('✅ 5 sample documents added!', 'success');
+}
+
+// Close modal on backdrop click
+document.getElementById('uploadModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Init
+window.addEventListener('DOMContentLoaded', function() {
+  renderDocs();
+  updateStats();
+});
+</script>
+</body>
+</html>

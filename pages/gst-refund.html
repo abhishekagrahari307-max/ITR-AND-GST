@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="GST Refund Module — RFD-01 Filing, Export Refund, Inverted Duty Refund, Status Tracking. TaxMitra AI Enterprise."/>
+<title>GST Refund – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.refund-layout{display:grid;grid-template-columns:280px 1fr;gap:1.25rem;padding:1.25rem 0 3rem;align-items:start}
+@media(max-width:900px){.refund-layout{grid-template-columns:1fr}}
+.refund-type-card{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:1rem;cursor:pointer;transition:var(--transition);margin-bottom:.65rem}
+.refund-type-card:hover,.refund-type-card.selected{border-color:var(--primary);background:rgba(30,64,175,.05)}
+.refund-type-card .icon{font-size:1.5rem;margin-bottom:.35rem}
+.refund-type-card h4{font-size:.88rem;font-weight:700;margin:0 0 .2rem}
+.refund-type-card p{font-size:.72rem;color:var(--text-muted);margin:0}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.75rem}
+.fg label{font-size:.72rem;font-weight:600;color:var(--text-secondary)}
+.fg input,.fg select,.fg textarea{padding:.42rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.82rem;font-family:inherit;transition:var(--transition)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--primary)}
+.step-indicator{display:flex;align-items:center;gap:.5rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;border:2px solid var(--border);background:var(--bg-secondary);color:var(--text-muted);flex-shrink:0}
+.step-dot.active{border-color:var(--primary);background:var(--primary);color:#fff}
+.step-dot.done{border-color:var(--success);background:var(--success);color:#fff}
+.step-line{flex:1;height:2px;background:var(--border);min-width:20px}
+.step-line.done{background:var(--success)}
+.rfd-form{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
+.rfd-form h3{font-size:.92rem;font-weight:800;margin:0 0 .85rem;display:flex;align-items:center;gap:.4rem}
+.refund-calc{background:linear-gradient(135deg,rgba(30,64,175,.06),rgba(99,102,241,.04));border:2px solid var(--primary);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
+.refund-calc .amount{font-size:2.5rem;font-weight:900;color:var(--primary)}
+.refund-calc .label{font-size:.78rem;color:var(--text-muted);margin-top:.25rem}
+.status-tracker{display:flex;flex-direction:column;gap:.5rem}
+.status-step{display:flex;align-items:flex-start;gap:.75rem;padding:.65rem;border-radius:var(--radius-sm);background:var(--bg-secondary)}
+.status-step.current{background:rgba(30,64,175,.08);border:1px solid rgba(30,64,175,.2)}
+.status-step.done{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2)}
+.status-step.pending{opacity:.5}
+.status-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;background:var(--bg-card);border:2px solid var(--border)}
+.status-step.done .status-icon{background:var(--success);border-color:var(--success);color:#fff}
+.status-step.current .status-icon{background:var(--primary);border-color:var(--primary);color:#fff}
+.doc-checklist{list-style:none;padding:0;margin:0}
+.doc-checklist li{display:flex;align-items:flex-start;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.doc-checklist li:last-child{border-bottom:none}
+.doc-checklist .chk{width:18px;height:18px;border-radius:3px;border:2px solid var(--border);cursor:pointer;flex-shrink:0;margin-top:1px;accent-color:var(--primary)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link active">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> › 
+      <a href="gst.html" style="color:var(--text-muted)">GST</a> › 
+      <span style="color:var(--primary)">GST Refund</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">💰 GST Refund Module</h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">RFD-01 Filing · Export Refund · Inverted Duty Structure · Excess Cash Ledger · Status Tracking | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <div class="refund-layout">
+    <!-- Sidebar -->
+    <div>
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-list"></i> Refund Type</div>
+        <div class="card-body" style="padding:.75rem">
+          <div class="refund-type-card selected" onclick="selectType(this,'export_zero')" id="type_export_zero">
+            <div class="icon">🌍</div>
+            <h4>Export (Zero Rated)</h4>
+            <p>Export of goods/services — GST paid refund under Rule 89</p>
+          </div>
+          <div class="refund-type-card" onclick="selectType(this,'inverted_duty')" id="type_inverted_duty">
+            <div class="icon">🔄</div>
+            <h4>Inverted Duty Structure</h4>
+            <p>Input rate > Output rate — ITC accumulation refund</p>
+          </div>
+          <div class="refund-type-card" onclick="selectType(this,'excess_cash')" id="type_excess_cash">
+            <div class="icon">💳</div>
+            <h4>Excess Cash Ledger</h4>
+            <p>Excess balance in Electronic Cash Ledger refund</p>
+          </div>
+          <div class="refund-type-card" onclick="selectType(this,'deemed_export')" id="type_deemed_export">
+            <div class="icon">🏭</div>
+            <h4>Deemed Export</h4>
+            <p>Supply to SEZ / Export Oriented Units</p>
+          </div>
+          <div class="refund-type-card" onclick="selectType(this,'wrong_head')" id="type_wrong_head">
+            <div class="icon">❌</div>
+            <h4>Wrong Head Payment</h4>
+            <p>Tax paid under wrong head (IGST vs CGST/SGST)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Document Checklist -->
+      <div class="card">
+        <div class="card-header"><i class="fa fa-clipboard-check"></i> Document Checklist</div>
+        <div class="card-body">
+          <ul class="doc-checklist" id="docChecklist">
+            <li><input type="checkbox" class="chk"> GSTR-1 (filed with export details)</li>
+            <li><input type="checkbox" class="chk"> GSTR-3B (filed)</li>
+            <li><input type="checkbox" class="chk"> Shipping Bill / Bill of Lading</li>
+            <li><input type="checkbox" class="chk"> Tax Invoice copies</li>
+            <li><input type="checkbox" class="chk"> Bank Realization Certificate (BRC)</li>
+            <li><input type="checkbox" class="chk"> FIRC (Foreign Inward Remittance)</li>
+            <li><input type="checkbox" class="chk"> GST Registration Certificate</li>
+            <li><input type="checkbox" class="chk"> LUT/Bond (if LUT filed)</li>
+          </ul>
+          <div style="margin-top:.75rem;padding:.65rem;background:rgba(245,158,11,.08);border-radius:var(--radius-sm);font-size:.75rem;color:#92400e">
+            ⚠️ RFD-01 ke saath yeh documents upload karne padte hain GST portal par
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div>
+      <!-- Step indicator -->
+      <div class="step-indicator">
+        <div class="step-dot done" id="step1Dot">✓</div>
+        <div class="step-line done"></div>
+        <div class="step-dot active" id="step2Dot">2</div>
+        <div class="step-line" id="step2Line"></div>
+        <div class="step-dot" id="step3Dot">3</div>
+        <div class="step-line" id="step3Line"></div>
+        <div class="step-dot" id="step4Dot">4</div>
+        <span style="font-size:.75rem;color:var(--text-muted);margin-left:.25rem">Select Type → Details → Calculate → Track</span>
+      </div>
+
+      <!-- RFD-01 Form -->
+      <div class="rfd-form">
+        <h3>📋 RFD-01 — Refund Application Details</h3>
+        
+        <div class="grid2">
+          <div class="fg">
+            <label>GSTIN</label>
+            <input type="text" id="gstin" placeholder="27AABCU9603R1ZV" maxlength="15" oninput="this.value=this.value.toUpperCase()"/>
+          </div>
+          <div class="fg">
+            <label>Legal Name</label>
+            <input type="text" id="legalName" placeholder="Business Name"/>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="fg">
+            <label>Tax Period From</label>
+            <input type="month" id="periodFrom" value="2025-04"/>
+          </div>
+          <div class="fg">
+            <label>Tax Period To</label>
+            <input type="month" id="periodTo" value="2026-03"/>
+          </div>
+        </div>
+
+        <!-- Export Refund -->
+        <div id="exportFields">
+          <h4 style="font-size:.82rem;font-weight:700;margin:.75rem 0 .5rem;color:var(--primary)">Export Details</h4>
+          <div class="grid2">
+            <div class="fg">
+              <label>Total Export Turnover (₹)</label>
+              <input type="number" id="exportTurnover" placeholder="5000000" oninput="calcRefund()"/>
+            </div>
+            <div class="fg">
+              <label>IGST Paid on Exports (₹)</label>
+              <input type="number" id="igstPaid" placeholder="900000" oninput="calcRefund()"/>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="fg">
+              <label>Net ITC (CGST)</label>
+              <input type="number" id="itcCGST" placeholder="200000" oninput="calcRefund()"/>
+            </div>
+            <div class="fg">
+              <label>Net ITC (SGST)</label>
+              <input type="number" id="itcSGST" placeholder="200000" oninput="calcRefund()"/>
+            </div>
+          </div>
+          <div class="fg">
+            <label>LUT Filed?</label>
+            <select id="lutFiled" onchange="calcRefund()">
+              <option value="yes">Yes (LUT Filed — claiming ITC refund)</option>
+              <option value="no">No (IGST paid on exports — claiming IGST refund)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Inverted Duty -->
+        <div id="invertedFields" style="display:none">
+          <h4 style="font-size:.82rem;font-weight:700;margin:.75rem 0 .5rem;color:var(--primary)">Inverted Duty Structure Details</h4>
+          <div class="grid2">
+            <div class="fg">
+              <label>Net ITC for Period (₹)</label>
+              <input type="number" id="netITC" placeholder="500000" oninput="calcRefund()"/>
+            </div>
+            <div class="fg">
+              <label>Adjusted Total Turnover (₹)</label>
+              <input type="number" id="adjTurnover" placeholder="2000000" oninput="calcRefund()"/>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="fg">
+              <label>Turnover of Inverted Rated Supply (₹)</label>
+              <input type="number" id="invertedTurnover" placeholder="1000000" oninput="calcRefund()"/>
+            </div>
+            <div class="fg">
+              <label>Tax Paid on Inverted Supply (₹)</label>
+              <input type="number" id="taxOnInverted" placeholder="50000" oninput="calcRefund()"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Excess Cash -->
+        <div id="excessCashFields" style="display:none">
+          <h4 style="font-size:.82rem;font-weight:700;margin:.75rem 0 .5rem;color:var(--primary)">Cash Ledger Details</h4>
+          <div class="grid2">
+            <div class="fg">
+              <label>IGST Cash Balance (₹)</label>
+              <input type="number" id="cashIGST" placeholder="0" oninput="calcRefund()"/>
+            </div>
+            <div class="fg">
+              <label>CGST Cash Balance (₹)</label>
+              <input type="number" id="cashCGST" placeholder="0" oninput="calcRefund()"/>
+            </div>
+          </div>
+          <div class="fg">
+            <label>SGST Cash Balance (₹)</label>
+            <input type="number" id="cashSGST" placeholder="0" oninput="calcRefund()"/>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:.5rem" onclick="calcRefund()">
+          <i class="fa fa-calculator"></i> Calculate Refund Amount
+        </button>
+      </div>
+
+      <!-- Refund Result -->
+      <div class="refund-calc" id="refundResult" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem">
+          <div>
+            <div class="amount" id="refundAmount">₹0</div>
+            <div class="label">Eligible Refund Amount</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:.78rem;color:var(--text-muted)">Form</div>
+            <div style="font-size:1.1rem;font-weight:800;color:var(--primary)">RFD-01</div>
+          </div>
+        </div>
+        <div id="refundBreakdown" style="margin-top:.85rem;font-size:.82rem;color:var(--text-secondary)"></div>
+        <div style="margin-top:.85rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="proceedToTrack()"><i class="fa fa-arrow-right"></i> Proceed to Track</button>
+          <button class="btn" style="background:var(--bg-secondary);border:1px solid var(--border)" onclick="generateRFD()"><i class="fa fa-file-alt"></i> Draft RFD-01</button>
+        </div>
+      </div>
+
+      <!-- Status Tracker -->
+      <div class="card" id="statusTracker" style="display:none">
+        <div class="card-header"><i class="fa fa-map-marker-alt"></i> Refund Application Status Tracker</div>
+        <div class="card-body">
+          <div class="fg" style="margin-bottom:.85rem">
+            <label>Application Reference Number (ARN)</label>
+            <div style="display:flex;gap:.5rem">
+              <input type="text" id="arnInput" placeholder="AA271221000000Y" style="flex:1"/>
+              <button class="btn btn-primary" onclick="trackStatus()"><i class="fa fa-search"></i> Track</button>
+            </div>
+          </div>
+          
+          <div class="status-tracker" id="statusSteps">
+            <div class="status-step done">
+              <div class="status-icon">✓</div>
+              <div>
+                <div style="font-weight:700;font-size:.82rem">Application Filed</div>
+                <div style="font-size:.72rem;color:var(--text-muted)">RFD-01 submitted on GST portal</div>
+              </div>
+            </div>
+            <div class="status-step done">
+              <div class="status-icon">✓</div>
+              <div>
+                <div style="font-weight:700;font-size:.82rem">Acknowledgement Issued</div>
+                <div style="font-size:.72rem;color:var(--text-muted)">ARN generated — RFD-02 issued within 3 days</div>
+              </div>
+            </div>
+            <div class="status-step current">
+              <div class="status-icon">⏳</div>
+              <div>
+                <div style="font-weight:700;font-size:.82rem">Under Processing</div>
+                <div style="font-size:.72rem;color:var(--text-muted)">Tax Officer reviewing claim — 30 days timeline</div>
+              </div>
+            </div>
+            <div class="status-step pending">
+              <div class="status-icon">4</div>
+              <div>
+                <div style="font-weight:700;font-size:.82rem">Provisional Refund</div>
+                <div style="font-size:.72rem;color:var(--text-muted)">90% refund within 7 days of acknowledgement</div>
+              </div>
+            </div>
+            <div class="status-step pending">
+              <div class="status-icon">5</div>
+              <div>
+                <div style="font-weight:700;font-size:.82rem">Final Order</div>
+                <div style="font-size:.72rem;color:var(--text-muted)">RFD-06 / RFD-05 — Full refund sanctioned</div>
+              </div>
+            </div>
+            <div class="status-step pending">
+              <div class="status-icon">6</div>
+              <div>
+                <div style="font-weight:700;font-size:.82rem">Payment Credited</div>
+                <div style="font-size:.72rem;color:var(--text-muted)">Direct bank credit to registered account</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:1rem;background:rgba(30,64,175,.06);border-radius:var(--radius-sm);padding:.85rem;font-size:.78rem;color:var(--text-secondary)">
+            <strong>📅 Timeline:</strong> GST Refund typically processed in 30-60 days<br>
+            <strong>⚡ Provisional:</strong> 90% refund within 7 days under Rule 91<br>
+            <strong>📞 Helpline:</strong> GST helpdesk 1800-103-4786 (toll free)<br>
+            <strong>🌐 Portal:</strong> <a href="https://www.gst.gov.in" target="_blank" style="color:var(--primary)">gst.gov.in → Services → Refunds</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+var currentType = 'export_zero';
+
+function selectType(el, type) {
+  document.querySelectorAll('.refund-type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  currentType = type;
+  
+  // Show/hide relevant fields
+  document.getElementById('exportFields').style.display = (type === 'export_zero' || type === 'deemed_export') ? 'block' : 'none';
+  document.getElementById('invertedFields').style.display = type === 'inverted_duty' ? 'block' : 'none';
+  document.getElementById('excessCashFields').style.display = type === 'excess_cash' ? 'block' : 'none';
+  
+  document.getElementById('refundResult').style.display = 'none';
+  
+  // Update doc checklist
+  updateDocChecklist(type);
+  calcRefund();
+}
+
+function updateDocChecklist(type) {
+  var docs = {
+    export_zero: ['GSTR-1 (filed with export details)','GSTR-3B (filed)','Shipping Bill / Bill of Lading','Tax Invoice copies','Bank Realization Certificate (BRC)','FIRC (Foreign Inward Remittance)','GST Registration Certificate','LUT/Bond (if LUT filed)'],
+    inverted_duty: ['GSTR-1 & GSTR-3B (all periods)','Purchase invoices (ITC details)','Calculation working sheet','GST Registration Certificate','CA Certificate (if refund > ₹2L)'],
+    excess_cash: ['Cash Ledger statement','GSTR-3B (showing payment)','Bank statement','GST Registration Certificate'],
+    deemed_export: ['Supply invoices','SEZ Letter of Undertaking','GST Registration of recipient','GSTR-1 with SEZ details'],
+    wrong_head: ['Challan copy (wrong payment)','GSTR-3B (if applicable)','Reconciliation statement']
+  };
+  var list = docs[type] || docs['export_zero'];
+  document.getElementById('docChecklist').innerHTML = list.map(d => '<li><input type="checkbox" class="chk"> ' + d + '</li>').join('');
+}
+
+function calcRefund() {
+  var result = document.getElementById('refundResult');
+  var breakdown = document.getElementById('refundBreakdown');
+  var amount = 0;
+  var details = '';
+  
+  if (currentType === 'export_zero' || currentType === 'deemed_export') {
+    var lut = document.getElementById('lutFiled').value;
+    if (lut === 'no') {
+      // IGST refund
+      amount = parseFloat(document.getElementById('igstPaid').value) || 0;
+      details = 'IGST paid on exports: ₹' + fmtN(amount) + '<br>Refund = 100% of IGST paid (Section 16 of IGST Act)';
+    } else {
+      // ITC refund = (Turnover of zero rated / Adjusted turnover) × Net ITC
+      var turnover = parseFloat(document.getElementById('exportTurnover').value) || 0;
+      var itcC = parseFloat(document.getElementById('itcCGST').value) || 0;
+      var itcS = parseFloat(document.getElementById('itcSGST').value) || 0;
+      var totalITC = itcC + itcS;
+      amount = Math.round(totalITC); // simplified: full ITC when 100% export
+      details = 'Net ITC (CGST+SGST): ₹' + fmtN(totalITC) + '<br>Export Turnover: ₹' + fmtN(turnover) + '<br>Refund = Net ITC (Rule 89(4))';
+    }
+  } else if (currentType === 'inverted_duty') {
+    var netITC = parseFloat(document.getElementById('netITC').value) || 0;
+    var adjTurn = parseFloat(document.getElementById('adjTurnover').value) || 0;
+    var invTurn = parseFloat(document.getElementById('invertedTurnover').value) || 0;
+    var taxPaid = parseFloat(document.getElementById('taxOnInverted').value) || 0;
+    if (adjTurn > 0) {
+      // Formula: Max Refund = (Net ITC × Inverted Turnover / Adj Turnover) - Tax Paid on Inverted
+      var maxRefund = Math.round((netITC * invTurn / adjTurn) - taxPaid);
+      amount = Math.max(0, maxRefund);
+      details = 'Formula: (Net ITC × Inverted Turnover / Adj Turnover) − Tax Paid<br>' +
+        '= (₹' + fmtN(netITC) + ' × ₹' + fmtN(invTurn) + ' / ₹' + fmtN(adjTurn) + ') − ₹' + fmtN(taxPaid) + '<br>' +
+        '= ₹' + fmtN(amount) + ' (Rule 89(5))';
+    }
+  } else if (currentType === 'excess_cash') {
+    var cashI = parseFloat(document.getElementById('cashIGST').value) || 0;
+    var cashC = parseFloat(document.getElementById('cashCGST').value) || 0;
+    var cashS = parseFloat(document.getElementById('cashSGST').value) || 0;
+    amount = cashI + cashC + cashS;
+    details = 'IGST: ₹' + fmtN(cashI) + ' + CGST: ₹' + fmtN(cashC) + ' + SGST: ₹' + fmtN(cashS) + '<br>Total excess cash ledger balance';
+  } else {
+    amount = 0;
+    details = 'Refund amount calculate karne ke liye details bharein';
+  }
+  
+  if (amount > 0) {
+    result.style.display = 'block';
+    document.getElementById('refundAmount').textContent = '₹' + fmtN(amount);
+    breakdown.innerHTML = details;
+  } else if (amount === 0 && (document.getElementById('igstPaid') && document.getElementById('igstPaid').value)) {
+    result.style.display = 'block';
+    document.getElementById('refundAmount').textContent = '₹0';
+    breakdown.innerHTML = details || 'Details bharein refund calculate karne ke liye';
+  }
+}
+
+function fmtN(n) {
+  return Math.round(n).toLocaleString('en-IN');
+}
+
+function proceedToTrack() {
+  document.getElementById('statusTracker').style.display = 'block';
+  document.getElementById('statusTracker').scrollIntoView({behavior:'smooth'});
+  showToast('Status tracker open hua!', 'info');
+}
+
+function trackStatus() {
+  var arn = document.getElementById('arnInput').value.trim();
+  if (!arn) { showToast('ARN number enter karein', 'warning'); return; }
+  showToast('ARN ' + arn + ' — Status tracking feature GST portal par available hai. gst.gov.in → Services → Track Application Status', 'info', 6000);
+}
+
+function generateRFD() {
+  var gstin = document.getElementById('gstin').value || 'XXXXXXXXXXXXXXX';
+  var name = document.getElementById('legalName').value || 'Business Name';
+  var amount = document.getElementById('refundAmount').textContent;
+  var from = document.getElementById('periodFrom').value || 'Apr 2025';
+  var to = document.getElementById('periodTo').value || 'Mar 2026';
+  
+  var draft = 'DRAFT — RFD-01 APPLICATION\n';
+  draft += '================================\n';
+  draft += 'GSTIN: ' + gstin + '\n';
+  draft += 'Legal Name: ' + name + '\n';
+  draft += 'Tax Period: ' + from + ' to ' + to + '\n';
+  draft += 'Refund Type: ' + currentType.replace(/_/g,' ').toUpperCase() + '\n';
+  draft += 'Refund Amount: ' + amount + '\n';
+  draft += 'Date: ' + new Date().toLocaleDateString('en-IN') + '\n';
+  draft += '\nDeveloped by: Abhishek Agrahari — TaxMitra AI Enterprise\n';
+  draft += '\nNOTE: This is a draft. File actual RFD-01 on GST Portal at gst.gov.in\n';
+  
+  var blob = new Blob([draft], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'RFD01_Draft_' + gstin + '.txt';
+  a.click();
+  showToast('✅ RFD-01 draft generated!', 'success');
+}
+
+// Initialize
+window.addEventListener('DOMContentLoaded', function() {
+  updateDocChecklist('export_zero');
+});
+</script>
+</body>
+</html>
