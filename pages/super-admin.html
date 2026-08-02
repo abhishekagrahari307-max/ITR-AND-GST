@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="description" content="Super Admin Panel — Multi-tenant management, user roles (RBAC), audit logs, system health, subscription management, white-label config. TaxMitra AI Enterprise."/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Super Admin – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.admin-layout{display:grid;grid-template-columns:220px 1fr;gap:1.25rem;padding:1.25rem 0 3rem;align-items:start}
+@media(max-width:900px){.admin-layout{grid-template-columns:1fr}}
+.admin-nav{list-style:none;padding:0;margin:0}
+.admin-nav li a{display:flex;align-items:center;gap:.5rem;padding:.6rem .85rem;border-radius:var(--radius-sm);font-size:.83rem;font-weight:500;color:var(--text-secondary);text-decoration:none;transition:var(--transition);cursor:pointer}
+.admin-nav li a:hover,.admin-nav li a.active{background:rgba(30,64,175,.1);color:var(--primary);font-weight:700}
+.admin-nav .section-head{font-size:.65rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:.5rem .85rem .2rem;margin-top:.5rem}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.25rem}
+@media(max-width:768px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi-box{background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius);padding:.9rem;position:relative;overflow:hidden}
+.kpi-box::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-box.blue::after{background:var(--grad-primary)}.kpi-box.green::after{background:var(--grad-success)}.kpi-box.orange::after{background:linear-gradient(90deg,#f59e0b,#d97706)}.kpi-box.purple::after{background:linear-gradient(90deg,#8b5cf6,#6d28d9)}
+.kpi-box .val{font-size:1.65rem;font-weight:900;margin-bottom:.15rem}.kpi-box .lbl{font-size:.68rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.user-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.user-table th{background:var(--bg-secondary);padding:.5rem .75rem;font-weight:700;font-size:.72rem;color:var(--text-secondary);border-bottom:2px solid var(--border);text-align:left;white-space:nowrap}
+.user-table td{padding:.5rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.user-table tr:hover td{background:rgba(30,64,175,.02)}
+.role-badge{padding:.15rem .5rem;border-radius:99px;font-size:.65rem;font-weight:700}
+.role-super{background:rgba(139,92,246,.12);color:#7c3aed}
+.role-admin{background:rgba(30,64,175,.12);color:var(--primary)}
+.role-ca{background:rgba(16,185,129,.12);color:var(--success)}
+.role-user{background:rgba(100,116,139,.12);color:#475569}
+.audit-item{display:flex;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.8rem;align-items:flex-start}
+.audit-item:last-child{border-bottom:none}
+.audit-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+.health-row{display:flex;align-items:center;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.health-row:last-child{border-bottom:none}
+.health-bar{width:120px;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.health-fill{height:100%;border-radius:4px;transition:width .8s}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.5rem}
+.fg label{font-size:.7rem;font-weight:600;color:var(--text-secondary)}
+.fg input,.fg select{padding:.38rem .6rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.82rem;font-family:inherit}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary)}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+        <li><a href="client-crm.html" class="nav-link">👥 CRM</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+      <div>
+        <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+          <a href="../index.html" style="color:var(--text-muted)">Home</a> ›
+          <span style="color:var(--primary)">Super Admin</span>
+        </nav>
+        <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">⚙️ Super Admin Panel</h1>
+        <p style="color:var(--text-secondary);font-size:.88rem;margin:0">Multi-tenant · RBAC · Audit Logs · System Health · White-label | Dev: Abhishek Agrahari</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <span style="background:rgba(16,185,129,.1);color:var(--success);border-radius:99px;padding:.25rem .75rem;font-size:.78rem;font-weight:700">● System Online</span>
+        <span style="font-size:.78rem;color:var(--text-muted)">v4.0.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-box blue"><div class="val">847</div><div class="lbl">Total Users</div></div>
+    <div class="kpi-box green"><div class="val">23</div><div class="lbl">Active Branches</div></div>
+    <div class="kpi-box orange"><div class="val">12,450</div><div class="lbl">Returns Filed</div></div>
+    <div class="kpi-box purple"><div class="val">₹8.4L</div><div class="lbl">MRR</div></div>
+  </div>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <div>
+      <div class="card">
+        <div class="card-body" style="padding:.5rem">
+          <div class="admin-section-head" style="font-size:.65rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:.5rem .85rem .2rem">User Management</div>
+          <ul class="admin-nav">
+            <li><a onclick="showSection('users')" class="active" id="nav-users"><i class="fa fa-users" style="width:18px"></i> All Users</a></li>
+            <li><a onclick="showSection('roles')" id="nav-roles"><i class="fa fa-user-shield" style="width:18px"></i> Roles & Permissions</a></li>
+            <li><a onclick="showSection('tenants')" id="nav-tenants"><i class="fa fa-building" style="width:18px"></i> Tenants/Branches</a></li>
+          </ul>
+          <div class="admin-section-head" style="font-size:.65rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:.5rem .85rem .2rem;margin-top:.4rem">Security</div>
+          <ul class="admin-nav">
+            <li><a onclick="showSection('audit')" id="nav-audit"><i class="fa fa-history" style="width:18px"></i> Audit Logs</a></li>
+            <li><a onclick="showSection('sessions')" id="nav-sessions"><i class="fa fa-lock" style="width:18px"></i> Active Sessions</a></li>
+          </ul>
+          <div class="admin-section-head" style="font-size:.65rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:.5rem .85rem .2rem;margin-top:.4rem">System</div>
+          <ul class="admin-nav">
+            <li><a onclick="showSection('health')" id="nav-health"><i class="fa fa-heartbeat" style="width:18px"></i> System Health</a></li>
+            <li><a onclick="showSection('whitelabel')" id="nav-whitelabel"><i class="fa fa-palette" style="width:18px"></i> White-label</a></li>
+            <li><a onclick="showSection('subscriptions')" id="nav-subscriptions"><i class="fa fa-credit-card" style="width:18px"></i> Subscriptions</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div>
+      <!-- Users Section -->
+      <div id="sec-users">
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+            <span><i class="fa fa-users"></i> User Management (RBAC)</span>
+            <div style="display:flex;gap:.35rem">
+              <input type="text" placeholder="🔍 Search users..." style="padding:.3rem .6rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.78rem;font-family:inherit"/>
+              <button class="btn btn-primary" style="font-size:.75rem;padding:.3rem .75rem">+ Add User</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:.5rem;overflow-x:auto">
+            <table class="user-table">
+              <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Branch</th><th>Clients</th><th>Last Login</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="userTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roles Section -->
+      <div id="sec-roles" style="display:none">
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header"><i class="fa fa-user-shield"></i> Roles & Permissions (RBAC)</div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem">
+              <div style="background:rgba(139,92,246,.06);border:1.5px solid rgba(139,92,246,.2);border-radius:var(--radius);padding:1rem">
+                <div style="font-weight:700;color:#7c3aed;margin-bottom:.5rem">👑 Super Admin</div>
+                <ul style="list-style:none;padding:0;font-size:.78rem;display:flex;flex-direction:column;gap:.2rem">
+                  <li>✅ All system access</li><li>✅ Tenant management</li><li>✅ All user management</li><li>✅ System configuration</li><li>✅ Billing & subscriptions</li><li>✅ Audit log access</li>
+                </ul>
+              </div>
+              <div style="background:rgba(30,64,175,.06);border:1.5px solid rgba(30,64,175,.2);border-radius:var(--radius);padding:1rem">
+                <div style="font-weight:700;color:var(--primary);margin-bottom:.5rem">🏢 Branch Admin</div>
+                <ul style="list-style:none;padding:0;font-size:.78rem;display:flex;flex-direction:column;gap:.2rem">
+                  <li>✅ Branch user management</li><li>✅ All client access (branch)</li><li>✅ Filing + compliance</li><li>✅ Billing (branch)</li><li>❌ Other branches</li><li>❌ System config</li>
+                </ul>
+              </div>
+              <div style="background:rgba(16,185,129,.06);border:1.5px solid rgba(16,185,129,.2);border-radius:var(--radius);padding:1rem">
+                <div style="font-weight:700;color:var(--success);margin-bottom:.5rem">👨‍💼 CA / Accountant</div>
+                <ul style="list-style:none;padding:0;font-size:.78rem;display:flex;flex-direction:column;gap:.2rem">
+                  <li>✅ Assigned clients only</li><li>✅ ITR/GST/TDS filing</li><li>✅ Document vault</li><li>✅ Compliance tracker</li><li>❌ Billing</li><li>❌ User management</li>
+                </ul>
+              </div>
+              <div style="background:rgba(100,116,139,.06);border:1.5px solid rgba(100,116,139,.2);border-radius:var(--radius);padding:1rem">
+                <div style="font-weight:700;color:#475569;margin-bottom:.5rem">👤 Client/Taxpayer</div>
+                <ul style="list-style:none;padding:0;font-size:.78rem;display:flex;flex-direction:column;gap:.2rem">
+                  <li>✅ Own returns only</li><li>✅ Document upload</li><li>✅ View filings</li><li>❌ Other users</li><li>❌ Admin features</li><li>❌ Billing</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tenants Section -->
+      <div id="sec-tenants" style="display:none">
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header"><i class="fa fa-building"></i> Tenant / Branch Management</div>
+          <div class="card-body">
+            <div style="overflow-x:auto">
+              <table class="user-table">
+                <thead><tr><th>Branch</th><th>Code</th><th>Admin</th><th>Users</th><th>Clients</th><th>Revenue</th><th>Type</th><th>Status</th></tr></thead>
+                <tbody id="tenantBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit Logs Section -->
+      <div id="sec-audit" style="display:none">
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+            <span><i class="fa fa-history"></i> Audit Trail</span>
+            <div style="display:flex;gap:.35rem">
+              <select style="padding:.28rem .5rem;border:1px solid var(--border);border-radius:4px;font-size:.72rem;background:var(--bg-secondary);color:var(--text-primary)">
+                <option>All Actions</option>
+                <option>LOGIN</option>
+                <option>FILE</option>
+                <option>UPDATE</option>
+                <option>DELETE</option>
+              </select>
+              <button class="btn" style="font-size:.72rem;padding:.28rem .6rem;background:var(--success);color:#fff">Export CSV</button>
+            </div>
+          </div>
+          <div class="card-body" id="auditBody"></div>
+        </div>
+      </div>
+
+      <!-- System Health -->
+      <div id="sec-health" style="display:none">
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header"><i class="fa fa-heartbeat"></i> System Health Monitor</div>
+          <div class="card-body">
+            <div id="healthRows"></div>
+            <div style="margin-top:1rem;background:rgba(16,185,129,.06);border-radius:var(--radius-sm);padding:.85rem;font-size:.78rem">
+              <div style="font-weight:700;color:var(--success);margin-bottom:.35rem">✅ All Systems Operational</div>
+              <div style="color:var(--text-secondary)">Last health check: 2026-08-02 10:45 AM | Uptime: 99.97% (last 30 days)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- White-label -->
+      <div id="sec-whitelabel" style="display:none">
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header"><i class="fa fa-palette"></i> White-label Configuration</div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+              <div>
+                <div class="fg"><label>Brand Name</label><input type="text" placeholder="Your Tax Platform" value="TaxMitra AI Enterprise"/></div>
+                <div class="fg"><label>Primary Color</label><input type="color" value="#1e40af" style="height:38px;cursor:pointer"/></div>
+                <div class="fg"><label>Logo URL</label><input type="text" placeholder="https://yoursite.com/logo.png"/></div>
+                <div class="fg"><label>Domain</label><input type="text" placeholder="tax.yourca.in"/></div>
+                <div class="fg"><label>Favicon URL</label><input type="text" placeholder="https://yoursite.com/favicon.ico"/></div>
+                <button class="btn btn-primary" style="width:100%"><i class="fa fa-save"></i> Save White-label Config</button>
+              </div>
+              <div>
+                <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:1rem;height:100%;display:flex;flex-direction:column;gap:.5rem">
+                  <div style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase">White-label Features</div>
+                  <div style="font-size:.82rem;display:flex;flex-direction:column;gap:.4rem">
+                    <div>✅ Custom brand name on all pages</div>
+                    <div>✅ Custom primary color theme</div>
+                    <div>✅ Custom logo & favicon</div>
+                    <div>✅ Custom domain support</div>
+                    <div>✅ Remove "Powered by TaxMitra" (Enterprise)</div>
+                    <div>✅ Custom email sender</div>
+                    <div>✅ Custom SMS sender ID</div>
+                    <div>⏳ Custom Android/iOS app (Phase 5)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscriptions -->
+      <div id="sec-subscriptions" style="display:none">
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header"><i class="fa fa-credit-card"></i> Subscription Plans</div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem">
+              <div style="background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center">
+                <div style="font-weight:800;font-size:1rem;margin-bottom:.35rem">Starter</div>
+                <div style="font-size:1.75rem;font-weight:900;color:var(--primary)">₹999<span style="font-size:.75rem;color:var(--text-muted)">/month</span></div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin:.35rem 0 .75rem">per branch</div>
+                <ul style="list-style:none;padding:0;font-size:.78rem;text-align:left;display:flex;flex-direction:column;gap:.25rem">
+                  <li>✅ 50 clients</li><li>✅ 3 staff</li><li>✅ ITR+GST+TDS</li><li>✅ Basic AI</li><li>❌ White-label</li>
+                </ul>
+              </div>
+              <div style="background:linear-gradient(135deg,rgba(30,64,175,.08),rgba(99,102,241,.05));border:2px solid var(--primary);border-radius:var(--radius);padding:1.25rem;text-align:center;position:relative">
+                <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;padding:.15rem .65rem;border-radius:99px;font-size:.65rem;font-weight:700;white-space:nowrap">POPULAR</div>
+                <div style="font-weight:800;font-size:1rem;margin-bottom:.35rem">Professional</div>
+                <div style="font-size:1.75rem;font-weight:900;color:var(--primary)">₹2,499<span style="font-size:.75rem;color:var(--text-muted)">/month</span></div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin:.35rem 0 .75rem">per branch</div>
+                <ul style="list-style:none;padding:0;font-size:.78rem;text-align:left;display:flex;flex-direction:column;gap:.25rem">
+                  <li>✅ 200 clients</li><li>✅ 10 staff</li><li>✅ All modules</li><li>✅ Full AI</li><li>✅ White-label</li>
+                </ul>
+              </div>
+              <div style="background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center">
+                <div style="font-weight:800;font-size:1rem;margin-bottom:.35rem">Enterprise</div>
+                <div style="font-size:1.75rem;font-weight:900;color:#7c3aed">Custom<span style="font-size:.75rem;color:var(--text-muted)"></span></div>
+                <div style="font-size:.72rem;color:var(--text-muted);margin:.35rem 0 .75rem">contact sales</div>
+                <ul style="list-style:none;padding:0;font-size:.78rem;text-align:left;display:flex;flex-direction:column;gap:.25rem">
+                  <li>✅ Unlimited clients</li><li>✅ Multi-branch</li><li>✅ Franchise mgmt</li><li>✅ SLA 99.9%</li><li>✅ Dedicated support</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sessions Section -->
+      <div id="sec-sessions" style="display:none">
+        <div class="card">
+          <div class="card-header"><i class="fa fa-lock"></i> Active Sessions</div>
+          <div class="card-body">
+            <div style="overflow-x:auto">
+              <table class="user-table">
+                <thead><tr><th>User</th><th>IP Address</th><th>Device</th><th>Login Time</th><th>Last Activity</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Abhishek Agrahari</strong><br><span style="font-size:.7rem;color:var(--text-muted)">ca@taxmitra.in</span></td><td style="font-family:monospace;font-size:.75rem">192.168.1.101</td><td style="font-size:.75rem">Chrome 126 / Windows 11</td><td style="font-size:.75rem">2026-08-02 09:30</td><td style="font-size:.75rem">Just now</td><td><span style="color:var(--success);font-size:.72rem;font-weight:700">● Current</span></td></tr>
+                  <tr><td><strong>Priya Sharma</strong><br><span style="font-size:.7rem;color:var(--text-muted)">priya@taxmitra.in</span></td><td style="font-family:monospace;font-size:.75rem">10.0.0.45</td><td style="font-size:.75rem">Firefox 127 / macOS</td><td style="font-size:.75rem">2026-08-02 08:15</td><td style="font-size:.75rem">5 min ago</td><td><button style="font-size:.7rem;padding:.2rem .5rem;background:rgba(239,68,68,.1);color:var(--danger);border:none;cursor:pointer;border-radius:4px">Revoke</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="margin-top:.75rem;font-size:.78rem;color:var(--text-muted)">
+              💡 2FA enabled for all admin accounts. Sessions expire after 24 hours of inactivity.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+function showSection(sec) {
+  ['users','roles','tenants','audit','sessions','health','whitelabel','subscriptions'].forEach(s => {
+    var el = document.getElementById('sec-' + s);
+    if (el) el.style.display = 'none';
+    var nav = document.getElementById('nav-' + s);
+    if (nav) nav.classList.remove('active');
+  });
+  var target = document.getElementById('sec-' + sec);
+  if (target) target.style.display = 'block';
+  var navTarget = document.getElementById('nav-' + sec);
+  if (navTarget) navTarget.classList.add('active');
+}
+
+function initUsers() {
+  var users = [
+    { name:'Abhishek Agrahari', email:'ca@taxmitra.in', role:'Super Admin', branch:'Kanpur HQ', clients:125, lastLogin:'Today 09:30', status:'Active' },
+    { name:'Priya Sharma', email:'priya@taxmitra.in', role:'CA', branch:'Kanpur HQ', clients:45, lastLogin:'Today 08:15', status:'Active' },
+    { name:'Amit Singh', email:'amit@taxmitra.in', role:'Accountant', branch:'Lucknow', clients:32, lastLogin:'Yesterday', status:'Active' },
+    { name:'Ravi Kumar', email:'ravi@client.in', role:'Client', branch:'Kanpur HQ', clients:0, lastLogin:'3 days ago', status:'Active' },
+    { name:'Neha Gupta', email:'neha@taxmitra.in', role:'Branch Admin', branch:'Agra', clients:67, lastLogin:'Today 10:00', status:'Inactive' },
+  ];
+  var roleClasses = {'Super Admin':'role-super','CA':'role-ca','Branch Admin':'role-admin','Accountant':'role-ca','Client':'role-user'};
+  document.getElementById('userTableBody').innerHTML = users.map(u => `<tr>
+    <td><strong>${u.name}</strong></td>
+    <td style="font-size:.75rem;color:var(--text-muted)">${u.email}</td>
+    <td><span class="role-badge ${roleClasses[u.role]||'role-user'}">${u.role}</span></td>
+    <td style="font-size:.75rem">${u.branch}</td>
+    <td style="text-align:center;font-weight:600">${u.clients}</td>
+    <td style="font-size:.75rem;color:var(--text-muted)">${u.lastLogin}</td>
+    <td><span style="color:${u.status==='Active'?'var(--success)':'var(--text-muted)'};font-weight:700">● ${u.status}</span></td>
+    <td><button style="font-size:.72rem;padding:.2rem .5rem;background:rgba(30,64,175,.1);color:var(--primary);border:none;cursor:pointer;border-radius:4px;margin-right:.25rem">Edit</button>
+    <button style="font-size:.72rem;padding:.2rem .5rem;background:rgba(239,68,68,.1);color:var(--danger);border:none;cursor:pointer;border-radius:4px">Reset PW</button></td>
+  </tr>`).join('');
+}
+
+function initTenants() {
+  var tenants = [
+    { name:'TaxMitra Kanpur HQ', code:'TM-KNP', admin:'Abhishek Agrahari', users:8, clients:125, revenue:'₹2.8L', type:'Main', status:'Active' },
+    { name:'TaxMitra Lucknow', code:'TM-LKO', admin:'Amit Singh', users:4, clients:67, revenue:'₹1.4L', type:'Franchise', status:'Active' },
+    { name:'TaxMitra Agra', code:'TM-AGR', admin:'Neha Gupta', users:3, clients:45, revenue:'₹0.9L', type:'White-label', status:'Inactive' },
+    { name:'TaxMitra Varanasi', code:'TM-VNS', admin:'Rajesh Verma', users:2, clients:28, revenue:'₹0.6L', type:'Franchise', status:'Active' },
+  ];
+  document.getElementById('tenantBody').innerHTML = tenants.map(t => `<tr>
+    <td><strong>${t.name}</strong></td>
+    <td style="font-family:monospace;font-size:.75rem">${t.code}</td>
+    <td style="font-size:.75rem">${t.admin}</td>
+    <td style="text-align:center">${t.users}</td>
+    <td style="text-align:center">${t.clients}</td>
+    <td><strong style="color:var(--primary)">${t.revenue}/mo</strong></td>
+    <td><span style="background:${t.type==='Main'?'rgba(30,64,175,.1)':t.type==='Franchise'?'rgba(16,185,129,.1)':'rgba(139,92,246,.1)'};color:${t.type==='Main'?'var(--primary)':t.type==='Franchise'?'var(--success)':'#7c3aed'};border-radius:99px;padding:.15rem .5rem;font-size:.65rem;font-weight:700">${t.type}</span></td>
+    <td><span style="color:${t.status==='Active'?'var(--success)':'var(--danger)'};font-weight:700">● ${t.status}</span></td>
+  </tr>`).join('');
+}
+
+function initAudit() {
+  var logs = [
+    { icon:'🔑', iconBg:'rgba(16,185,129,.1)', action:'LOGIN', user:'Abhishek Agrahari', detail:'Logged in from 192.168.1.101 (Chrome)', time:'10 min ago' },
+    { icon:'📋', iconBg:'rgba(30,64,175,.1)', action:'FILE', user:'Priya Sharma', detail:'Filed ITR-1 for client Ravi Kumar (AY 2026-27)', time:'25 min ago' },
+    { icon:'✏️', iconBg:'rgba(245,158,11,.1)', action:'UPDATE', user:'Amit Singh', detail:'Updated client profile: PAN ABCDE1234F', time:'1 hour ago' },
+    { icon:'🗑️', iconBg:'rgba(239,68,68,.1)', action:'DELETE', user:'Neha Gupta', detail:'Deleted draft GSTR-3B: June 2025', time:'2 hours ago' },
+    { icon:'📤', iconBg:'rgba(139,92,246,.1)', action:'EXPORT', user:'Priya Sharma', detail:'Exported client list CSV (47 records)', time:'3 hours ago' },
+    { icon:'🔑', iconBg:'rgba(16,185,129,.1)', action:'LOGIN', user:'Rajesh Verma', detail:'Logged in from 10.0.0.88 (Mobile Safari)', time:'4 hours ago' },
+  ];
+  document.getElementById('auditBody').innerHTML = logs.map(function(l) {
+    return `<div class="audit-item">
+      <div class="audit-icon" style="background:${l.iconBg}">${l.icon}</div>
+      <div style="flex:1">
+        <div><strong>${l.action}</strong> — ${l.user}</div>
+        <div style="color:var(--text-secondary);font-size:.75rem">${l.detail}</div>
+      </div>
+      <div style="font-size:.7rem;color:var(--text-muted);white-space:nowrap">${l.time}</div>
+    </div>`;
+  }).join('');
+}
+
+function initHealth() {
+  var services = [
+    { name:'Web Server', value:99.97, unit:'% uptime', color:'#10b981' },
+    { name:'Database (PostgreSQL)', value:100, unit:'% uptime', color:'#10b981' },
+    { name:'Redis Cache', value:99.9, unit:'% uptime', color:'#10b981' },
+    { name:'AI Engine (Gemini)', value:98.5, unit:'% uptime', color:'#f59e0b' },
+    { name:'Storage (Files)', value:100, unit:'% available', color:'#10b981' },
+    { name:'Email Service', value:95, unit:'% delivered', color:'#f59e0b' },
+    { name:'Response Time', value:245, unit:'ms avg', color:'#10b981' },
+  ];
+  document.getElementById('healthRows').innerHTML = services.map(function(s) {
+    var pct = s.name === 'Response Time' ? Math.max(0, 100 - s.value/10) : s.value;
+    return `<div class="health-row">
+      <span>${s.name}</span>
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div class="health-bar"><div class="health-fill" style="width:${pct}%;background:${s.color}"></div></div>
+        <span style="font-size:.78rem;font-weight:700;color:${s.color};min-width:70px;text-align:right">${s.value}${s.unit}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  initUsers();
+  initTenants();
+  initAudit();
+  initHealth();
+});
+</script>
+</body>
+</html>

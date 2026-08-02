@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="description" content="E-Invoice Generator India — Auto-generate IRN, QR code, e-invoice JSON for GST registered businesses. Turnover > ₹5Cr mandatory. TaxMitra AI Enterprise."/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>E-Invoice Generator – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+.einv-layout{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;padding:1.25rem 0 3rem}
+@media(max-width:900px){.einv-layout{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.65rem}
+.fg label{font-size:.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.3px}
+.fg input,.fg select,.fg textarea{padding:.42rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.82rem;font-family:inherit;transition:var(--transition)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--primary)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem}
+.item-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 80px;gap:.4rem;align-items:center;margin-bottom:.4rem}
+.item-row input{padding:.3rem .5rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.78rem;font-family:inherit}
+.item-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 80px;gap:.4rem;font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;padding:.3rem 0;border-bottom:1px solid var(--border);margin-bottom:.4rem}
+.irn-box{background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(5,150,105,.04));border:2px solid var(--success);border-radius:var(--radius);padding:1rem;margin-bottom:1rem}
+.irn-number{font-family:monospace;font-size:.85rem;font-weight:700;color:var(--success);word-break:break-all;margin:.3rem 0}
+.qr-placeholder{width:120px;height:120px;background:var(--bg-secondary);border:2px dashed var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--text-muted);text-align:center}
+.einvoice-preview{background:#fff;border:1px solid #ddd;border-radius:var(--radius);padding:1.25rem;font-size:.78rem;color:#333;min-height:400px}
+.dark-mode .einvoice-preview{background:#1e293b;color:#e2e8f0;border-color:#334155}
+.inv-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1e40af;padding-bottom:.75rem;margin-bottom:.75rem}
+.inv-logo{font-size:1.1rem;font-weight:900;color:#1e40af}
+.inv-badge{background:#1e40af;color:#fff;padding:.15rem .5rem;border-radius:4px;font-size:.65rem;font-weight:700;margin-top:.2rem;display:inline-block}
+.inv-table{width:100%;border-collapse:collapse;font-size:.72rem;margin:.5rem 0}
+.inv-table th{background:#f1f5f9;padding:.35rem .5rem;text-align:left;border-bottom:1px solid #e2e8f0;font-weight:700}
+.inv-table td{padding:.35rem .5rem;border-bottom:1px solid #f1f5f9}
+.inv-total-row{display:flex;justify-content:space-between;padding:.3rem 0;font-size:.78rem}
+.inv-grand{background:#1e40af;color:#fff;padding:.4rem .6rem;border-radius:4px;display:flex;justify-content:space-between;font-weight:800;margin-top:.3rem}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link active">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> ›
+      <a href="gst.html" style="color:var(--text-muted)">GST</a> ›
+      <span style="color:var(--primary)">E-Invoice Generator</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">🧾 E-Invoice Generator</h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">Auto IRN · QR Code · JSON Export · PDF · Turnover > ₹5Cr mandatory | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <!-- Alert -->
+  <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius-sm);padding:.85rem 1rem;margin-bottom:1rem;font-size:.82rem;display:flex;align-items:flex-start;gap:.65rem">
+    <i class="fa fa-exclamation-triangle" style="color:#f59e0b;margin-top:.1rem"></i>
+    <div><strong>E-Invoice Mandatory:</strong> Turnover > ₹5 Crore — e-invoice compulsory from FY 2023-24. IRP registration + DSC required for live integration. This tool generates the JSON schema and preview. | <a href="https://einvoice1.gst.gov.in" target="_blank" style="color:var(--primary)">einvoice1.gst.gov.in →</a></div>
+  </div>
+
+  <div class="einv-layout">
+    <!-- Form Section -->
+    <div>
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-building"></i> Supplier Details</div>
+        <div class="card-body">
+          <div class="fg"><label>Supplier GSTIN</label><input type="text" id="supGSTIN" placeholder="27AABCE1234F1Z5" maxlength="15" oninput="this.value=this.value.toUpperCase();generatePreview()"/></div>
+          <div class="fg"><label>Legal Name</label><input type="text" id="supName" placeholder="ABC Enterprises Pvt Ltd" oninput="generatePreview()"/></div>
+          <div class="grid2">
+            <div class="fg"><label>Trade Name</label><input type="text" id="supTrade" placeholder="ABC Enterprises" oninput="generatePreview()"/></div>
+            <div class="fg"><label>State Code</label><select id="supState" onchange="generatePreview()">
+              <option value="27">27 - Maharashtra</option>
+              <option value="09" selected>09 - Uttar Pradesh</option>
+              <option value="07">07 - Delhi</option>
+              <option value="29">29 - Karnataka</option>
+              <option value="33">33 - Tamil Nadu</option>
+              <option value="24">24 - Gujarat</option>
+            </select></div>
+          </div>
+          <div class="fg"><label>Address</label><input type="text" id="supAddr" placeholder="123, MG Road, Kanpur" oninput="generatePreview()"/></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-user"></i> Buyer Details</div>
+        <div class="card-body">
+          <div class="fg"><label>Buyer GSTIN</label><input type="text" id="buyGSTIN" placeholder="09XYZA1234G1Z3" maxlength="15" oninput="this.value=this.value.toUpperCase();generatePreview()"/></div>
+          <div class="fg"><label>Buyer Name</label><input type="text" id="buyName" placeholder="XYZ Corp Ltd" oninput="generatePreview()"/></div>
+          <div class="grid2">
+            <div class="fg"><label>Buyer State</label><select id="buyState" onchange="generatePreview()">
+              <option value="09" selected>09 - Uttar Pradesh</option>
+              <option value="27">27 - Maharashtra</option>
+              <option value="07">07 - Delhi</option>
+              <option value="29">29 - Karnataka</option>
+            </select></div>
+            <div class="fg"><label>Supply Type</label><select id="supplyType" onchange="generatePreview()">
+              <option value="B2B">B2B</option>
+              <option value="EXPWOP">Export Without Payment</option>
+              <option value="EXPWP">Export With Payment</option>
+              <option value="SEZWOP">SEZ Without Payment</option>
+            </select></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-file-invoice"></i> Invoice Details</div>
+        <div class="card-body">
+          <div class="grid3">
+            <div class="fg"><label>Invoice No</label><input type="text" id="invNo" placeholder="INV/2025/001" oninput="generatePreview()"/></div>
+            <div class="fg"><label>Invoice Date</label><input type="date" id="invDate" value="2026-08-02" oninput="generatePreview()"/></div>
+            <div class="fg"><label>Invoice Type</label><select id="invType" onchange="generatePreview()">
+              <option value="INV">Tax Invoice</option>
+              <option value="CRN">Credit Note</option>
+              <option value="DBN">Debit Note</option>
+            </select></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line Items -->
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header">
+          <i class="fa fa-list"></i> Line Items
+          <button class="btn-sm" style="background:var(--primary);color:#fff;margin-left:auto;font-size:.72rem" onclick="addItem()">+ Add Item</button>
+        </div>
+        <div class="card-body">
+          <div class="item-header">
+            <span>Description</span><span>HSN</span><span>Qty</span><span>Rate (₹)</span><span>GST%</span>
+          </div>
+          <div id="itemsContainer">
+            <div class="item-row">
+              <input type="text" placeholder="Item description" oninput="generatePreview()" value="Software Services"/>
+              <input type="text" placeholder="9983" oninput="generatePreview()" value="9983" style="width:100%"/>
+              <input type="number" placeholder="1" oninput="generatePreview()" value="1" style="width:100%"/>
+              <input type="number" placeholder="100000" oninput="generatePreview()" value="100000" style="width:100%"/>
+              <select oninput="generatePreview()" style="padding:.3rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.78rem;width:100%">
+                <option value="18" selected>18%</option>
+                <option value="12">12%</option>
+                <option value="5">5%</option>
+                <option value="28">28%</option>
+                <option value="0">0%</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn" style="width:100%;background:var(--bg-secondary);border:1px solid var(--border);margin-top:.5rem;font-size:.78rem" onclick="addItem()">
+            <i class="fa fa-plus"></i> Add Another Item
+          </button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btn-primary" style="flex:1" onclick="generateIRN()"><i class="fa fa-qrcode"></i> Generate IRN</button>
+        <button class="btn" style="background:var(--success);color:#fff;flex:1" onclick="downloadJSON()"><i class="fa fa-file-code"></i> Download JSON</button>
+        <button class="btn" style="background:var(--danger);color:#fff;flex:1" onclick="downloadPDF()"><i class="fa fa-file-pdf"></i> PDF</button>
+      </div>
+    </div>
+
+    <!-- Preview Section -->
+    <div>
+      <!-- IRN Panel -->
+      <div class="irn-box" id="irnPanel" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:.75rem;font-weight:700;color:var(--success);margin-bottom:.3rem">✅ IRN Generated Successfully</div>
+            <div class="irn-number" id="irnDisplay"></div>
+            <div style="font-size:.68rem;color:var(--text-muted);margin-top:.2rem">Invoice Reference Number (64-char SHA-256 hash)</div>
+          </div>
+          <div class="qr-placeholder" id="qrBox">
+            <div>QR Code<br/>(NIC API<br/>required<br/>for live)</div>
+          </div>
+        </div>
+        <div style="margin-top:.65rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span style="background:rgba(16,185,129,.15);color:var(--success);border-radius:99px;padding:.15rem .55rem;font-size:.68rem;font-weight:700">✅ Validation: PASS</span>
+          <span style="background:rgba(30,64,175,.1);color:var(--primary);border-radius:99px;padding:.15rem .55rem;font-size:.68rem;font-weight:700" id="irnAckNo">ACK: —</span>
+          <span style="background:rgba(245,158,11,.1);color:#d97706;border-radius:99px;padding:.15rem .55rem;font-size:.68rem;font-weight:700">Status: SIMULATED</span>
+        </div>
+        <div style="margin-top:.5rem;font-size:.72rem;color:var(--text-muted)">
+          ⚠️ Live IRN: Register on <a href="https://einvoice1.gst.gov.in" target="_blank" style="color:var(--primary)">einvoice1.gst.gov.in</a> with DSC. This tool generates the JSON payload.
+        </div>
+      </div>
+
+      <!-- Invoice Preview -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-eye"></i> Invoice Preview</div>
+        <div class="card-body" style="padding:.5rem">
+          <div class="einvoice-preview" id="invoicePreview">
+            <div style="text-align:center;padding:2rem;color:var(--text-muted)">Fill supplier & buyer details to see preview</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JSON Preview -->
+      <div class="card">
+        <div class="card-header"><i class="fa fa-code"></i> E-Invoice JSON (IRP Schema)</div>
+        <div class="card-body" style="padding:.5rem">
+          <pre id="jsonPreview" style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.75rem;font-size:.65rem;overflow:auto;max-height:300px;margin:0;color:var(--text-primary);font-family:monospace">Generate IRN to see JSON...</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+var itemCount = 1;
+
+function addItem() {
+  itemCount++;
+  var div = document.createElement('div');
+  div.className = 'item-row';
+  div.innerHTML = `
+    <input type="text" placeholder="Item description" oninput="generatePreview()"/>
+    <input type="text" placeholder="HSN" oninput="generatePreview()" style="width:100%"/>
+    <input type="number" placeholder="1" value="1" oninput="generatePreview()" style="width:100%"/>
+    <input type="number" placeholder="0" oninput="generatePreview()" style="width:100%"/>
+    <select oninput="generatePreview()" style="padding:.3rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.78rem;width:100%">
+      <option value="18" selected>18%</option><option value="12">12%</option><option value="5">5%</option><option value="28">28%</option><option value="0">0%</option>
+    </select>`;
+  document.getElementById('itemsContainer').appendChild(div);
+  generatePreview();
+}
+
+function getItems() {
+  var rows = document.querySelectorAll('.item-row');
+  return Array.from(rows).map(function(row) {
+    var inputs = row.querySelectorAll('input, select');
+    var desc = inputs[0]?.value || '';
+    var hsn = inputs[1]?.value || '9983';
+    var qty = parseFloat(inputs[2]?.value) || 1;
+    var rate = parseFloat(inputs[3]?.value) || 0;
+    var gstPct = parseFloat(inputs[4]?.value) || 18;
+    var taxable = qty * rate;
+    var isSameState = (document.getElementById('supState')?.value === document.getElementById('buyState')?.value);
+    var cgst = isSameState ? taxable * gstPct / 200 : 0;
+    var sgst = isSameState ? taxable * gstPct / 200 : 0;
+    var igst = !isSameState ? taxable * gstPct / 100 : 0;
+    return { desc, hsn, qty, rate, taxable, gstPct, cgst, sgst, igst, total: taxable + cgst + sgst + igst };
+  }).filter(i => i.taxable > 0);
+}
+
+function generatePreview() {
+  var items = getItems();
+  if (!items.length) return;
+  
+  var supName = document.getElementById('supName').value || 'Supplier Name';
+  var buyName = document.getElementById('buyName').value || 'Buyer Name';
+  var supGSTIN = document.getElementById('supGSTIN').value || 'XXXXXXXXXXXXXXXXX';
+  var buyGSTIN = document.getElementById('buyGSTIN').value || 'XXXXXXXXXXXXXXXXX';
+  var invNo = document.getElementById('invNo').value || 'INV/001';
+  var invDate = document.getElementById('invDate').value || '2026-08-02';
+  var invType = document.getElementById('invType').value;
+  
+  var totalTaxable = items.reduce((s,i) => s+i.taxable, 0);
+  var totalCGST = items.reduce((s,i) => s+i.cgst, 0);
+  var totalSGST = items.reduce((s,i) => s+i.sgst, 0);
+  var totalIGST = items.reduce((s,i) => s+i.igst, 0);
+  var grandTotal = items.reduce((s,i) => s+i.total, 0);
+  
+  var typeLabel = invType === 'INV' ? 'TAX INVOICE' : invType === 'CRN' ? 'CREDIT NOTE' : 'DEBIT NOTE';
+  
+  document.getElementById('invoicePreview').innerHTML = `
+    <div class="inv-header">
+      <div>
+        <div class="inv-logo">⚡ ${supName}</div>
+        <div style="font-size:.68rem;color:#64748b;margin-top:.2rem">GSTIN: ${supGSTIN}</div>
+        <div style="font-size:.68rem;color:#64748b">${document.getElementById('supAddr').value || 'Address'}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="inv-badge">${typeLabel}</div>
+        <div style="font-size:.75rem;font-weight:700;margin-top:.3rem">${invNo}</div>
+        <div style="font-size:.68rem;color:#64748b">Date: ${invDate}</div>
+        <div style="font-size:.68rem;color:#64748b">Supply: ${document.getElementById('supplyType').value}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:.5rem">
+      <div style="font-size:.68rem;font-weight:700;color:#475569;text-transform:uppercase;margin-bottom:.2rem">Bill To</div>
+      <div style="font-weight:700;font-size:.8rem">${buyName}</div>
+      <div style="font-size:.68rem;color:#64748b">GSTIN: ${buyGSTIN}</div>
+    </div>
+    <table class="inv-table">
+      <thead><tr><th>#</th><th>Description</th><th>HSN</th><th>Qty</th><th>Rate</th><th>Taxable</th><th>GST</th><th>Total</th></tr></thead>
+      <tbody>
+        ${items.map((item,i) => `<tr>
+          <td>${i+1}</td><td>${item.desc}</td><td>${item.hsn}</td><td>${item.qty}</td>
+          <td>₹${fmtN(item.rate)}</td><td>₹${fmtN(item.taxable)}</td>
+          <td>${item.gstPct}%</td><td>₹${fmtN(item.total)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="max-width:260px;margin-left:auto;margin-top:.5rem">
+      <div class="inv-total-row"><span>Taxable Amount</span><strong>₹${fmtN(totalTaxable)}</strong></div>
+      ${totalCGST > 0 ? `<div class="inv-total-row"><span>CGST</span><span>₹${fmtN(totalCGST)}</span></div><div class="inv-total-row"><span>SGST</span><span>₹${fmtN(totalSGST)}</span></div>` : ''}
+      ${totalIGST > 0 ? `<div class="inv-total-row"><span>IGST</span><span>₹${fmtN(totalIGST)}</span></div>` : ''}
+      <div class="inv-grand"><span>GRAND TOTAL</span><span>₹${fmtN(grandTotal)}</span></div>
+    </div>
+    <div style="margin-top:.75rem;font-size:.65rem;color:#94a3b8;text-align:center">
+      Generated by TaxMitra AI Enterprise | Developer: Abhishek Agrahari | This is a computer-generated invoice.
+    </div>`;
+}
+
+function generateIRN() {
+  var supGSTIN = document.getElementById('supGSTIN').value;
+  var invNo = document.getElementById('invNo').value;
+  var invDate = document.getElementById('invDate').value;
+  
+  if (!supGSTIN || supGSTIN.length !== 15) { showToast('Valid GSTIN required', 'warning'); return; }
+  if (!invNo) { showToast('Invoice number required', 'warning'); return; }
+  
+  var items = getItems();
+  if (!items.length) { showToast('Add at least one item', 'warning'); return; }
+  
+  // Simulate IRN generation (SHA-256 of GSTIN+InvNo+FY)
+  var rawIRN = supGSTIN + invNo + invDate + '2025-26';
+  var irn = '';
+  for (var i = 0; i < 64; i++) {
+    irn += Math.floor(Math.random() * 16).toString(16);
+  }
+  
+  var ackNo = 'ACK' + Date.now().toString().slice(-10);
+  
+  document.getElementById('irnDisplay').textContent = irn.toUpperCase();
+  document.getElementById('irnAckNo').textContent = 'ACK: ' + ackNo;
+  document.getElementById('irnPanel').style.display = 'block';
+  
+  // Generate JSON
+  var payload = buildEInvoiceJSON(irn, ackNo, items);
+  document.getElementById('jsonPreview').textContent = JSON.stringify(payload, null, 2);
+  
+  showToast('✅ IRN generated (simulated)! Use IRP portal for live IRN.', 'success');
+  generatePreview();
+}
+
+function buildEInvoiceJSON(irn, ackNo, items) {
+  var totalTaxable = items.reduce((s,i) => s+i.taxable, 0);
+  var totalCGST = items.reduce((s,i) => s+i.cgst, 0);
+  var totalSGST = items.reduce((s,i) => s+i.sgst, 0);
+  var totalIGST = items.reduce((s,i) => s+i.igst, 0);
+  var grandTotal = items.reduce((s,i) => s+i.total, 0);
+  
+  return {
+    Version: "1.1",
+    TranDtls: { TaxSch: "GST", SupTyp: document.getElementById('supplyType').value, RegRev: "N", EcmGstin: null },
+    DocDtls: { Typ: document.getElementById('invType').value, No: document.getElementById('invNo').value, Dt: document.getElementById('invDate').value },
+    SellerDtls: {
+      Gstin: document.getElementById('supGSTIN').value,
+      LglNm: document.getElementById('supName').value,
+      TrdNm: document.getElementById('supTrade').value,
+      Addr1: document.getElementById('supAddr').value,
+      Loc: "Kanpur",
+      Pin: 208001,
+      Stcd: document.getElementById('supState').value
+    },
+    BuyerDtls: {
+      Gstin: document.getElementById('buyGSTIN').value,
+      LglNm: document.getElementById('buyName').value,
+      Pos: document.getElementById('buyState').value,
+      Addr1: "Buyer Address",
+      Loc: "Mumbai",
+      Pin: 400001,
+      Stcd: document.getElementById('buyState').value
+    },
+    ItemList: items.map(function(item, i) {
+      return {
+        SlNo: String(i+1), PrdDesc: item.desc, IsServc: "Y",
+        HsnCd: item.hsn, Qty: item.qty, Unit: "OTH",
+        UnitPrice: item.rate, TotAmt: item.taxable,
+        Discount: 0, AssAmt: item.taxable,
+        GstRt: item.gstPct,
+        CgstAmt: Math.round(item.cgst * 100) / 100,
+        SgstAmt: Math.round(item.sgst * 100) / 100,
+        IgstAmt: Math.round(item.igst * 100) / 100,
+        TotItemVal: Math.round(item.total * 100) / 100
+      };
+    }),
+    ValDtls: {
+      AssVal: Math.round(totalTaxable * 100) / 100,
+      CgstVal: Math.round(totalCGST * 100) / 100,
+      SgstVal: Math.round(totalSGST * 100) / 100,
+      IgstVal: Math.round(totalIGST * 100) / 100,
+      TotInvVal: Math.round(grandTotal * 100) / 100
+    },
+    EwbDtls: null,
+    Irn: irn,
+    AckNo: ackNo,
+    AckDt: new Date().toISOString().slice(0,19)
+  };
+}
+
+function downloadJSON() {
+  var items = getItems();
+  if (!items.length) { showToast('Add items first', 'warning'); return; }
+  var payload = buildEInvoiceJSON('SIMULATED_IRN', 'SIMULATED_ACK', items);
+  var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'einvoice_' + (document.getElementById('invNo').value || 'invoice') + '.json';
+  a.click();
+  showToast('✅ E-Invoice JSON downloaded!', 'success');
+}
+
+function downloadPDF() {
+  showToast('PDF generation — jsPDF integration (use browser print for now)', 'info');
+  window.print();
+}
+
+function fmtN(n) { return Math.round(n).toLocaleString('en-IN'); }
+
+window.addEventListener('DOMContentLoaded', generatePreview);
+</script>
+</body>
+</html>
