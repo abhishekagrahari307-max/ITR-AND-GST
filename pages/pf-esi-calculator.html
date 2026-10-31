@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="description" content="PF, ESI & PT Calculator India — EPF contribution (12%), ESI (3.25%/0.75%), Professional Tax state-wise, Gratuity, Bonus calculations. TaxMitra AI Enterprise."/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PF/ESI/PT Calculator – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.calc-tabs{display:flex;gap:.35rem;margin-bottom:1.25rem;border-bottom:2px solid var(--border);padding-bottom:0}
+.calc-tab{padding:.55rem 1.1rem;border:none;background:none;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:var(--transition)}
+.calc-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.calc-panel{display:none}
+.calc-panel.active{display:block}
+.calc-layout{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:768px){.calc-layout{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.65rem}
+.fg label{font-size:.72rem;font-weight:600;color:var(--text-secondary)}
+.fg input,.fg select{padding:.42rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.82rem;font-family:inherit;transition:var(--transition)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary)}
+.result-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.result-table td{padding:.45rem .75rem;border-bottom:1px solid var(--border)}
+.result-table tr:last-child td{font-weight:800;background:rgba(30,64,175,.06);color:var(--primary)}
+.result-table .employee{color:var(--danger)}
+.result-table .employer{color:var(--success)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.info-box{background:rgba(30,64,175,.06);border:1px solid rgba(30,64,175,.15);border-radius:var(--radius-sm);padding:.75rem;font-size:.78rem;color:var(--text-secondary);line-height:1.6;margin-top:.75rem}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="tds-payroll.html" class="nav-link active">💼 TDS/Payroll</a></li>
+        <li><a href="payroll.html" class="nav-link">👥 Payroll</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> ›
+      <a href="payroll.html" style="color:var(--text-muted)">Payroll</a> ›
+      <span style="color:var(--primary)">PF / ESI / PT Calculator</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">🔢 PF / ESI / PT Calculator</h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">EPF 12% · ESI 3.25%/0.75% · Professional Tax state-wise · Gratuity · Bonus | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="calc-tabs">
+    <button class="calc-tab active" onclick="switchTab('epf',this)">🏦 EPF/PF</button>
+    <button class="calc-tab" onclick="switchTab('esi',this)">🏥 ESI</button>
+    <button class="calc-tab" onclick="switchTab('pt',this)">🏛️ Professional Tax</button>
+    <button class="calc-tab" onclick="switchTab('gratuity',this)">💰 Gratuity</button>
+    <button class="calc-tab" onclick="switchTab('bonus',this)">🎁 Bonus</button>
+  </div>
+
+  <!-- EPF Panel -->
+  <div class="calc-panel active" id="panel-epf">
+    <div class="calc-layout">
+      <div class="card">
+        <div class="card-header"><i class="fa fa-calculator"></i> EPF Calculation</div>
+        <div class="card-body">
+          <div class="fg"><label>Basic Salary + DA (₹/month)</label><input type="number" id="basicEPF" placeholder="25000" value="25000" oninput="calcEPF()"/></div>
+          <div class="fg"><label>Employee EPF Rate</label>
+            <select id="empEPFRate" onchange="calcEPF()">
+              <option value="12" selected>12% (Standard)</option>
+              <option value="10">10% (Specified industries)</option>
+            </select>
+          </div>
+          <div class="fg"><label>Employer EPS Eligible?</label>
+            <select id="epsElig" onchange="calcEPF()">
+              <option value="yes" selected>Yes (Basic ≤ ₹15,000)</option>
+              <option value="no">No (Basic > ₹15,000 — voluntary)</option>
+            </select>
+          </div>
+          <div class="fg"><label>Number of Months</label><input type="number" id="epfMonths" placeholder="12" value="12" min="1" max="12" oninput="calcEPF()"/></div>
+          <div class="fg"><label>Opening PF Balance (₹)</label><input type="number" id="pfOpening" placeholder="0" value="0" oninput="calcEPF()"/></div>
+          <button class="btn btn-primary" style="width:100%" onclick="calcEPF()"><i class="fa fa-calculator"></i> Calculate EPF</button>
+          <div class="info-box">
+            <strong>EPF Rules:</strong><br>
+            • Employee: 12% of Basic+DA → EPF Account<br>
+            • Employer: 12% → split: 8.33% EPS + 3.67% EPF<br>
+            • EPS ceiling: ₹1,250/month (on ₹15,000 base)<br>
+            • PF Interest FY 2025-26: 8.25% per annum<br>
+            • Withdrawal: Tax-free after 5 continuous years
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><i class="fa fa-table"></i> EPF Breakdown</div>
+        <div class="card-body" id="epfResult">
+          <div style="text-align:center;padding:2rem;color:var(--text-muted)">Enter salary to calculate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESI Panel -->
+  <div class="calc-panel" id="panel-esi">
+    <div class="calc-layout">
+      <div class="card">
+        <div class="card-header"><i class="fa fa-calculator"></i> ESI Calculation</div>
+        <div class="card-body">
+          <div class="fg"><label>Gross Salary (₹/month)</label><input type="number" id="grossESI" placeholder="18000" value="18000" oninput="calcESI()"/></div>
+          <div class="fg"><label>Number of Employees</label><input type="number" id="empCount" placeholder="1" value="1" oninput="calcESI()"/></div>
+          <div class="fg"><label>State</label>
+            <select id="esiState" onchange="calcESI()">
+              <option value="normal" selected>Standard (UP/MH/DL etc.)</option>
+              <option value="reduced">Reduced Rate States</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="calcESI()"><i class="fa fa-calculator"></i> Calculate ESI</button>
+          <div class="info-box">
+            <strong>ESI Applicability:</strong><br>
+            • Gross salary ≤ ₹21,000/month → ESI mandatory<br>
+            • Employee contribution: 0.75% of gross<br>
+            • Employer contribution: 3.25% of gross<br>
+            • Total: 4% of gross salary<br>
+            • Benefits: Medical, disability, maternity, death
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><i class="fa fa-table"></i> ESI Breakdown</div>
+        <div class="card-body" id="esiResult">
+          <div style="text-align:center;padding:2rem;color:var(--text-muted)">Enter salary to calculate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PT Panel -->
+  <div class="calc-panel" id="panel-pt">
+    <div class="calc-layout">
+      <div class="card">
+        <div class="card-header"><i class="fa fa-calculator"></i> Professional Tax</div>
+        <div class="card-body">
+          <div class="fg"><label>State</label>
+            <select id="ptState" onchange="calcPT()">
+              <option value="MH">Maharashtra</option>
+              <option value="KA">Karnataka</option>
+              <option value="TN">Tamil Nadu</option>
+              <option value="WB">West Bengal</option>
+              <option value="AP">Andhra Pradesh</option>
+              <option value="TS">Telangana</option>
+              <option value="GJ">Gujarat</option>
+              <option value="UP">Uttar Pradesh (No PT)</option>
+              <option value="DL">Delhi (No PT)</option>
+              <option value="HR">Haryana (No PT)</option>
+            </select>
+          </div>
+          <div class="fg"><label>Monthly Salary (₹)</label><input type="number" id="salaryPT" placeholder="25000" value="25000" oninput="calcPT()"/></div>
+          <button class="btn btn-primary" style="width:100%" onclick="calcPT()"><i class="fa fa-calculator"></i> Calculate PT</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><i class="fa fa-table"></i> PT Slabs</div>
+        <div class="card-body" id="ptResult">
+          <div style="text-align:center;padding:2rem;color:var(--text-muted)">Select state and enter salary</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gratuity Panel -->
+  <div class="calc-panel" id="panel-gratuity">
+    <div class="calc-layout">
+      <div class="card">
+        <div class="card-header"><i class="fa fa-calculator"></i> Gratuity Calculation</div>
+        <div class="card-body">
+          <div class="fg"><label>Basic Salary + DA (last drawn ₹/month)</label><input type="number" id="basicGrat" placeholder="35000" value="35000" oninput="calcGratuity()"/></div>
+          <div class="fg"><label>Years of Service</label><input type="number" id="yearsGrat" placeholder="5" value="5" min="1" oninput="calcGratuity()"/></div>
+          <div class="fg"><label>Months of Extra Service (beyond years)</label><input type="number" id="monthsGrat" placeholder="0" value="0" min="0" max="11" oninput="calcGratuity()"/></div>
+          <div class="fg"><label>Employer Type</label>
+            <select id="gratEmpType" onchange="calcGratuity()">
+              <option value="covered" selected>Covered under Payment of Gratuity Act</option>
+              <option value="not_covered">Not Covered (govt. formula)</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="calcGratuity()"><i class="fa fa-calculator"></i> Calculate Gratuity</button>
+          <div class="info-box">
+            <strong>Gratuity Formula:</strong><br>
+            <code>= (Basic+DA × 15 × Years) / 26</code><br>
+            • Payable after 5 years of service<br>
+            • Max exempt: ₹20 lakhs<br>
+            • For non-covered: use 30 instead of 26<br>
+            • Months > 6 rounded up to 1 year
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><i class="fa fa-table"></i> Gratuity Result</div>
+        <div class="card-body" id="gratuityResult">
+          <div style="text-align:center;padding:2rem;color:var(--text-muted)">Enter details to calculate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bonus Panel -->
+  <div class="calc-panel" id="panel-bonus">
+    <div class="calc-layout">
+      <div class="card">
+        <div class="card-header"><i class="fa fa-calculator"></i> Statutory Bonus</div>
+        <div class="card-body">
+          <div class="fg"><label>Basic Salary + DA (₹/month)</label><input type="number" id="basicBonus" placeholder="21000" value="21000" oninput="calcBonus()"/></div>
+          <div class="fg"><label>Bonus Rate (%)</label>
+            <select id="bonusRate" onchange="calcBonus()">
+              <option value="8.33">8.33% (Minimum — Payment of Bonus Act)</option>
+              <option value="20">20% (Maximum)</option>
+              <option value="10">10% (Custom)</option>
+              <option value="15">15% (Custom)</option>
+            </select>
+          </div>
+          <div class="fg"><label>Financial Year</label>
+            <select id="bonusFY" onchange="calcBonus()">
+              <option value="2025-26" selected>FY 2025-26</option>
+              <option value="2024-25">FY 2024-25</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="calcBonus()"><i class="fa fa-calculator"></i> Calculate Bonus</button>
+          <div class="info-box">
+            <strong>Payment of Bonus Act:</strong><br>
+            • Applicable if Basic+DA ≤ ₹21,000/month<br>
+            • Minimum bonus: 8.33% of salary<br>
+            • Max bonus: 20% of salary<br>
+            • Calculation ceiling: ₹7,000 or min wage (higher)<br>
+            • Payable within 8 months of financial year end
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><i class="fa fa-table"></i> Bonus Result</div>
+        <div class="card-body" id="bonusResult">
+          <div style="text-align:center;padding:2rem;color:var(--text-muted)">Enter details to calculate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+function switchTab(tab, btn) {
+  document.querySelectorAll('.calc-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.calc-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function resultTable(rows) {
+  return '<table class="result-table">' + rows.map(function(r) {
+    var cls = r[2] || '';
+    return `<tr><td>${r[0]}</td><td style="text-align:right" class="${cls}"><strong>${r[1]}</strong></td></tr>`;
+  }).join('') + '</table>';
+}
+
+function calcEPF() {
+  var basic = parseFloat(document.getElementById('basicEPF').value) || 0;
+  var months = parseInt(document.getElementById('epfMonths').value) || 12;
+  var empRate = parseFloat(document.getElementById('empEPFRate').value) / 100;
+  var epsElig = document.getElementById('epsElig').value === 'yes';
+  var pfOpening = parseFloat(document.getElementById('pfOpening').value) || 0;
+  
+  var pfBase = Math.min(basic, 15000); // PF ceiling ₹15,000
+  var empEPF = Math.round(basic * empRate); // Employee: full basic
+  
+  var epsBase = epsElig ? Math.min(basic, 15000) : 0;
+  var eps = epsElig ? Math.min(Math.round(epsBase * 0.0833), 1250) : 0; // EPS max ₹1,250
+  var erEPF = Math.round(basic * empRate) - eps; // Employer EPF = 12% - EPS
+  
+  var annualEmpEPF = empEPF * months;
+  var annualErEPF = erEPF * months;
+  var annualEPS = eps * months;
+  var totalEPFCorpus = pfOpening + annualEmpEPF + annualErEPF;
+  var interest = Math.round(totalEPFCorpus * 0.0825);
+  var closingCorpus = totalEPFCorpus + interest;
+  
+  document.getElementById('epfResult').innerHTML = `
+    <div style="margin-bottom:.75rem">
+      <div style="font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:.4rem">Monthly Contribution</div>
+      ${resultTable([
+        ['Employee EPF (12%)', '₹'+fmtN(empEPF), 'employee'],
+        ['Employer EPF (3.67%)', '₹'+fmtN(erEPF), 'employer'],
+        ['Employer EPS (8.33%)', '₹'+fmtN(eps), 'employer'],
+        ['Total Monthly', '₹'+fmtN(empEPF + erEPF + eps)],
+      ])}
+    </div>
+    <div style="font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin:.75rem 0 .4rem">Annual Summary (${months} months)</div>
+    ${resultTable([
+      ['Annual Employee EPF', '₹'+fmtN(annualEmpEPF), 'employee'],
+      ['Annual Employer EPF', '₹'+fmtN(annualErEPF), 'employer'],
+      ['Annual EPS', '₹'+fmtN(annualEPS), 'employer'],
+      ['PF Interest (@8.25%)', '₹'+fmtN(interest), 'employer'],
+      ['Closing PF Balance', '₹'+fmtN(closingCorpus)],
+    ])}
+    <div style="margin-top:.75rem;background:rgba(16,185,129,.08);border-radius:var(--radius-sm);padding:.65rem;font-size:.75rem;color:var(--text-secondary)">
+      💡 Tax Benefit: Employee EPF = 80C deduction (₹${fmtN(annualEmpEPF)}) | Interest tax-free after 5 years
+    </div>`;
+}
+
+function calcESI() {
+  var gross = parseFloat(document.getElementById('grossESI').value) || 0;
+  var empCount = parseInt(document.getElementById('empCount').value) || 1;
+  
+  if (gross > 21000) {
+    document.getElementById('esiResult').innerHTML = `<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--radius-sm);padding:.85rem;font-size:.82rem;color:#92400e"><strong>⚠️ ESI NOT Applicable</strong><br>Gross salary > ₹21,000/month → Employee exempt from ESI</div>`;
+    return;
+  }
+  
+  var empESI = Math.round(gross * 0.0075);
+  var erESI = Math.round(gross * 0.0325);
+  var totalESI = empESI + erESI;
+  
+  document.getElementById('esiResult').innerHTML = resultTable([
+    ['Employee Contribution (0.75%)', '₹'+fmtN(empESI), 'employee'],
+    ['Employer Contribution (3.25%)', '₹'+fmtN(erESI), 'employer'],
+    ['Total ESI (per employee)', '₹'+fmtN(totalESI)],
+    ['Annual ESI (per employee)', '₹'+fmtN(totalESI*12)],
+    ['Annual ESI (' + empCount + ' employees)', '₹'+fmtN(totalESI*12*empCount)],
+  ]) + `<div style="margin-top:.75rem;background:rgba(16,185,129,.06);border-radius:var(--radius-sm);padding:.65rem;font-size:.75rem">
+    ✅ ESI benefits: Free medical for employee + family, disability, maternity, death benefit
+  </div>`;
+}
+
+function calcPT() {
+  var salary = parseFloat(document.getElementById('salaryPT').value) || 0;
+  var state = document.getElementById('ptState').value;
+  
+  var PT_SLABS = {
+    MH: [[0,7500,0],[7501,10000,175],[10001,Infinity,200]], // special: 300 in Feb
+    KA: [[0,15000,0],[15001,Infinity,200]],
+    TN: [[0,21000,0],[21001,Infinity,208]], // ~₹2500/year
+    WB: [[0,10000,0],[10001,15000,110],[15001,25000,130],[25001,40000,150],[40001,Infinity,200]],
+    AP: [[0,15000,0],[15001,20000,150],[20001,Infinity,200]],
+    TS: [[0,15000,0],[15001,20000,150],[20001,Infinity,200]],
+    GJ: [[0,6000,0],[6001,9000,80],[9001,12000,150],[12001,Infinity,200]],
+    UP: null, DL: null, HR: null,
+  };
+  
+  var slabs = PT_SLABS[state];
+  if (!slabs) {
+    document.getElementById('ptResult').innerHTML = `<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:var(--radius-sm);padding:.85rem;font-size:.82rem;text-align:center">✅ No Professional Tax in ${state === 'UP' ? 'Uttar Pradesh' : state === 'DL' ? 'Delhi' : 'Haryana'}</div>`;
+    return;
+  }
+  
+  var monthly = 0;
+  for (var i = 0; i < slabs.length; i++) {
+    if (salary >= slabs[i][0] && salary <= slabs[i][1]) { monthly = slabs[i][2]; break; }
+  }
+  var annual = monthly * 12;
+  
+  document.getElementById('ptResult').innerHTML = resultTable([
+    ['Monthly Salary', '₹'+fmtN(salary)],
+    ['Professional Tax (Monthly)', '₹'+monthly, 'employee'],
+    ['Annual Professional Tax', '₹'+annual, 'employee'],
+  ]) + `<div style="margin-top:.75rem">
+    <div style="font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:.4rem">PT Slabs (${state})</div>
+    ${slabs.map(s => `<div style="font-size:.78rem;padding:.3rem 0;border-bottom:1px solid var(--border)">₹${fmtN(s[0])} - ${s[1]===Infinity?'Above':('₹'+fmtN(s[1]))}: <strong>₹${s[2]}/month</strong></div>`).join('')}
+  </div>
+  <div style="margin-top:.5rem;font-size:.75rem;color:var(--text-muted)">💡 PT is deductible from taxable salary income (Old Regime)</div>`;
+}
+
+function calcGratuity() {
+  var basic = parseFloat(document.getElementById('basicGrat').value) || 0;
+  var years = parseInt(document.getElementById('yearsGrat').value) || 0;
+  var months = parseInt(document.getElementById('monthsGrat').value) || 0;
+  var covered = document.getElementById('gratEmpType').value === 'covered';
+  
+  if (years < 5) {
+    document.getElementById('gratuityResult').innerHTML = `<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius-sm);padding:.85rem;font-size:.82rem;text-align:center">❌ Minimum 5 years of service required for gratuity</div>`;
+    return;
+  }
+  
+  var effectiveYears = years + (months >= 6 ? 1 : 0);
+  var divisor = covered ? 26 : 30;
+  var gratuity = Math.round(basic * 15 * effectiveYears / divisor);
+  var maxExempt = 2000000;
+  var taxableGratuity = Math.max(0, gratuity - maxExempt);
+  
+  document.getElementById('gratuityResult').innerHTML = resultTable([
+    ['Basic + DA (last drawn)', '₹'+fmtN(basic)+'/month'],
+    ['Years of Service', effectiveYears + ' years (rounded)'],
+    ['Formula', '('+fmtN(basic)+' × 15 × '+effectiveYears+') / '+divisor],
+    ['Gratuity Amount', '₹'+fmtN(gratuity)],
+    ['Tax-exempt (max ₹20L)', '₹'+fmtN(Math.min(gratuity, maxExempt)), 'employer'],
+    ['Taxable Amount', '₹'+fmtN(taxableGratuity), taxableGratuity>0?'employee':''],
+  ]) + `<div style="margin-top:.75rem;background:rgba(30,64,175,.06);border-radius:var(--radius-sm);padding:.65rem;font-size:.75rem">
+    ✅ Sec 10(10): Gratuity exempt up to ₹20 lakhs. Above that, taxable as salary.
+  </div>`;
+}
+
+function calcBonus() {
+  var basic = parseFloat(document.getElementById('basicBonus').value) || 0;
+  var rate = parseFloat(document.getElementById('bonusRate').value) / 100;
+  var fy = document.getElementById('bonusFY').value;
+  
+  var bonusCeiling = 7000; // bonus calculation ceiling
+  var minWageCeiling = 7000; // simplified
+  var calcBase = Math.min(basic, Math.max(bonusCeiling, minWageCeiling));
+  
+  var eligible = basic <= 21000;
+  if (!eligible) {
+    document.getElementById('bonusResult').innerHTML = `<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--radius-sm);padding:.85rem;font-size:.82rem">⚠️ Statutory bonus NOT applicable: Basic+DA > ₹21,000/month. Discretionary bonus may apply as per company policy.</div>`;
+    return;
+  }
+  
+  var monthlyBonus = Math.round(calcBase * rate);
+  var annualBonus = monthlyBonus * 12;
+  var minBonus = Math.round(calcBase * 0.0833) * 12;
+  var maxBonus = Math.round(calcBase * 0.20) * 12;
+  
+  document.getElementById('bonusResult').innerHTML = resultTable([
+    ['Monthly Basic+DA', '₹'+fmtN(basic)],
+    ['Bonus Calculation Base', '₹'+fmtN(calcBase)+' (ceiling ₹7,000)'],
+    ['Bonus Rate', (rate*100)+'%'],
+    ['Monthly Bonus', '₹'+fmtN(monthlyBonus), 'employer'],
+    ['Annual Bonus (FY '+fy+')', '₹'+fmtN(annualBonus)],
+    ['Minimum Statutory (8.33%)', '₹'+fmtN(minBonus)],
+    ['Maximum Statutory (20%)', '₹'+fmtN(maxBonus)],
+  ]) + `<div style="margin-top:.75rem;background:rgba(30,64,175,.06);border-radius:var(--radius-sm);padding:.65rem;font-size:.75rem">
+    💡 Bonus is taxable income — deduct TDS. Pay within 8 months of FY end.
+  </div>`;
+}
+
+function fmtN(n) { return Math.round(n).toLocaleString('en-IN'); }
+
+window.addEventListener('DOMContentLoaded', function() {
+  calcEPF(); calcESI(); calcPT(); calcGratuity(); calcBonus();
+});
+</script>
+</body>
+</html>

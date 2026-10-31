@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="description" content="Income Tax Notice Manager — Track, respond to IT notices u/s 143(1), 143(2), 148. AI explains notice, suggests reply, tracks deadlines."/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>IT Notice Handler & Analyzer — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>IT Notice Handler & Analyzer</span></div>
+    <h1>🔔 IT Notice Handler & Analyzer</h1>
+    <p>AY 2026-27 | Budget 2025 | Developed by <strong>Abhishek Agrahari</strong></p>
+  </div>
+</div>
+<div class="container" style="padding:1.5rem 0 4rem">
+
+<div style="background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.2);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;gap:.75rem">
+  <span style="font-size:1.3rem">🔴</span>
+  <div><strong style="color:var(--danger)">Notice mila? Ghabrao mat — 30 din mein respond karo!</strong>
+  <p style="font-size:.82rem;margin:.25rem 0 0;color:var(--text-secondary)">AI se notice analyze karwa, deadline check karo, response guide dekho.</p></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+<div>
+  <div class="form-card">
+    <h3 style="font-weight:800;margin-bottom:1.25rem">📋 Notice Type Identifier</h3>
+    <div class="form-group"><label>Notice Section</label>
+      <select id="noticeSection" onchange="analyzeNotice()">
+        <option value="">-- Select Section --</option>
+        <option value="143_1">143(1) — Intimation</option>
+        <option value="143_2">143(2) — Scrutiny</option>
+        <option value="148">148 — Reassessment</option>
+        <option value="156">156 — Demand</option>
+        <option value="245">245 — Refund Adjusted</option>
+        <option value="139_9">139(9) — Defective Return</option>
+        <option value="131">131 — Summons</option>
+        <option value="263">263 — Commissioner Revision</option>
+      </select></div>
+    <div class="form-group"><label>Date of Notice</label><input type="date" id="noticeDate" oninput="analyzeNotice()"/></div>
+    <div class="form-group"><label>Demand Amount (₹)</label>
+      <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="noticeDemand" placeholder="0" oninput="analyzeNotice()"/></div></div>
+    <div class="form-group"><label>Paste Notice Text (for AI analysis)</label>
+      <textarea id="noticeText" rows="5" style="width:100%;padding:.65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;resize:vertical" placeholder="Notice ka text yahan paste karein..."></textarea></div>
+    <div style="display:flex;gap:.65rem;margin-top:.75rem">
+      <button class="btn-primary-solid" onclick="analyzeNotice()" style="flex:1"><i class="fa fa-search"></i> Analyze Notice</button>
+      <button class="btn-secondary-solid" onclick="analyzeWithAI()" style="flex:1"><i class="fa fa-robot"></i> AI Deep Analysis</button>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div id="noticeAnalysis" style="display:none">
+    <div class="form-card" id="noticeRiskCard">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem">
+        <span id="noticeRiskIcon" style="font-size:2rem">🟡</span>
+        <div>
+          <h4 style="font-weight:800;margin:0" id="noticeRiskTitle">Risk Level</h4>
+          <p style="font-size:.78rem;color:var(--text-secondary);margin:.1rem 0 0" id="noticeRiskDesc">Analyzing...</p>
+        </div>
+      </div>
+      <div id="noticeDetails"></div>
+    </div>
+    
+    <div class="form-card" style="margin-top:1rem">
+      <h4 style="font-weight:800;margin-bottom:.85rem">📅 Action Required</h4>
+      <div id="noticeActions"></div>
+    </div>
+  </div>
+
+  <div class="form-card" id="aiNoticeResult" style="display:none;margin-top:1rem">
+    <h4 style="font-weight:800;margin-bottom:.75rem">🤖 AI Analysis</h4>
+    <div id="aiNoticeContent" style="font-size:.85rem;line-height:1.65;white-space:pre-wrap"></div>
+  </div>
+</div>
+</div>
+
+<!-- Notice Type Guide -->
+<div class="form-card" style="margin-top:2rem">
+  <h3 style="font-weight:800;margin-bottom:1.25rem">📚 Income Tax Notice Types — Complete Guide</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem">
+    <div style="padding:1rem;border-radius:var(--radius-sm);border-left:4px solid var(--success);background:rgba(5,150,105,.04)">
+      <strong>143(1) — Intimation</strong><br><span style="font-size:.78rem;color:var(--text-secondary)">🟢 LOW RISK. Routine processing. Demand or refund note. Check Form 26AS. Respond within 30 days online if disagree. Usually automated.</span>
+    </div>
+    <div style="padding:1rem;border-radius:var(--radius-sm);border-left:4px solid var(--warning);background:rgba(245,158,11,.04)">
+      <strong>143(2) — Scrutiny</strong><br><span style="font-size:.78rem;color:var(--text-secondary)">🟡 MEDIUM RISK. Detailed examination. Submit all documents online within deadline. Can oppose if no valid reason. CA recommended.</span>
+    </div>
+    <div style="padding:1rem;border-radius:var(--radius-sm);border-left:4px solid var(--danger);background:rgba(220,38,38,.04)">
+      <strong>148 — Reassessment</strong><br><span style="font-size:.78rem;color:var(--text-secondary)">🔴 HIGH RISK. Income escaped assessment. Immediately engage CA. Time limit: 3-10 years. Respond within 30 days mandatory.</span>
+    </div>
+    <div style="padding:1rem;border-radius:var(--radius-sm);border-left:4px solid var(--primary);background:rgba(37,99,235,.04)">
+      <strong>156 — Demand</strong><br><span style="font-size:.78rem;color:var(--text-secondary)">🟡 MEDIUM RISK. Outstanding tax demand. Pay within 30 days or file rectification u/s 154. Late payment: 1%/month interest u/s 220(2).</span>
+    </div>
+    <div style="padding:1rem;border-radius:var(--radius-sm);border-left:4px solid var(--accent);background:rgba(124,58,237,.04)">
+      <strong>245 — Refund Adjusted</strong><br><span style="font-size:.78rem;color:var(--text-secondary)">🟡 LOW-MEDIUM. Refund adjusted against old demand. Verify old demand, file response if demand was already paid.</span>
+    </div>
+    <div style="padding:1rem;border-radius:var(--radius-sm);border-left:4px solid var(--info);background:rgba(6,182,212,.04)">
+      <strong>139(9) — Defective Return</strong><br><span style="font-size:.78rem;color:var(--text-secondary)">🟡 LOW RISK. ITR has technical defects. Resubmit corrected return within 15 days. Otherwise ITR treated as void.</span>
+    </div>
+  </div>
+</div>
+
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+
+const NOTICE_DATA = {
+  '143_1': {
+    title: '143(1) — Intimation', risk: 'LOW', riskIcon: '🟢', color: 'var(--success)',
+    desc: 'Routine processing notice. Return processed, demand/refund calculated.',
+    deadline: 30, responseOnline: true,
+    actions: ['Check demand amount vs Form 26AS','If agree — pay demand (Challan 280)','If disagree — reply online at incometax.gov.in → e-Proceedings','Usually automated — low risk'],
+    documents: ['Form 26AS','AIS','Original ITR acknowledgement'],
+  },
+  '143_2': {
+    title: '143(2) — Scrutiny', risk: 'MEDIUM', riskIcon: '🟡', color: 'var(--warning)',
+    desc: 'Your return selected for detailed examination.',
+    deadline: 30, responseOnline: true,
+    actions: ['Engage CA immediately','Gather all income proofs and investment documents','Respond to specific queries within deadline','Do not ignore — assessment will be ex-parte'],
+    documents: ['Form 16/16A','Bank statements','Investment proofs','Business books (if applicable)'],
+  },
+  '148': {
+    title: '148 — Reassessment', risk: 'HIGH', riskIcon: '🔴', color: 'var(--danger)',
+    desc: 'AO believes income has escaped assessment. Serious notice.',
+    deadline: 30, responseOnline: false,
+    actions: ['Engage CA IMMEDIATELY','File fresh ITR u/s 148 within 30 days','Gather all original proofs and previous ITR','Challenge notice validity if time-barred','Interest + penalty if income indeed escaped'],
+    documents: ['Original ITR and acknowledgement','All income proofs','Bank statements for relevant year','Previous notices if any'],
+  },
+  '156': {
+    title: '156 — Demand Notice', risk: 'MEDIUM', riskIcon: '🟡', color: 'var(--primary)',
+    desc: 'Outstanding tax demand. Payment within 30 days.',
+    deadline: 30, responseOnline: true,
+    actions: ['Verify demand against Form 26AS','If correct — pay via Challan 280 (code 400 = Regular Assessment)','If incorrect — file rectification u/s 154','Interest @1%/month from demand date if not paid'],
+    documents: ['Form 26AS','AIS','Challans of tax already paid'],
+  },
+  '245': {
+    title: '245 — Refund Adjusted', risk: 'LOW', riskIcon: '🟡', color: 'var(--accent)',
+    desc: 'Your refund was adjusted against old outstanding demand.',
+    deadline: 30, responseOnline: true,
+    actions: ['Check old demand being adjusted','If old demand was paid — upload proof in response','If demand is wrong — file u/s 154 rectification'],
+    documents: ['Old challan receipts','Form 26AS','Previous ITR filings'],
+  },
+  '139_9': {
+    title: '139(9) — Defective Return', risk: 'LOW', riskIcon: '🟢', color: 'var(--success)',
+    desc: 'Technical defect in your ITR. Needs correction.',
+    deadline: 15, responseOnline: true,
+    actions: ['File revised/corrected return within 15 days','Common defects: missing schedules, wrong form, unsigned','If not corrected — ITR treated as not filed at all'],
+    documents: ['Original ITR','All income documents','Proof of correction'],
+  },
+};
+
+function analyzeNotice() {
+  const section = document.getElementById('noticeSection').value;
+  const demand = parseFloat(document.getElementById('noticeDemand').value) || 0;
+  const dateStr = document.getElementById('noticeDate').value;
+  
+  if (!section) { document.getElementById('noticeAnalysis').style.display='none'; return; }
+  
+  const data = NOTICE_DATA[section];
+  if (!data) return;
+  
+  document.getElementById('noticeAnalysis').style.display = 'block';
+  document.getElementById('noticeRiskIcon').textContent = data.riskIcon;
+  document.getElementById('noticeRiskTitle').textContent = data.title + ' — ' + data.risk + ' RISK';
+  document.getElementById('noticeRiskDesc').textContent = data.desc;
+  document.getElementById('noticeRiskCard').style.borderLeft = '4px solid ' + data.color;
+  
+  // Deadline
+  let deadlineHtml = '';
+  if (dateStr) {
+    const noticeDate = new Date(dateStr);
+    const deadlineDate = new Date(noticeDate.getTime() + data.deadline * 24*60*60*1000);
+    const today = new Date();
+    const daysLeft = Math.ceil((deadlineDate - today) / (24*60*60*1000));
+    const isExpired = daysLeft < 0;
+    deadlineHtml = `<div style="padding:.55rem .75rem;background:${isExpired?'rgba(220,38,38,.08)':'rgba(5,150,105,.08)'};border-radius:6px;margin-bottom:.65rem">
+      <strong style="color:${isExpired?'var(--danger)':'var(--success)'}">${isExpired ? '❌ DEADLINE EXPIRED!' : '📅 Deadline: ' + deadlineDate.toLocaleDateString('en-IN') + ' (' + daysLeft + ' days left)'}</strong>
+    </div>`;
+  }
+  
+  document.getElementById('noticeDetails').innerHTML = `
+    ${deadlineHtml}
+    ${demand > 0 ? '<div style="padding:.55rem .75rem;background:rgba(220,38,38,.06);border-radius:6px;margin-bottom:.65rem"><strong style="color:var(--danger)">💰 Demand Amount: ' + fmt(demand) + '</strong></div>' : ''}
+    <div style="font-size:.8rem;color:var(--text-secondary)"><strong>Documents needed:</strong> ${data.documents.join(', ')}</div>
+  `;
+  
+  document.getElementById('noticeActions').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:.4rem">
+      ${data.actions.map(a => `<div style="display:flex;gap:.5rem;padding:.42rem .65rem;background:var(--bg-secondary);border-radius:6px;font-size:.82rem"><span>→</span><span>${a}</span></div>`).join('')}
+    </div>
+    ${data.responseOnline ? '<div style="margin-top:.65rem;padding:.55rem .75rem;background:rgba(37,99,235,.06);border-radius:6px;font-size:.8rem">🌐 <strong>Respond online:</strong> incometax.gov.in → e-File → e-Proceedings</div>' : '<div style="margin-top:.65rem;padding:.55rem .75rem;background:rgba(220,38,38,.06);border-radius:6px;font-size:.8rem">🏛️ <strong>Physical/CA:</strong> Physical response required. Engage CA.</div>'}
+  `;
+}
+
+async function analyzeWithAI() {
+  const text = document.getElementById('noticeText').value.trim();
+  const section = document.getElementById('noticeSection').value;
+  if (!text && !section) { showToast('Notice text ya section select karein!','warning'); return; }
+  
+  const aiCard = document.getElementById('aiNoticeResult');
+  const aiContent = document.getElementById('aiNoticeContent');
+  aiCard.style.display = 'block';
+  aiContent.textContent = '⏳ AI notice analyze kar raha hai...';
+  
+  try {
+    if (window.TaxMitraAI && window.TaxMitraAI.explainITNotice) {
+      const msg = text || (section ? 'IT Notice section ' + section + ' mila hai. Explain karo.' : '');
+      const result = await window.TaxMitraAI.explainITNotice(msg, 'hi');
+      aiContent.textContent = result.text || 'AI response nahi mili.';
+    } else if (window.TaxMitraAI && window.TaxMitraAI.callGemini) {
+      const prompt = text || 'I received income tax notice u/s ' + section + '. Explain in Hindi what it means, risk level, deadline, and what I should do.';
+      const result = await window.TaxMitraAI.callGemini(prompt, 'notice', 'hi', []);
+      aiContent.textContent = result.text;
+    } else {
+      const d = NOTICE_DATA[section];
+      aiContent.textContent = d ? (d.title + '\n\nRisk: ' + d.risk + '\n\n' + d.desc + '\n\nActions:\n' + d.actions.join('\n')) : 'Gemini API key set karein AI analysis ke liye.';
+    }
+  } catch(e) {
+    aiContent.textContent = 'Error: ' + e.message;
+  }
+}
+</script>
+</body>
+</html>

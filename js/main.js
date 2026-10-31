@@ -183,10 +183,10 @@ function handleFormSubmit(e) {
     
     if (isValid) {
         // In a real application, this would submit to the server
-        alert('Form validation successful! In a real application, this would submit to the server.');
+        if(typeof showToast==='function')showToast('✅ Form validated successfully!','success');
         // form.submit();
     } else {
-        alert('Please fix the errors in the form before submitting.');
+        if(typeof showToast==='function')showToast('⚠️ Please fix form errors.','warning');
     }
 }
 

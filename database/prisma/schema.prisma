@@ -1,0 +1,458 @@
+// TaxMitra Enterprise — Prisma Schema
+// Developer: Abhishek Agrahari | Kanpur, UP
+// Phase 1: Core schema (User, Branch, Client, TaxFile, GSTReturn, Validation, Audit)
+// Phase 4: Add TDS, Payroll, Documents, WhiteLabel billing, Franchise tables
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ────────────────────────────────────────────────
+
+enum UserRole {
+  TAXPAYER          // Self-filer
+  CA                // Chartered Accountant
+  CA_ASSOCIATE      // CA staff member
+  TAX_ASSISTANT     // Junior tax assistant
+  ADMIN             // Branch admin
+  SUPER_ADMIN       // Platform super admin (Abhishek Agrahari)
+  FRANCHISE_OWNER   // Franchise branch owner
+  WHITE_LABEL_ADMIN // White-label branch admin
+}
+
+enum FilingStatus {
+  DRAFT
+  VALIDATION_PENDING
+  VALIDATION_FAILED
+  READY_TO_FILE
+  SUBMITTED
+  VERIFIED
+  PAID
+  REFUND_PENDING
+  REFUND_PROCESSED
+  NOTICE_ISSUED
+  UNDER_SCRUTINY
+  APPEAL_FILED
+  RECTIFICATION_PENDING
+  COMPLETE
+}
+
+enum TaxRegime {
+  OLD
+  NEW
+}
+
+enum ITRFormType {
+  ITR_1
+  ITR_2
+  ITR_3
+  ITR_4
+  ITR_5
+  ITR_6
+  ITR_7
+}
+
+enum GSTReturnType {
+  GSTR_1
+  GSTR_3B
+  GSTR_9
+  GSTR_9C
+  GSTR_4   // Composition
+  GSTR_7   // TDS
+  GSTR_8   // TCS (e-commerce)
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  REVIEW_PENDING
+  DONE
+  OVERDUE
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  PARTIALLY_PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  WHATSAPP
+  IN_APP
+  PUSH
+}
+
+// ── Models ───────────────────────────────────────────────
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  mobile            String    @unique
+  name              String
+  pan               String?   @unique
+  aadhaar           String?   // AES-256 encrypted in production
+  passwordHash      String?   // bcrypt
+  role              UserRole  @default(TAXPAYER)
+  branchId          String?
+  branch            Branch?   @relation(fields: [branchId], references: [id])
+  
+  // Auth
+  twoFactorEnabled  Boolean   @default(false)
+  twoFactorSecret   String?   // TOTP secret (encrypted)
+  emailVerified     Boolean   @default(false)
+  mobileVerified    Boolean   @default(false)
+  
+  // Profile
+  dateOfBirth       DateTime?
+  gender            String?
+  address           String?
+  city              String?
+  state             String?
+  pincode           String?
+  
+  // Status
+  isActive          Boolean   @default(true)
+  lastLogin         DateTime?
+  loginCount        Int       @default(0)
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  clients           Client[]
+  taxFiles          TaxFile[]
+  gstReturns        GSTReturn[]
+  auditLogs         AuditLog[]
+  tasks             Task[]    @relation("AssignedTasks")
+  invoices          Invoice[]
+  notifications     Notification[]
+  staffProfile      StaffProfile?
+
+  @@map("users")
+}
+
+model StaffProfile {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  specializations String[]  // ITR, GST, TDS, Payroll, etc.
+  maxClients      Int       @default(50)
+  activeClients   Int       @default(0)
+  joinedAt        DateTime  @default(now())
+  qualifications  String[]  // CA, CMA, CS, etc.
+  
+  @@map("staff_profiles")
+}
+
+model Branch {
+  id            String    @id @default(uuid())
+  name          String
+  code          String    @unique // TM-KNP, TM-LKO etc.
+  whiteLabel    Boolean   @default(false)
+  licenseType   String    @default("MAIN") // MAIN, FRANCHISE, WHITE_LABEL
+  
+  // Contact
+  adminEmail    String
+  adminPhone    String?
+  city          String?
+  state         String?
+  address       String?
+  
+  // Business
+  revenueShare  Float     @default(0.30) // 30% franchise fee
+  isActive      Boolean   @default(true)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  users         User[]
+  clients       Client[]
+  
+  @@map("branches")
+}
+
+model Client {
+  id          String    @id @default(uuid())
+  branchId    String
+  branch      Branch    @relation(fields: [branchId], references: [id])
+  caUserId    String    // CA who manages this client
+  user        User      @relation(fields: [caUserId], references: [id])
+  
+  // Identity
+  name        String
+  pan         String    @unique
+  aadhaar     String?   // Encrypted
+  gstin       String?
+  email       String?
+  mobile      String?
+  
+  // Profile
+  category    String    @default("Individual") // Individual, HUF, Company, LLP, Trust
+  address     String?
+  city        String?
+  state       String?
+  pincode     String?
+  tags        String[]  // Salaried, GST, TDS etc.
+  
+  // Status
+  active      Boolean   @default(true)
+  notes       String?
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  taxFiles    TaxFile[]
+  tasks       Task[]
+  invoices    Invoice[]
+  notifications Notification[]
+
+  @@map("clients")
+}
+
+model TaxFile {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  clientId        String?
+  client          Client?       @relation(fields: [clientId], references: [id])
+  
+  // Filing details
+  assessmentYear  String        // AY-2026-27
+  financialYear   String        @default("FY-2025-26")
+  formType        ITRFormType
+  regime          TaxRegime     @default(NEW)
+  status          FilingStatus  @default(DRAFT)
+  
+  // Data
+  jsonData        Json          // Full ITR JSON payload (IT Portal compatible)
+  
+  // Computed values
+  grossIncome     Float?
+  deductions      Float?
+  taxableIncome   Float?
+  computedTax     Float?
+  tdsDeducted     Float?
+  advanceTaxPaid  Float?
+  refundDue       Float?
+  balanceTaxDue   Float?
+  
+  // Filing metadata
+  filedDate       DateTime?
+  verifiedDate    DateTime?
+  portalAck       String?       // IT Portal acknowledgment number
+  itrV            String?       // ITR-V form reference
+  
+  // Timestamps
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  auditLogs       AuditLog[]
+  validations     ValidationRun[]
+  
+  @@index([userId, assessmentYear])
+  @@index([status])
+  @@map("tax_files")
+}
+
+model GSTReturn {
+  id            String          @id @default(uuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id])
+  
+  // GST details
+  gstin         String
+  returnType    GSTReturnType
+  period        String          // YYYY-MM or YYYY (annual)
+  financialYear String?
+  status        FilingStatus    @default(DRAFT)
+  
+  // Data
+  jsonData      Json            // Full GSTR JSON payload
+  
+  // Computed
+  totalSales    Float?
+  totalPurchases Float?
+  taxPayable    Float?
+  itcAvailable  Float?
+  itcUtilized   Float?
+  netTaxPaid    Float?
+  lateFee       Float?
+  interest      Float?
+  
+  // Filing metadata
+  filedDate     DateTime?
+  gstnAck       String?         // GSTN acknowledgment / ARN
+  
+  // Timestamps
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([gstin, period])
+  @@index([userId, returnType])
+  @@map("gst_returns")
+}
+
+model ValidationRun {
+  id          String    @id @default(uuid())
+  taxFileId   String?
+  taxFile     TaxFile?  @relation(fields: [taxFileId], references: [id])
+  
+  category    String    // personal, income, deductions, gst, banking, filing
+  totalRules  Int
+  passed      Int
+  failed      Int
+  warnings    Int       @default(0)
+  errors      Json      // Array of validation errors
+  warnings_list Json    @default("[]")
+  executionMs Int       @default(0)
+  
+  timestamp   DateTime  @default(now())
+
+  @@map("validation_runs")
+}
+
+model AuditLog {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  taxFileId   String?
+  taxFile     TaxFile?  @relation(fields: [taxFileId], references: [id])
+  
+  // Action details
+  action      String    // LOGIN, LOGOUT, CREATE, UPDATE, DELETE, FILE, SUBMIT, VERIFY, EXPORT, API_CALL, ADMIN_ACTION
+  entity      String?   // TaxFile, GSTReturn, Client, User
+  entityId    String?
+  
+  // Context
+  ip          String?
+  userAgent   String?
+  sessionId   String?
+  
+  // Change tracking (before/after for sensitive operations)
+  changesBefore Json?
+  changesAfter  Json?
+  
+  timestamp   DateTime  @default(now())
+
+  @@index([userId, timestamp])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+model Task {
+  id            String        @id @default(uuid())
+  clientId      String?
+  client        Client?       @relation(fields: [clientId], references: [id])
+  assignedToId  String?
+  assignedTo    User?         @relation("AssignedTasks", fields: [assignedToId], references: [id])
+  
+  // Task details
+  type          String        // ITR_FILING, GST_FILING, TDS_RETURN, AUDIT, NOTICE_RESPONSE, etc.
+  title         String
+  description   String?
+  status        TaskStatus    @default(PENDING)
+  priority      TaskPriority  @default(MEDIUM)
+  
+  // Dates
+  dueDate       DateTime
+  completedAt   DateTime?
+  
+  // Metadata
+  attachments   String[]      // File URLs
+  notes         String?
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status, dueDate])
+  @@map("tasks")
+}
+
+model Invoice {
+  id            String        @id @default(uuid())
+  clientId      String
+  client        Client        @relation(fields: [clientId], references: [id])
+  createdById   String
+  createdBy     User          @relation(fields: [createdById], references: [id])
+  
+  // Invoice details
+  invoiceNo     String        @unique // TM-2026-0001
+  services      Json          // Array of {description, amount}
+  subtotal      Float
+  discountAmt   Float         @default(0)
+  taxableAmount Float
+  gstRate       Float         @default(18)
+  gstAmount     Float
+  total         Float
+  
+  // Status
+  status        InvoiceStatus @default(DRAFT)
+  notes         String?
+  
+  // Payment
+  paidAmount    Float         @default(0)
+  paidAt        DateTime?
+  paymentMethod String?
+  transactionId String?
+  
+  // Dates
+  issueDate     DateTime      @default(now())
+  dueDate       DateTime
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("invoices")
+}
+
+model Notification {
+  id          String              @id @default(uuid())
+  userId      String?
+  user        User?               @relation(fields: [userId], references: [id])
+  clientId    String?
+  client      Client?             @relation(fields: [clientId], references: [id])
+  
+  channel     NotificationChannel
+  message     String
+  templateId  String?
+  subject     String?
+  
+  // Delivery
+  status      String              @default("PENDING") // PENDING, SENT, DELIVERED, FAILED
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  failReason  String?
+  
+  // Metadata
+  metadata    Json?
+  scheduledAt DateTime?
+  
+  createdAt   DateTime            @default(now())
+
+  @@map("notifications")
+}

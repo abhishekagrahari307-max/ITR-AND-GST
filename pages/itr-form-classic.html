@@ -1,0 +1,2705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="author" content="Abhishek Agrahari"/>
+  <title>ITR Filing Form – TaxMitra AI Enterprise</title>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://abhishekagrahari307-max.github.io/ITR-AND-GST/pages/itr-form.html"/>
+  <meta property="og:title" content="ITR Filing Form — ITR-1 to ITR-7 | TaxMitra AI Enterprise"/>
+  <meta property="og:description" content="Complete ITR filing for AY 2026-27 — ITR-1/2/3/4/5/6/7 with AI guide, auto-fill, JSON export, PDF download."/>
+  <meta property="og:image" content="https://abhishekagrahari307-max.github.io/ITR-AND-GST/og-image.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="ITR Filing Form — ITR-1 to ITR-7 | TaxMitra AI Enterprise"/>
+  <meta name="twitter:description" content="Complete ITR filing for AY 2026-27 — ITR-1/2/3/4/5/6/7 with AI guide, auto-fill, JSON export, PDF download."/>
+  <meta name="description" content="Complete ITR filing for AY 2026-27 — ITR-1/2/3/4/5/6/7 with AI guide, auto-fill, JSON export, PDF download."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root { --step-active: var(--primary); }
+    .itr-wizard { max-width: 960px; margin: 0 auto; }
+    .wizard-header { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; }
+    .form-selector-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .form-tab { padding: 0.5rem 1.1rem; border: 2px solid var(--border); border-radius: var(--radius-full); font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: var(--transition); background: var(--bg-secondary); color: var(--text-secondary); }
+    .form-tab.active { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .form-tab:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+    /* Steps */
+    .steps-bar { display: flex; align-items: center; gap: 0; margin-bottom: 2rem; overflow-x: auto; padding: 0.5rem 0; }
+    .step-item { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 80px; position: relative; }
+    .step-item:not(:last-child)::after { content: ''; position: absolute; top: 18px; left: 50%; width: 100%; height: 2px; background: var(--border); z-index: 0; }
+    .step-item.done:not(:last-child)::after { background: var(--primary); }
+    .step-circle { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; z-index: 1; transition: var(--transition); color: var(--text-muted); }
+    .step-item.active .step-circle { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .step-item.done .step-circle { border-color: var(--success); background: var(--success); color: #fff; }
+    .step-label { font-size: 0.68rem; font-weight: 600; color: var(--text-muted); margin-top: 0.4rem; text-align: center; }
+    .step-item.active .step-label { color: var(--primary); }
+    /* Section */
+    .filing-section { display: none; }
+    .filing-section.active { display: block; }
+    .section-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.25rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; }
+    .form-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    @media(max-width: 640px) { .form-grid, .form-grid-3 { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+    .form-group label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); }
+    .form-group input, .form-group select, .form-group textarea { padding: 0.55rem 0.8rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-secondary); color: var(--text-primary); font-size: 0.875rem; font-family: inherit; transition: var(--transition); }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: var(--bg-card); }
+    .form-group input[readonly] { background: rgba(30,64,175,0.05); color: var(--primary); font-weight: 700; }
+    .form-group .hint { font-size: 0.68rem; color: var(--text-muted); }
+    .form-group.full-width { grid-column: 1 / -1; }
+    /* Tax summary */
+    .tax-summary-card { background: linear-gradient(135deg, rgba(30,64,175,0.06), rgba(99,102,241,0.03)); border: 1px solid rgba(30,64,175,0.2); border-radius: var(--radius-lg); padding: 1.5rem; }
+    .tax-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+    .tax-row:last-child { border-bottom: none; }
+    .tax-row.total { font-weight: 800; font-size: 1rem; color: var(--primary); }
+    .tax-row.refund { color: var(--success); font-weight: 700; }
+    .tax-row.payable { color: var(--danger); font-weight: 700; }
+    .tax-label { color: var(--text-secondary); }
+    .tax-val { font-weight: 600; }
+    /* Schedule */
+    .schedule-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .schedule-table th { background: var(--primary); color: #fff; padding: 0.6rem 0.75rem; text-align: left; font-size: 0.75rem; font-weight: 700; }
+    .schedule-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); }
+    .schedule-table tr:last-child td { border-bottom: none; }
+    .schedule-table input { width: 100%; border: none; background: transparent; font-size: 0.82rem; color: var(--text-primary); outline: none; }
+    .schedule-table input:focus { background: rgba(30,64,175,0.05); border-radius: 4px; padding: 2px 4px; }
+    /* Bottom nav */
+    .wizard-nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-top: 1.5rem; }
+    .wizard-progress { font-size: 0.82rem; color: var(--text-secondary); }
+    /* Preview */
+    .preview-box { background: #fff; border: 1px solid #e5e7eb; border-radius: var(--radius); padding: 2rem; font-family: 'Inter', sans-serif; color: #1a1a1a; }
+    .preview-header { text-align: center; border-bottom: 3px solid #1e40af; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+    .preview-title { font-size: 1.2rem; font-weight: 900; color: #1e40af; }
+    .preview-subtitle { font-size: 0.82rem; color: #666; }
+    .preview-section { margin-bottom: 1.25rem; }
+    .preview-section h4 { font-size: 0.85rem; font-weight: 800; color: #1e40af; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.35rem; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .preview-row { display: flex; justify-content: space-between; padding: 0.35rem 0; font-size: 0.82rem; border-bottom: 1px dotted #f0f0f0; }
+    .preview-row.highlight { background: rgba(30,64,175,0.06); padding: 0.5rem 0.5rem; border-radius: 4px; font-weight: 700; }
+    .badge-regime { display: inline-block; padding: 0.2rem 0.75rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+    .badge-new { background: #dbeafe; color: #1e40af; }
+    .badge-old { background: #fef3c7; color: #92400e; }
+    /* Validation */
+    .field-error { border-color: var(--danger) !important; }
+    .error-msg { font-size: 0.68rem; color: var(--danger); margin-top: 0.2rem; }
+    .section-complete-badge { display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(16,185,129,0.1); color: var(--success); padding: 0.2rem 0.6rem; border-radius: var(--radius-full); font-size: 0.72rem; font-weight: 700; }
+    .itr-alert { padding: 0.75rem 1rem; border-radius: var(--radius-sm); font-size: 0.82rem; margin-bottom: 1rem; }
+    .itr-alert.info { background: rgba(30,64,175,0.06); border-left: 3px solid var(--primary); color: var(--primary); }
+    .itr-alert.warn { background: rgba(245,158,11,0.08); border-left: 3px solid #f59e0b; color: #92400e; }
+    .itr-alert.success { background: rgba(16,185,129,0.08); border-left: 3px solid var(--success); color: #065f46; }
+    .download-btn-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .btn-pdf { background: #dc2626; color: #fff; }
+    .btn-json { background: #7c3aed; color: #fff; }
+    .btn-print { background: var(--primary); color: #fff; }
+    .itportal-json-box { background: #0f172a; color: #a5f3fc; border-radius: var(--radius); padding: 1rem; font-family: monospace; font-size: 0.75rem; max-height: 350px; overflow-y: auto; white-space: pre; }
+    .btn-guide-sm { padding: 0.25rem 0.65rem; background: rgba(30,64,175,0.08); color: var(--primary); border: 1.5px solid rgba(30,64,175,0.25); border-radius: var(--radius-full); font-size: 0.72rem; font-weight: 700; cursor: pointer; transition: var(--transition); }
+    .btn-guide-sm:hover { background: var(--primary); color: #fff; }
+    /* Guide Modal */
+    .guide-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 9998; overflow-y: auto; }
+    .guide-modal.open { display: flex; align-items: flex-start; justify-content: center; padding: 1rem; }
+    .guide-content { background: var(--bg-card); border-radius: var(--radius-lg); width: 100%; max-width: 800px; margin: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+    .guide-header { background: var(--grad-primary); color: #fff; padding: 1.25rem 1.5rem; border-radius: var(--radius-lg) var(--radius-lg) 0 0; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1; }
+    .guide-body { padding: 1.5rem; }
+    .guide-section { margin-bottom: 1.25rem; padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius); border-left: 3px solid var(--primary); }
+    .guide-section h4 { font-size: 0.875rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem; }
+    .guide-section p, .guide-section li { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.25rem; }
+    .guide-section ul { padding-left: 1.25rem; }
+    .guide-tag { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 99px; font-size: 0.72rem; font-weight: 700; margin: 0.15rem; }
+    .tag-green { background: #d1fae5; color: #065f46; }
+    .tag-red { background: #fee2e2; color: #991b1b; }
+    .tag-blue { background: #dbeafe; color: #1e40af; }
+    .tag-yellow { background: #fef3c7; color: #92400e; }
+    .guide-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 0.5rem; }
+    .guide-table th { background: var(--primary); color: #fff; padding: 0.5rem 0.75rem; text-align: left; }
+    .guide-table td { padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--border); }
+    .guide-table tr:nth-child(even) td { background: var(--bg-secondary); }
+    .close-guide { background: rgba(255,255,255,0.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 1rem; cursor: pointer; transition: var(--transition); }
+    .close-guide:hover { background: rgba(255,255,255,0.4); }
+  </style>
+</head>
+<body>
+  <div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.4rem"></div>
+  <nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link active">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+  <div class="page-hero" style="padding:1.5rem 0">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="itr-center.html">ITR Center</a><span>/</span><span id="heroFormTitle">ITR Filing Form</span></div>
+      <h1 id="heroTitle">📋 ITR Filing Form – AY 2026-27</h1>
+      <div id="itrFormSelectedInfo" style="display:none;margin-top:.4rem;font-size:.82rem;color:var(--success);font-weight:700"></div>
+      <p>Complete form-wise ITR filing with real tax computation, validation, PDF download & IT Portal JSON export | Developed by Abhishek Agrahari</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top:1.5rem;padding-bottom:3rem">
+    <!-- Quick Data Import Bar -->
+    <div id="importDataBar" style="background:linear-gradient(135deg,rgba(37,99,235,.08),rgba(124,58,237,.06));border:1px solid rgba(37,99,235,.15);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+      <span style="font-size:1.2rem">📥</span>
+      <div style="flex:1;min-width:0">
+        <strong style="font-size:.85rem">Data Auto-Import Available</strong>
+        <p style="font-size:.75rem;color:var(--text-secondary);margin:0">Computation Sheet ya Import Center se data directly fill karo</p>
+      </div>
+      <button onclick="loadDraft()" class="btn-primary-solid" style="font-size:.78rem;padding:.4rem .85rem;flex-shrink:0"><i class="fa fa-magic"></i> Load Saved Data</button>
+      <a href="import-data.html" class="btn-secondary-solid" style="font-size:.78rem;padding:.4rem .85rem;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem"><i class="fa fa-database"></i> Import Center</a>
+      <a href="computation.html" class="btn-secondary-solid" style="font-size:.78rem;padding:.4rem .85rem;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem"><i class="fa fa-calculator"></i> Computation</a>
+      <button onclick="document.getElementById('importDataBar').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:.9rem;flex-shrink:0">✕</button>
+    </div>
+
+    <div class="itr-wizard">
+
+      <!-- Form Selector -->
+      <div class="wizard-header">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem">📋 Select ITR Form <span id="itrRecommendTag" style="display:none;background:var(--primary);color:#fff;padding:.15rem .6rem;border-radius:99px;font-size:.72rem;font-weight:800;margin-left:.5rem"></span></h3>
+        <div class="form-selector-tabs">
+          <button type="button" class="form-tab active" onclick="selectForm('1',this)">ITR-1 (Sahaj)</button>
+          <button type="button" class="form-tab" onclick="selectForm('2',this)">ITR-2</button>
+          <button type="button" class="form-tab" onclick="selectForm('3',this)">ITR-3</button>
+          <button type="button" class="form-tab" onclick="selectForm('4',this)">ITR-4 (Sugam)</button>
+          <button type="button" class="form-tab" onclick="selectForm('5',this)">ITR-5</button>
+          <button type="button" class="form-tab" onclick="selectForm('6',this)">ITR-6</button>
+          <button type="button" class="form-tab" onclick="selectForm('7',this)">ITR-7</button>
+        </div>
+        <!-- Form selected confirmation -->
+        <div id="formSelectedConfirm" style="display:none;align-items:center;gap:0.75rem;padding:0.75rem 1rem;background:rgba(16,185,129,0.1);border:2px solid var(--success);border-radius:var(--radius);margin-bottom:0.75rem;color:var(--success);font-weight:700;transition:all 0.3s"></div>
+
+        <!-- Guide buttons for each form -->
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem">
+          <span style="font-size:0.78rem;font-weight:600;color:var(--text-muted);padding-top:0.3rem">📖 Guide:</span>
+          <button type="button" class="btn-guide-sm" onclick="showITRGuide('1')">ITR-1</button>
+          <button type="button" class="btn-guide-sm" onclick="showITRGuide('2')">ITR-2</button>
+          <button type="button" class="btn-guide-sm" onclick="showITRGuide('3')">ITR-3</button>
+          <button type="button" class="btn-guide-sm" onclick="showITRGuide('4')">ITR-4</button>
+          <button type="button" class="btn-guide-sm" onclick="showITRGuide('5')">ITR-5</button>
+          <button type="button" class="btn-guide-sm" onclick="showITRGuide('6')">ITR-6</button>
+          <button type="button" class="btn-guide-sm" onclick="showITRGuide('7')">ITR-7</button>
+          <button type="button" class="btn-guide-sm" style="background:rgba(99,102,241,0.1);color:#6d28d9;border-color:rgba(99,102,241,0.3)" onclick="showITRGuide('compare')">🆚 Compare All</button>
+        </div>
+
+        <div id="itrDueDateInfo" class="itr-alert success" style="margin-bottom:0.75rem">Loading date info...</div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem">
+          <button type="button" onclick="clearAllDraft()" style="padding:0.3rem 0.75rem;background:rgba(239,68,68,0.08);color:var(--danger);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer"><i class="fa fa-trash"></i> Clear Draft</button>
+        </div>
+        <div id="formDesc" class="itr-alert info">
+          <!-- Filled by selectForm() on DOMContentLoaded -->
+        </div>
+      </div>
+
+      <!-- Steps -->
+      <div class="steps-bar" id="stepsBar">
+        <div class="step-item active" data-step="1"><div class="step-circle">1</div><div class="step-label">Personal</div></div>
+        <div class="step-item" data-step="2"><div class="step-circle">2</div><div class="step-label">Income</div></div>
+        <div class="step-item" data-step="3"><div class="step-circle">3</div><div class="step-label">Deductions</div></div>
+        <div class="step-item" data-step="4"><div class="step-circle">4</div><div class="step-label">Tax Paid</div></div>
+        <div class="step-item" data-step="5"><div class="step-circle">5</div><div class="step-label">Review</div></div>
+        <div class="step-item" data-step="6"><div class="step-circle">6</div><div class="step-label">Submit</div></div>
+      </div>
+
+      <!-- ===== SECTION 1: PERSONAL ===== -->
+      <div class="filing-section active" id="sec-1">
+
+        <!-- Section guide bar -->
+        <div id="sec-1-guide-bar" style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;background:rgba(30,64,175,0.05);border:1px solid rgba(30,64,175,0.15);border-radius:var(--radius);margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--text-secondary)">
+            <span style="font-size:1rem">📖</span>
+            <span id="guideBarFormLabel-1">ITR-1 Guide</span>
+          </div>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+            <button type="button" onclick="showITRGuide(currentForm)" style="padding:0.25rem 0.65rem;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">📖 ITR Guide</button>
+            <button type="button" onclick="showSectionHelp('1')" style="padding:0.25rem 0.65rem;background:rgba(99,102,241,0.1);color:#6d28d9;border:1px solid rgba(99,102,241,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">❓ Section Help</button>
+            <button type="button" onclick="showITRGuide('compare')" style="padding:0.25rem 0.65rem;background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">🆚 Compare Forms</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <div class="section-title">👤 Personal Information</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>First Name *</label>
+              <input type="text" id="firstName" placeholder="As per PAN" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Middle Name</label>
+              <input type="text" id="middleName" placeholder="Optional" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Last Name *</label>
+              <input type="text" id="lastName" placeholder="As per PAN" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>PAN Number *</label>
+              <input type="text" id="panNo" placeholder="ABCDE1234F" maxlength="10" oninput="this.value=this.value.toUpperCase();autoSave()"/>
+              <span class="hint">10-character Permanent Account Number</span>
+            </div>
+            <div class="form-group">
+              <label>Aadhaar Number *</label>
+              <input type="text" id="aadhaarNo" placeholder="1234 5678 9012" maxlength="12" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Date of Birth *</label>
+              <input type="date" id="dob" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Gender</label>
+              <select id="gender" onchange="autoSave()">
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="T">Transgender</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Residential Status</label>
+              <select id="residentialStatus" onchange="autoSave()">
+                <option value="RES">Resident (Ordinary)</option>
+                <option value="RNOR">Resident (Not Ordinarily Resident)</option>
+                <option value="NRI">Non-Resident Indian</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Mobile Number *</label>
+              <input type="tel" id="mobile" placeholder="10-digit mobile" maxlength="10" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Email Address *</label>
+              <input type="email" id="email" placeholder="your@email.com" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Assessment Year</label>
+              <input type="text" id="assessYear" value="2026-27" readonly/>
+            </div>
+            <div class="form-group">
+              <label>Filing Type</label>
+              <select id="filingType" onchange="autoSave()">
+                <option value="11">Original Return</option>
+                <option value="17">Revised Return</option>
+                <option value="16">Belated Return</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-card">
+          <div class="section-title">🏠 Address Details</div>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>Flat/Door No., Building Name *</label>
+              <input type="text" id="addr1" placeholder="H.No. / Flat No., Building Name" oninput="autoSave()"/>
+            </div>
+            <div class="form-group full-width">
+              <label>Road / Street Name</label>
+              <input type="text" id="addr2" placeholder="Street, Locality" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>City / Town *</label>
+              <input type="text" id="city" placeholder="City" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>State *</label>
+              <select id="state" onchange="autoSave()">
+                <option value="">Select State</option>
+                <option value="UP">Uttar Pradesh</option>
+                <option value="MH">Maharashtra</option>
+                <option value="DL">Delhi</option>
+                <option value="KA">Karnataka</option>
+                <option value="TN">Tamil Nadu</option>
+                <option value="GJ">Gujarat</option>
+                <option value="RJ">Rajasthan</option>
+                <option value="WB">West Bengal</option>
+                <option value="MP">Madhya Pradesh</option>
+                <option value="HR">Haryana</option>
+                <option value="PB">Punjab</option>
+                <option value="BR">Bihar</option>
+                <option value="JH">Jharkhand</option>
+                <option value="OR">Odisha</option>
+                <option value="AP">Andhra Pradesh</option>
+                <option value="TS">Telangana</option>
+                <option value="KL">Kerala</option>
+                <option value="UK">Uttarakhand</option>
+                <option value="HP">Himachal Pradesh</option>
+                <option value="GA">Goa</option>
+                <option value="AS">Assam</option>
+                <option value="MN">Manipur</option>
+                <option value="MZ">Mizoram</option>
+                <option value="NL">Nagaland</option>
+                <option value="TR">Tripura</option>
+                <option value="ML">Meghalaya</option>
+                <option value="SK">Sikkim</option>
+                <option value="AR">Arunachal Pradesh</option>
+                <option value="CH">Chandigarh</option>
+                <option value="DD">Dadra & Nagar Haveli</option>
+                <option value="JK">Jammu & Kashmir</option>
+                <option value="LA">Ladakh</option>
+                <option value="PY">Puducherry</option>
+                <option value="AN">Andaman & Nicobar</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>PIN Code *</label>
+              <input type="text" id="pincode" placeholder="6-digit PIN" maxlength="6" oninput="autoSave()"/>
+            </div>
+          </div>
+        </div>
+        <div class="form-card">
+          <div class="section-title">🏦 Bank Account (for Refund)</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Bank Name *</label>
+              <input type="text" id="bankName" placeholder="e.g. State Bank of India" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Account Number *</label>
+              <input type="text" id="bankAccNo" placeholder="Bank account number" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>IFSC Code *</label>
+              <input type="text" id="ifscCode" placeholder="e.g. SBIN0001234" maxlength="11" oninput="this.value=this.value.toUpperCase();autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Account Type</label>
+              <select id="bankAccType" onchange="autoSave()">
+                <option value="SB">Savings Account</option>
+                <option value="CA">Current Account</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SECTION 2: INCOME ===== -->
+      <div class="filing-section" id="sec-2">
+
+        <!-- Section guide bar -->
+        <div id="sec-2-guide-bar" style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;background:rgba(30,64,175,0.05);border:1px solid rgba(30,64,175,0.15);border-radius:var(--radius);margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--text-secondary)">
+            <span style="font-size:1rem">📖</span>
+            <span id="guideBarFormLabel-2">ITR-1 Guide</span>
+          </div>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+            <button type="button" onclick="showITRGuide(currentForm)" style="padding:0.25rem 0.65rem;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">📖 ITR Guide</button>
+            <button type="button" onclick="showSectionHelp('2')" style="padding:0.25rem 0.65rem;background:rgba(99,102,241,0.1);color:#6d28d9;border:1px solid rgba(99,102,241,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">❓ Section Help</button>
+            <button type="button" onclick="showITRGuide('compare')" style="padding:0.25rem 0.65rem;background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">🆚 Compare Forms</button>
+          </div>
+        </div>
+        <!-- Form-specific income note -->
+        <div id="incomeFormNote" class="itr-alert info" style="margin-bottom:1rem"></div>
+
+        <!-- ITR-4 Presumptive Income Block -->
+        <div id="block-presumptive" style="display:none">
+          <div class="form-card" style="border-color:rgba(99,102,241,0.3);background:rgba(99,102,241,0.03)">
+            <div class="section-title">🏪 Presumptive Business Income (u/s 44AD / 44ADA / 44AE)</div>
+            <div class="itr-alert info">44AD: Business turnover ≤ ₹3Cr → 6%/8% of turnover as income | 44ADA: Professionals ≤ ₹75L → 50% of receipts | 44AE: Goods carriages</div>
+            <div class="form-grid">
+              <div class="form-group"><label>Section Applied</label>
+                <select id="presumptiveSection" onchange="calcIncome()">
+                  <option value="44AD">44AD – Business (turnover ≤ ₹3Cr)</option>
+                  <option value="44ADA">44ADA – Professionals (receipts ≤ ₹75L)</option>
+                  <option value="44AE">44AE – Goods carriage</option>
+                </select>
+              </div>
+              <div class="form-group"><label>Gross Turnover / Receipts (₹)</label>
+                <input type="number" id="presumptiveTurnover" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label>Income Declared (₹) — min 6%/8%/50% of turnover</label>
+                <input type="number" id="presumptiveIncome" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label>Receipts by Digital means (₹) — for 44AD 6% rate</label>
+                <input type="number" id="presumptiveDigital" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label style="color:var(--primary);font-weight:700">Net Presumptive Income</label>
+                <input type="number" id="netPresumptive" readonly style="color:var(--primary);font-weight:700"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Business/Profession Block (ITR-3/5/6) -->
+        <div id="block-business" style="display:none">
+          <div class="form-card" style="border-color:rgba(245,158,11,0.3)">
+            <div class="section-title">🏭 Income from Business / Profession</div>
+            <div class="form-grid">
+              <div class="form-group"><label>Gross Revenue / Turnover (₹)</label>
+                <input type="number" id="bizRevenue" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label>Total Expenses / Deductions (₹)</label>
+                <input type="number" id="bizExpenses" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label>Depreciation (₹)</label>
+                <input type="number" id="bizDepreciation" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label>Brought Forward Business Loss (₹)</label>
+                <input type="number" id="bizBFLoss" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label style="color:var(--primary);font-weight:700">Net Business Income</label>
+                <input type="number" id="netBusiness" readonly style="color:var(--primary);font-weight:700"/>
+              </div>
+              <div class="form-group"><label>Speculative Business Income (₹)</label>
+                <input type="number" id="speculativeInc" placeholder="0" oninput="calcIncome()"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Capital Gains Block (ITR-2/3) -->
+        <div id="block-cg" style="display:none">
+          <div class="form-card" style="border-color:rgba(16,185,129,0.3)">
+            <div class="section-title">📈 Capital Gains (Schedule CG)</div>
+            <div class="itr-alert info">LTCG equity/MF: 12.5% above ₹1.25L (AY 2026-27) | STCG equity: 20% | LTCG property: 12.5% (w/o indexation) or 20% (with indexation) | STCG property: Slab rate</div>
+            <div class="form-grid">
+              <div class="form-group"><label>STCG – Equity/MF (STT paid) (₹)</label>
+                <input type="number" id="stcgEquity" placeholder="0" oninput="calcIncome()"/>
+                <span class="hint">Tax @20%</span>
+              </div>
+              <div class="form-group"><label>LTCG – Equity/MF (STT paid) (₹)</label>
+                <input type="number" id="ltcgEquity" placeholder="0" oninput="calcIncome()"/>
+                <span class="hint">Tax @12.5% above ₹1.25L</span>
+              </div>
+              <div class="form-group"><label>STCG – Property / Other Assets (₹)</label>
+                <input type="number" id="stcgProperty" placeholder="0" oninput="calcIncome()"/>
+                <span class="hint">Tax at slab rate</span>
+              </div>
+              <div class="form-group"><label>LTCG – Property / Other Assets (₹)</label>
+                <input type="number" id="ltcgProperty" placeholder="0" oninput="calcIncome()"/>
+                <span class="hint">Tax @12.5% (no indexation) / 20% with indexation</span>
+              </div>
+              <div class="form-group"><label>LTCG Exemption u/s 54/54F/54EC (₹)</label>
+                <input type="number" id="ltcgExemption" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label>Brought Forward CG Loss Set-off (₹)</label>
+                <input type="number" id="cgBFLoss" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label style="color:var(--primary);font-weight:700">Net Capital Gains (Taxable)</label>
+                <input type="number" id="netCG" readonly style="color:var(--primary);font-weight:700"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Foreign Income Block (ITR-2/3) -->
+        <div id="block-foreign" style="display:none">
+          <div class="form-card" style="border-color:rgba(139,92,246,0.3)">
+            <div class="section-title">🌍 Foreign Income &amp; Assets (Schedule FA)</div>
+            <div class="form-grid">
+              <div class="form-group"><label>Foreign Salary / Employment Income (₹)</label>
+                <input type="number" id="foreignSalary" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label>Foreign Business Income (₹)</label>
+                <input type="number" id="foreignBusiness" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label>Foreign Tax Paid (₹) – for DTAA relief</label>
+                <input type="number" id="foreignTaxPaid" placeholder="0" oninput="calcIncome()"/>
+              </div>
+              <div class="form-group"><label>Foreign Bank Account Balance (USD/EUR equivalent ₹)</label>
+                <input type="number" id="foreignBankBal" placeholder="0"/>
+                <span class="hint">Declaration only – not taxed directly</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card" id="block-salary">
+          <div class="section-title">💰 Income from Salary / Pension</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Gross Salary (as per Form 16 / Salary slips) *</label>
+              <input type="number" id="grossSalary" placeholder="0" oninput="calcIncome()"/>
+              <span class="hint">Include all allowances before deductions</span>
+            </div>
+            <div class="form-group">
+              <label>House Rent Allowance (HRA) Received</label>
+              <input type="number" id="hraReceived" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label>HRA Exemption (u/s 10(13A))</label>
+              <input type="number" id="hraExempt" placeholder="0" oninput="calcIncome()"/>
+              <span class="hint">Min of: (a) HRA received, (b) Rent paid – 10% of basic salary, (c) 50% of salary (metro) / 40% (non-metro). Enter the calculated exempt amount above.</span>
+              <button type="button" onclick="calcHRAExemption()" style="margin-top:0.35rem;padding:0.25rem 0.75rem;background:rgba(30,64,175,0.1);color:var(--primary);border:1px solid rgba(30,64,175,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">⚡ Auto-Calculate HRA</button>
+            </div>
+            <div class="form-group">
+              <label>LTA Exemption (u/s 10(5))</label>
+              <input type="number" id="ltaExempt" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label>Other Exemptions u/s 10</label>
+              <input type="number" id="otherExemptions" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label>Standard Deduction (u/s 16(ia))</label>
+              <input type="number" id="stdDeduction" value="75000" readonly/>
+              <span class="hint">₹75,000 for AY 2026-27 (New Regime: ₹75,000)</span>
+            </div>
+            <div class="form-group">
+              <label>Professional Tax (u/s 16(iii))</label>
+              <input type="number" id="profTax" placeholder="0" max="2500" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label>Entertainment Allowance (Govt employees only)</label>
+              <input type="number" id="entertainmentAllow" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label style="color:var(--primary);font-weight:700">Net Taxable Salary</label>
+              <input type="number" id="netSalary" readonly style="color:var(--primary);font-weight:700"/>
+            </div>
+          </div>
+        </div>
+
+        </div><!-- end block-salary -->
+
+        <div class="form-card" id="block-hp">
+          <div class="section-title">🏠 Income from House Property</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Annual Rent Received (Gross)</label>
+              <input type="number" id="rentReceived" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label>Municipal Tax Paid</label>
+              <input type="number" id="municipalTax" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label>Home Loan Interest (u/s 24(b))</label>
+              <input type="number" id="homeLoanInterest" placeholder="0" oninput="calcIncome()"/>
+              <span class="hint">Max ₹2,00,000 for self-occupied (old regime). No limit for let-out.</span>
+            </div>
+            <div class="form-group">
+              <label style="color:var(--primary);font-weight:700">Net House Property Income</label>
+              <input type="number" id="netHP" readonly style="color:var(--primary);font-weight:700"/>
+            </div>
+          </div>
+        </div>
+
+        </div><!-- end block-hp -->
+
+        <div class="form-card" id="block-other-src">
+          <div class="section-title">📈 Other Sources of Income</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Interest from Savings Account</label>
+              <input type="number" id="savingsInterest" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label>Interest from Fixed Deposits</label>
+              <input type="number" id="fdInterest" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label>Interest from PPF / NSC</label>
+              <input type="number" id="ppfInterest" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label>Dividend Income</label>
+              <input type="number" id="dividendInc" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label>Family Pension Received</label>
+              <input type="number" id="familyPension" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label>Other Miscellaneous Income</label>
+              <input type="number" id="otherIncome" placeholder="0" oninput="calcIncome()"/>
+            </div>
+            <div class="form-group">
+              <label style="color:var(--primary);font-weight:700">Total Other Sources</label>
+              <input type="number" id="totalOtherSrc" readonly style="color:var(--primary);font-weight:700"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="tax-summary-card">
+          <div class="section-title">📊 Gross Total Income Summary</div>
+          <div class="tax-row" id="rowSalary"><span class="tax-label">Salary Income (Net)</span><span class="tax-val" id="showNetSalary">₹0</span></div>
+          <div class="tax-row" id="rowHP"><span class="tax-label">House Property Income</span><span class="tax-val" id="showNetHP">₹0</span></div>
+          <div class="tax-row" id="rowBiz" style="display:none"><span class="tax-label">Business/Profession Income</span><span class="tax-val" id="showNetBiz">₹0</span></div>
+          <div class="tax-row" id="rowPresumptive" style="display:none"><span class="tax-label">Presumptive Business Income</span><span class="tax-val" id="showNetPresumptive">₹0</span></div>
+          <div class="tax-row" id="rowCG" style="display:none"><span class="tax-label">Capital Gains (Net)</span><span class="tax-val" id="showNetCGSummary">₹0</span></div>
+          <div class="tax-row" id="rowForeign" style="display:none"><span class="tax-label">Foreign Income</span><span class="tax-val" id="showForeignInc">₹0</span></div>
+          <div class="tax-row" id="rowSpeculative" style="display:none"><span class="tax-label">Speculative Business Income</span><span class="tax-val" id="showSpecInc">₹0</span></div>
+          <div class="tax-row"><span class="tax-label">Other Sources Income</span><span class="tax-val" id="showOtherSrc">₹0</span></div>
+          <div class="tax-row total"><span class="tax-label">Gross Total Income (GTI)</span><span class="tax-val" id="showGTI">₹0</span></div>
+        </div>
+      </div>
+
+      <!-- ===== SECTION 3: DEDUCTIONS ===== -->
+      <div class="filing-section" id="sec-3">
+
+        <!-- Section guide bar -->
+        <div id="sec-3-guide-bar" style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;background:rgba(30,64,175,0.05);border:1px solid rgba(30,64,175,0.15);border-radius:var(--radius);margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--text-secondary)">
+            <span style="font-size:1rem">📖</span>
+            <span id="guideBarFormLabel-3">ITR-1 Guide</span>
+          </div>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+            <button type="button" onclick="showITRGuide(currentForm)" style="padding:0.25rem 0.65rem;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">📖 ITR Guide</button>
+            <button type="button" onclick="showSectionHelp('3')" style="padding:0.25rem 0.65rem;background:rgba(99,102,241,0.1);color:#6d28d9;border:1px solid rgba(99,102,241,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">❓ Section Help</button>
+            <button type="button" onclick="showITRGuide('compare')" style="padding:0.25rem 0.65rem;background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">🆚 Compare Forms</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <div class="section-title">💡 Deductions Under Chapter VI-A</div>
+          <div id="regimeWarnAlert" class="itr-alert warn">⚠️ Yeh deductions sirf <strong>Old Tax Regime</strong> mein available hain. New Regime mein Section 80C/80D etc. allowed nahi hai.</div>
+          <div id="regimeNewAlert" class="itr-alert success" style="display:none">✅ <strong>New Tax Regime:</strong> Sirf Standard Deduction ₹75,000 milta hai. 80C, 80D etc. allowed nahi. Agar Old Regime select karna hai to upar Tax Regime dropdown change karein.</div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>80C – LIC/PPF/ELSS/EPF/Tuition Fee etc.</label>
+              <input type="number" id="ded80C" placeholder="0" max="150000" oninput="calcDeductions()"/>
+              <span class="hint">Max ₹1,50,000</span>
+            </div>
+            <div class="form-group">
+              <label>80CCC – Pension Fund</label>
+              <input type="number" id="ded80CCC" placeholder="0" oninput="calcDeductions()"/>
+              <span class="hint">Combined 80C+80CCC+80CCD(1) max: ₹1,50,000</span>
+            </div>
+            <div class="form-group">
+              <label>80CCD(1B) – NPS Additional Contribution</label>
+              <input type="number" id="ded80CCD1B" placeholder="0" max="50000" oninput="calcDeductions()"/>
+              <span class="hint">Additional ₹50,000 over 80C limit</span>
+            </div>
+            <div class="form-group">
+              <label>80D – Medical Insurance Premium</label>
+              <input type="number" id="ded80D" placeholder="0" oninput="calcDeductions()"/>
+              <span class="hint">Self: ₹25,000; Senior Citizen: ₹50,000; Parents: ₹25,000-₹50,000</span>
+            </div>
+            <div class="form-group">
+              <label>80DD – Dependent with Disability</label>
+              <input type="number" id="ded80DD" placeholder="0" oninput="calcDeductions()"/>
+              <span class="hint">₹75,000 or ₹1,25,000 (severe)</span>
+            </div>
+            <div class="form-group">
+              <label>80E – Education Loan Interest</label>
+              <input type="number" id="ded80E" placeholder="0" oninput="calcDeductions()"/>
+              <span class="hint">Full interest amount, no cap</span>
+            </div>
+            <div class="form-group">
+              <label>80EE – Home Loan Interest (First-time buyer)</label>
+              <input type="number" id="ded80EE" placeholder="0" max="50000" oninput="calcDeductions()"/>
+              <span class="hint">Max ₹50,000 (loan sanctioned FY 2016-17)</span>
+            </div>
+            <div class="form-group">
+              <label>80G – Donations to Eligible Organizations</label>
+              <input type="number" id="ded80G" placeholder="0" oninput="calcDeductions()"/>
+            </div>
+            <div class="form-group">
+              <label>80GG – Rent Paid (no HRA) </label>
+              <input type="number" id="ded80GG" placeholder="0" max="60000" oninput="calcDeductions()"/>
+              <span class="hint">Max ₹5,000/month = ₹60,000/yr</span>
+            </div>
+            <div class="form-group">
+              <label>80TTA – Savings Interest Deduction</label>
+              <input type="number" id="ded80TTA" placeholder="0" max="10000" oninput="calcDeductions()"/>
+              <span class="hint">Max ₹10,000 (₹50,000 for seniors u/s 80TTB)</span>
+            </div>
+            <div class="form-group">
+              <label>80TTB – Senior Citizen Savings Interest</label>
+              <input type="number" id="ded80TTB" placeholder="0" max="50000" oninput="calcDeductions()"/>
+              <span class="hint">Max ₹50,000 (for 60+ years)</span>
+            </div>
+            <div class="form-group">
+              <label>Other Deductions (80U, 80GGA etc.)</label>
+              <input type="number" id="dedOther" placeholder="0" oninput="calcDeductions()"/>
+            </div>
+          </div>
+
+          <div style="margin-top:1.5rem">
+            <div class="form-group">
+              <label>Tax Regime</label>
+              <select id="taxRegime" onchange="calcDeductions()">
+                <option value="new">New Tax Regime (Default AY 2026-27) – Zero tax upto ₹12L income</option>
+                <option value="old">Old Tax Regime – With Chapter VI-A deductions (80C, 80D etc.)</option>
+              </select>
+              <span class="hint" id="regimeHint">New Regime: Standard Deduction ₹75,000. Zero tax upto ₹12L (rebate u/s 87A). Default from AY 2024-25.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tax-summary-card">
+          <div class="section-title">📊 Deduction Summary</div>
+          <div class="tax-row"><span class="tax-label">Total 80C + 80CCC</span><span class="tax-val" id="show80CTotal">₹0</span></div>
+          <div class="tax-row"><span class="tax-label">80CCD(1B) – NPS Extra</span><span class="tax-val" id="show80CCD1B">₹0</span></div>
+          <div class="tax-row"><span class="tax-label">80D – Medical Insurance</span><span class="tax-val" id="show80D">₹0</span></div>
+          <div class="tax-row"><span class="tax-label">Other Deductions</span><span class="tax-val" id="showOtherDed">₹0</span></div>
+          <div class="tax-row total"><span class="tax-label">Total Deductions (Chapter VI-A)</span><span class="tax-val" id="showTotalDed">₹0</span></div>
+          <div class="tax-row" style="background:rgba(30,64,175,0.04);border-radius:6px;padding:0.75rem 0.5rem"><span class="tax-label" style="font-weight:700">Net Taxable Income</span><span class="tax-val" style="font-weight:800;color:var(--primary)" id="showNetTaxable">₹0</span></div>
+        </div>
+      </div>
+
+      <!-- ===== SECTION 4: TAX PAID ===== -->
+      <div class="filing-section" id="sec-4">
+
+        <!-- Section guide bar -->
+        <div id="sec-4-guide-bar" style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;background:rgba(30,64,175,0.05);border:1px solid rgba(30,64,175,0.15);border-radius:var(--radius);margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--text-secondary)">
+            <span style="font-size:1rem">📖</span>
+            <span id="guideBarFormLabel-4">ITR-1 Guide</span>
+          </div>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+            <button type="button" onclick="showITRGuide(currentForm)" style="padding:0.25rem 0.65rem;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">📖 ITR Guide</button>
+            <button type="button" onclick="showSectionHelp('4')" style="padding:0.25rem 0.65rem;background:rgba(99,102,241,0.1);color:#6d28d9;border:1px solid rgba(99,102,241,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">❓ Section Help</button>
+            <button type="button" onclick="showITRGuide('compare')" style="padding:0.25rem 0.65rem;background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">🆚 Compare Forms</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <div class="section-title">🧮 Tax Computation</div>
+          <div class="tax-summary-card" style="margin-bottom:1.5rem">
+            <div class="tax-row"><span class="tax-label">Net Taxable Income</span><span class="tax-val" id="txNetIncome">₹0</span></div>
+            <div class="tax-row"><span class="tax-label">Basic Tax (as per slab)</span><span class="tax-val" id="txBasicTax">₹0</span></div>
+            <div class="tax-row"><span class="tax-label">Surcharge</span><span class="tax-val" id="txSurcharge">₹0</span></div>
+            <div class="tax-row"><span class="tax-label">Health & Education Cess (4%)</span><span class="tax-val" id="txCess">₹0</span></div>
+            <div class="tax-row total"><span class="tax-label">Total Tax Liability</span><span class="tax-val" id="txTotalTax">₹0</span></div>
+            <div class="tax-row"><span class="tax-label">87A Rebate (Income ≤ ₹7L in NR / ₹5L in OR)</span><span class="tax-val" id="txRebate">₹0</span></div>
+            <div class="tax-row total" style="color:var(--danger)"><span class="tax-label">Tax After Rebate</span><span class="tax-val" id="txAfterRebate">₹0</span></div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="section-title">💳 Tax Already Paid</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>TDS from Salary (as per Form 16)</label>
+              <input type="number" id="tdsSalary" placeholder="0" oninput="calcTaxPaid()"/>
+            </div>
+            <div class="form-group">
+              <label>TDS on FD Interest (as per Form 26AS)</label>
+              <input type="number" id="tdsFD" placeholder="0" oninput="calcTaxPaid()"/>
+            </div>
+            <div class="form-group">
+              <label>TDS on Other Income</label>
+              <input type="number" id="tdsOther" placeholder="0" oninput="calcTaxPaid()"/>
+            </div>
+            <div class="form-group">
+              <label>Advance Tax Paid (Q1+Q2+Q3+Q4)</label>
+              <input type="number" id="advanceTax" placeholder="0" oninput="calcTaxPaid()"/>
+            </div>
+            <div class="form-group">
+              <label>Self Assessment Tax Paid</label>
+              <input type="number" id="selfAssessTax" placeholder="0" oninput="calcTaxPaid()"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="tax-summary-card">
+          <div class="section-title">📊 Net Tax Position</div>
+          <div class="tax-row"><span class="tax-label">Total Tax Liability</span><span class="tax-val" id="finalTaxLiab">₹0</span></div>
+          <div class="tax-row"><span class="tax-label">Total Tax Paid (TDS + Advance + SAT)</span><span class="tax-val" id="finalTaxPaid">₹0</span></div>
+          <div class="tax-row total" id="netPositionRow"><span class="tax-label" id="netPositionLabel">Tax Payable / Refund</span><span class="tax-val" id="netPositionVal">₹0</span></div>
+        </div>
+
+        <div class="form-card" style="margin-top:1.25rem">
+          <h4 style="font-size:0.9rem;font-weight:700;margin-bottom:1rem">📋 Challan Details (if tax paid)</h4>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>BSR Code</label>
+              <input type="text" id="bsrCode" placeholder="7-digit BSR code" maxlength="7" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Challan Serial No.</label>
+              <input type="text" id="challanSerial" placeholder="Challan serial number" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Date of Payment</label>
+              <input type="date" id="challanDate" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Amount Paid (₹)</label>
+              <input type="number" id="challanAmount" placeholder="0" oninput="autoSave()"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SECTION 5: REVIEW ===== -->
+      <div class="filing-section" id="sec-5">
+
+        <!-- Section guide bar -->
+        <div id="sec-5-guide-bar" style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;background:rgba(30,64,175,0.05);border:1px solid rgba(30,64,175,0.15);border-radius:var(--radius);margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--text-secondary)">
+            <span style="font-size:1rem">📖</span>
+            <span id="guideBarFormLabel-5">ITR-1 Guide</span>
+          </div>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+            <button type="button" onclick="showITRGuide(currentForm)" style="padding:0.25rem 0.65rem;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">📖 ITR Guide</button>
+            <button type="button" onclick="showSectionHelp('5')" style="padding:0.25rem 0.65rem;background:rgba(99,102,241,0.1);color:#6d28d9;border:1px solid rgba(99,102,241,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">❓ Section Help</button>
+            <button type="button" onclick="showITRGuide('compare')" style="padding:0.25rem 0.65rem;background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">🆚 Compare Forms</button>
+          </div>
+        </div>
+        <div class="itr-alert success">✅ Review your ITR details carefully before submitting. Ensure all figures match Form 16, Form 26AS and AIS.</div>
+        <div class="form-card">
+          <div class="section-title">📄 ITR Preview Sheet</div>
+          <div class="preview-box" id="previewBox">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SECTION 6: SUBMIT ===== -->
+      <div class="filing-section" id="sec-6">
+
+        <!-- Section guide bar -->
+        <div id="sec-6-guide-bar" style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;background:rgba(30,64,175,0.05);border:1px solid rgba(30,64,175,0.15);border-radius:var(--radius);margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
+          <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:var(--text-secondary)">
+            <span style="font-size:1rem">📖</span>
+            <span id="guideBarFormLabel-6">ITR-1 Guide</span>
+          </div>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+            <button type="button" onclick="showITRGuide(currentForm)" style="padding:0.25rem 0.65rem;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">📖 ITR Guide</button>
+            <button type="button" onclick="showSectionHelp('6')" style="padding:0.25rem 0.65rem;background:rgba(99,102,241,0.1);color:#6d28d9;border:1px solid rgba(99,102,241,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">❓ Section Help</button>
+            <button type="button" onclick="showITRGuide('compare')" style="padding:0.25rem 0.65rem;background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-full);font-size:0.72rem;font-weight:700;cursor:pointer">🆚 Compare Forms</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <div class="section-title">✅ Verification & Export</div>
+          <div class="itr-alert info">
+            <strong>Verification Required:</strong> ITR submit karne ke baad <strong>e-Verify</strong> karna compulsory hai within 30 days. Aadhaar OTP, Net Banking, DSC — koi bhi method use kar sakte hain.
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Place of Filing *</label>
+              <input type="text" id="placeOfFiling" placeholder="City where filing" oninput="autoSave()"/>
+            </div>
+            <div class="form-group">
+              <label>Date of Filing</label>
+              <input type="date" id="dateOfFiling" readonly style="color:var(--primary);font-weight:700"/>
+            </div>
+            <div class="form-group full-width">
+              <label style="font-size:0.82rem;color:var(--text-secondary)">
+                <input type="checkbox" id="declarationCheck" style="margin-right:0.5rem;accent-color:var(--primary)"/>
+                मैं (I) hereby declare that this Return furnished is correct, complete and truly stated to the best of my knowledge and belief. मैंने इस ITR में सभी जानकारी सही, पूरी और सत्यनिष्ठा से भरी है।
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="section-title">📥 Download & Export</div>
+          <div class="download-btn-group">
+            <button type="button" class="btn-primary-solid btn-pdf" onclick="downloadITRPDF()"><i class="fa fa-file-pdf"></i> Download ITR PDF</button>
+            <button type="button" class="btn-primary-solid btn-json" onclick="downloadITJSON()"><i class="fa fa-code"></i> IT Portal JSON</button>
+            <button type="button" class="btn-primary-solid btn-print" onclick="printITR()"><i class="fa fa-print"></i> Print ITR</button>
+          </div>
+          <div style="margin-top:1.5rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+              <h4 style="font-size:0.9rem;font-weight:700" id="jsonSchemaTitle">IT Portal JSON (ITR-1 Schema)</h4>
+              <button class="btn-secondary-solid" onclick="copyJSON()" style="font-size:0.75rem;padding:0.3rem 0.75rem"><i class="fa fa-copy"></i> Copy JSON</button>
+            </div>
+            <div class="itportal-json-box" id="itrJsonBox">Click "IT Portal JSON" to generate...</div>
+          </div>
+        </div>
+
+        <div class="form-card" style="background:rgba(16,185,129,0.05);border-color:rgba(16,185,129,0.3)">
+          <div class="section-title" style="color:var(--success)">🌐 File on Income Tax Portal</div>
+          <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:1.25rem">
+            JSON file download karke <strong>incometax.gov.in</strong> par upload karein ya Aadhaar OTP se e-Verify karein. TaxMitra ka JSON IT Portal ke exact schema se match karta hai।
+          </p>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+            <a href="https://www.incometax.gov.in/iec/foportal/" target="_blank" class="btn-primary-solid"><i class="fa fa-external-link-alt"></i> Open IT Portal</a>
+            <a href="https://eportal.incometax.gov.in/iec/foservices/#/e-file/er-efile" target="_blank" class="btn-secondary-solid">Upload ITR JSON</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wizard Nav -->
+      <div class="wizard-nav">
+        <button type="button" class="btn-secondary-solid" id="prevBtn" onclick="navigate(-1)" style="display:none"><i class="fa fa-arrow-left"></i> Previous</button>
+        <div class="wizard-progress" id="wizardProgress">Step 1 of 6</div>
+        <button type="button" class="btn-primary-solid" id="nextBtn" onclick="navigate(1)">Next <i class="fa fa-arrow-right"></i></button>
+      </div>
+
+    </div>
+  </div>
+
+  <p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise</p>
+
+  <!-- ===== ITR GUIDE MODAL ===== -->
+  <div class="guide-modal" id="itrGuideModal">
+    <div class="guide-content">
+      <div class="guide-header">
+        <div>
+          <h3 style="font-size:1.1rem;margin:0" id="guideTitle">ITR Filing Guide</h3>
+          <p style="margin:0;font-size:0.8rem;opacity:0.85" id="guideSubtitle">Complete guide with eligibility, documents & steps</p>
+        </div>
+        <button type="button" class="close-guide" onclick="closeGuide()">&#x2715;</button>
+      </div>
+      <div class="guide-body" id="guideBody">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+  <script src="../js/ai-real.js"></script>
+  <script src="../js/pdf-real.js"></script>
+
+  <script>
+  // ── showToast (local callable version) ─────────────────────────────────
+  function showToast(msg, type) {
+    let cont = document.getElementById('toastContainer');
+    if (!cont) {
+      cont = document.createElement('div');
+      cont.id = 'toastContainer';
+      cont.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.4rem';
+      document.body.appendChild(cont);
+    }
+    const d = document.createElement('div');
+    d.className = 'toast ' + (type || 'success');
+    d.textContent = msg;
+    d.style.cssText = 'background:' + (type==='error'?'#dc2626':type==='warning'?'#f59e0b':'#1e40af') + ';color:#fff;padding:.6rem 1rem;border-radius:8px;font-size:.82rem;font-weight:600;max-width:320px;animation:toastIn .3s ease';
+    cont.appendChild(d);
+    setTimeout(() => d.remove(), 3500);
+  }
+
+  // ── State ─────────────────────────────────────────────────────────────
+  var currentStep = 1;
+  var currentForm = '1'; // global var (no TDZ) — let caused ReferenceError
+  var TOTAL_STEPS = 6;
+  var _lastTaxLiab = 0;
+
+  const ITR_FORM_DESCS_SHORT = {
+    '1': 'For Individuals - Salary, One House Property, Other Sources (Income upto Rs 50 Lakh)',
+    '2': 'For Individuals/HUF - Capital Gains, Multiple Properties, Foreign Assets',
+    '3': 'For Individuals/HUF - Business/Profession Income (detailed books)',
+    '4': 'For Individuals/HUF/Firms - Presumptive Business (44AD/44ADA/44AE)',
+    '5': 'For Firms, LLPs, AOPs, BOIs, Investment Funds',
+    '6': 'For Companies (excluding those claiming Sec 11/12 exemption)',
+    '7': 'For Trusts, Political Parties, Scientific Research Associations',
+  };
+
+  const FORM_DESCS = {
+    '1': '<strong>ITR-1 (Sahaj):</strong> Resident Individuals — salary/pension, 1 house property, other sources. Income ≤ ₹50L. Not for capital gains/foreign assets/directors.',
+    '2': '<strong>ITR-2:</strong> Individuals/HUF — capital gains, 2+ properties, foreign income/assets, director in company, unlisted shares.',
+    '3': '<strong>ITR-3:</strong> Individuals/HUF with business/profession income. Detailed P&L and Balance Sheet required.',
+    '4': '<strong>ITR-4 (Sugam):</strong> Presumptive income u/s 44AD (business turnover ≤ ₹3Cr), 44ADA (professional ≤ ₹75L), 44AE.',
+    '5': '<strong>ITR-5:</strong> Firms, LLPs, AOPs, BOIs, Cooperative Societies, Investment Funds.',
+    '6': '<strong>ITR-6:</strong> Companies (other than claiming 11/12 exemption). Requires DSC signature.',
+    '7': '<strong>ITR-7:</strong> Trusts, Political Parties, Charitable/Religious institutions, Scientific Research assoc.'
+  };
+
+  function selectForm(f, btn) {
+    currentForm = f;
+    // Update all tab styles
+    document.querySelectorAll('.form-tab').forEach(function(t) { t.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+
+    // Update descriptions
+    document.getElementById('formDesc').innerHTML = FORM_DESCS[f] || '';
+    var hft = document.getElementById('heroFormTitle');
+    if (hft) hft.textContent = 'ITR-' + f + ' Filing Form';
+    var ht = document.getElementById('heroTitle');
+    if (ht) ht.textContent = 'ITR-' + f + ' Filing Form - AY 2026-27';
+
+    // Show confirmation badge
+    var conf = document.getElementById('formSelectedConfirm');
+    if (conf) {
+      conf.style.display = 'flex';
+      var icons = {'1':'📝','2':'📊','3':'🏭','4':'🏪','5':'🤝','6':'🏢','7':'🏛️'};
+      var names = {'1':'Sahaj (Salary)','2':'Capital Gains/HUF','3':'Business/Profession','4':'Sugam (Presumptive)','5':'Firm/LLP/AOP','6':'Company','7':'Trust/NPO'};
+      conf.innerHTML = '<span style="font-size:1.5rem">' + (icons[f]||'📋') + '</span><div style="margin-left:0.5rem"><strong>ITR-' + f + ' Selected!</strong><br><small style="opacity:0.8">' + (names[f]||'') + '</small></div>';
+      setTimeout(function() { conf.style.display = 'none'; }, 3000);
+    }
+
+    // Show/hide income sections
+    renderFormSections(f);
+
+    // Update JSON schema title in Step 6
+    const schemaTitle = document.getElementById('jsonSchemaTitle');
+    if (schemaTitle) schemaTitle.textContent = 'IT Portal JSON (ITR-' + f + ' Schema)';
+
+    // Update guide bar labels for all sections
+    updateGuideBarLabels(f);
+    // Update ITR form tag
+    var tag = document.getElementById('itrRecommendTag');
+    if (tag) { tag.textContent = 'ITR-' + f; tag.style.display = ''; }
+
+    // Reset wizard to step 1
+    currentStep = 1;
+    updateWizard();
+    loadDraft();
+  }
+
+  function renderFormSections(f) {
+    // Section 2 dynamic content based on form
+    const incomeSection = document.getElementById('sec-2');
+    if (!incomeSection) return;
+
+    // Salary block - hide for firm/company/trust forms
+    const salaryBlock = document.getElementById('block-salary');
+    const hpBlock = document.getElementById('block-hp');
+    const cgBlock = document.getElementById('block-cg');
+    const businessBlock = document.getElementById('block-business');
+    const presumptiveBlock = document.getElementById('block-presumptive');
+    const foreignBlock = document.getElementById('block-foreign');
+    const otherSrcBlock = document.getElementById('block-other-src');
+
+    // Reset all
+    [salaryBlock, hpBlock, cgBlock, businessBlock, presumptiveBlock, foreignBlock, otherSrcBlock]
+      .forEach(b => { if(b) b.style.display = ''; });
+
+    if (f === '1') {
+      // ITR-1: Salary, 1 HP, Other Sources only
+      if(cgBlock) cgBlock.style.display='none';
+      if(businessBlock) businessBlock.style.display='none';
+      if(presumptiveBlock) presumptiveBlock.style.display='none';
+      if(foreignBlock) foreignBlock.style.display='none';
+    } else if (f === '2') {
+      // ITR-2: Salary, HP, Capital Gains, Foreign
+      if(businessBlock) businessBlock.style.display='none';
+      if(presumptiveBlock) presumptiveBlock.style.display='none';
+    } else if (f === '3') {
+      // ITR-3: Business/Profession + all
+      if(presumptiveBlock) presumptiveBlock.style.display='none';
+    } else if (f === '4') {
+      // ITR-4 Sugam: Presumptive + Salary + HP
+      if(cgBlock) cgBlock.style.display='none';
+      if(businessBlock) businessBlock.style.display='none';
+      if(foreignBlock) foreignBlock.style.display='none';
+    } else if (f === '5' || f === '6') {
+      // Firm/Company: No salary
+      if(salaryBlock) salaryBlock.style.display='none';
+      if(presumptiveBlock) presumptiveBlock.style.display='none';
+      if(foreignBlock) foreignBlock.style.display='none';
+    } else if (f === '7') {
+      // Trust: No salary, no CG, only business/other
+      if(salaryBlock) salaryBlock.style.display='none';
+      if(cgBlock) cgBlock.style.display='none';
+      if(presumptiveBlock) presumptiveBlock.style.display='none';
+    }
+
+    // Update step labels based on form
+    const stepLabels = {
+      '1': ['Personal','Salary/HP','Deductions','Tax Paid','Review','Submit'],
+      '2': ['Personal','Income+CG','Deductions','Tax Paid','Review','Submit'],
+      '3': ['Personal','Business','Deductions','Tax Paid','Review','Submit'],
+      '4': ['Personal','Presumptive','Deductions','Tax Paid','Review','Submit'],
+      '5': ['Entity','Income','Deductions','Tax Paid','Review','Submit'],
+      '6': ['Company','Income','Deductions','Tax Paid','Review','Submit'],
+      '7': ['Trust','Income','Exemptions','Tax Paid','Review','Submit'],
+    };
+    const labels = stepLabels[f] || stepLabels['1'];
+    document.querySelectorAll('.step-label').forEach((el, i) => {
+      if(labels[i]) el.textContent = labels[i];
+    });
+
+    calcIncome();
+
+    // Update income section note
+    const notes = {
+      '1': '📝 <strong>ITR-1 (Sahaj):</strong> Salary income + up to 1 house property + other sources. Enter all figures as per Form 16, AIS and Form 26AS.',
+      '2': '📊 <strong>ITR-2:</strong> Include salary, capital gains (equity, property, MF), house properties, and foreign income. Capital gains taxed at special rates.',
+      '3': '🏭 <strong>ITR-3:</strong> Business/Profession income with full books. Revenue - Expenses - Depreciation = Net Business Income. Attach P&L and Balance Sheet.',
+      '4': '🏪 <strong>ITR-4 (Sugam):</strong> Presumptive income u/s 44AD (8%/6% of TO), 44ADA (50% of receipts), 44AE (per vehicle). No need to maintain detailed books.',
+      '5': '🤝 <strong>ITR-5:</strong> Partnership firm / LLP income. Include firm\'s business income, interest, salary to partners. Taxed @30% flat.',
+      '6': '🏢 <strong>ITR-6:</strong> Company income. Taxed at 15%/22%/25%/30% depending on type. Mandatory audit. DSC required for filing.',
+      '7': '🏛️ <strong>ITR-7:</strong> Trust / NPO income. Must apply min 85% for charitable purposes. Corpus donations exempt. Declare all receipts.',
+    };
+    const noteEl = document.getElementById('incomeFormNote');
+    if (noteEl) noteEl.innerHTML = notes[f] || '';
+  }
+
+  function navigate(dir) {
+    if (dir === 1 && !validateCurrentStep()) return;
+    const next = currentStep + dir;
+    if (next < 1 || next > TOTAL_STEPS) return;
+    if (next === 5) buildPreview();
+    if (next === 6) { buildPreview(); generateITRJSON(); }
+    currentStep = next;
+    updateWizard();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateWizard() {
+    // Sections
+    document.querySelectorAll('.filing-section').forEach((s, i) => {
+      s.classList.toggle('active', i + 1 === currentStep);
+    });
+    // Steps bar
+    document.querySelectorAll('.step-item').forEach((s, i) => {
+      const n = i + 1;
+      s.classList.remove('active', 'done');
+      if (n === currentStep) s.classList.add('active');
+      else if (n < currentStep) s.classList.add('done');
+    });
+    // Buttons
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    prevBtn.style.display = currentStep === 1 ? 'none' : '';
+    if (currentStep === TOTAL_STEPS) {
+      nextBtn.style.display = 'none';
+    } else {
+      nextBtn.style.display = '';
+      nextBtn.innerHTML = currentStep === 5 ? '<i class="fa fa-check"></i> Confirm & Export' : 'Next <i class="fa fa-arrow-right"></i>';
+    }
+    document.getElementById('wizardProgress').textContent = 'Step ' + currentStep + ' of ' + TOTAL_STEPS;
+    // Recalc on step 4
+    if (currentStep === 4) { calcTax(); calcTaxPaid(); }
+  }
+
+  // ── Validation ──────────────────────────────────────────────────────
+  function validateCurrentStep() {
+    if (currentStep === 1) {
+      // Personal Info validation
+      const first = document.getElementById('firstName').value.trim();
+      const last = document.getElementById('lastName').value.trim();
+      const pan = document.getElementById('panNo').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const dob = document.getElementById('dob').value;
+      const addr1 = document.getElementById('addr1').value.trim();
+      const city = document.getElementById('city').value.trim();
+      const pincode = document.getElementById('pincode').value.trim();
+
+      if (!first) { showToast('First Name bharna zaroori hai', 'error'); return false; }
+      if (!last) { showToast('Last Name / Surname bharna zaroori hai', 'error'); return false; }
+      if (!pan || !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan)) {
+        showToast('Invalid PAN format! Example: ABCDE1234F (10 characters)', 'error'); return false;
+      }
+      if (!mobile || !/^\d{10}$/.test(mobile)) {
+        showToast('Valid 10-digit mobile number bharo (e.g. 9876543210)', 'error'); return false;
+      }
+      if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+        showToast('Valid email address bharo', 'error'); return false;
+      }
+      if (!dob) { showToast('Date of Birth select karo', 'error'); return false; }
+      if (!addr1) { showToast('Address (Flat/Door No.) bharna zaroori hai', 'error'); return false; }
+      if (!city) { showToast('City/Town bharna zaroori hai', 'error'); return false; }
+      if (!pincode || !/^\d{6}$/.test(pincode)) {
+        showToast('Valid 6-digit PIN code bharo', 'error'); return false;
+      }
+    }
+    if (currentStep === 2) {
+      // Income validation - at least one income must be entered
+      const totalIncome = v('netSalary') + Math.abs(v('netHP')) + v('totalOtherSrc') +
+                          v('netBusiness') + v('netPresumptive') + v('netCG') +
+                          v('foreignSalary') + v('foreignBusiness');
+      if (totalIncome === 0) {
+        showToast('Koi bhi income enter nahi ki! Salary ya koi income bharo.', 'error');
+        return false;
+      }
+    }
+    if (currentStep === 4) {
+      // Tax paid step
+      const liab = _lastTaxLiab || 0;
+      const paid = v('tdsSalary') + v('tdsFD') + v('tdsOther') + v('advanceTax') + v('selfAssessTax');
+      const balance = liab - paid;
+      if (liab > 0 && balance > paid * 0.5 && paid === 0) {
+        showToast('⚠️ TDS/Tax details bharo — tax paid information required', 'error');
+        return false;
+      }
+      if (balance > 1000) {
+        showToast('⚠️ Balance Tax Payable: ' + fmt(balance) + ' — Self Assessment Tax bharo ya challan details add karo', 'error');
+        // Warn but allow to proceed
+      }
+    }
+    if (currentStep === 5) {
+      // Review step - just check declaration
+      const decl = document.getElementById('declarationCheck');
+      if (decl && !decl.checked) {
+        showToast('Declaration checkbox tick karna zaroori hai! Aap declare karte hain ki sabhi information sahi hai.', 'error');
+        return false;
+      }
+      const place = v2('placeOfFiling');
+      if (!place) {
+        showToast('Place of Filing enter karo (aapka city naam)', 'error');
+        return false;
+      }
+    }
+    if (currentStep === 5) {
+      // Verification step
+      const decl = document.getElementById('declarationCheck');
+      if (decl && !decl.checked) {
+        showToast('Declaration checkbox tick karo — ITR file karne ke liye consent zaroori hai', 'error');
+        return false;
+      }
+    }
+    return true;
+  }
+
+
+  // ── HRA Auto-Calculator ────────────────────────────────────────────
+  function calcHRAExemption() {
+    const basicSalary = v('grossSalary') * 0.40; // Approximate basic as 40% of gross
+    const hraReceived = v('hraReceived');
+    // Ask user for rent and city
+    const monthlyRent = parseFloat(prompt('Monthly Rent Paid (₹)?') || '0');
+    const isMetro = confirm('Metro city? (Mumbai, Delhi, Kolkata, Chennai = Yes)');
+    if (!monthlyRent) { showToast('Rent not entered', 'error'); return; }
+
+    const annualRent = monthlyRent * 12;
+    const limit1 = hraReceived; // HRA received
+    const limit2 = Math.max(0, annualRent - 0.10 * basicSalary * 12); // Rent - 10% of annual basic
+    const limit3 = basicSalary * 12 * (isMetro ? 0.50 : 0.40); // 50%/40% of annual basic
+
+    const hraExempt = Math.round(Math.min(limit1, limit2, limit3));
+    const el = document.getElementById('hraExempt');
+    if (el) {
+      el.value = hraExempt;
+      calcIncome();
+      showToast('HRA Exemption calculated: ' + fmt(hraExempt) + ' (min of 3 limits)', 'success');
+    }
+  }
+
+  // ── Income Calculations ─────────────────────────────────────────────
+  function v(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+
+  function calcIncome() {
+    // === SALARY ===
+    const gross = v('grossSalary');
+    const hraExempt = Math.min(v('hraExempt'), v('hraReceived'));
+    const lta = v('ltaExempt');
+    const other10 = v('otherExemptions');
+    const stdDed = 75000;
+    const profT = Math.min(v('profTax'), 2500);
+    const entAllow = v('entertainmentAllow');
+    const netSal = Math.max(0, gross - hraExempt - lta - other10 - stdDed - profT - entAllow);
+    setVal('netSalary', netSal);
+
+    // === HOUSE PROPERTY ===
+    const rent = v('rentReceived');
+    const munTax = v('municipalTax');
+    const netAnnVal = rent - munTax;
+    const stdDedHP = netAnnVal * 0.30;
+    const hlInt = v('homeLoanInterest');
+    const netHP = netAnnVal - stdDedHP - hlInt;
+    setVal('netHP', netHP);
+
+    // === OTHER SOURCES ===
+    const savInt = v('savingsInterest');
+    const fdInt = v('fdInterest');
+    const ppfInt = v('ppfInterest');
+    const div = v('dividendInc');
+    const famPen = v('familyPension');
+    const famPenExempt = Math.min(famPen * 0.333, 15000);
+    const otherInc = v('otherIncome');
+    const totalOther = savInt + fdInt + ppfInt + div + (famPen - famPenExempt) + otherInc;
+    setVal('totalOtherSrc', totalOther);
+
+    // === BUSINESS / PROFESSION (ITR-3/5/6) ===
+    const bizRev = v('bizRevenue');
+    const bizExp = v('bizExpenses');
+    const bizDep = v('bizDepreciation');
+    const bizBFL = v('bizBFLoss');
+    const netBiz = Math.max(0, bizRev - bizExp - bizDep - bizBFL);
+    setVal('netBusiness', netBiz);
+
+    // === PRESUMPTIVE (ITR-4) ===
+    const presTO = v('presumptiveTurnover');
+    const presInc = v('presumptiveIncome');
+    const presSection = document.getElementById('presumptiveSection')?.value || '44AD';
+    let minPresumptive = 0;
+    if (presSection === '44AD') minPresumptive = presTO * 0.06;
+    else if (presSection === '44ADA') minPresumptive = presTO * 0.50;
+    else if (presSection === '44AE') minPresumptive = presTO * 0.08;
+    // 44AD: digital receipts taxed @6%, cash @8%
+    if (presSection === '44AD') {
+      const digital = v('presumptiveDigital');
+      const cash = Math.max(0, presTO - digital);
+      minPresumptive = digital * 0.06 + cash * 0.08;
+    }
+    const netPresumptive = Math.max(presInc, minPresumptive);
+    setVal('netPresumptive', Math.round(netPresumptive));
+
+    // === CAPITAL GAINS (ITR-2/3) ===
+    const stcgEq = v('stcgEquity');
+    const ltcgEq = Math.max(0, v('ltcgEquity') - 125000); // ₹1.25L exemption
+    const stcgProp = v('stcgProperty');
+    const ltcgProp = v('ltcgProperty');
+    const ltcgExempt = v('ltcgExemption');
+    const cgBFL = v('cgBFLoss');
+    const grossCG = stcgEq + ltcgEq + stcgProp + ltcgProp;
+    const netCG = Math.max(0, grossCG - ltcgExempt - cgBFL);
+    setVal('netCG', netCG);
+
+    // === FOREIGN INCOME ===
+    const foreignTotal = v('foreignSalary') + v('foreignBusiness');
+    // foreignTaxPaid is DTAA relief - deducted from final tax (handled in tax relief section)
+    // foreignBankBal is for declaration purposes in Schedule FA - no income effect
+
+    // === GTI SUMMARY ===
+    const specInc = v('speculativeInc');
+    const gti = netSal + Math.max(netHP, 0) + totalOther + netBiz + netPresumptive + netCG + foreignTotal + specInc;
+
+    setText('showNetSalary', fmt(netSal));
+    setText('showNetHP', fmt(netHP));
+    setText('showOtherSrc', fmt(totalOther));
+    setText('showNetBiz', fmt(netBiz));
+    setText('showNetPresumptive', fmt(netPresumptive));
+    setText('showNetCGSummary', fmt(netCG));
+    setText('showForeignInc', fmt(foreignTotal));
+    setText('showGTI', fmt(gti));
+    // Update speculative display
+    const specEl = document.getElementById('showSpecInc');
+    if (specEl) {
+      specEl.textContent = fmt(specInc);
+      const rowSpecEl = document.getElementById('rowSpeculative');
+      if (rowSpecEl) rowSpecEl.style.display = specInc > 0 ? '' : 'none';
+    }
+
+    // Show/hide summary rows based on form
+    const show = (id, val) => { const el = document.getElementById(id); if(el) el.style.display = val > 0 ? '' : 'none'; };
+    show('rowBiz', netBiz);
+    show('rowPresumptive', netPresumptive);
+    show('rowCG', netCG);
+    show('rowForeign', foreignTotal);
+
+    calcDeductions();
+    autoSave();
+  }
+
+  function calcDeductions() {
+    const regime = document.getElementById('taxRegime')?.value || 'new';
+    const c80C = regime === 'old' ? Math.min(v('ded80C') + v('ded80CCC'), 150000) : 0;
+    const c80CCD = regime === 'old' ? Math.min(v('ded80CCD1B'), 50000) : 0;
+    const c80D = regime === 'old' ? v('ded80D') : 0;
+    const c80DD = regime === 'old' ? v('ded80DD') : 0;
+    const c80E = regime === 'old' ? v('ded80E') : 0;
+    const c80EE = regime === 'old' ? Math.min(v('ded80EE'), 50000) : 0;
+    const c80G = regime === 'old' ? v('ded80G') : 0;
+    const c80GG = regime === 'old' ? Math.min(v('ded80GG'), 60000) : 0;
+    const c80TTA = regime === 'old' ? Math.min(v('ded80TTA'), 10000) : 0;
+    const c80TTB = regime === 'old' ? Math.min(v('ded80TTB'), 50000) : 0;
+    const cOther = regime === 'old' ? v('dedOther') : 0;
+
+    setText('show80CTotal', fmt(c80C));
+    setText('show80CCD1B', fmt(c80CCD));
+    setText('show80D', fmt(c80D));
+
+    const totalDed = c80C + c80CCD + c80D + c80DD + c80E + c80EE + c80G + c80GG + c80TTA + c80TTB + cOther;
+    setText('showOtherDed', fmt(c80DD + c80E + c80EE + c80G + c80GG + c80TTA + c80TTB + cOther));
+    setText('showTotalDed', fmt(totalDed));
+
+    // GTI = all income heads combined
+    const gti = v('netSalary') + v('netHP') + v('totalOtherSrc') +
+                v('netBusiness') + v('netPresumptive') + v('netCG') + v('speculativeInc') +
+                v('foreignSalary') + v('foreignBusiness');
+
+    const netTaxable = regime === 'old' ? Math.max(0, gti - totalDed) : Math.max(0, gti);
+    setText('showNetTaxable', fmt(netTaxable));
+
+    // Toggle regime alerts
+    const warnAlert = document.getElementById('regimeWarnAlert');
+    const newAlert = document.getElementById('regimeNewAlert');
+    if (warnAlert && newAlert) {
+      warnAlert.style.display = regime === 'old' ? '' : 'none';
+      newAlert.style.display = regime === 'new' ? '' : 'none';
+    }
+
+    // Show/hide deduction inputs based on regime
+    const dedInputs = document.querySelectorAll('#ded80C,#ded80CCC,#ded80CCD1B,#ded80D,#ded80DD,#ded80E,#ded80EE,#ded80G,#ded80GG,#ded80TTA,#ded80TTB,#dedOther');
+    dedInputs.forEach(inp => {
+      const grp = inp.closest('.form-group');
+      if (grp) grp.style.opacity = regime === 'old' ? '1' : '0.4';
+    });
+
+    calcTax();
+    autoSave();
+  }
+
+  function calcTax() {
+    const regime = document.getElementById('taxRegime')?.value || 'new';
+
+    // Regular income (salary + HP + other + business + presumptive + foreign)
+    const regularGTI = v('netSalary') + Math.max(v('netHP'),0) + v('totalOtherSrc') +
+                       v('netBusiness') + v('netPresumptive') + v('speculativeInc') +
+                       v('foreignSalary') + v('foreignBusiness');
+
+    let totalDed = 0;
+    if (regime === 'old') {
+      const c80C = Math.min(v('ded80C') + v('ded80CCC'), 150000);
+      const c80CCD = Math.min(v('ded80CCD1B'), 50000);
+      totalDed = c80C + c80CCD + v('ded80D') + v('ded80DD') + v('ded80E') +
+        Math.min(v('ded80EE'),50000) + v('ded80G') + Math.min(v('ded80GG'),60000) +
+        Math.min(v('ded80TTA'),10000) + Math.min(v('ded80TTB'),50000) + v('dedOther');
+    }
+
+    const netRegular = Math.max(0, regularGTI - totalDed);
+
+    // Capital Gains - taxed separately at special rates
+    const stcgEq = v('stcgEquity');   // @20%
+    const ltcgEq = Math.max(0, v('ltcgEquity') - 125000); // @12.5%
+    const stcgProp = v('stcgProperty');  // @slab
+    const ltcgProp = v('ltcgProperty') - v('ltcgExemption'); // @12.5%
+    const cgBFL = v('cgBFLoss');
+    const netCGTotal = Math.max(0, stcgEq + ltcgEq + Math.max(0, ltcgProp) - cgBFL);
+
+    const cgTax = Math.round(stcgEq * 0.20) + Math.round(ltcgEq * 0.125) + Math.round(Math.max(0,ltcgProp) * 0.125);
+
+    // Regular income tax
+    const netTaxable = netRegular + stcgProp; // STCG on property taxed at slab
+    const basicTaxRegular = computeTax(netTaxable, regime);
+    const basicTax = basicTaxRegular + cgTax;
+
+    const totalGrossForSurcharge = netTaxable + netCGTotal;
+    const surcharge = computeSurcharge(basicTax, totalGrossForSurcharge);
+    const taxAfterSurcharge = basicTax + surcharge;
+    const cess = Math.round(taxAfterSurcharge * 0.04);
+    const totalTax = taxAfterSurcharge + cess;
+    const rebate87A = compute87A(netTaxable, totalTax, regime);
+    const taxAfterRebate = Math.max(0, totalTax - rebate87A);
+
+    // Total taxable = regular taxable (after deductions) + CG taxable + STCG property (already in slab)
+    setText('txNetIncome', fmt(netRegular + netCGTotal));
+    setText('txBasicTax', fmt(basicTax));
+    setText('txSurcharge', fmt(surcharge));
+    setText('txCess', fmt(cess));
+    setText('txTotalTax', fmt(totalTax));
+    setText('txRebate', fmt(rebate87A));
+    setText('txAfterRebate', fmt(taxAfterRebate));
+    setText('finalTaxLiab', fmt(taxAfterRebate));
+    _lastTaxLiab = taxAfterRebate; // Store for calcTaxPaid
+    calcTaxPaid();
+  }
+
+  function computeTax(income, regime) {
+    if (regime === 'new') {
+      // New Regime slabs AY 2026-27 (Budget 2025)
+      // 0-4L: Nil, 4-8L: 5%, 8-12L: 10%, 12-16L: 15%, 16-20L: 20%, 20-24L: 25%, >24L: 30%
+      const slabs = [[400000,0],[400000,0.05],[400000,0.10],[400000,0.15],[400000,0.20],[400000,0.25],[Infinity,0.30]];
+      return calcSlabTax(income, slabs);
+    } else {
+      // Old Regime slabs
+      const dob = document.getElementById('dob')?.value;
+      const age = dob ? new Date('2026-03-31').getFullYear() - new Date(dob).getFullYear() : 30;
+      if (age >= 80) {
+        // Super Senior (80+): 0-5L: Nil, 5-10L: 20%, >10L: 30%
+        const slabs = [[500000,0],[500000,0.20],[Infinity,0.30]];
+        return calcSlabTax(income, slabs);
+      } else if (age >= 60) {
+        // Senior Citizen (60-79): 0-3L: Nil, 3-5L: 5%, 5-10L: 20%, >10L: 30% (Old Regime unchanged)
+        const slabs = [[300000,0],[200000,0.05],[500000,0.20],[Infinity,0.30]];
+        return calcSlabTax(income, slabs);
+      } else {
+        // Normal: 0-2.5L: Nil, 2.5-5L: 5%, 5-10L: 20%, >10L: 30%
+        const slabs = [[250000,0],[250000,0.05],[500000,0.20],[Infinity,0.30]];
+        return calcSlabTax(income, slabs);
+      }
+    }
+  }
+
+  function calcSlabTax(income, slabs) {
+    let tax = 0, remaining = income;
+    for (const [limit, rate] of slabs) {
+      if (remaining <= 0) break;
+      const taxable = Math.min(remaining, limit);
+      tax += taxable * rate;
+      remaining -= taxable;
+    }
+    return Math.round(tax);
+  }
+
+  function computeSurcharge(tax, income) {
+    if (income <= 5000000) return 0;
+    if (income <= 10000000) return Math.round(tax * 0.10);
+    if (income <= 20000000) return Math.round(tax * 0.15);
+    if (income <= 50000000) return Math.round(tax * 0.25);
+    return Math.round(tax * 0.37);
+  }
+
+  function compute87A(income, totalTax, regime) {
+    // AY 2026-27 (Budget 2025): New Regime - income <= 12L -> full rebate up to 60,000
+    // Effectively zero tax up to 12,75,000 (12L income + 75K std ded)
+    if (regime === 'new' && income <= 1200000) return Math.min(totalTax, 60000);
+    // Old Regime: income <= 5L -> rebate up to 12,500
+    if (regime === 'old' && income <= 500000) return Math.min(totalTax, 12500);
+    return 0;
+  }
+
+  // Store computed tax liability for calcTaxPaid to use
+
+  function calcTaxPaid() {
+    const tdsSal = v('tdsSalary');
+    const tdsFD = v('tdsFD');
+    const tdsOth = v('tdsOther');
+    const advTax = v('advanceTax');
+    const satTax = v('selfAssessTax');
+    const totalPaid = tdsSal + tdsFD + tdsOth + advTax + satTax;
+
+    // Use stored tax liability (set by calcTax) instead of fragile DOM read
+    const liab = _lastTaxLiab || 0;
+
+    setText('finalTaxPaid', fmt(totalPaid));
+    const net = liab - totalPaid;
+    const netEl = document.getElementById('netPositionVal');
+    const labelEl = document.getElementById('netPositionLabel');
+    const rowEl = document.getElementById('netPositionRow');
+    if (netEl && labelEl && rowEl) {
+      if (net > 0) {
+        netEl.textContent = fmt(net);
+        netEl.style.color = 'var(--danger)';
+        labelEl.textContent = '⚠️ Tax Payable (Pay before filing)';
+        rowEl.className = 'tax-row payable';
+      } else if (net < 0) {
+        netEl.textContent = fmt(Math.abs(net));
+        netEl.style.color = 'var(--success)';
+        labelEl.textContent = '✅ Refund Receivable';
+        rowEl.className = 'tax-row refund';
+      } else {
+        netEl.textContent = '₹0';
+        netEl.style.color = 'var(--text-primary)';
+        labelEl.textContent = 'Nil Balance';
+        rowEl.className = 'tax-row';
+      }
+    }
+    autoSave();
+  }
+
+  function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = Math.round(val); }
+  function setText(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
+  function fmt(n) { return '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN'); }
+
+  // ── Auto-Save ────────────────────────────────────────────────────────
+  function autoSave() {
+    const data = {};
+    document.querySelectorAll('input[id]:not([readonly]), select[id]').forEach(el => {
+      if (el.value !== '' && el.value !== '0') data[el.id] = el.value;
+    });
+    try { localStorage.setItem('itr_draft_' + currentForm, JSON.stringify(data)); } catch(e) {}
+  }
+
+  function loadDraft() {
+    try {
+      // Try multiple data sources in priority order
+      const sources = [
+        localStorage.getItem('itr_draft_' + currentForm),
+        // Also check computation draft
+        (() => {
+          const comp = JSON.parse(localStorage.getItem('tm_comp_draft') || '{}');
+          if (!Object.keys(comp).length) return null;
+          // Map computation fields to ITR fields
+          const mapped = {};
+          const fieldMap = {
+            grossSal: 'grossSalary', hraRcvd: 'hraExempt', ltaExempt: 'ltaExempt',
+            profTax: 'profTax', tdsSal: 'tdsSalary', tdsInt: 'tdsInterest',
+            tdsOth: 'tdsOther', advTax: 'advanceTax', sat: 'selfAssessmentTax',
+            d80c: 'deduction80c', d80d: 'deduction80d', d80ccd1b: 'deduction80ccdnps',
+            d80ccd2: 'deduction80ccd2', d80e: 'deduction80e', d80g: 'deduction80g',
+          };
+          Object.entries(fieldMap).forEach(([src, dst]) => {
+            if (comp[src] !== undefined) mapped[dst] = comp[src];
+          });
+          return Object.keys(mapped).length ? JSON.stringify(mapped) : null;
+        })(),
+      ].filter(Boolean);
+
+      let merged = {};
+      sources.reverse().forEach(src => {
+        try { Object.assign(merged, JSON.parse(src)); } catch(e) {}
+      });
+
+      if (Object.keys(merged).length === 0) return;
+
+      let filled = 0;
+      Object.entries(merged).forEach(([id, val]) => {
+        if (id.startsWith('_')) return; // Skip metadata
+        const el = document.getElementById(id);
+        if (el && !el.readOnly && el.type !== 'hidden') {
+          el.value = val;
+          filled++;
+        }
+      });
+
+      // Apply regime if present
+      if (merged.taxRegime) {
+        const regEl = document.getElementById('taxRegime');
+        if (regEl) regEl.value = merged.taxRegime;
+      }
+
+      if (filled > 0) {
+        calcIncome();
+        if (merged.grossSalary || merged.grossSal) {
+          if (typeof showToast === 'function') {
+            showToast('✅ ' + filled + ' fields loaded! Data auto-filled from saved computation.', 'success');
+          }
+        }
+      }
+    } catch(e) { console.warn('Draft load error:', e); }
+  }
+
+  function clearAllDraft() {
+    if (!confirm('Sabhi entered data clear ho jayega. Continue?')) return;
+    try { localStorage.removeItem('itr_draft_' + currentForm); } catch(e) {}
+    // Reset all form inputs
+    document.querySelectorAll('input[id]:not([readonly]), select[id]').forEach(el => {
+      if (el.type === 'checkbox') el.checked = false;
+      else if (el.type !== 'date') el.value = '';
+    });
+    // Reset defaults
+    const stdDed = document.getElementById('stdDeduction');
+    if (stdDed) stdDed.value = 75000;
+    const regime = document.getElementById('taxRegime');
+    if (regime) regime.value = 'new';
+    const filing = document.getElementById('filingType');
+    if (filing) filing.value = '11';
+    calcIncome();
+    showToast('Draft cleared! Naya ITR fill karo.', 'success');
+  }
+
+  // ── Preview ───────────────────────────────────────────────────────────
+  function buildPreview() {
+    const name = [v2('firstName'), v2('middleName'), v2('lastName')].filter(Boolean).join(' ');
+    const pan = v2('panNo');
+    const regime = document.getElementById('taxRegime')?.value || 'new';
+    const specInc2 = v('speculativeInc');
+    const gti = v('netSalary') + Math.max(v('netHP'),0) + v('totalOtherSrc') +
+                v('netBusiness') + v('netPresumptive') + v('netCG') + specInc2 +
+                v('foreignSalary') + v('foreignBusiness');
+    const totalDedVal = regime === 'old' ? (parseFloat(document.getElementById('showTotalDed')?.textContent?.replace(/[₹,]/g,'')) || 0) : 0;
+    const netTax = Math.max(0, gti - totalDedVal);
+    const liabText = document.getElementById('txAfterRebate')?.textContent || '₹0';
+    const paidText = document.getElementById('finalTaxPaid')?.textContent || '₹0';
+    const positionText = document.getElementById('netPositionVal')?.textContent || '₹0';
+    const positionLabel = document.getElementById('netPositionLabel')?.textContent || '';
+    const regimeBadge = regime === 'new' ? '<span class="badge-regime badge-new">New Regime</span>' : '<span class="badge-regime badge-old">Old Regime</span>';
+
+    document.getElementById('previewBox').innerHTML = `
+      <div class="preview-header">
+        <div class="preview-title">INCOME TAX RETURN – AY 2026-27</div>
+        <div class="preview-subtitle">Form ITR-${currentForm} | Assessment Year 2026-27 | FY 2025-26</div>
+        <div style="font-size:0.75rem;color:#888;margin-top:0.25rem">Generated by TaxMitra AI Enterprise | Developed by Abhishek Agrahari</div>
+      </div>
+      <div class="preview-section">
+        <h4>Personal Information</h4>
+        <div class="preview-row"><span>Full Name</span><strong>${name || '—'}</strong></div>
+        <div class="preview-row"><span>PAN</span><strong>${pan || '—'}</strong></div>
+        <div class="preview-row"><span>Aadhaar</span><strong>${v2('aadhaarNo') || '—'}</strong></div>
+        <div class="preview-row"><span>Date of Birth</span><strong>${v2('dob') || '—'}</strong></div>
+        <div class="preview-row"><span>Mobile</span><strong>${v2('mobile') || '—'}</strong></div>
+        <div class="preview-row"><span>Email</span><strong>${v2('email') || '—'}</strong></div>
+        <div class="preview-row"><span>Address</span><strong>${[v2('addr1'),v2('addr2'),v2('city'),v2('state'),v2('pincode')].filter(Boolean).join(', ') || '—'}</strong></div>
+        <div class="preview-row"><span>Filing Type</span><strong>${document.getElementById('filingType')?.options[document.getElementById('filingType').selectedIndex]?.text || 'Original Return'}</strong></div>
+        <div class="preview-row"><span>Tax Regime</span><strong>${regimeBadge}</strong></div>
+      </div>
+      <div class="preview-section">
+        <h4>Income Details (ITR-${currentForm})</h4>
+        ${v('grossSalary') > 0 ? `<div class="preview-row"><span>Gross Salary</span><strong>${fmt(v('grossSalary'))}</strong></div>
+        <div class="preview-row"><span>HRA + LTA + Other Exemptions</span><strong>(${fmt(v('hraExempt')+v('ltaExempt')+v('otherExemptions'))})</strong></div>
+        <div class="preview-row"><span>Standard Deduction u/s 16(ia)</span><strong>(₹75,000)</strong></div>
+        <div class="preview-row"><span>Net Salary Income</span><strong>${fmt(v('netSalary'))}</strong></div>` : ''}
+        ${v('netHP') !== 0 ? `<div class="preview-row"><span>House Property Income</span><strong>${fmt(v('netHP'))}</strong></div>` : ''}
+        ${v('totalOtherSrc') > 0 ? `<div class="preview-row"><span>Other Sources Income</span><strong>${fmt(v('totalOtherSrc'))}</strong></div>` : ''}
+        ${v('netBusiness') > 0 ? `<div class="preview-row"><span>Business / Profession Income</span><strong>${fmt(v('netBusiness'))}</strong></div>` : ''}
+        ${v('netPresumptive') > 0 ? `<div class="preview-row"><span>Presumptive Business Income</span><strong>${fmt(v('netPresumptive'))}</strong></div>` : ''}
+        ${v('netCG') > 0 ? `<div class="preview-row"><span>Capital Gains (Net)</span><strong>${fmt(v('netCG'))}</strong></div>
+        <div class="preview-row" style="font-size:0.75rem;color:#888"><span>&nbsp;&nbsp; STCG Equity @20%</span><span>${fmt(v('stcgEquity'))}</span></div>
+        <div class="preview-row" style="font-size:0.75rem;color:#888"><span>&nbsp;&nbsp; LTCG Equity @12.5% (above ₹1.25L)</span><span>${fmt(Math.max(0,v('ltcgEquity')-125000))}</span></div>` : ''}
+        ${(v('foreignSalary')+v('foreignBusiness')) > 0 ? `<div class="preview-row"><span>Foreign Income</span><strong>${fmt(v('foreignSalary')+v('foreignBusiness'))}</strong></div>` : ''}
+        <div class="preview-row highlight"><span>Gross Total Income (GTI)</span><strong>${fmt(v('netSalary')+Math.max(v('netHP'),0)+v('totalOtherSrc')+v('netBusiness')+v('netPresumptive')+v('netCG')+v('foreignSalary')+v('foreignBusiness'))}</strong></div>
+      </div>
+      ${regime === 'old' ? `
+      <div class="preview-section">
+        <h4>Deductions (Chapter VI-A)</h4>
+        <div class="preview-row"><span>80C – LIC/PPF/ELSS etc.</span><strong>(${fmt(Math.min(v('ded80C'),150000))})</strong></div>
+        <div class="preview-row"><span>80CCD(1B) – NPS Extra</span><strong>(${fmt(Math.min(v('ded80CCD1B'),50000))})</strong></div>
+        <div class="preview-row"><span>80D – Medical Insurance</span><strong>(${fmt(v('ded80D'))})</strong></div>
+        <div class="preview-row highlight"><span>Total Deductions</span><strong>(${document.getElementById('showTotalDed')?.textContent || '₹0'})</strong></div>
+      </div>` : '<div class="preview-section"><h4>Deductions</h4><div class="preview-row"><span>New Regime</span><strong>Standard Deduction ₹75,000 only (Chapter VI-A not applicable)</strong></div></div>'}
+      <div class="preview-section">
+        <h4>Tax Computation</h4>
+        <div class="preview-row highlight"><span>Net Taxable Income</span><strong>${fmt(netTax)}</strong></div>
+        <div class="preview-row"><span>Basic Tax</span><strong>${document.getElementById('txBasicTax')?.textContent || '₹0'}</strong></div>
+        <div class="preview-row"><span>Surcharge</span><strong>${document.getElementById('txSurcharge')?.textContent || '₹0'}</strong></div>
+        <div class="preview-row"><span>Cess (4%)</span><strong>${document.getElementById('txCess')?.textContent || '₹0'}</strong></div>
+        <div class="preview-row"><span>Rebate u/s 87A</span><strong>(${document.getElementById('txRebate')?.textContent || '₹0'})</strong></div>
+        <div class="preview-row highlight"><span>Total Tax Payable</span><strong>${liabText}</strong></div>
+      </div>
+      <div class="preview-section">
+        <h4>Tax Credit / Prepaid Tax</h4>
+        <div class="preview-row"><span>TDS – Salary</span><strong>${fmt(v('tdsSalary'))}</strong></div>
+        <div class="preview-row"><span>TDS – Other (FD + Other)</span><strong>${fmt(v('tdsFD') + v('tdsOther'))}</strong></div>
+        <div class="preview-row"><span>Advance Tax Paid</span><strong>${fmt(v('advanceTax'))}</strong></div>
+        <div class="preview-row"><span>Self Assessment Tax</span><strong>${fmt(v('selfAssessTax'))}</strong></div>
+        <div class="preview-row highlight"><span>Total Tax Paid</span><strong>${paidText}</strong></div>
+      </div>
+      <div class="preview-section">
+        <h4>Net Tax Position</h4>
+        <div class="preview-row highlight" style="background:rgba(16,185,129,0.08)"><span>${positionLabel}</span><strong>${positionText}</strong></div>
+      </div>
+      <div class="preview-section">
+        <h4>Bank Details (for Refund)</h4>
+        <div class="preview-row"><span>Bank Name</span><strong>${v2('bankName') || '—'}</strong></div>
+        <div class="preview-row"><span>IFSC Code</span><strong>${v2('ifscCode') || '—'}</strong></div>
+        <div class="preview-row"><span>Account Type</span><strong>${document.getElementById('bankAccType')?.options[document.getElementById('bankAccType').selectedIndex]?.text || '—'}</strong></div>
+      </div>
+    `;
+  }
+
+  function v2(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
+  // ── IT Portal JSON ─────────────────────────────────────────────────
+  function generateITRJSON() {
+    const name = [v2('firstName'), v2('middleName'), v2('lastName')].filter(Boolean).join(' ');
+    const regime = document.getElementById('taxRegime')?.value || 'new';
+    // Full GTI including all income heads
+    const gtiSalary = v('netSalary');
+    const gtiHP = Math.max(v('netHP'), 0);
+    const gtiOther = v('totalOtherSrc');
+    const gtiBiz = v('netBusiness');
+    const gtiPres = v('netPresumptive');
+    const gtiCG = v('netCG');
+    const gtiSpec = v('speculativeInc');
+    const gtiFor = v('foreignSalary') + v('foreignBusiness');
+    const gti = gtiSalary + gtiHP + gtiOther + gtiBiz + gtiPres + gtiCG + gtiSpec + gtiFor;
+    const totalDedVal = regime === 'old' ? (parseInt(document.getElementById('showTotalDed')?.textContent?.replace(/[\u20b9,]/g,'')) || 0) : 0;
+    const netTaxable = Math.max(0, gti - totalDedVal);
+    const taxLiab = parseInt(document.getElementById('txAfterRebate')?.textContent?.replace(/[₹,]/g,'')) || 0;
+    const totalPaid = v('tdsSalary') + v('tdsFD') + v('tdsOther') + v('advanceTax') + v('selfAssessTax');
+    const refund = Math.max(0, totalPaid - taxLiab);
+    const payable = Math.max(0, taxLiab - totalPaid);
+
+    const json = {
+      "ITR": {
+        ["ITR" + currentForm]: {
+          "CreationInfo": {
+            "SWVersionNo": "TaxMitraAI-3.0",
+            "SWCreatedBy": "Abhishek Agrahari",
+            "JSONCreatedBy": "TaxMitra AI Enterprise",
+            "JSONCreationDate": new Date().toISOString().split('T')[0],
+            "IntermediaryCity": v2('placeOfFiling') || v2('city'),
+            "Digest": ""
+          },
+          "FormInfo": {
+            "FormName": "ITR-" + currentForm,
+            "Description": ITR_FORM_DESCS_SHORT[currentForm] || "Income Tax Return",
+            "AssessmentYear": "2026-27",
+            "FinancialYear": "2025-26",
+            "SchemaVer": "Ver1.0",
+            "FormVer": "Ver1.0"
+          },
+          "PersonalInfo": {
+            "AssesseeName": {
+              "FirstName": v2('firstName'),
+              "MiddleName": v2('middleName'),
+              "SurNameOrOrgName": v2('lastName')
+            },
+            "PAN": v2('panNo'),
+            "Address": {
+              "ResidenceNo": v2('addr1'),
+              "ResidenceName": v2('addr2'),
+              "RoadOrStreet": v2('addr2'),
+              "LocalityOrArea": v2('city'),
+              "CityOrTownOrDistrict": v2('city'),
+              "StateCode": v2('state'),
+              "CountryCode": "91",
+              "PinCode": v2('pincode'),
+              "CountryCodeMobile": "91",
+              "MobilePatternCode": v2('mobile'),
+              "EmailAddress": v2('email')
+            },
+            "DOB": v2('dob'),
+            "Gender": v2('gender'),
+            "Status": "I",
+            "AadhaarCardNo": v2('aadhaarNo'),
+            "ResidentialStatus": v2('residentialStatus') || "RES"
+          },
+          "FilingStatus": {
+            "AssesseeType": currentForm === "6" ? "C" : currentForm === "5" ? "F" : currentForm === "7" ? "T" : "I",
+            "returnType": v2('filingType') || "11",
+            "IsDefective": "N",
+            "ResidentialStatus": "RES",
+            "NewTaxRegime": regime === 'new' ? "Y" : "N",
+            "SeventhProvisio139": "N",
+            "clauseiv7provisio139i": "N",
+            "itrFilingDueDate": (window.TAXMITRA_DATES?.ayYear ? window.TAXMITRA_DATES.ayYear + "-07-31" : "2026-07-31"),
+            "SeqNum": "1"
+          },
+          ["ITR" + currentForm + "_IncomeDeductions"]: {
+            "GrossSalary": Math.round(v('grossSalary')),
+            "AllwncExemptUs10": Math.round(v('hraExempt') + v('ltaExempt') + v('otherExemptions')),
+            "NetSalary": Math.round(v('grossSalary') - v('hraExempt') - v('ltaExempt') - v('otherExemptions')),
+            "DeductionUs16": Math.round(75000 + v('profTax') + v('entertainmentAllow')),
+            "IncomeFromSal": Math.round(v('netSalary')),
+            "IncomeOthSrc": Math.round(v('totalOtherSrc')),
+            "IncomeFromHP": Math.round(v('netHP')),
+            "GrossTotIncome": Math.round(gti),
+            "IncomeFromBusiness": Math.round(gtiBiz + gtiPres + gtiSpec),
+            "CapitalGains": Math.round(gtiCG),
+            "ForeignIncome": Math.round(gtiFor),
+            "TotalIncome": Math.round(netTaxable),
+            "DeductUndChapVIA": {
+              "Section80C": Math.round(Math.min(v('ded80C'), 150000)),
+              "Section80CCC": Math.round(v('ded80CCC')),
+              "Section80CCDEmployeeOrSE": 0,
+              "Section80CCDEmployer": 0,
+              "Section80CCD1B": Math.round(Math.min(v('ded80CCD1B'), 50000)),
+              "Section80D": Math.round(v('ded80D')),
+              "Section80DD": Math.round(v('ded80DD')),
+              "Section80E": Math.round(v('ded80E')),
+              "Section80EE": Math.round(Math.min(v('ded80EE'), 50000)),
+              "Section80G": Math.round(v('ded80G')),
+              "Section80GG": Math.round(Math.min(v('ded80GG'), 60000)),
+              "Section80TTA": Math.round(Math.min(v('ded80TTA'), 10000)),
+              "Section80TTB": Math.round(Math.min(v('ded80TTB'), 50000)),
+              "TotChapVIADeductions": Math.round(totalDedVal)
+            }
+          },
+          ["ITR" + currentForm + "_TaxComputation"]: {
+            "TotalTaxPayable": Math.round(parseInt(document.getElementById('txTotalTax')?.textContent?.replace(/[₹,]/g,'')) || 0),
+            "Rebate87A": Math.round(parseInt(document.getElementById('txRebate')?.textContent?.replace(/[₹,]/g,'')) || 0),
+            "TaxPayableOnRebate": Math.round(taxLiab),
+            "EducationCess": Math.round(parseInt(document.getElementById('txCess')?.textContent?.replace(/[₹,]/g,'')) || 0),
+            "GrossTaxLiability": Math.round(taxLiab),
+            "TaxRelief": Math.round(Math.min(v('foreignTaxPaid'), taxLiab)),
+            "NetTaxLiability": Math.round(taxLiab)
+          },
+          "TaxPaid": {
+            "TaxesPaid": {
+              "AdvanceTax": Math.round(v('advanceTax')),
+              "TDS1": Math.round(v('tdsSalary')),
+              "TDS2": Math.round(v('tdsFD') + v('tdsOther')),
+              "TCS": 0,
+              "SelfAssessmentTax": Math.round(v('selfAssessTax')),
+              "TotalTaxesPaid": Math.round(totalPaid)
+            },
+            "BalTaxPayable": Math.round(payable),
+            "ChallanDetails": v2('bsrCode') ? [{
+              "BSRCode": v2('bsrCode'),
+              "DateOfDeposit": v2('challanDate'),
+              "ChallanSerialNo": v2('challanSerial'),
+              "TotalTaxDeposited": Math.round(v('challanAmount'))
+            }] : []
+          },
+          "Refund": {
+            "RefundDue": Math.round(refund),
+            "BankAccountDtls": {
+              "AddtnlBankDetails": [{
+                "IFSCCode": v2('ifscCode'),
+                "BankName": v2('bankName'),
+                "BankAccountNo": v2('bankAccNo'),
+                "AccountType": v2('bankAccType') || "SB",
+                "UseForRefund": "Y"
+              }]
+            }
+          },
+          "ForeignIncome": (v('foreignSalary') + v('foreignBusiness')) > 0 ? {
+            "ScheduleFA": {
+              "ForeignSalary": Math.round(v('foreignSalary')),
+              "ForeignBusinessIncome": Math.round(v('foreignBusiness')),
+              "ForeignTaxPaid": Math.round(v('foreignTaxPaid')),
+              "ForeignBankBalance": Math.round(v('foreignBankBal'))
+            }
+          } : null,
+          "Verification": {
+            "Declaration": {
+              "AssesseeVerName": name,
+              "FatherName": "",
+              "AssesseeVerPAN": v2('panNo'),
+              "Place": v2('placeOfFiling') || v2('city'),
+              "Date": v2('dateOfFiling') || new Date().toISOString().split('T')[0]
+            },
+            "Capacity": "S"
+          }
+        }
+      }
+    };
+    const jsonStr = JSON.stringify(json, null, 2);
+    document.getElementById('itrJsonBox').textContent = jsonStr;
+    return jsonStr;
+  }
+
+  function downloadITJSON() {
+    const jsonStr = generateITRJSON();
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const pan = v2('panNo') || 'PAN';
+    a.download = `ITR${currentForm}_${pan}_AY2026-27_TaxMitra.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    if (typeof showToast === 'function') showToast('IT Portal JSON downloaded! incometax.gov.in par upload karein.', 'success');
+  }
+
+  function copyJSON() {
+    const txt = document.getElementById('itrJsonBox').textContent;
+    navigator.clipboard.writeText(txt).then(() => {
+      if (typeof showToast === 'function') showToast('JSON copied to clipboard!', 'success');
+    });
+  }
+
+  // ── PDF Download ────────────────────────────────────────────────────
+  function downloadITRPDF() {
+    if (typeof window.jspdf === 'undefined' && typeof jsPDF === 'undefined') {
+      showToast('PDF library loading, please wait...', 'error'); return;
+    }
+    const { jsPDF } = window.jspdf || window;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const name = [v2('firstName'), v2('middleName'), v2('lastName')].filter(Boolean).join(' ');
+    const pan = v2('panNo');
+    const regime = document.getElementById('taxRegime')?.value || 'new';
+    // Full GTI including all income heads
+    const gtiSalary = v('netSalary');
+    const gtiHP = Math.max(v('netHP'), 0);
+    const gtiOther = v('totalOtherSrc');
+    const gtiBiz = v('netBusiness');
+    const gtiPres = v('netPresumptive');
+    const gtiCG = v('netCG');
+    const gtiSpec = v('speculativeInc');
+    const gtiFor = v('foreignSalary') + v('foreignBusiness');
+    const gti = gtiSalary + gtiHP + gtiOther + gtiBiz + gtiPres + gtiCG + gtiSpec + gtiFor;
+    const totalDedVal = regime === 'old' ? (parseInt(document.getElementById('showTotalDed')?.textContent?.replace(/[\u20b9,]/g,'')) || 0) : 0;
+    const netTaxable = Math.max(0, gti - totalDedVal);
+    const taxLiab = parseInt(document.getElementById('txAfterRebate')?.textContent?.replace(/[₹,]/g,'')) || 0;
+    const totalPaid = v('tdsSalary') + v('tdsFD') + v('tdsOther') + v('advanceTax') + v('selfAssessTax');
+
+    // Header
+    doc.setFillColor(30, 64, 175);
+    doc.rect(0, 0, 210, 35, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(16); doc.setFont('helvetica','bold');
+    doc.text('INCOME TAX RETURN – AY 2026-27', 105, 14, { align: 'center' });
+    doc.setFontSize(10); doc.setFont('helvetica','normal');
+    doc.text(`Form ITR-${currentForm} | TaxMitra AI Enterprise | Abhishek Agrahari`, 105, 22, { align: 'center' });
+    doc.text(`Generated: ${new Date().toLocaleDateString('en-IN')}`, 105, 29, { align: 'center' });
+
+    doc.setTextColor(30,64,175);
+    doc.setFontSize(11); doc.setFont('helvetica','bold');
+    doc.text('PERSONAL INFORMATION', 14, 45);
+    doc.setLineWidth(0.5); doc.setDrawColor(30,64,175);
+    doc.line(14, 47, 196, 47);
+
+    doc.autoTable({
+      startY: 50,
+      head: [],
+      body: [
+        ['Full Name', name || '—', 'PAN', pan || '—'],
+        ['Date of Birth', v2('dob') || '—', 'Aadhaar', v2('aadhaarNo') || '—'],
+        ['Mobile', v2('mobile') || '—', 'Email', v2('email') || '—'],
+        ['Address', [v2('addr1'),v2('city'),v2('state'),v2('pincode')].filter(Boolean).join(', ') || '—', 'Tax Regime', regime === 'new' ? 'New Regime' : 'Old Regime'],
+      ],
+      theme: 'grid', styles: { fontSize: 8 },
+      columnStyles: { 0: { fontStyle: 'bold', fillColor: [240,244,255] }, 2: { fontStyle: 'bold', fillColor: [240,244,255] } }
+    });
+
+    doc.setTextColor(30,64,175);
+    doc.setFontSize(11); doc.setFont('helvetica','bold');
+    doc.text('INCOME COMPUTATION', 14, doc.lastAutoTable.finalY + 10);
+    doc.line(14, doc.lastAutoTable.finalY + 12, 196, doc.lastAutoTable.finalY + 12);
+
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 15,
+      head: [['Particulars', 'Amount (₹)']],
+      body: [
+        ['Gross Salary', fmt(v('grossSalary'))],
+        ['(-) Exemptions u/s 10 (HRA, LTA etc.)', '(' + fmt(v('hraExempt') + v('ltaExempt') + v('otherExemptions')) + ')'],
+        ['(-) Standard Deduction u/s 16(ia)', '(₹75,000)'],
+        ['(-) Professional Tax', '(' + fmt(v('profTax')) + ')'],
+        ['Net Salary Income', fmt(v('netSalary'))],
+        ['Income from House Property', fmt(v('netHP'))],
+        ['Income from Other Sources', fmt(v('totalOtherSrc'))],
+        ['GROSS TOTAL INCOME (GTI)', fmt(gti)],
+        ['(-) Deductions Chapter VI-A', regime === 'old' ? '(' + fmt(totalDedVal) + ')' : 'N/A (New Regime)'],
+        ['NET TAXABLE INCOME', fmt(netTaxable)],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [30,64,175], textColor: 255, fontStyle: 'bold', fontSize: 8 },
+      styles: { fontSize: 8 },
+      bodyStyles: { textColor: [30,30,30] },
+      didParseCell: (data) => {
+        if (data.row.index === 9 || data.row.index === 7) {
+          data.cell.styles.fontStyle = 'bold';
+          data.cell.styles.fillColor = [220,230,250];
+        }
+      }
+    });
+
+    doc.setTextColor(30,64,175);
+    doc.setFontSize(11); doc.setFont('helvetica','bold');
+    doc.text('TAX COMPUTATION & CREDIT', 14, doc.lastAutoTable.finalY + 10);
+    doc.line(14, doc.lastAutoTable.finalY + 12, 196, doc.lastAutoTable.finalY + 12);
+
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 15,
+      head: [['Particulars', 'Amount (₹)']],
+      body: [
+        ['Basic Tax (as per slab)', document.getElementById('txBasicTax')?.textContent || '₹0'],
+        ['Add: Surcharge', document.getElementById('txSurcharge')?.textContent || '₹0'],
+        ['Add: Cess (4%)', document.getElementById('txCess')?.textContent || '₹0'],
+        ['(-) Rebate u/s 87A', '(' + (document.getElementById('txRebate')?.textContent || '₹0') + ')'],
+        ['TOTAL TAX LIABILITY', document.getElementById('txAfterRebate')?.textContent || '₹0'],
+        ['(-) TDS from Salary', '(' + fmt(v('tdsSalary')) + ')'],
+        ['(-) TDS on Other Income', '(' + fmt(v('tdsFD') + v('tdsOther')) + ')'],
+        ['(-) Advance Tax Paid', '(' + fmt(v('advanceTax')) + ')'],
+        ['(-) Self Assessment Tax', '(' + fmt(v('selfAssessTax')) + ')'],
+        [totalPaid >= taxLiab ? '✅ REFUND DUE' : '⚠️ TAX PAYABLE', totalPaid >= taxLiab ? fmt(totalPaid - taxLiab) : fmt(taxLiab - totalPaid)],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [30,64,175], textColor: 255, fontStyle: 'bold', fontSize: 8 },
+      styles: { fontSize: 8 },
+      didParseCell: (data) => {
+        if (data.row.index === 4 || data.row.index === 9) {
+          data.cell.styles.fontStyle = 'bold';
+          data.cell.styles.fillColor = [220,230,250];
+        }
+      }
+    });
+
+    // Footer
+    const pageH = doc.internal.pageSize.height;
+    doc.setFontSize(7); doc.setTextColor(150);
+    doc.text('This is a computer-generated document. File on incometax.gov.in | TaxMitra AI Enterprise | Abhishek Agrahari', 105, pageH - 10, { align: 'center' });
+
+    doc.save(`ITR${currentForm}_${pan || 'RETURN'}_AY2026-27.pdf`);
+    if (typeof showToast === 'function') showToast('ITR PDF downloaded!', 'success');
+  }
+
+  function printITR() {
+    // Build printable version using preview content
+    buildPreview();
+    const previewEl = document.getElementById('previewBox');
+    if (!previewEl) { window.print(); return; }
+    const content = previewEl.innerHTML;
+    const styles = `
+      body{font-family:Inter,sans-serif;padding:2rem;max-width:900px;margin:auto;color:#1a1a1a;font-size:12px;line-height:1.5}
+      h4{color:#1e40af;border-bottom:1px solid #e5e7eb;padding-bottom:4px;margin:12px 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+      .preview-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted #f0f0f0;font-size:11px}
+      .preview-row.highlight{background:rgba(30,64,175,0.06);padding:6px 8px;border-radius:4px;font-weight:700}
+      .badge-regime{padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700}
+      .badge-new{background:#dbeafe;color:#1e40af}
+      .badge-old{background:#fef3c7;color:#92400e}
+      @media print{body{padding:1rem}}
+    `;
+    const closeB = '<' + '/' + 'body>';
+    const closeH = '<' + '/' + 'html>';
+    const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>ITR-' + currentForm + ' | AY 2026-27 | TaxMitra</title><style>' + styles + '<' + '/' + 'style><' + '/' + 'head><body>' +
+      '<div style="text-align:center;background:#1e40af;color:#fff;padding:12px;border-radius:8px;margin-bottom:16px">' +
+      '<div style="font-size:16px;font-weight:900">INCOME TAX RETURN – AY 2026-27</div>' +
+      '<div style="font-size:11px;opacity:0.85">Form ITR-' + currentForm + ' | TaxMitra AI Enterprise | Abhishek Agrahari</div></div>' +
+      content + '<div style="text-align:center;margin-top:16px;font-size:10px;color:#aaa">Computer Generated | TaxMitra AI Enterprise</div>' + closeB + closeH;
+    const blob = new Blob([html], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const w = window.open(url, '_blank');
+    if (w) { w.onload = function() { w.print(); URL.revokeObjectURL(url); }; }
+    else { URL.revokeObjectURL(url); showToast('Pop-up blocked! Allow pop-ups and try again.', 'error'); }
+  }
+
+  // ── Auto-update dates & AY ────────────────────────────────────────
+  function autoUpdateDates() {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    // Set today's date in filing date fields
+    const filingDateEl = document.getElementById('dateOfFiling');
+    if (filingDateEl && !filingDateEl.value) filingDateEl.value = todayStr;
+
+    // AY: if today is April-March, determine correct AY
+    const month = today.getMonth() + 1; // 1-12
+    const year = today.getFullYear();
+    const fy = month >= 4 ? `${year}-${String(year+1).slice(2)}` : `${year-1}-${String(year).slice(2)}`;
+    const ay = month >= 4 ? `${year+1}-${String(year+2).slice(2)}` : `${year}-${String(year+1).slice(2)}`;
+
+    // Update AY display
+    const ayEl = document.getElementById('assessYear');
+    if (ayEl) ayEl.value = ay;
+
+    // Update hero title
+    const heroTitleEl = document.getElementById('heroTitle');
+    if (heroTitleEl) heroTitleEl.textContent = `📋 ITR-${currentForm} Filing Form – AY ${ay}`;
+
+    // Update due date info
+    const dueDateEl = document.getElementById('itrDueDateInfo');
+    if (dueDateEl) {
+      const dueDate = new Date(today.getFullYear(), 6, 31); // 31 July
+      const daysLeft = Math.ceil((dueDate - today) / 86400000);
+      const isLate = daysLeft < 0;
+      dueDateEl.innerHTML = isLate
+        ? `<span style="color:var(--danger)">⚠️ ITR Due Date (31 July ${ay.split('-')[0]}) has passed! File belated return (u/s 139(4)) by 31 Dec ${ay.split('-')[0]} with late fee u/s 234F.</span>`
+        : `<span style="color:var(--success)">✅ ITR Filing Deadline: <strong>31 July ${ay.split('-')[0]}</strong> — <strong>${daysLeft} days remaining</strong> | FY ${fy}</span>`;
+    }
+  }
+
+  // ── URL param ─────────────────────────────────────────────────────
+  function initFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const form = params.get('form') || '1';
+    const validForms = ['1','2','3','4','5','6','7'];
+    const selectedForm = validForms.includes(form) ? form : '1';
+
+    // Set all tabs inactive first
+    document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
+
+    // Find and activate the right tab
+    const tabs = document.querySelectorAll('.form-tab');
+    tabs.forEach((t, i) => {
+      const formNum = String(i + 1);
+      if (formNum === selectedForm) {
+        t.classList.add('active');
+        selectForm(selectedForm, t);
+      }
+    });
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', function() {
+    autoUpdateDates();
+    initFromURL();
+    calcIncome();
+    // Initialize deduction regime display
+    setTimeout(calcDeductions, 100);
+    // Initialize guide bar labels
+    setTimeout(function() { updateGuideBarLabels(currentForm); }, 50);
+  });
+
+  // ═══════════════════════════════════════════════
+  // ITR GUIDE SYSTEM
+  // ═══════════════════════════════════════════════
+  const ITR_GUIDES = {
+    '1': {
+      title: 'ITR-1 (Sahaj) – Complete Guide',
+      subtitle: 'For Salaried Individuals with simple income',
+      icon: '📝',
+      color: '#1e40af',
+      content: `
+        <div class="guide-section" style="border-left-color:#1e40af;background:rgba(30,64,175,0.04)">
+          <h4>📋 Who Should File ITR-1?</h4>
+          <p><strong>Applicable for:</strong> Resident Individual (NOT NRI, NOT HUF)</p>
+          <div style="display:flex;flex-wrap:wrap;gap:0.25rem;margin:0.5rem 0">
+            <span class="guide-tag tag-green">Salary / Pension income</span>
+            <span class="guide-tag tag-green">One House Property income</span>
+            <span class="guide-tag tag-green">Other sources (FD interest, savings)</span>
+            <span class="guide-tag tag-green">Total income ≤ ₹50 Lakh</span>
+          </div>
+          <p style="margin-top:0.5rem"><strong>NOT eligible if:</strong></p>
+          <div style="display:flex;flex-wrap:wrap;gap:0.25rem">
+            <span class="guide-tag tag-red">Capital Gains (stocks, property)</span>
+            <span class="guide-tag tag-red">Foreign assets or income</span>
+            <span class="guide-tag tag-red">Director in any company</span>
+            <span class="guide-tag tag-red">Unlisted shares held</span>
+            <span class="guide-tag tag-red">Business/Profession income</span>
+            <span class="guide-tag tag-red">Income > ₹50 Lakh</span>
+            <span class="guide-tag tag-red">Agriculture income > ₹5000</span>
+          </div>
+        </div>
+        <div class="guide-section">
+          <h4>📄 Documents Required</h4>
+          <ul>
+            <li><strong>Form 16</strong> – Part A (TDS certificate from employer) + Part B (salary computation)</li>
+            <li><strong>Form 26AS</strong> – Download from incometax.gov.in (consolidated TDS)</li>
+            <li><strong>AIS</strong> – Annual Information Statement (income from all sources)</li>
+            <li><strong>Bank statements</strong> – All savings/FD interest</li>
+            <li><strong>80C proofs</strong> – PPF, ELSS, LIC, EPF, NSC receipts</li>
+            <li><strong>80D</strong> – Health insurance premium receipts</li>
+            <li><strong>HRA</strong> – Rent receipts + landlord PAN (if rent > ₹1L/year)</li>
+            <li><strong>Home loan certificate</strong> – Principal + interest from bank</li>
+            <li><strong>Pre-validated bank account</strong> – For refund (IFSC required)</li>
+          </ul>
+        </div>
+        <div class="guide-section">
+          <h4>💡 Income Computation (AY 2026-27)</h4>
+          <table class="guide-table">
+            <tr><th>Head</th><th>Particulars</th><th>Amount</th></tr>
+            <tr><td>Salary</td><td>Gross Salary – HRA exempt – LTA – Std Deduction ₹75,000 – Prof Tax</td><td>Net Salary</td></tr>
+            <tr><td>House Property</td><td>Rent – 30% std ded – Home loan interest (max ₹2L)</td><td>Net HP Income</td></tr>
+            <tr><td>Other Sources</td><td>FD interest + Savings interest + Dividends</td><td>Other Income</td></tr>
+            <tr><td><strong>GTI</strong></td><td><strong>Gross Total Income</strong></td><td><strong>Sum above</strong></td></tr>
+            <tr><td>Deductions</td><td>80C (₹1.5L) + 80CCD (₹50K) + 80D + 80G etc. (Old regime only)</td><td>(Less)</td></tr>
+            <tr><td><strong>Net Taxable</strong></td><td><strong>GTI – Deductions</strong></td><td><strong>Taxable Income</strong></td></tr>
+          </table>
+        </div>
+        <div class="guide-section">
+          <h4>📅 Key Deadlines</h4>
+          <ul>
+            <li><strong>31 July 2026</strong> – Original return (non-audit individuals)</li>
+            <li><strong>31 December 2026</strong> – Belated return (with late fee u/s 234F)</li>
+            <li>Late fee: ₹1,000 (income ≤ ₹5L) or ₹5,000 (income > ₹5L)</li>
+          </ul>
+        </div>
+        <div class="guide-section" style="border-left-color:var(--success)">
+          <h4>✅ Filing Steps</h4>
+          <ul>
+            <li>1️⃣ Download Form 16 from employer + Form 26AS + AIS from portal</li>
+            <li>2️⃣ Calculate total income from all heads</li>
+            <li>3️⃣ Choose regime: New (default, ₹75K std ded) vs Old (with 80C etc.)</li>
+            <li>4️⃣ Fill ITR-1 on incometax.gov.in OR use TaxMitra's form above</li>
+            <li>5️⃣ Download JSON, upload on IT Portal</li>
+            <li>6️⃣ e-Verify via Aadhaar OTP / Net Banking within 30 days</li>
+          </ul>
+        </div>`
+    },
+    '2': {
+      title: 'ITR-2 – Complete Guide',
+      subtitle: 'For Individuals/HUF with Capital Gains or Foreign Assets',
+      icon: '📊',
+      color: '#7c3aed',
+      content: `
+        <div class="guide-section" style="border-left-color:#7c3aed;background:rgba(124,58,237,0.04)">
+          <h4>📋 Who Should File ITR-2?</h4>
+          <p>Individual or HUF (NOT eligible for ITR-1 or ITR-4)</p>
+          <div style="display:flex;flex-wrap:wrap;gap:0.25rem;margin:0.5rem 0">
+            <span class="guide-tag tag-green">Salary + Pension income</span>
+            <span class="guide-tag tag-green">Capital Gains (equity, MF, property)</span>
+            <span class="guide-tag tag-green">2 or more House Properties</span>
+            <span class="guide-tag tag-green">Foreign Assets / Foreign Income</span>
+            <span class="guide-tag tag-green">Director in a company (no business income)</span>
+            <span class="guide-tag tag-green">Unlisted shares held</span>
+            <span class="guide-tag tag-green">Income > ₹50 Lakh</span>
+            <span class="guide-tag tag-green">NRI with Indian income</span>
+          </div>
+        </div>
+        <div class="guide-section">
+          <h4>📄 Additional Documents (over ITR-1)</h4>
+          <ul>
+            <li><strong>Capital Gain statement</strong> – Zerodha/Groww CAS statement, broker P&L</li>
+            <li><strong>Form 64B</strong> – If mutual fund income (for pass-through income)</li>
+            <li><strong>Property sale deed</strong> – For LTCG on property (with cost inflation index)</li>
+            <li><strong>Foreign bank statements</strong> – For Schedule FA (foreign assets)</li>
+            <li><strong>DTAA certificates</strong> – If tax paid in another country</li>
+          </ul>
+        </div>
+        <div class="guide-section">
+          <h4>💰 Capital Gains Tax Rates (AY 2026-27)</h4>
+          <table class="guide-table">
+            <tr><th>Type</th><th>Holding Period</th><th>Tax Rate</th><th>Exemption</th></tr>
+            <tr><td>Equity/MF (STT paid) – STCG</td><td>&lt; 12 months</td><td>20%</td><td>None</td></tr>
+            <tr><td>Equity/MF (STT paid) – LTCG</td><td>&gt; 12 months</td><td>12.5%</td><td>₹1.25 Lakh/year</td></tr>
+            <tr><td>Debt MF – STCG</td><td>&lt; 36 months</td><td>Slab rate</td><td>None</td></tr>
+            <tr><td>Debt MF – LTCG</td><td>&gt; 36 months</td><td>20% with indexation</td><td>None</td></tr>
+            <tr><td>Property – STCG</td><td>&lt; 24 months</td><td>Slab rate</td><td>None</td></tr>
+            <tr><td>Property – LTCG</td><td>&gt; 24 months</td><td>12.5% (no index)</td><td>Sec 54/54F/54EC</td></tr>
+          </table>
+        </div>
+        <div class="guide-section">
+          <h4>🌍 Foreign Asset Reporting (Schedule FA)</h4>
+          <ul>
+            <li>Bank accounts held outside India</li>
+            <li>Financial interest in foreign entity</li>
+            <li>Immovable property outside India</li>
+            <li>Foreign trusts, partnerships</li>
+            <li>Failure to report = penalty up to ₹10 lakh u/s 43 of Black Money Act</li>
+          </ul>
+        </div>`
+    },
+    '3': {
+      title: 'ITR-3 – Complete Guide',
+      subtitle: 'For Individuals/HUF with Business or Profession Income',
+      icon: '🏭',
+      color: '#059669',
+      content: `
+        <div class="guide-section" style="border-left-color:#059669;background:rgba(5,150,105,0.04)">
+          <h4>📋 Who Should File ITR-3?</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:0.25rem;margin:0.5rem 0">
+            <span class="guide-tag tag-green">Business income (shops, trading, manufacturing)</span>
+            <span class="guide-tag tag-green">Professional income (doctor, CA, lawyer, consultant)</span>
+            <span class="guide-tag tag-green">Partnership in a firm</span>
+            <span class="guide-tag tag-green">Income from speculation business</span>
+            <span class="guide-tag tag-green">Salary + Business/Profession both</span>
+            <span class="guide-tag tag-green">Capital gains + Business income</span>
+          </div>
+          <p><em>NOT eligible: Those using presumptive taxation u/s 44AD/44ADA (they use ITR-4)</em></p>
+        </div>
+        <div class="guide-section">
+          <h4>📄 Documents Required</h4>
+          <ul>
+            <li><strong>Books of Accounts</strong> – Cash book, ledger, sales/purchase register</li>
+            <li><strong>P&L Statement</strong> – Profit & Loss account for the FY</li>
+            <li><strong>Balance Sheet</strong> – As on 31st March 2026</li>
+            <li><strong>GST Returns</strong> – GSTR-1, GSTR-3B filed during FY</li>
+            <li><strong>TDS Certificates</strong> – Form 16A from all deductors</li>
+            <li><strong>Bank statements</strong> – Business + personal accounts</li>
+            <li>If turnover &gt; ₹1 crore: <strong>Tax Audit u/s 44AB required</strong> (CA certificate)</li>
+          </ul>
+        </div>
+        <div class="guide-section">
+          <h4>💡 Allowed Business Deductions</h4>
+          <ul>
+            <li>Rent, electricity, salaries paid to staff</li>
+            <li>Depreciation on assets (as per IT Act rates)</li>
+            <li>Business loan interest</li>
+            <li>Advertisement, marketing, professional fees</li>
+            <li>Raw material, purchases of goods for resale</li>
+            <li>Travel, telephone, internet expenses (proportionate)</li>
+          </ul>
+        </div>
+        <div class="guide-section" style="border-left-color:var(--danger)">
+          <h4>⚠️ Audit Requirements</h4>
+          <ul>
+            <li>Turnover &gt; <strong>₹1 crore</strong> (business) → Tax Audit compulsory</li>
+            <li>Turnover &gt; <strong>₹10 crore</strong> (if 95%+ digital transactions) → No audit</li>
+            <li>Gross receipts &gt; <strong>₹50 lakh</strong> (profession) → Audit compulsory</li>
+            <li>Audit deadline: <strong>31 October 2026</strong></li>
+          </ul>
+        </div>`
+    },
+    '4': {
+      title: 'ITR-4 (Sugam) – Complete Guide',
+      subtitle: 'For Presumptive Income u/s 44AD / 44ADA / 44AE',
+      icon: '🏪',
+      color: '#d97706',
+      content: `
+        <div class="guide-section" style="border-left-color:#d97706;background:rgba(217,119,6,0.04)">
+          <h4>📋 Who Should File ITR-4 (Sugam)?</h4>
+          <p>Resident Individual, HUF or Partnership Firm (NOT LLP) using <strong>presumptive taxation</strong></p>
+          <div style="display:flex;flex-wrap:wrap;gap:0.25rem;margin:0.5rem 0">
+            <span class="guide-tag tag-green">44AD: Business (turnover ≤ ₹3 crore)</span>
+            <span class="guide-tag tag-green">44ADA: Professionals (receipts ≤ ₹75 lakh)</span>
+            <span class="guide-tag tag-green">44AE: Goods carriage owners (≤ 10 vehicles)</span>
+            <span class="guide-tag tag-green">Salary + Presumptive business both</span>
+          </div>
+          <p><em>NOT eligible: Capital gains, foreign assets, more than one HP (loss), income &gt; ₹50L (for individuals)</em></p>
+        </div>
+        <div class="guide-section">
+          <h4>📊 Presumptive Income Calculation</h4>
+          <table class="guide-table">
+            <tr><th>Section</th><th>Type</th><th>Income Rate</th><th>Limit</th></tr>
+            <tr><td><strong>44AD</strong></td><td>Business (shops, trading etc.)</td><td>8% of turnover (6% if digital/banking)</td><td>Turnover ≤ ₹3 Cr</td></tr>
+            <tr><td><strong>44ADA</strong></td><td>Professionals (doctor, CA, lawyer, architect, engineer)</td><td>50% of gross receipts</td><td>Receipts ≤ ₹75 L</td></tr>
+            <tr><td><strong>44AE</strong></td><td>Goods carriage (trucks/lorries)</td><td>₹7,500/month per vehicle (HGV: ₹1,000 per ton per month)</td><td>≤ 10 vehicles</td></tr>
+          </table>
+        </div>
+        <div class="guide-section">
+          <h4>✅ Advantages of Presumptive Taxation</h4>
+          <ul>
+            <li>No need to maintain detailed books of accounts</li>
+            <li>No tax audit required (if declaring at prescribed %) </li>
+            <li>Simpler ITR form (ITR-4 Sugam)</li>
+            <li>Can declare lower income but then MUST maintain books + audit</li>
+          </ul>
+        </div>
+        <div class="guide-section">
+          <h4>📄 Documents Required</h4>
+          <ul>
+            <li>Bank statements showing business receipts/payments</li>
+            <li>GST return summaries (turnover reconciliation)</li>
+            <li>PAN card, Aadhaar card</li>
+            <li>Form 26AS for TDS verification</li>
+          </ul>
+        </div>`
+    },
+    '5': {
+      title: 'ITR-5 – Complete Guide',
+      subtitle: 'For Firms, LLPs, AOPs, BOIs, Investment Funds',
+      icon: '🤝',
+      color: '#dc2626',
+      content: `
+        <div class="guide-section" style="border-left-color:#dc2626;background:rgba(220,38,38,0.04)">
+          <h4>📋 Who Should File ITR-5?</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:0.25rem;margin:0.5rem 0">
+            <span class="guide-tag tag-blue">Partnership Firms</span>
+            <span class="guide-tag tag-blue">Limited Liability Partnerships (LLPs)</span>
+            <span class="guide-tag tag-blue">Association of Persons (AOP)</span>
+            <span class="guide-tag tag-blue">Body of Individuals (BOI)</span>
+            <span class="guide-tag tag-blue">Investment Funds</span>
+            <span class="guide-tag tag-blue">Artificial Juridical Person</span>
+            <span class="guide-tag tag-blue">Local Authorities</span>
+          </div>
+          <p><em>NOT for: Individuals, HUF, Companies, Trusts (Sec 139(4A)), Co-operative societies claiming 80P</em></p>
+        </div>
+        <div class="guide-section">
+          <h4>📄 Documents Required</h4>
+          <ul>
+            <li><strong>Partnership Deed / LLP Agreement</strong></li>
+            <li><strong>P&L Statement</strong> and Balance Sheet (signed by all partners)</li>
+            <li><strong>Partners' capital accounts</strong> and profit-sharing ratio</li>
+            <li>If turnover &gt; ₹1 crore → <strong>Tax Audit Certificate (Form 3CD)</strong></li>
+            <li>GST returns, TDS certificates</li>
+            <li>DSC (Digital Signature Certificate) required for e-filing</li>
+          </ul>
+        </div>
+        <div class="guide-section">
+          <h4>💡 Tax Rates for Partnership Firm / LLP</h4>
+          <ul>
+            <li>Tax rate: <strong>30% flat</strong> on all income (no slab benefit)</li>
+            <li>Surcharge: 12% if income &gt; ₹1 crore</li>
+            <li>Cess: 4% on tax + surcharge</li>
+            <li>Partners' salary and interest to partners: deductible (u/s 40(b))</li>
+            <li>Partners taxed separately on their share of firm income (exempt u/s 10(2A))</li>
+          </ul>
+        </div>`
+    },
+    '6': {
+      title: 'ITR-6 – Complete Guide',
+      subtitle: 'For All Companies (except those claiming Sec 11/12 exemption)',
+      icon: '🏢',
+      color: '#0891b2',
+      content: `
+        <div class="guide-section" style="border-left-color:#0891b2;background:rgba(8,145,178,0.04)">
+          <h4>📋 Who Should File ITR-6?</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:0.25rem;margin:0.5rem 0">
+            <span class="guide-tag tag-blue">Private Limited Companies</span>
+            <span class="guide-tag tag-blue">Public Limited Companies</span>
+            <span class="guide-tag tag-blue">One Person Companies (OPC)</span>
+            <span class="guide-tag tag-blue">Section 8 Companies (if not claiming 11/12)</span>
+            <span class="guide-tag tag-blue">Foreign Companies with India income</span>
+          </div>
+          <p><em>NOT for: Companies claiming exemption u/s 11 or 12 (religious/charitable trust companies – they use ITR-7)</em></p>
+        </div>
+        <div class="guide-section">
+          <h4>📄 Documents Required</h4>
+          <ul>
+            <li><strong>Audited P&L and Balance Sheet</strong> (mandatory – all companies)</li>
+            <li><strong>Form 3CA + 3CD</strong> – Tax audit report (compulsory)</li>
+            <li><strong>Form 3CEB</strong> – Transfer pricing report (if applicable)</li>
+            <li><strong>DSC</strong> (Digital Signature Certificate) – Mandatory for company ITR</li>
+            <li>ROC filings, board resolutions</li>
+          </ul>
+        </div>
+        <div class="guide-section">
+          <h4>💡 Corporate Tax Rates (AY 2026-27)</h4>
+          <table class="guide-table">
+            <tr><th>Type of Company</th><th>Base Rate</th><th>With Surcharge+Cess</th></tr>
+            <tr><td>Domestic Company (new, u/s 115BAB)</td><td>15%</td><td>~17.01%</td></tr>
+            <tr><td>Domestic Company (new mfg, u/s 115BAA)</td><td>22%</td><td>~25.17%</td></tr>
+            <tr><td>Domestic Company (turnover ≤ ₹400 crore)</td><td>25%</td><td>~26-29%</td></tr>
+            <tr><td>Other Domestic Companies</td><td>30%</td><td>~31-34.94%</td></tr>
+            <tr><td>Foreign Companies</td><td>40%</td><td>~41-43%</td></tr>
+          </table>
+        </div>
+        <div class="guide-section">
+          <h4>📅 Deadlines</h4>
+          <ul>
+            <li><strong>31 October 2026</strong> – Tax audit cases (companies requiring audit)</li>
+            <li><strong>30 November 2026</strong> – Transfer pricing cases</li>
+            <li>MAT (Minimum Alternate Tax) @ 15% of book profit if tax &lt; 15% of book profit</li>
+          </ul>
+        </div>`
+    },
+
+    '7': {
+      title: 'ITR-7 – Complete Guide',
+      subtitle: 'For Trusts, Political Parties, Scientific Research Associations',
+      icon: '🏛️',
+      color: '#6d28d9',
+      content: `
+        <div class="guide-section" style="border-left-color:#6d28d9;background:rgba(109,40,217,0.04)">
+          <h4>📋 Who Should File ITR-7?</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:0.25rem;margin:0.5rem 0">
+            <span class="guide-tag tag-blue">Charitable/Religious Trusts (u/s 139(4A))</span>
+            <span class="guide-tag tag-blue">Political Parties (u/s 139(4B))</span>
+            <span class="guide-tag tag-blue">Scientific Research Associations (u/s 139(4C))</span>
+            <span class="guide-tag tag-blue">University/Educational Institution (u/s 139(4D))</span>
+            <span class="guide-tag tag-blue">Mutual Funds, Securitization Trusts (u/s 139(4E/F))</span>
+            <span class="guide-tag tag-blue">NGOs, NPOs with 12A/80G registration</span>
+          </div>
+        </div>
+        <div class="guide-section">
+          <h4>📄 Documents Required</h4>
+          <ul>
+            <li><strong>Trust deed / MOA & Rules</strong></li>
+            <li><strong>12A/12AB registration certificate</strong> (for charitable trusts)</li>
+            <li><strong>80G certificate</strong> (if claiming donor deduction)</li>
+            <li><strong>Audited accounts</strong> (income & expenditure + balance sheet)</li>
+            <li><strong>Form 10B</strong> – Audit report for trusts</li>
+            <li>Details of corpus donations received and invested</li>
+          </ul>
+        </div>
+        <div class="guide-section">
+          <h4>🏷️ Tax Exemptions for Trusts</h4>
+          <ul>
+            <li>Income applied for charitable purposes: <strong>100% exempt</strong></li>
+            <li>Must apply minimum <strong>85%</strong> of income in the year of receipt</li>
+            <li>Remaining 15% can be accumulated (with Form 10 filing)</li>
+            <li>Anonymous donations &gt; ₹1 lakh from single donor: taxed @30%</li>
+            <li>Business income of trust: taxed at maximum marginal rate</li>
+          </ul>
+        </div>
+        <div class="guide-section" style="border-left-color:var(--danger)">
+          <h4>⚠️ Important Compliance</h4>
+          <ul>
+            <li>File Form 10 (for accumulation) before due date</li>
+            <li>File Form 9A (set apart corpus donation for application)</li>
+            <li>Violations can cause cancellation of 12A registration</li>
+            <li>Political parties: must disclose all donations &gt; ₹20,000</li>
+          </ul>
+        </div>`
+    },
+    'compare': {
+      title: 'ITR Form Comparison – Which Form to Use?',
+      subtitle: 'Quick comparison of all 7 ITR forms',
+      icon: '🆚',
+      color: '#1e40af',
+      content: `
+        <div class="guide-section">
+          <h4>📊 Quick Selection Guide</h4>
+          <table class="guide-table">
+            <tr><th>Form</th><th>Who Files</th><th>Key Feature</th><th>Audit?</th></tr>
+            <tr><td><strong>ITR-1</strong></td><td>Individual (Resident)</td><td>Salary + 1 HP + Other ≤ ₹50L</td><td>No</td></tr>
+            <tr><td><strong>ITR-2</strong></td><td>Individual / HUF</td><td>Capital Gains / Foreign assets / Multiple HP</td><td>No</td></tr>
+            <tr><td><strong>ITR-3</strong></td><td>Individual / HUF</td><td>Business / Profession income (full books)</td><td>If TO > ₹1Cr</td></tr>
+            <tr><td><strong>ITR-4</strong></td><td>Individual / HUF / Firm</td><td>Presumptive income (44AD/44ADA/44AE)</td><td>No</td></tr>
+            <tr><td><strong>ITR-5</strong></td><td>Firm / LLP / AOP / BOI</td><td>Partnership, LLP, funds</td><td>If TO > ₹1Cr</td></tr>
+            <tr><td><strong>ITR-6</strong></td><td>All Companies</td><td>Private / Public / OPC / Foreign</td><td>Yes (mandatory)</td></tr>
+            <tr><td><strong>ITR-7</strong></td><td>Trusts / NPO / Political parties</td><td>Exempt entities (12A, 80G)</td><td>Yes (Form 10B)</td></tr>
+          </table>
+        </div>
+        <div class="guide-section">
+          <h4>🤔 Decision Tree</h4>
+          <ul>
+            <li>Is it a company? → <strong>ITR-6</strong></li>
+            <li>Is it a trust/charity/political party? → <strong>ITR-7</strong></li>
+            <li>Is it a firm/LLP/AOP/BOI? → <strong>ITR-5</strong></li>
+            <li>Is it Individual/HUF with business + presumptive taxation? → <strong>ITR-4</strong></li>
+            <li>Is it Individual/HUF with business + full books? → <strong>ITR-3</strong></li>
+            <li>Is it Individual/HUF with capital gains / foreign assets / director? → <strong>ITR-2</strong></li>
+            <li>Salary only, income ≤ ₹50L, no CG, no foreign? → <strong>ITR-1</strong></li>
+          </ul>
+        </div>
+        <div class="guide-section">
+          <h4>📅 Filing Deadlines AY 2026-27</h4>
+          <table class="guide-table">
+            <tr><th>Category</th><th>Deadline</th></tr>
+            <tr><td>Non-audit Individuals, HUF, Firms</td><td><strong>31 July 2026</strong></td></tr>
+            <tr><td>Audit cases (business/profession)</td><td><strong>31 October 2026</strong></td></tr>
+            <tr><td>Companies, Transfer Pricing</td><td><strong>30 November 2026</strong></td></tr>
+            <tr><td>Belated Return (with late fee)</td><td><strong>31 December 2026</strong></td></tr>
+            <tr><td>Updated Return (ITR-U)</td><td><strong>31 March 2029</strong> (2 years from AY end)</td></tr>
+          </table>
+        </div>`
+    }
+  };
+
+  function showITRGuide(form) {
+    var guide = ITR_GUIDES[form];
+    if (!guide) return;
+    var modal = document.getElementById('itrGuideModal');
+    var body = document.getElementById('guideBody');
+    var title = document.getElementById('guideTitle');
+    var subtitle = document.getElementById('guideSubtitle');
+    if (!modal || !body) return;
+
+    title.textContent = guide.title;
+    subtitle.textContent = guide.subtitle;
+
+    var header = modal.querySelector('.guide-header');
+    if (header) header.style.background = 'linear-gradient(135deg, ' + guide.color + ', ' + guide.color + 'cc)';
+
+    body.innerHTML = '<div style="text-align:center;margin-bottom:1rem;font-size:3rem">' + guide.icon + '</div>' + guide.content;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeGuide() {
+    var modal = document.getElementById('itrGuideModal');
+    if (modal) {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close guide on backdrop click
+  document.addEventListener('DOMContentLoaded', function() {
+    var gm = document.getElementById('itrGuideModal');
+    if (gm) {
+      gm.addEventListener('click', function(e) {
+        if (e.target === gm) closeGuide();
+      });
+    }
+  });
+
+
+  // ── Section Help System ──────────────────────────────────────────
+  const SECTION_HELP_DATA = {
+    '1': {
+      title: '👤 Step 1: Personal Information – Fill Guide',
+      content: '<div class="guide-section"><h4>📋 What to Fill Here</h4><ul><li><strong>First/Last Name:</strong> Exactly as on PAN card (no short forms)</li><li><strong>PAN Number:</strong> 10-char format ABCDE1234F (mandatory)</li><li><strong>Aadhaar:</strong> 12-digit number (must be linked to PAN)</li><li><strong>Date of Birth:</strong> As per PAN/Aadhaar</li><li><strong>Mobile:</strong> Aadhaar-linked mobile (for e-verification OTP)</li><li><strong>Email:</strong> Active email for ITR acknowledgement</li></ul></div><div class="guide-section"><h4>🏦 Bank Account (for Refund)</h4><ul><li>Bank account must be pre-validated on incometax.gov.in</li><li>IFSC code: 11 characters (e.g. SBIN0001234)</li><li>Wrong bank details = refund delayed/rejected</li></ul></div><div class="guide-section"><h4>✅ Filing Type</h4><ul><li><strong>Original (11):</strong> First time filing for this AY</li><li><strong>Revised (17):</strong> Correction before 31 Dec</li><li><strong>Belated (16):</strong> After 31 July (with late fee)</li></ul></div>'
+    },
+    '2': {
+      title: '💰 Step 2: Income Details – Fill Guide',
+      content: '<div class="guide-section"><h4>💼 Salary Income</h4><ul><li><strong>Gross Salary:</strong> From Form 16 Part B (before any deductions)</li><li><strong>HRA Exemption:</strong> Min of HRA received, Rent paid-10%salary, 50%/40% of salary. Use Auto-Calculate!</li><li><strong>Standard Deduction:</strong> Rs 75,000 auto-filled (New Regime)</li><li><strong>Professional Tax:</strong> Max Rs 2,500/year deductible</li></ul></div><div class="guide-section"><h4>📈 Capital Gains (ITR-2/3)</h4><ul><li>STCG Equity @20% | LTCG Equity @12.5% above Rs 1.25L</li><li>Property LTCG: 12.5% without indexation or 20% with indexation</li><li>Use broker Capital Gain Statement / CAS report</li></ul></div><div class="guide-section"><h4>🏪 Business Income</h4><ul><li>44AD: 8% cash / 6% digital of turnover</li><li>44ADA: 50% of gross receipts</li><li>Normal: Revenue - Expenses - Depreciation</li></ul></div>'
+    },
+    '3': {
+      title: '💡 Step 3: Deductions – Fill Guide',
+      content: '<div class="guide-section"><h4>⚠️ New vs Old Regime</h4><ul><li><strong>New Regime (Default):</strong> ONLY Standard Deduction Rs 75,000 + 80CCD(2) employer NPS</li><li><strong>Old Regime:</strong> All deductions: 80C, 80D, HRA, Home Loan etc.</li><li>Income up to Rs 12.75L = Zero Tax in New Regime!</li></ul></div><div class="guide-section"><h4>📋 Key Deductions (Old Regime)</h4><ul><li><strong>80C (Rs 1.5L):</strong> PPF, ELSS, LIC, EPF, NSC, school fees</li><li><strong>80CCD(1B):</strong> NPS extra Rs 50,000</li><li><strong>80D:</strong> Health insurance - self Rs 25K, parents Rs 25K-50K</li><li><strong>80E:</strong> Education loan interest - full, no cap</li><li><strong>80TTA:</strong> Savings interest max Rs 10,000 (below 60)</li></ul></div>'
+    },
+    '4': {
+      title: '🧮 Step 4: Tax Computation – Fill Guide',
+      content: '<div class="guide-section"><h4>💳 TDS Sources</h4><ul><li><strong>TDS Salary:</strong> From Form 16 Part A / Form 26AS Part A</li><li><strong>TDS Interest:</strong> From Form 16A from bank (194A)</li><li>All TDS should match Form 26AS - reconcile before filing</li></ul></div><div class="guide-section"><h4>💸 Advance Tax</h4><ul><li>Required if liability &gt; Rs 10,000 after TDS</li><li>Q1: 15% by 15 Jun | Q2: 45% by 15 Sep | Q3: 75% by 15 Dec | Q4: 100% by 15 Mar</li></ul></div><div class="guide-section"><h4>⚡ Self Assessment Tax</h4><ul><li>Pay via incometax.gov.in - e-Pay Tax (Challan 280)</li><li>Enter BSR code + Challan Serial No. in challan details below</li></ul></div>'
+    },
+    '5': {
+      title: '📄 Step 5: Review – Checklist',
+      content: '<div class="guide-section"><h4>✅ Before Submitting</h4><ul><li>Verify all income matches Form 16, AIS, and Form 26AS</li><li>Check Net Taxable Income is correct</li><li>Verify Total Tax Paid = TDS + Advance Tax + SAT</li><li>Check Refund Due / Tax Payable amount</li><li>Bank IFSC + account number correct</li></ul></div><div class="guide-section" style="border-left-color:#dc2626"><h4>🚨 Common Mistakes</h4><ul><li>Forgetting FD interest income (check AIS)</li><li>Missing dividend income (now fully taxable)</li><li>Not claiming 87A rebate (income must be &lt;= Rs 12L new regime)</li><li>Claiming 80C without actual investment proof</li></ul></div>'
+    },
+    '6': {
+      title: '📤 Step 6: Submit & Export – Guide',
+      content: '<div class="guide-section"><h4>📥 Upload to IT Portal</h4><ol><li>Click IT Portal JSON button to download JSON</li><li>Go to incometax.gov.in &rarr; Login &rarr; e-File &rarr; File ITR</li><li>Select AY 2026-27 &rarr; Upload JSON &rarr; Submit</li></ol></div><div class="guide-section"><h4>🔐 e-Verification (within 30 days)</h4><ul><li><strong>Aadhaar OTP:</strong> Fastest method</li><li><strong>Net Banking:</strong> Login and e-verify via bank</li><li><strong>DSC:</strong> For companies/audit cases</li></ul></div><div class="guide-section"><h4>✅ After Filing</h4><ul><li>Download ITR-V PDF acknowledgement</li><li>Refund: 15-45 days to pre-validated bank account</li><li>Intimation u/s 143(1): Verify it matches your filing</li></ul></div>'
+    }
+  };
+
+  function showSectionHelp(step) {
+    var data = SECTION_HELP_DATA[step];
+    if (!data) return;
+    // Reuse the guide modal with section-specific content
+    var modal = document.getElementById('itrGuideModal');
+    var body = document.getElementById('guideBody');
+    var title = document.getElementById('guideTitle');
+    var subtitle = document.getElementById('guideSubtitle');
+    if (!modal || !body) return;
+    title.textContent = data.title.replace('{form}', currentForm);
+    subtitle.textContent = 'Step ' + step + ' of 6 – How to fill this section correctly';
+    var header = modal.querySelector('.guide-header');
+    if (header) header.style.background = 'linear-gradient(135deg, #1e40af, #7c3aed)';
+    body.innerHTML = '<div style="text-align:center;font-size:2.5rem;margin-bottom:1rem">📋</div>' + data.content;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Update guide bar labels when form changes
+  function updateGuideBarLabels(f) {
+    for (var i = 1; i <= 6; i++) {
+      var el = document.getElementById('guideBarFormLabel-' + i);
+      if (el) el.textContent = 'ITR-' + f + ' – Step ' + i + ' Guide';
+    }
+  }
+
+
+  // Share ITR summary
+  window.shareITRSummary = function() {
+    const itr = JSON.parse(localStorage.getItem('itr_draft_1') || '{}');
+    if (!itr.grossSalary) { showToast('Fill ITR data first!', 'warning'); return; }
+    const data = { gross: itr.grossSalary || 0, regime: itr.regime || 'new', ay: '2026-27', type: 'itr' };
+    window.TaxMitraShare?.generateLink(data);
+  };
+  window.exportITRXLSX = function() {
+    window.TaxMitraXLSX?.exportITRXLSX('1');
+  };
+
+  // ── Global exports (safe for onclick="" attributes) ──────────────
+  // These ensure onclick="showITRGuide(...)" always works even if
+  // script execution order varies in the browser
+  // Function aliases (actual names differ from expected)
+  window.generatePreview  = typeof buildPreview === 'function' ? buildPreview : function(){};
+  window.saveDraft        = typeof autoSave === 'function' ? autoSave : function(){};
+  window.downloadJSON     = typeof downloadITJSON === 'function' ? downloadITJSON : function(){};
+  window.downloadPDF      = typeof downloadITRPDF === 'function' ? downloadITRPDF : function(){};
+  window.selectForm       = selectForm;
+  window.showITRGuide     = showITRGuide;
+  window.closeGuide       = closeGuide;
+  window.showSectionHelp  = showSectionHelp;
+  window.updateGuideBarLabels = updateGuideBarLabels;
+  window.goStep           = typeof goStep === 'function' ? goStep : function(){};
+  window.calcIncome       = typeof calcIncome === 'function' ? calcIncome : function(){};
+  window.calcDeductions   = typeof calcDeductions === 'function' ? calcDeductions : function(){};
+  window.calcTax          = typeof calcTax === 'function' ? calcTax : function(){};
+  window.generatePreview  = typeof generatePreview === 'function' ? generatePreview : function(){};
+  window.saveDraft        = typeof saveDraft === 'function' ? saveDraft : function(){};
+  window.loadDraft        = typeof loadDraft === 'function' ? loadDraft : function(){};
+  window.clearDraft       = typeof clearDraft === 'function' ? clearDraft : function(){};
+  window.downloadJSON     = typeof downloadJSON === 'function' ? downloadJSON : function(){};
+  window.downloadPDF      = typeof downloadPDF === 'function' ? downloadPDF : function(){};
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="description" content="E-Way Bill Generator India — Generate, cancel, extend e-way bills for goods transport. GSTIN validation, vehicle details, Part-B update."/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>E-Way Bill Generator — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>E-Way Bill Generator</span></div>
+    <h1>🚛 E-Way Bill Generator</h1>
+    <p>AY 2026-27 | Budget 2025 Updated | Developed by <strong>Abhishek Agrahari</strong></p>
+  </div>
+</div>
+<div class="container" style="padding:1.5rem 0 4rem">
+
+<div style="background:rgba(5,150,105,.06);border:1px solid rgba(5,150,105,.2);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;gap:.75rem">
+  <span style="font-size:1.3rem">🚛</span>
+  <div><strong style="color:var(--success)">E-Way Bill — Required for goods movement &gt; ₹50,000</strong>
+  <p style="font-size:.82rem;margin:.25rem 0 0;color:var(--text-secondary)">Rule 138 of CGST Rules. Generate before dispatch. Valid: 1 day per 100km (regular), 1 day per 20km (ODC).</p></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+<div class="form-card">
+  <h3 style="font-weight:800;margin-bottom:1.25rem">📋 E-Way Bill Generator</h3>
+  <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.65rem;margin-bottom:1rem;font-size:.78rem;color:var(--text-secondary)">
+    <strong>Note:</strong> Actual E-Way Bill generation requires login at <a href="https://ewaybillgst.gov.in" target="_blank" style="color:var(--primary)">ewaybillgst.gov.in</a>. This tool helps you prepare the data.
+  </div>
+  <div class="form-group"><label>Transaction Type</label>
+    <select id="ewbType" onchange="calcEWB()">
+      <option value="outward">1 - Outward (Supply)</option>
+      <option value="inward">2 - Inward (Return/Purchase)</option>
+    </select></div>
+  <div class="form-group"><label>Document Type</label>
+    <select id="ewbDocType">
+      <option value="invoice">Tax Invoice</option>
+      <option value="bill">Bill of Supply</option>
+      <option value="challan">Delivery Challan</option>
+      <option value="credit">Credit Note</option>
+    </select></div>
+  <div class="form-group"><label>Invoice/Document No.</label>
+    <input id="ewbDocNo" placeholder="INV-2526-001" class="mg-input"/></div>
+  <div class="form-group"><label>Invoice Date</label>
+    <input type="date" id="ewbDocDate" class="mg-input"/></div>
+  <div class="form-group"><label>From GSTIN (Supplier)</label>
+    <input id="ewbFromGSTIN" placeholder="09AABC..." maxlength="15" class="mg-input" style="text-transform:uppercase"/></div>
+  <div class="form-group"><label>To GSTIN (Recipient)</label>
+    <input id="ewbToGSTIN" placeholder="27XYZP..." maxlength="15" class="mg-input" style="text-transform:uppercase"/></div>
+  <div class="form-group"><label>Invoice Value (₹)</label>
+    <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="ewbValue" placeholder="0" oninput="calcEWB()"/></div></div>
+  <div class="form-group"><label>HSN Code</label>
+    <input id="ewbHSN" placeholder="8471" maxlength="8" class="mg-input"/></div>
+  <div class="form-group"><label>Vehicle Number</label>
+    <input id="ewbVehicle" placeholder="UP80AB1234" class="mg-input" style="text-transform:uppercase"/></div>
+  <div class="form-group"><label>Transporter ID / GSTIN</label>
+    <input id="ewbTransporter" placeholder="GSTIN or Transporter ID" class="mg-input"/></div>
+  <div class="form-group"><label>Distance (km)</label>
+    <input type="number" id="ewbDist" placeholder="0" oninput="calcEWB()"/></div>
+  <button class="btn-primary-solid" onclick="generateEWBData()" style="width:100%;margin-top:.5rem"><i class="fa fa-file-alt"></i> Prepare E-Way Bill Data</button>
+</div>
+<div>
+  <div id="ewbResult" style="display:none">
+    <div class="form-card" style="border-top:4px solid var(--success)">
+      <h4 style="font-weight:800;margin-bottom:.85rem">✅ E-Way Bill Data Ready</h4>
+      <div id="ewbSummary"></div>
+    </div>
+    <div class="form-card" style="margin-top:1rem">
+      <h4 style="font-weight:800;margin-bottom:.75rem">📅 Validity Period</h4>
+      <div id="ewbValidity"></div>
+    </div>
+    <div style="display:flex;gap:.65rem;margin-top:1rem">
+      <button class="btn-primary-solid" onclick="downloadEWBPDF()" style="flex:1"><i class="fa fa-file-pdf"></i> Print Data Sheet</button>
+      <button class="btn-secondary-solid" onclick="downloadEWBJSON()" style="flex:1"><i class="fa fa-code"></i> Export JSON</button>
+    </div>
+  </div>
+  <div class="form-card" style="margin-top:1rem">
+    <h4 style="font-weight:800;margin-bottom:.85rem">📋 E-Way Bill Rules</h4>
+    <div style="font-size:.8rem;display:flex;flex-direction:column;gap:.4rem;color:var(--text-secondary)">
+      <div style="padding:.4rem .65rem;background:var(--bg-secondary);border-radius:6px">✅ Required: Invoice value &gt; ₹50,000</div>
+      <div style="padding:.4rem .65rem;background:var(--bg-secondary);border-radius:6px">✅ Required for: All inter-state movement regardless of value</div>
+      <div style="padding:.4rem .65rem;background:var(--bg-secondary);border-radius:6px">🚛 Validity: 1 day/100km (normal) | 1 day/20km (ODC)</div>
+      <div style="padding:.4rem .65rem;background:var(--bg-secondary);border-radius:6px">⚠️ Penalty: ₹10,000 or tax whichever higher</div>
+      <div style="padding:.4rem .65rem;background:var(--bg-secondary);border-radius:6px">❌ Exempt: Goods below ₹50,000 (intra-state only)</div>
+      <div style="padding:.4rem .65rem;background:var(--bg-secondary);border-radius:6px">🌐 Generate at: ewaybillgst.gov.in</div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+function calcEWB() {
+  const value = parseFloat(document.getElementById('ewbValue').value) || 0;
+  const dist = parseFloat(document.getElementById('ewbDist').value) || 0;
+  const validDays = dist > 0 ? Math.max(1, Math.ceil(dist/100)) : 1;
+  if (value > 0) generateEWBData();
+}
+function generateEWBData() {
+  const value = parseFloat(document.getElementById('ewbValue').value) || 0;
+  const dist = parseFloat(document.getElementById('ewbDist').value) || 0;
+  const docNo = document.getElementById('ewbDocNo').value || 'N/A';
+  const fromGSTIN = document.getElementById('ewbFromGSTIN').value.toUpperCase();
+  const toGSTIN = document.getElementById('ewbToGSTIN').value.toUpperCase();
+  const vehicle = document.getElementById('ewbVehicle').value.toUpperCase();
+  const validDays = dist > 0 ? Math.max(1, Math.ceil(dist/100)) : 1;
+  const today = new Date();
+  const expiry = new Date(today.getTime() + validDays*24*60*60*1000);
+  
+  if (value < 50000) {
+    showToast('E-Way Bill not required for value < ₹50,000 (intra-state)', 'info');
+  }
+  
+  document.getElementById('ewbResult').style.display = 'block';
+  document.getElementById('ewbSummary').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.82rem">
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Document No.</span><strong>${docNo}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Invoice Value</span><strong>${fmt(value)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>From</span><strong>${fromGSTIN||'Not filled'}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>To</span><strong>${toGSTIN||'Not filled'}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Vehicle</span><strong>${vehicle||'Not filled'}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:${value>=50000?'rgba(5,150,105,.06)':'rgba(245,158,11,.06)'};border-radius:6px"><span>E-Way Bill Required</span><strong style="color:${value>=50000?'var(--success)':'var(--warning)'}">${value>=50000?'YES - Generate on portal':'Optional'}</strong></div>
+    </div>`;
+  document.getElementById('ewbValidity').innerHTML = `
+    <div style="font-size:.82rem;display:flex;flex-direction:column;gap:.4rem">
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Distance</span><strong>${dist} km</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Valid Days</span><strong>${validDays} day(s)</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:rgba(5,150,105,.06);border-radius:6px"><span>Expiry Date</span><strong style="color:var(--success)">${expiry.toLocaleDateString('en-IN')}</strong></div>
+    </div>`;
+  window._ewb = { value, dist, validDays, docNo, fromGSTIN, toGSTIN, vehicle, expiry: expiry.toLocaleDateString('en-IN') };
+  showToast('E-Way Bill data prepared!', 'success');
+}
+function downloadEWBPDF() {
+  if (!window.jspdf || !window._ewb) { showToast('Generate data first!','warning'); return; }
+  const { jsPDF } = window.jspdf; const e = window._ewb;
+  const doc = new jsPDF();
+  doc.setFillColor(5,150,105); doc.rect(0,0,210,28,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('E-Way Bill Data Sheet', 105, 12, {align:'center'});
+  doc.setFontSize(8); doc.text('TaxMitra AI Enterprise | Abhishek Agrahari', 105, 22, {align:'center'});
+  doc.setTextColor(30,30,30);
+  doc.autoTable({startY:36, head:[['Field','Value']],
+    body:[['Document No',e.docNo],['Invoice Value',fmt(e.value)],['From GSTIN',e.fromGSTIN],['To GSTIN',e.toGSTIN],['Vehicle',e.vehicle],['Distance',e.dist+'km'],['Valid Days',e.validDays+' day(s)'],['Expiry',e.expiry]],
+    headStyles:{fillColor:[5,150,105],textColor:255,fontSize:9}, styles:{fontSize:9}});
+  doc.save('EWayBill_Data_TaxMitra.pdf');
+  showToast('E-Way Bill sheet downloaded!','success');
+}
+function downloadEWBJSON() {
+  if (!window._ewb) { showToast('Generate data first!','warning'); return; }
+  const blob = new Blob([JSON.stringify(window._ewb, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'EWayBill_Data.json';
+  a.click();
+  showToast('JSON exported!','success');
+}
+</script>
+</body>
+</html>

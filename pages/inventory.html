@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="description" content="Inventory Management — Stock register, low stock alerts, purchase/sales tracking, valuation (FIFO/WAC), GST-ready stock ledger. TaxMitra AI Enterprise."/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Inventory Management – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.inv-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem}
+@media(max-width:768px){.inv-stats{grid-template-columns:repeat(2,1fr)}}
+.inv-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.85rem;text-align:center}
+.inv-stat .val{font-size:1.2rem;font-weight:800}
+.inv-stat .lbl{font-size:.65rem;color:var(--text-muted);margin-top:.15rem;font-weight:600;text-transform:uppercase}
+.stock-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.stock-table th{background:var(--bg-secondary);padding:.55rem .75rem;font-weight:700;font-size:.72rem;color:var(--text-secondary);border-bottom:2px solid var(--border);text-align:left;white-space:nowrap}
+.stock-table td{padding:.5rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.stock-table tr:hover td{background:rgba(30,64,175,.02)}
+.stock-low{color:var(--danger);font-weight:700}
+.stock-ok{color:var(--success);font-weight:700}
+.stock-critical{background:rgba(239,68,68,.05)}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.5rem}
+.fg label{font-size:.7rem;font-weight:600;color:var(--text-secondary)}
+.fg input,.fg select{padding:.38rem .6rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.82rem;font-family:inherit;transition:var(--transition)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary)}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem}
+.category-pill{display:inline-flex;padding:.15rem .5rem;border-radius:99px;font-size:.65rem;font-weight:700}
+.movement-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.8rem}
+.movement-row:last-child{border-bottom:none}
+.in-badge{color:var(--success);font-weight:700}
+.out-badge{color:var(--danger);font-weight:700}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="accounting.html" class="nav-link active">📒 Accounting</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="reports.html" class="nav-link">📊 Reports</a></li>
+        <li><a href="dashboard.html" class="nav-link">🏠 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> ›
+      <a href="accounting.html" style="color:var(--text-muted)">Accounting</a> ›
+      <span style="color:var(--primary)">Inventory Management</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">📦 Inventory Management</h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">Stock Register · FIFO/WAC Valuation · Low Stock Alerts · GST-ready · Movement Tracking | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <div class="inv-stats">
+    <div class="inv-stat"><div class="val" id="statItems">0</div><div class="lbl">Total Items</div></div>
+    <div class="inv-stat"><div class="val" id="statValue" style="color:var(--primary)">₹0</div><div class="lbl">Stock Value</div></div>
+    <div class="inv-stat"><div class="val" id="statLow" style="color:var(--danger)">0</div><div class="lbl">Low Stock</div></div>
+    <div class="inv-stat"><div class="val" id="statOut" style="color:#f59e0b">0</div><div class="lbl">Out of Stock</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:300px 1fr;gap:1.25rem;padding-bottom:3rem;align-items:start">
+    <!-- Add Item Form -->
+    <div>
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-plus-circle"></i> Add/Update Item</div>
+        <div class="card-body">
+          <div class="fg"><label>Item Name</label><input type="text" id="itemName" placeholder="Rice 25kg Bag"/></div>
+          <div class="fg"><label>SKU/Code</label><input type="text" id="itemSKU" placeholder="SKU-001"/></div>
+          <div class="fg"><label>Category</label>
+            <select id="itemCategory">
+              <option value="Raw Material">Raw Material</option>
+              <option value="Finished Goods">Finished Goods</option>
+              <option value="Trading Goods">Trading Goods</option>
+              <option value="Consumables">Consumables</option>
+              <option value="Packing Material">Packing Material</option>
+            </select>
+          </div>
+          <div class="grid3">
+            <div class="fg"><label>Unit</label><select id="itemUnit"><option value="Nos">Nos</option><option value="Kg">Kg</option><option value="L">Litre</option><option value="Mtr">Metre</option><option value="Box">Box</option></select></div>
+            <div class="fg"><label>HSN Code</label><input type="text" id="itemHSN" placeholder="1006"/></div>
+            <div class="fg"><label>GST %</label><select id="itemGST"><option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option><option value="0">0%</option></select></div>
+          </div>
+          <div class="grid3">
+            <div class="fg"><label>Opening Stock</label><input type="number" id="openingQty" placeholder="0" value="0"/></div>
+            <div class="fg"><label>Rate (₹)</label><input type="number" id="itemRate" placeholder="0"/></div>
+            <div class="fg"><label>Reorder Qty</label><input type="number" id="reorderQty" placeholder="10" value="10"/></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="addItem()"><i class="fa fa-plus"></i> Add to Inventory</button>
+        </div>
+      </div>
+
+      <!-- Stock Movement -->
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-exchange-alt"></i> Stock Movement</div>
+        <div class="card-body">
+          <div class="fg"><label>Select Item</label><select id="movItem" id="movItem"><option value="">— Select —</option></select></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+            <div class="fg"><label>Type</label>
+              <select id="movType">
+                <option value="IN">Stock In (Purchase/Receipt)</option>
+                <option value="OUT">Stock Out (Sale/Issue)</option>
+              </select>
+            </div>
+            <div class="fg"><label>Quantity</label><input type="number" id="movQty" placeholder="0" min="1"/></div>
+          </div>
+          <div class="fg"><label>Rate (₹)</label><input type="number" id="movRate" placeholder="0"/></div>
+          <div class="fg"><label>Narration</label><input type="text" id="movNarration" placeholder="Purchase from supplier"/></div>
+          <button class="btn btn-primary" style="width:100%" onclick="addMovement()"><i class="fa fa-check"></i> Record Movement</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btn-primary" style="flex:1" onclick="loadSampleInventory()"><i class="fa fa-magic"></i> Sample Data</button>
+        <button class="btn" style="flex:1;background:var(--success);color:#fff" onclick="exportCSV()"><i class="fa fa-download"></i> Export</button>
+      </div>
+    </div>
+
+    <!-- Stock Table -->
+    <div>
+      <!-- Search + Filter -->
+      <div style="display:flex;gap:.5rem;margin-bottom:.85rem;flex-wrap:wrap">
+        <input type="text" id="searchStock" placeholder="🔍 Search items..." style="flex:1;min-width:140px;padding:.38rem .7rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.8rem;font-family:inherit" oninput="renderStock()"/>
+        <select id="catFilter" style="padding:.38rem .7rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.8rem" onchange="renderStock()">
+          <option value="">All Categories</option>
+          <option value="Raw Material">Raw Material</option>
+          <option value="Finished Goods">Finished Goods</option>
+          <option value="Trading Goods">Trading Goods</option>
+          <option value="Consumables">Consumables</option>
+        </select>
+        <select id="stockFilter" style="padding:.38rem .7rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.8rem" onchange="renderStock()">
+          <option value="">All Stock</option>
+          <option value="low">Low Stock</option>
+          <option value="out">Out of Stock</option>
+          <option value="ok">In Stock</option>
+        </select>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-boxes"></i> Stock Register</div>
+        <div class="card-body" style="padding:.5rem;overflow-x:auto">
+          <table class="stock-table" id="stockTable">
+            <thead>
+              <tr>
+                <th>Item</th><th>SKU</th><th>Category</th><th>HSN</th>
+                <th>Unit</th><th>Stock Qty</th><th>Avg Rate</th>
+                <th>Value</th><th>Reorder</th><th>Status</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="stockBody">
+              <tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--text-muted)">Add items or load sample data</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent Movements -->
+      <div class="card">
+        <div class="card-header"><i class="fa fa-history"></i> Recent Stock Movements</div>
+        <div class="card-body" id="movementList">
+          <div style="text-align:center;padding:1rem;color:var(--text-muted)">No movements recorded</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+var INV_KEY = 'tm_inventory';
+var MOV_KEY = 'tm_stock_movements';
+var items = [];
+var movements = [];
+
+function load() {
+  try { items = JSON.parse(localStorage.getItem(INV_KEY) || '[]'); } catch(e) { items = []; }
+  try { movements = JSON.parse(localStorage.getItem(MOV_KEY) || '[]'); } catch(e) { movements = []; }
+}
+function save() {
+  try { localStorage.setItem(INV_KEY, JSON.stringify(items)); localStorage.setItem(MOV_KEY, JSON.stringify(movements)); } catch(e) {}
+}
+
+function addItem() {
+  var name = document.getElementById('itemName').value.trim();
+  if (!name) { showToast('Item name required', 'warning'); return; }
+  var rate = parseFloat(document.getElementById('itemRate').value) || 0;
+  var qty = parseFloat(document.getElementById('openingQty').value) || 0;
+  var item = {
+    id: Date.now(),
+    name: name,
+    sku: document.getElementById('itemSKU').value || ('SKU-' + String(items.length+1).padStart(3,'0')),
+    category: document.getElementById('itemCategory').value,
+    unit: document.getElementById('itemUnit').value,
+    hsn: document.getElementById('itemHSN').value,
+    gst: parseFloat(document.getElementById('itemGST').value),
+    qty: qty,
+    avgRate: rate,
+    reorderQty: parseFloat(document.getElementById('reorderQty').value) || 10,
+    createdAt: new Date().toISOString()
+  };
+  items.push(item);
+  save();
+  updateMovItem();
+  renderStock();
+  updateStats();
+  // Clear form
+  ['itemName','itemSKU','itemHSN','itemRate','openingQty'].forEach(id => { document.getElementById(id).value = ''; });
+  showToast('✅ ' + name + ' added!', 'success');
+}
+
+function addMovement() {
+  var itemId = parseInt(document.getElementById('movItem').value);
+  var item = items.find(i => i.id === itemId);
+  if (!item) { showToast('Select an item', 'warning'); return; }
+  var qty = parseFloat(document.getElementById('movQty').value) || 0;
+  if (qty <= 0) { showToast('Quantity must be > 0', 'warning'); return; }
+  var type = document.getElementById('movType').value;
+  var rate = parseFloat(document.getElementById('movRate').value) || item.avgRate;
+  var narration = document.getElementById('movNarration').value;
+  
+  if (type === 'OUT' && qty > item.qty) { showToast('Insufficient stock! Available: ' + item.qty + ' ' + item.unit, 'error'); return; }
+  
+  // Update item stock (WAC for IN)
+  if (type === 'IN') {
+    var totalValue = item.qty * item.avgRate + qty * rate;
+    item.qty += qty;
+    item.avgRate = item.qty > 0 ? totalValue / item.qty : rate;
+  } else {
+    item.qty -= qty;
+  }
+  
+  movements.unshift({
+    id: Date.now(),
+    itemId: item.id,
+    itemName: item.name,
+    type: type,
+    qty: qty,
+    rate: rate,
+    narration: narration || (type === 'IN' ? 'Stock In' : 'Stock Out'),
+    date: new Date().toISOString().slice(0,10),
+    balance: item.qty
+  });
+  
+  save();
+  renderStock();
+  renderMovements();
+  updateStats();
+  document.getElementById('movQty').value = '';
+  document.getElementById('movRate').value = '';
+  showToast(`✅ ${type === 'IN' ? '📥 Stock In' : '📤 Stock Out'}: ${item.name} ${qty} ${item.unit}`, 'success');
+}
+
+function updateMovItem() {
+  var sel = document.getElementById('movItem');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Select Item —</option>' +
+    items.map(i => `<option value="${i.id}">${i.name} (${i.qty} ${i.unit} in stock)</option>`).join('');
+}
+
+function renderStock() {
+  var search = document.getElementById('searchStock')?.value.toLowerCase() || '';
+  var catFilter = document.getElementById('catFilter')?.value || '';
+  var stockFilter = document.getElementById('stockFilter')?.value || '';
+  
+  var filtered = items.filter(function(i) {
+    if (search && !i.name.toLowerCase().includes(search) && !i.sku.toLowerCase().includes(search)) return false;
+    if (catFilter && i.category !== catFilter) return false;
+    if (stockFilter === 'low' && !(i.qty > 0 && i.qty <= i.reorderQty)) return false;
+    if (stockFilter === 'out' && i.qty > 0) return false;
+    if (stockFilter === 'ok' && !(i.qty > i.reorderQty)) return false;
+    return true;
+  });
+  
+  var catColors = {'Raw Material':'rgba(30,64,175,.1)','Finished Goods':'rgba(16,185,129,.1)','Trading Goods':'rgba(245,158,11,.1)','Consumables':'rgba(139,92,246,.1)','Packing Material':'rgba(239,68,68,.1)'};
+  var catTextColors = {'Raw Material':'var(--primary)','Finished Goods':'var(--success)','Trading Goods':'#d97706','Consumables':'#7c3aed','Packing Material':'var(--danger)'};
+  
+  var tbody = document.getElementById('stockBody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:1.5rem;color:var(--text-muted)">No items match filter</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = filtered.map(function(item) {
+    var isOut = item.qty <= 0;
+    var isLow = item.qty > 0 && item.qty <= item.reorderQty;
+    var statusEl = isOut ? '<span style="color:var(--danger);font-weight:700">❌ OUT</span>' :
+      isLow ? '<span class="stock-low">⚠️ LOW</span>' : '<span class="stock-ok">✅ OK</span>';
+    var value = Math.round(item.qty * item.avgRate);
+    return `<tr class="${isOut?'stock-critical':''}">
+      <td><strong>${item.name}</strong></td>
+      <td style="font-family:monospace;font-size:.75rem;color:var(--text-muted)">${item.sku}</td>
+      <td><span class="category-pill" style="background:${catColors[item.category]||'rgba(100,116,139,.1)'};color:${catTextColors[item.category]||'var(--text-secondary)'}">${item.category}</span></td>
+      <td style="font-size:.75rem">${item.hsn||'—'}</td>
+      <td style="font-size:.75rem">${item.unit}</td>
+      <td><strong>${item.qty.toFixed(2)}</strong></td>
+      <td>₹${fmtN(item.avgRate)}</td>
+      <td><strong style="color:var(--primary)">₹${fmtN(value)}</strong></td>
+      <td style="color:var(--text-muted);font-size:.75rem">${item.reorderQty} ${item.unit}</td>
+      <td>${statusEl}</td>
+      <td><button style="background:rgba(239,68,68,.1);color:var(--danger);border:none;border-radius:4px;cursor:pointer;font-size:.72rem;padding:.2rem .4rem" onclick="deleteItem(${item.id})">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderMovements() {
+  var container = document.getElementById('movementList');
+  if (!movements.length) { container.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted)">No movements recorded</div>'; return; }
+  container.innerHTML = movements.slice(0,10).map(m => `<div class="movement-row">
+    <div>
+      <strong>${m.itemName}</strong>
+      <div style="font-size:.72rem;color:var(--text-muted)">${m.date} · ${m.narration}</div>
+    </div>
+    <div style="text-align:right">
+      <span class="${m.type==='IN'?'in-badge':'out-badge'}">${m.type==='IN'?'📥':'📤'} ${m.qty}</span>
+      <div style="font-size:.72rem;color:var(--text-muted)">Bal: ${m.balance}</div>
+    </div>
+  </div>`).join('');
+}
+
+function updateStats() {
+  var totalValue = items.reduce((s,i) => s+(i.qty*i.avgRate), 0);
+  var lowCount = items.filter(i => i.qty > 0 && i.qty <= i.reorderQty).length;
+  var outCount = items.filter(i => i.qty <= 0).length;
+  document.getElementById('statItems').textContent = items.length;
+  document.getElementById('statValue').textContent = '₹'+fmtN(totalValue);
+  document.getElementById('statLow').textContent = lowCount;
+  document.getElementById('statOut').textContent = outCount;
+}
+
+function deleteItem(id) {
+  items = items.filter(i => i.id !== id);
+  save(); updateMovItem(); renderStock(); updateStats();
+  showToast('Item removed', 'info');
+}
+
+function exportCSV() {
+  var csv = 'Item,SKU,Category,HSN,Unit,Qty,Avg Rate,Value,Reorder\n';
+  items.forEach(i => { csv += `"${i.name}",${i.sku},"${i.category}",${i.hsn},${i.unit},${i.qty},${i.avgRate},${Math.round(i.qty*i.avgRate)},${i.reorderQty}\n`; });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'inventory_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('✅ Exported!', 'success');
+}
+
+function loadSampleInventory() {
+  items = [
+    {id:1,name:'Office Paper A4 (Box)',sku:'SKU-001',category:'Consumables',unit:'Box',hsn:'4802',gst:12,qty:15,avgRate:450,reorderQty:5,createdAt:'2025-04-01T00:00:00Z'},
+    {id:2,name:'Printer Ink Cartridge',sku:'SKU-002',category:'Consumables',unit:'Nos',hsn:'8443',gst:18,qty:3,avgRate:850,reorderQty:2,createdAt:'2025-04-01T00:00:00Z'},
+    {id:3,name:'Computer (Core i5)',sku:'SKU-003',category:'Finished Goods',unit:'Nos',hsn:'8471',gst:18,qty:8,avgRate:45000,reorderQty:2,createdAt:'2025-04-01T00:00:00Z'},
+    {id:4,name:'Steel Rack',sku:'SKU-004',category:'Trading Goods',unit:'Nos',hsn:'9403',gst:18,qty:0,avgRate:12000,reorderQty:3,createdAt:'2025-04-01T00:00:00Z'},
+    {id:5,name:'Packaging Box (Large)',sku:'SKU-005',category:'Packing Material',unit:'Nos',hsn:'4819',gst:12,qty:50,avgRate:35,reorderQty:100,createdAt:'2025-04-01T00:00:00Z'},
+  ];
+  movements = [
+    {id:1,itemId:1,itemName:'Office Paper A4 (Box)',type:'IN',qty:20,rate:450,narration:'Purchase from ABC Stationery',date:'2025-07-01',balance:20},
+    {id:2,itemId:1,itemName:'Office Paper A4 (Box)',type:'OUT',qty:5,rate:450,narration:'Used in office',date:'2025-07-15',balance:15},
+    {id:3,itemId:3,itemName:'Computer (Core i5)',type:'IN',qty:10,rate:45000,narration:'Purchase from vendor',date:'2025-06-01',balance:10},
+    {id:4,itemId:3,itemName:'Computer (Core i5)',type:'OUT',qty:2,rate:45000,narration:'Sold to XYZ Corp',date:'2025-07-20',balance:8},
+  ];
+  save();
+  updateMovItem();
+  renderStock();
+  renderMovements();
+  updateStats();
+  showToast('✅ Sample inventory loaded!', 'success');
+}
+
+function fmtN(n) { return Math.round(n).toLocaleString('en-IN'); }
+
+window.addEventListener('DOMContentLoaded', function() {
+  load();
+  updateMovItem();
+  renderStock();
+  renderMovements();
+  updateStats();
+});
+</script>
+</body>
+</html>

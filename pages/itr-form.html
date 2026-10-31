@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ITR Preparation Wizard (ITR-1 to ITR-7) – TaxMitra</title>
+  <meta name="description" content="Free ITR preparation wizard for FY 2024-25 to 2026-27: schedule-wise income entry, old vs new regime comparison, section 87A rebate, advance tax schedule and an ITR-1 to ITR-7 form recommendation."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .step-nav { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 1.25rem 0; }
+    .step-nav button { display: flex; align-items: center; gap: 0.45rem; border: 1px solid var(--border); background: var(--bg-card); padding: 0.5rem 0.8rem; border-radius: var(--radius-full); font-family: inherit; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+    .step-nav button span { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg-secondary); font-size: 0.7rem; }
+    .step-nav button.active { border-color: var(--primary); color: var(--primary); background: rgba(30,64,175,0.06); }
+    .step-nav button.active span { background: var(--primary); color: #fff; }
+    .step-nav button.done span { background: var(--success); color: #fff; }
+    .step-nav button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .wizard-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .wizard-card h2 { font-size: 1.15rem; font-weight: 800; margin-bottom: 0.35rem; }
+    .wizard-card > p.lead { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem; }
+    .wizard-actions { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; margin-top: 1rem; }
+    .wizard-actions .spacer { flex: 1; }
+    .alert { padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.85rem; margin-bottom: 1rem; border: 1px solid; }
+    .alert.warn { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); color: #92400e; }
+    .alert.bad { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); color: #991b1b; }
+    .alert.info { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.35); color: #155e75; }
+    .alert ul { margin: 0.4rem 0 0 1.1rem; }
+    .tm-table { width: 100%; border-collapse: collapse; }
+    .tm-table th, .tm-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; text-align: left; }
+    .tm-table th { background: var(--bg-secondary); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .tm-table td.num, .tm-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tm-table .strong-row td { font-weight: 800; background: rgba(30,64,175,0.05); }
+    .tm-table input { width: 100%; padding: 0.4rem 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.82rem; background: var(--bg-card); color: var(--text-primary); }
+    .rec-card { border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: var(--radius-sm); padding: 1rem 1.15rem; background: var(--bg-secondary); margin-bottom: 1rem; font-size: 0.85rem; }
+    .rec-card strong { display: block; font-size: 0.95rem; margin-bottom: 0.35rem; }
+    .rec-card ul { margin: 0.5rem 0 0 1.1rem; color: var(--text-secondary); }
+    .rec-card p { color: var(--text-secondary); }
+    .muted-note { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; }
+    .field-hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; display: block; }
+    .field-hint.ok { color: #047857; } .field-hint.bad { color: #b91c1c; }
+    .regime-pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1rem 0; }
+    .regime-pick button { text-align: left; border: 2px solid var(--border); background: var(--bg-card); border-radius: var(--radius); padding: 1rem; font-family: inherit; cursor: pointer; }
+    .regime-pick button.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,64,175,0.12); }
+    .regime-pick h4 { font-size: 0.9rem; font-weight: 800; margin-bottom: 0.3rem; }
+    .regime-pick p { font-size: 0.78rem; color: var(--text-secondary); }
+    .review-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+    .review-grid .card-block { margin: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+    .review-grid .card-block h3 { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .form-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+    .form-list article { border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; background: var(--bg-card); }
+    .form-list h4 { font-size: 0.9rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .form-list span { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--primary); font-weight: 700; }
+    .form-list p { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.4rem; }
+    .disclaimer { font-size: 0.78rem; color: var(--text-muted); border-left: 3px solid var(--secondary); padding: 0.6rem 0.9rem; background: rgba(245,158,11,0.06); border-radius: var(--radius-sm); margin-bottom: 1.5rem; }
+    @media print {
+      body > *:not(.container) { display: none !important; }
+      nav, .step-nav, .wizard-actions, .disclaimer, .form-list, .print-hide { display: none !important; }
+      .wizard-card { border: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle">🌙</button>
+        <a href="billing.html" class="btn-nav-login">GST Billing</a>
+        <a href="../index.html" class="btn-nav-ai"><i class="fa fa-home"></i> Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>ITR Wizard</span></div>
+      <h1>📋 ITR Preparation Wizard</h1>
+      <p>Schedule-wise income entry, old vs new regime comparison and an ITR-1 to ITR-7 recommendation — free, unlimited, in your browser.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="appError" class="alert bad" style="display:none"></div>
+
+    <div class="disclaimer">
+      <strong>Not a filing portal.</strong> This wizard prepares the computation and an editable working paper only. It does not submit a return,
+      does not prefill from the Income Tax portal, and does not replace Form 16, AIS or 26AS. Always reconcile your figures with those documents
+      (or your CA) before filing on incometax.gov.in.
+    </div>
+
+    <div id="draftNotice" class="alert info" hidden>Your previously saved draft was restored. <button type="button" id="resetDraft" class="btn-nav-login" style="font-size:0.75rem">Clear draft</button></div>
+
+    <div class="step-nav" id="stepNav" role="tablist" aria-label="Wizard steps"></div>
+    <p style="font-size:0.78rem;color:var(--text-muted)" id="stepLabel">Step 1 of 7</p>
+
+    <div id="stepErrors" class="alert bad" hidden style="margin-top:1rem"></div>
+
+    <!-- ============ STEP 1 : PROFILE ============ -->
+    <section id="step1" class="wizard-card">
+      <h2>Step 1 · Taxpayer profile</h2>
+      <p class="lead">These facts decide which ITR form you can file and which slab table applies.</p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="fy">Financial year</label>
+          <select id="fy" data-bind="profile.fy">
+            <option value="2024-25">2024-25 (AY 2025-26)</option>
+            <option value="2025-26">2025-26 (AY 2026-27)</option>
+            <option value="2026-27">2026-27 (AY 2027-28)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="entityType">Entity type</label>
+          <select id="entityType" data-bind="profile.entityType">
+            <option value="individual">Individual</option>
+            <option value="huf">HUF</option>
+            <option value="firm">Firm</option>
+            <option value="llp">LLP</option>
+            <option value="aop">AOP / BOI</option>
+            <option value="company">Company</option>
+            <option value="trust">Trust / NGO</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="name">Name (as on PAN)</label>
+          <input type="text" id="name" data-bind="profile.name" placeholder="Asha Ramesh Kulkarni" autocomplete="name"/>
+        </div>
+        <div class="form-group">
+          <label for="pan">PAN</label>
+          <input type="text" id="pan" data-bind="profile.pan" data-upper="true" maxlength="10" placeholder="ABCDE1234F" style="text-transform:uppercase"/>
+          <span class="field-hint" id="panHint">PAN format: ABCDE1234F</span>
+        </div>
+        <div class="form-group">
+          <label for="age">Age during the financial year</label>
+          <input type="number" id="age" data-bind="profile.age" min="0" max="120"/>
+        </div>
+        <div class="form-group">
+          <label for="resStatus">Residential status</label>
+          <select id="resStatus" data-bind="profile.residentialStatus">
+            <option value="resident">Resident</option>
+            <option value="nonResident">Non-resident</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="houseProperties">Number of house properties</label>
+          <input type="number" id="houseProperties" data-bind="profile.houseProperties" min="0" max="10"/>
+        </div>
+        <div class="form-group">
+          <label for="agriIncome">Agricultural income (₹)</label>
+          <input type="number" id="agriIncome" min="0" value="0"/>
+        </div>
+      </div>
+
+      <h3 style="font-size:0.9rem;font-weight:800;margin:1.5rem 0 0.75rem">Applies to you</h3>
+      <div class="form-grid">
+        <div class="form-group"><label><input type="checkbox" data-bind="profile.hasBusinessIncome" style="width:auto"/> Business / profession income</label></div>
+        <div class="form-group"><label><input type="checkbox" data-bind="profile.presumptive" style="width:auto"/> Presumptive taxation (44AD/44ADA/44AE)</label></div>
+        <div class="form-group"><label><input type="checkbox" data-bind="profile.hasCapitalGains" style="width:auto"/> Capital gains</label></div>
+        <div class="form-group"><label><input type="checkbox" data-bind="profile.foreignAssets" style="width:auto"/> Foreign assets / foreign income</label></div>
+        <div class="form-group"><label><input type="checkbox" data-bind="profile.directorInCompany" style="width:auto"/> Director in a company</label></div>
+        <div class="form-group"><label><input type="checkbox" data-bind="profile.unlistedShares" style="width:auto"/> Holds unlisted equity shares</label></div>
+        <div class="form-group"><label><input type="checkbox" data-bind="profile.highValueTransaction" style="width:auto"/> High-value transaction (₹1 crore deposits, ₹2 lakh foreign travel, etc.)</label></div>
+      </div>
+
+      <div id="formRecommendation" style="margin-top:1.25rem"></div>
+      <div class="wizard-actions"><span class="spacer"></span><button class="btn-primary-solid" data-next>Continue →</button></div>
+    </section>
+
+    <!-- ============ STEP 2 : INCOME ============ -->
+    <section id="step2" class="wizard-card" hidden>
+      <h2>Step 2 · Income from salary, house property and business</h2>
+      <p class="lead">Enter gross figures. Exemptions and standard deduction are applied automatically for the regime you choose later.</p>
+
+      <h3 style="font-size:0.9rem;font-weight:800;margin-bottom:0.75rem">Salary / pension</h3>
+      <div class="form-grid">
+        <div class="form-group"><label for="grossSalary">Gross salary (₹)</label><input type="number" id="grossSalary" data-bind="income.grossSalary" min="0"/></div>
+        <div class="form-group"><label for="basicDa">Basic + DA (₹)</label><input type="number" id="basicDa" data-bind="income.basicDa" min="0"/><span class="field-hint">Used for HRA and the 14% NPS cap</span></div>
+        <div class="form-group"><label for="hraReceived">HRA received (₹)</label><input type="number" id="hraReceived" data-bind="income.hraReceived" min="0"/></div>
+        <div class="form-group"><label for="rentPaid">Rent actually paid (₹)</label><input type="number" id="rentPaid" data-bind="income.rentPaid" min="0"/></div>
+        <div class="form-group"><label><input type="checkbox" data-bind="income.metro" style="width:auto"/> Metro city (Delhi, Mumbai, Kolkata, Chennai)</label></div>
+        <div class="form-group"><label for="otherSalaryExemptions">Other exemptions, e.g. LTA (₹)</label><input type="number" id="otherSalaryExemptions" data-bind="income.otherSalaryExemptions" min="0"/></div>
+      </div>
+
+      <h3 style="font-size:0.9rem;font-weight:800;margin:1.5rem 0 0.75rem">House property</h3>
+      <div class="form-grid">
+        <div class="form-group"><label for="selfOccupiedInterest">Interest on self-occupied house (₹)</label><input type="number" id="selfOccupiedInterest" data-bind="income.selfOccupiedInterest" min="0"/><span class="field-hint">Section 24(b), capped at ₹2,00,000</span></div>
+      </div>
+      <table class="tm-table" style="margin-top:0.75rem">
+        <thead><tr><th>Annual rent</th><th>Municipal taxes</th><th>Home loan interest</th><th></th></tr></thead>
+        <tbody id="letOutRows"></tbody>
+      </table>
+      <button type="button" class="btn-secondary-solid" id="addLetOut" style="font-size:0.78rem;margin-top:0.6rem">+ Add let-out property</button>
+
+      <h3 style="font-size:0.9rem;font-weight:800;margin:1.5rem 0 0.75rem">Business and other income</h3>
+      <div class="form-grid">
+        <div class="form-group"><label for="businessIncome">Net business / profession income (₹)</label><input type="number" id="businessIncome" data-bind="income.businessIncome"/></div>
+        <div class="form-group"><label for="otherIncome">Other income – interest etc. (₹)</label><input type="number" id="otherIncome" data-bind="income.otherIncome" min="0"/></div>
+      </div>
+      <div class="wizard-actions"><button class="btn-secondary-solid" data-prev>← Back</button><span class="spacer"></span><button class="btn-primary-solid" data-next>Continue →</button></div>
+    </section>
+
+    <!-- ============ STEP 3 : CAPITAL GAINS ============ -->
+    <section id="step3" class="wizard-card" hidden>
+      <h2>Step 3 · Capital gains and special-rate income</h2>
+      <p class="lead">These are taxed at special rates and do not get the section 87A rebate or Chapter VI-A deductions.</p>
+      <div class="form-grid">
+        <div class="form-group"><label for="stcg111a">STCG on listed equity / equity MF (₹)</label><input type="number" id="stcg111a" data-bind="gains.stcg111a" min="0"/><span class="field-hint">Section 111A @ 20%</span></div>
+        <div class="form-group"><label for="ltcg112a">LTCG on listed equity / equity MF (₹)</label><input type="number" id="ltcg112a" data-bind="gains.ltcg112a" min="0"/><span class="field-hint">Section 112A @ 12.5% with ₹1,25,000 exempt</span></div>
+        <div class="form-group"><label for="ltcg112">Other LTCG, e.g. property (₹)</label><input type="number" id="ltcg112" data-bind="gains.ltcg112" min="0"/><span class="field-hint">Section 112 @ 12.5%</span></div>
+        <div class="form-group"><label for="lottery">Lottery / game show winnings (₹)</label><input type="number" id="lottery" data-bind="gains.lottery" min="0"/><span class="field-hint">Section 115BB @ 30%</span></div>
+      </div>
+      <div class="alert info" style="margin-top:1rem">Capital gains entered here are gross amounts. Enter the gain after any indexation or exemption you are eligible for, and verify the case-specific rate with the Act before filing.</div>
+      <div class="wizard-actions"><button class="btn-secondary-solid" data-prev>← Back</button><span class="spacer"></span><button class="btn-primary-solid" data-next>Continue →</button></div>
+    </section>
+
+    <!-- ============ STEP 4 : DEDUCTIONS ============ -->
+    <section id="step4" class="wizard-card" hidden>
+      <h2>Step 4 · Deductions and exemptions</h2>
+      <p class="lead">Chapter VI-A deductions apply only in the old regime. Enter eligible amounts, not amounts invested.</p>
+      <div class="form-grid">
+        <div class="form-group"><label for="c80c">80C – PF, PPF, ELSS, LIC, principal (₹)</label><input type="number" id="c80c" data-bind="deductions.c80c" min="0"/><span class="field-hint">Cap ₹1,50,000</span></div>
+        <div class="form-group"><label for="c80ccd1b">80CCD(1B) – extra NPS (₹)</label><input type="number" id="c80ccd1b" data-bind="deductions.c80ccd1b" min="0"/><span class="field-hint">Cap ₹50,000</span></div>
+        <div class="form-group"><label for="c80d">80D – health insurance (₹)</label><input type="number" id="c80d" data-bind="deductions.c80d" min="0"/><span class="field-hint">₹25,000 self + ₹50,000 parents, subject to limits</span></div>
+        <div class="form-group"><label for="c80e">80E – education loan interest (₹)</label><input type="number" id="c80e" data-bind="deductions.c80e" min="0"/><span class="field-hint">No cap, 8 years</span></div>
+        <div class="form-group"><label for="c80g">80G – donations, eligible amount (₹)</label><input type="number" id="c80g" data-bind="deductions.c80g" min="0"/></div>
+        <div class="form-group"><label for="c80tta">80TTA – savings interest (₹)</label><input type="number" id="c80tta" data-bind="deductions.c80tta" min="0"/><span class="field-hint">Cap ₹10,000, below 60</span></div>
+        <div class="form-group"><label for="c80ttb">80TTB – interest, senior citizen (₹)</label><input type="number" id="c80ttb" data-bind="deductions.c80ttb" min="0"/><span class="field-hint">Cap ₹50,000, age 60+</span></div>
+        <div class="form-group"><label for="c80u">80U / 80DD – disability (₹)</label><input type="number" id="c80u" data-bind="deductions.c80u" min="0"/><span class="field-hint">₹75,000 or ₹1,25,000</span></div>
+        <div class="form-group"><label for="otherDed">Other eligible deductions (₹)</label><input type="number" id="otherDed" data-bind="deductions.other" min="0"/></div>
+        <div class="form-group"><label for="employerNps">80CCD(2) – employer NPS (₹)</label><input type="number" id="employerNps" data-bind="deductions.employerNps" min="0"/><span class="field-hint">Allowed in BOTH regimes, cap 14% of Basic + DA</span></div>
+        <div class="form-group"><label for="familyPension">Family pension deduction (₹)</label><input type="number" id="familyPension" data-bind="deductions.familyPension" min="0"/><span class="field-hint">Cap ₹25,000 in the new regime</span></div>
+      </div>
+      <div class="wizard-actions"><button class="btn-secondary-solid" data-prev>← Back</button><span class="spacer"></span><button class="btn-primary-solid" data-next>Continue →</button></div>
+    </section>
+
+    <!-- ============ STEP 5 : REGIME ============ -->
+    <section id="step5" class="wizard-card" hidden>
+      <h2>Step 5 · Old regime vs new regime</h2>
+      <p class="lead">Both regimes are computed with the same figures. The new regime is the default; the old regime needs an opt-out.</p>
+      <div id="comparisonSummary" class="alert warn"></div>
+      <div class="regime-pick">
+        <button type="button" id="chooseNew" class="selected"><h4>New regime (115BAC)</h4><p>Lower slabs, ₹75,000 standard deduction, ₹60,000 rebate up to ₹12 lakh. No 80C/80D/HRA.</p></button>
+        <button type="button" id="chooseOld"><h4>Old regime</h4><p>All Chapter VI-A deductions and HRA, but the ₹12.5 lakh rebate does not apply.</p></button>
+      </div>
+      <div id="comparisonBody"></div>
+      <h3 style="font-size:0.9rem;font-weight:800;margin:1.5rem 0 0.75rem">Slab breakdown of the regime you picked</h3>
+      <div id="slabBreakdown"></div>
+      <h3 style="font-size:0.9rem;font-weight:800;margin:1.5rem 0 0.75rem">Special-rate income</h3>
+      <div id="specialBreakdown"></div>
+      <div class="wizard-actions"><button class="btn-secondary-solid" data-prev>← Back</button><span class="spacer"></span><button class="btn-primary-solid" data-next>Continue →</button></div>
+    </section>
+
+    <!-- ============ STEP 6 : TAXES PAID ============ -->
+    <section id="step6" class="wizard-card" hidden>
+      <h2>Step 6 · Taxes already paid</h2>
+      <p class="lead">Check TDS against Form 26AS / AIS before entering it here.</p>
+      <div class="form-grid">
+        <div class="form-group"><label for="tdsPaid">TDS / TCS credit (₹)</label><input type="number" id="tdsPaid" data-bind="taxes.tdsPaid" min="0"/></div>
+        <div class="form-group"><label for="advanceTaxPaid">Advance / self-assessment tax paid (₹)</label><input type="number" id="advanceTaxPaid" data-bind="taxes.advanceTaxPaid" min="0"/></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:1.25rem 0">
+        <div><span style="font-size:0.72rem;text-transform:uppercase;color:var(--text-muted);font-weight:700">Computed liability</span><div style="font-size:1.3rem;font-weight:800" id="taxesTotal">₹0</div></div>
+        <div><span style="font-size:0.72rem;text-transform:uppercase;color:var(--text-muted);font-weight:700">Taxes paid</span><div style="font-size:1.3rem;font-weight:800" id="taxesPaidTotal">₹0</div></div>
+        <div><span style="font-size:0.72rem;text-transform:uppercase;color:var(--text-muted);font-weight:700">Balance / refund</span><div style="font-size:1.3rem;font-weight:800" id="taxesBalance">₹0</div></div>
+      </div>
+      <h3 style="font-size:0.9rem;font-weight:800;margin:1rem 0 0.75rem">Advance tax instalments for this year</h3>
+      <div id="advanceTaxBody"></div>
+      <div class="wizard-actions"><button class="btn-secondary-solid" data-prev>← Back</button><span class="spacer"></span><button class="btn-primary-solid" data-next>Continue →</button></div>
+    </section>
+
+    <!-- ============ STEP 7 : REVIEW ============ -->
+    <section id="step7" class="wizard-card" hidden>
+      <h2>Step 7 · Review, recommendation and export</h2>
+      <p class="lead">File <strong id="reviewForm">—</strong> <span id="reviewFormName"></span>. Download the working paper and use it while filling the utility.</p>
+      <div id="reviewWarnings"></div>
+      <div id="reviewBody"></div>
+      <div class="wizard-actions print-hide">
+        <button class="btn-secondary-solid" data-prev>← Back</button>
+        <button class="btn-secondary-solid" id="printComputation">🖨 Print computation</button>
+        <button class="btn-secondary-solid" id="exportBtn">⬇ Download working paper (JSON)</button>
+        <span class="spacer"></span>
+        <button class="btn-primary-solid" id="finishBtn">Download &amp; finish</button>
+      </div>
+    </section>
+
+    <h2 style="font-size:1.1rem;font-weight:800;margin:2rem 0 1rem">Which ITR form applies?</h2>
+    <div class="form-list" id="formList"></div>
+
+    <p class="muted-note" style="margin:1.5rem 0 2rem">TaxMitra is not affiliated with the Income Tax Department. Slab and rebate figures follow the Finance Acts for FY 2024-25 to 2026-27; verify against the notified utility for your assessment year.</p>
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/income-tax.js"></script>
+  <script src="../js/tm-store.js"></script>
+  <script src="../js/itr-form.js"></script>
+  <script>
+    // Render the static ITR-1..7 reference cards from the engine metadata.
+    document.addEventListener('DOMContentLoaded', function () {
+      var host = document.getElementById('formList');
+      if (!host || !window.TMIT) return;
+      host.innerHTML = Object.keys(window.TMIT.ITR_FORMS).map(function (key) {
+        var meta = window.TMIT.ITR_FORMS[key];
+        return '<article><span>' + key + '</span><h4>' + meta.name + '</h4><p>' + meta.who + '</p></article>';
+      }).join('');
+    });
+  </script>
+</body>
+</html>

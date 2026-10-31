@@ -1,20 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="description" content="Business accounting software — Invoice generator, P&L statement, General ledger, Bank reconciliation, Expense tracker. Free for India AY 2026-27."/>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Business Accounting – TaxMitra AI Enterprise</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css">
 </head>
 <body>
-  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
-    <div class="nav-container">
-      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
-      <div style="flex:1"></div>
-      <div class="nav-right"><button class="nav-icon-btn" id="themeToggle">🌙</button><a href="../index.html" class="btn-nav-login">← Home</a></div>
+  <nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
     </div>
-  </nav>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
 
   <div class="page-hero">
     <div class="container">
@@ -76,7 +97,7 @@
           </div>
         </div>
         <div style="margin-top:0.5rem" class="form-group"><label>Notes / Payment Instructions</label><textarea rows="2" style="resize:none">Thank you for your business! Please pay via bank transfer or UPI.</textarea></div>
-        <div class="form-actions"><button class="btn-primary-solid" onclick="alert('Invoice generated! PDF downloading...')">🖨️ Generate PDF</button><button class="btn-secondary-solid" onclick="alert('Invoice sent via email!')">📧 Email Invoice</button></div>
+        <div class="form-actions"><button class="btn-primary-solid" onclick="realBizInvoicePDF()">🖨️ Generate PDF</button><button class="btn-secondary-solid" onclick="showToast('Email: Configure EmailJS in firebase-config.js','warning')">📧 Email Invoice</button></div>
       </div>
     </div>
 
@@ -138,7 +159,7 @@
           <div><strong style="font-size:1rem">Net Profit / (Loss)</strong><br><small style="color:var(--text-muted)" id="profitMarginLabel">Profit Margin: 50%</small></div>
           <strong style="font-size:1.75rem;color:var(--primary)" id="netProfit">₹3,25,000</strong>
         </div>
-        <div class="form-actions" style="margin-top:1rem"><button class="btn-primary-solid" onclick="alert('P&L PDF generated!')">📄 Export P&L Report</button><button class="btn-secondary-solid" onclick="alert('Excel downloaded!')">📊 Excel Export</button></div>
+        <div class="form-actions" style="margin-top:1rem"><button class="btn-primary-solid" onclick="realPnLPDF()">📄 Export P&L Report</button><button class="btn-secondary-solid" onclick="realExportCSV()">📊 Excel Export</button></div>
       </div>
     </div>
 
@@ -159,7 +180,7 @@
             </tbody>
           </table>
         </div>
-        <div class="form-actions" style="margin-top:1rem"><button class="btn-primary-solid" onclick="alert('Ledger PDF exported!')">📄 Export Ledger</button></div>
+        <div class="form-actions" style="margin-top:1rem"><button class="btn-primary-solid" onclick="realLedgerPDF()">📄 Export Ledger</button></div>
       </div>
     </div>
 
@@ -190,8 +211,13 @@
     </div>
   </div>
 
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="../js/taxmitra.js"></script>
-  <script>
+  <script src="../js/ai-real.js"></script>
+<script src="../js/pdf-real.js"></script>
+<script>
     function switchTab(id, btn) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -255,6 +281,153 @@
         <div class="result-item"><span>Difference</span><strong style="color:${Math.abs(diff)<1?'var(--success)':'var(--danger)'}">₹${Math.abs(Math.round(diff)).toLocaleString('en-IN')} – ${Math.abs(diff)<1?'RECONCILED ✅':'⚠️ Discrepancy Found'}</strong></div>
       `;
     }
+
+    function realBizInvoicePDF() {
+      if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+      const from = document.getElementById('bizFrom')?.value || 'My Business';
+      const to = document.getElementById('bizTo')?.value || 'Client';
+      const invNo = document.getElementById('bizInvNo')?.value || 'INV-001';
+      const date = document.getElementById('bizDate')?.value || new Date().toISOString().split('T')[0];
+      const q1 = parseFloat(document.getElementById('bQty1')?.value)||0;
+      const r1 = parseFloat(document.getElementById('bRate1')?.value)||0;
+      const q2 = parseFloat(document.getElementById('bQty2')?.value)||0;
+      const r2 = parseFloat(document.getElementById('bRate2')?.value)||0;
+      const a1 = q1*r1, a2 = q2*r2;
+      const disc = parseFloat(document.getElementById('bizDiscount')?.value)||0;
+      const sub = a1 + a2;
+      const total = Math.round(sub*(1-disc/100));
+      doc.setFillColor(30,64,175); doc.rect(0,0,210,30,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(18); doc.setFont('helvetica','bold');
+      doc.text('INVOICE', 105, 14, {align:'center'});
+      doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text('Generated by TaxMitra AI Enterprise | Abhishek Agrahari', 105, 22, {align:'center'});
+      doc.setTextColor(30,30,30);
+      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.text(from, 14, 40);
+      doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.text('Bill To:', 130, 38);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.text(to, 130, 44);
+      doc.setFontSize(8); doc.text('Invoice No: '+invNo, 14, 50); doc.text('Date: '+date, 14, 55);
+      const rows = [];
+      if (a1>0) rows.push(['Web Dev Services', q1, '₹'+r1.toLocaleString('en-IN'), '₹'+Math.round(a1).toLocaleString('en-IN')]);
+      if (a2>0) rows.push(['Monthly Maintenance', q2, '₹'+r2.toLocaleString('en-IN'), '₹'+Math.round(a2).toLocaleString('en-IN')]);
+      if (disc>0) rows.push(['Discount ('+disc+'%)', '', '', '(₹'+Math.round(sub*disc/100).toLocaleString('en-IN')+')']);
+      rows.push([{content:'TOTAL', styles:{fontStyle:'bold'}}, '', '', {content:'₹'+total.toLocaleString('en-IN'), styles:{fontStyle:'bold'}}]);
+      doc.autoTable({startY:62, head:[['Description','Qty','Rate','Amount']], body:rows,
+        headStyles:{fillColor:[30,64,175],textColor:255,fontSize:8}, styles:{fontSize:8}});
+      doc.setFontSize(7); doc.setTextColor(150);
+      doc.text('TaxMitra AI Enterprise | Developed by Abhishek Agrahari', 105, 285, {align:'center'});
+      doc.save('Invoice_'+invNo+'.pdf');
+      showToast('Invoice PDF downloaded!','success');
+    }
+
+    function realPnLPDF() {
+      if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const p1 = parseFloat(document.getElementById('p1')?.value)||0;
+      const p2 = parseFloat(document.getElementById('p2')?.value)||0;
+      const e1 = parseFloat(document.getElementById('e1')?.value)||0;
+      const e2 = parseFloat(document.getElementById('e2')?.value)||0;
+      const e3 = parseFloat(document.getElementById('e3')?.value)||0;
+      const inc = p1+p2, exp = e1+e2+e3, profit = inc-exp;
+      const margin = inc>0?((profit/inc)*100).toFixed(1):0;
+      doc.setFillColor(30,64,175); doc.rect(0,0,210,28,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+      doc.text('PROFIT & LOSS STATEMENT', 105, 12, {align:'center'});
+      doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text('TaxMitra AI Enterprise | '+new Date().toLocaleDateString('en-IN'), 105, 22, {align:'center'});
+      doc.setTextColor(30,30,30);
+      doc.autoTable({startY:36, head:[['Particulars','Amount (₹)']],
+        body:[
+          ['INCOME',''],
+          ['Product Sales', '₹'+p1.toLocaleString('en-IN')],
+          ['Service Revenue', '₹'+p2.toLocaleString('en-IN')],
+          [{content:'Total Income',styles:{fontStyle:'bold'}}, {content:'₹'+Math.round(inc).toLocaleString('en-IN'),styles:{fontStyle:'bold'}}],
+          ['EXPENSES',''],
+          ['Salaries & Wages', '₹'+e1.toLocaleString('en-IN')],
+          ['Rent & Utilities', '₹'+e2.toLocaleString('en-IN')],
+          ['Marketing & Other', '₹'+e3.toLocaleString('en-IN')],
+          [{content:'Total Expenses',styles:{fontStyle:'bold'}}, {content:'₹'+Math.round(exp).toLocaleString('en-IN'),styles:{fontStyle:'bold'}}],
+          [{content:(profit>=0?'NET PROFIT':'NET LOSS'),styles:{fontStyle:'bold',fillColor:profit>=0?[209,250,229]:[254,226,226]}},
+           {content:'₹'+Math.round(Math.abs(profit)).toLocaleString('en-IN')+' ('+margin+'%)',styles:{fontStyle:'bold',fillColor:profit>=0?[209,250,229]:[254,226,226]}}],
+        ], headStyles:{fillColor:[30,64,175],textColor:255,fontSize:9}, styles:{fontSize:9}});
+      doc.save('PnL_Statement_TaxMitra.pdf');
+      showToast('P&L PDF downloaded!','success');
+    }
+
+    function realLedgerPDF() {
+      if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFillColor(30,64,175); doc.rect(0,0,210,28,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+      doc.text('GENERAL LEDGER', 105, 12, {align:'center'});
+      doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text('TaxMitra AI Enterprise | Abhishek Agrahari | '+new Date().toLocaleDateString('en-IN'), 105, 22, {align:'center'});
+      doc.setTextColor(30,30,30);
+      // Collect expenses from table
+      const rows = [];
+      const tbody = document.getElementById('expTableBody');
+      if (tbody) {
+        const trs = tbody.querySelectorAll('tr');
+        trs.forEach(tr => {
+          const tds = tr.querySelectorAll('td');
+          if (tds.length >= 4) rows.push([tds[0].textContent, tds[1].textContent, tds[2].textContent, tds[3].textContent]);
+        });
+      }
+      if (!rows.length) {
+        rows.push(['05 Jul 2026','Office Rent','Monthly rent','₹25,000']);
+        rows.push(['10 Jul 2026','Software/Tools','CRM subscription','₹5,900']);
+        rows.push(['15 Jul 2026','Marketing','Google Ads','₹12,000']);
+      }
+      doc.autoTable({startY:36, head:[['Date','Category','Description','Amount']],
+        body: rows, headStyles:{fillColor:[30,64,175],textColor:255,fontSize:9}, styles:{fontSize:9}});
+      const total = rows.reduce((s,r)=>s+parseFloat(r[3].replace(/[₹,]/g,''))||0, 0);
+      const finalY = doc.lastAutoTable.finalY+5;
+      doc.setFontSize(10); doc.setFont('helvetica','bold');
+      doc.text('Total Expenses: ₹'+total.toLocaleString('en-IN'), 150, finalY, {align:'right'});
+      doc.save('Ledger_TaxMitra.pdf');
+      showToast('Ledger PDF downloaded!','success');
+    }
+
+    function realExportCSV() {
+      const p1 = parseFloat(document.getElementById('p1')?.value)||0;
+      const p2 = parseFloat(document.getElementById('p2')?.value)||0;
+      const e1 = parseFloat(document.getElementById('e1')?.value)||0;
+      const e2 = parseFloat(document.getElementById('e2')?.value)||0;
+      const e3 = parseFloat(document.getElementById('e3')?.value)||0;
+      const inc = p1+p2, exp = e1+e2+e3, profit = inc-exp;
+      const csvRows = [
+        ['TaxMitra AI Enterprise – P&L Statement'],
+        ['Generated: '+new Date().toLocaleDateString('en-IN')],
+        [],
+        ['INCOME','Amount (₹)'],
+        ['Product Sales', p1],
+        ['Service Revenue', p2],
+        ['Total Income', inc],
+        [],
+        ['EXPENSES','Amount (₹)'],
+        ['Salaries & Wages', e1],
+        ['Rent & Utilities', e2],
+        ['Marketing & Other', e3],
+        ['Total Expenses', exp],
+        [],
+        [profit>=0?'NET PROFIT':'NET LOSS', Math.abs(profit)],
+        ['Profit Margin', inc>0?((profit/inc)*100).toFixed(1)+'%':'0%'],
+      ];
+      const csv = csvRows.map(r => r.map(v => '"'+v+'"').join(',')).join('\n');
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      a.download = 'PnL_Statement_TaxMitra.csv';
+      a.click();
+      showToast('CSV downloaded! Open in Excel.','success');
+    }
   </script>
+
+<p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong></p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
 </body>
 </html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="description" content="GSTR-9 Annual Return Filing — Auto-populate from GSTR-1/3B data, reconciliation, late fee calculator. FY 2025-26 format."/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>GSTR-9 Annual Return — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>GSTR-9 Annual Return</span></div>
+    <h1>📅 GSTR-9 Annual Return</h1>
+    <p>AY 2026-27 | Budget 2025 Updated | Developed by <strong>Abhishek Agrahari</strong></p>
+  </div>
+</div>
+<div class="container" style="padding:1.5rem 0 4rem">
+
+<div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.15);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;gap:.75rem">
+  <span style="font-size:1.3rem">📅</span>
+  <div><strong style="color:var(--primary)">GSTR-9 Annual Return — Due: 31 December 2026</strong>
+  <p style="font-size:.82rem;margin:.25rem 0 0;color:var(--text-secondary)">Mandatory if Annual Turnover &gt; ₹2 Crore. Reconciliation of all GST returns for FY 2025-26.</p></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+<div class="form-card">
+  <h3 style="font-weight:800;margin-bottom:1.25rem">📊 GSTR-9 Summary Calculator</h3>
+  <div class="form-group"><label>Annual Turnover (₹)</label>
+    <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="g9Turnover" placeholder="0" oninput="calcG9()"/></div></div>
+  <div class="form-group"><label>Total Outward Supplies (B2B+B2C ₹)</label>
+    <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="g9Outward" placeholder="0" oninput="calcG9()"/></div></div>
+  <div class="form-group"><label>Total Tax Collected (₹)</label>
+    <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="g9TaxColl" placeholder="0" oninput="calcG9()"/></div></div>
+  <div class="form-group"><label>Total ITC Claimed (₹)</label>
+    <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="g9ITCClaimed" placeholder="0" oninput="calcG9()"/></div></div>
+  <div class="form-group"><label>ITC Reversed (₹)</label>
+    <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="g9ITCRev" placeholder="0" oninput="calcG9()"/></div></div>
+  <div class="form-group"><label>Tax Paid via Cash (₹)</label>
+    <div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="g9CashPaid" placeholder="0" oninput="calcG9()"/></div></div>
+  <button class="btn-primary-solid" onclick="calcG9()" style="width:100%;margin-top:.5rem"><i class="fa fa-calculator"></i> Calculate GSTR-9 Summary</button>
+</div>
+<div>
+  <div class="result-card" id="g9Result" style="display:none">
+    <div class="result-label">GSTR-9 Summary</div>
+    <div id="g9Breakdown" style="margin-top:.75rem"></div>
+  </div>
+  <div class="form-card" style="margin-top:1rem">
+    <h4 style="font-weight:800;margin-bottom:.85rem">📋 GSTR-9 Parts & Sections</h4>
+    <div style="font-size:.8rem;display:flex;flex-direction:column;gap:.4rem">
+      <div style="padding:.42rem .65rem;background:var(--bg-secondary);border-radius:6px"><strong>Part I-II:</strong> Basic details, Outward Supplies</div>
+      <div style="padding:.42rem .65rem;background:var(--bg-secondary);border-radius:6px"><strong>Part III:</strong> ITC Details (claimed, reversed, ineligible)</div>
+      <div style="padding:.42rem .65rem;background:var(--bg-secondary);border-radius:6px"><strong>Part IV:</strong> Tax paid (via ITC + cash)</div>
+      <div style="padding:.42rem .65rem;background:var(--bg-secondary);border-radius:6px"><strong>Part V:</strong> Transactions not reported in GSTR-1/3B</div>
+      <div style="padding:.42rem .65rem;background:var(--bg-secondary);border-radius:6px"><strong>Part VI:</strong> HSN Summary of outward supplies</div>
+    </div>
+    <div style="margin-top:.85rem;padding:.65rem;background:rgba(220,38,38,.06);border-radius:6px;font-size:.8rem">
+      <strong style="color:var(--danger)">Late Fee:</strong> ₹200/day (₹100 CGST + ₹100 SGST), max 0.25% of turnover
+    </div>
+  </div>
+  <div style="display:flex;gap:.65rem;margin-top:1rem">
+    <button class="btn-primary-solid" onclick="downloadG9PDF()" style="flex:1"><i class="fa fa-file-pdf"></i> PDF Summary</button>
+    <button class="btn-secondary-solid" onclick="exportG9JSON()" style="flex:1"><i class="fa fa-code"></i> JSON Export</button>
+  </div>
+</div>
+</div>
+
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+function calcG9() {
+  const turnover = parseFloat(document.getElementById('g9Turnover').value) || 0;
+  const outward = parseFloat(document.getElementById('g9Outward').value) || 0;
+  const taxColl = parseFloat(document.getElementById('g9TaxColl').value) || 0;
+  const itcClaimed = parseFloat(document.getElementById('g9ITCClaimed').value) || 0;
+  const itcRev = parseFloat(document.getElementById('g9ITCRev').value) || 0;
+  const cashPaid = parseFloat(document.getElementById('g9CashPaid').value) || 0;
+  const netITC = itcClaimed - itcRev;
+  const totalPaid = netITC + cashPaid;
+  const diff = taxColl - totalPaid;
+  const r = document.getElementById('g9Result');
+  r.style.display = 'block';
+  document.getElementById('g9Breakdown').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.82rem">
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Annual Turnover</span><strong>${fmt(turnover)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Total Outward Supplies</span><strong>${fmt(outward)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Tax Collected</span><strong>${fmt(taxColl)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Net ITC (after reversal)</span><strong style="color:var(--success)">${fmt(netITC)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.42rem .6rem;background:var(--bg-secondary);border-radius:6px"><span>Cash Paid</span><strong>${fmt(cashPaid)}</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:.55rem .6rem;background:rgba(37,99,235,.08);border-radius:6px;font-size:.9rem"><span style="font-weight:700">Difference (Tax-Paid)</span><strong style="color:${diff>0?'var(--danger)':'var(--success)'}">${diff>0?fmt(diff)+' Payable':fmt(Math.abs(diff))+' Credit'}</strong></div>
+      <div style="padding:.42rem .6rem;background:${turnover>20000000?'rgba(220,38,38,.06)':'rgba(5,150,105,.06)'};border-radius:6px;font-size:.78rem">
+        GSTR-9C Required: <strong>${turnover>50000000?'YES (>5Cr)':'NO'}</strong>
+      </div>
+    </div>`;
+  window._g9 = { turnover, outward, taxColl, netITC, cashPaid, diff };
+}
+function downloadG9PDF() {
+  if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+  if (!window._g9) { calcG9(); }
+  const r = window._g9;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFillColor(30,64,175); doc.rect(0,0,210,28,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('GSTR-9 Annual Return Summary — FY 2025-26', 105, 12, {align:'center'});
+  doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.text('TaxMitra AI Enterprise | Abhishek Agrahari', 105, 22, {align:'center'});
+  doc.setTextColor(30,30,30);
+  const rows = [
+    ['Annual Turnover', fmt(r.turnover)],
+    ['Total Outward Supplies', fmt(r.outward)],
+    ['Tax Collected', fmt(r.taxColl)],
+    ['Net ITC Available', fmt(r.netITC)],
+    ['Cash Paid', fmt(r.cashPaid)],
+    ['Balance', r.diff > 0 ? fmt(r.diff)+' Payable' : fmt(Math.abs(r.diff))+' Credit'],
+    ['Due Date', '31 December 2026'],
+  ];
+  doc.autoTable({startY:36, head:[['Particulars','Amount']], body:rows,
+    headStyles:{fillColor:[30,64,175],textColor:255,fontSize:9}, styles:{fontSize:9}});
+  doc.save('GSTR9_FY2025-26_TaxMitra.pdf');
+  showToast('GSTR-9 PDF downloaded!','success');
+}
+function exportG9JSON() {
+  if (!window._g9) { calcG9(); }
+  const json = JSON.stringify({version:'GSTR9',fy:'2025-26',...window._g9,generated:new Date().toISOString()}, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'GSTR9_FY2025-26.json';
+  a.click();
+  showToast('GSTR-9 JSON exported!','success');
+}
+document.addEventListener('DOMContentLoaded', calcG9);
+</script>
+</body>
+</html>

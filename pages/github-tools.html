@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verified Open-Source Tax &amp; Accounting Tools – TaxMitra</title>
+  <meta name="description" content="A searchable, verified directory of 25 open-source GitHub projects for Indian income tax, GST billing, accounting, payroll and document archiving — with licence and maintenance status for each."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .tool-filters { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.15rem; margin: 1.5rem 0; }
+    .tool-filters .row { display: grid; grid-template-columns: 1fr 190px 190px; gap: 0.75rem; }
+    .tool-filters input, .tool-filters select { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.85rem; background: var(--bg-card); color: var(--text-primary); }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.85rem; }
+    .chips button { border: 1px solid var(--border); background: var(--bg-card); border-radius: var(--radius-full); padding: 0.35rem 0.75rem; font-family: inherit; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+    .chips button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .repo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 1.1rem; }
+    .repo-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.15rem; display: flex; flex-direction: column; gap: 0.55rem; transition: var(--transition); }
+    .repo-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+    .repo-card header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+    .repo-card h3 { font-size: 0.95rem; font-weight: 800; word-break: break-word; }
+    .repo-card h3 a { color: var(--text-primary); text-decoration: none; }
+    .repo-card h3 a:hover { color: var(--primary); }
+    .repo-card p { font-size: 0.82rem; color: var(--text-secondary); }
+    .repo-card .why { font-size: 0.8rem; color: var(--text-primary); background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 0.55rem 0.7rem; }
+    .repo-card .caveat { font-size: 0.78rem; color: #92400e; background: rgba(245,158,11,0.1); border-radius: var(--radius-sm); padding: 0.55rem 0.7rem; }
+    .repo-meta { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; font-size: 0.72rem; }
+    .tag { border: 1px solid var(--border); border-radius: var(--radius-full); padding: 0.12rem 0.5rem; color: var(--text-secondary); font-weight: 600; }
+    .tag.lic-ok { border-color: rgba(16,185,129,0.5); color: #047857; background: rgba(16,185,129,0.08); }
+    .tag.lic-bad { border-color: rgba(239,68,68,0.5); color: #b91c1c; background: rgba(239,68,68,0.08); }
+    .tag.stars { border-color: rgba(245,158,11,0.5); color: #b45309; background: rgba(245,158,11,0.08); }
+    .repo-links { display: flex; gap: 0.6rem; font-size: 0.78rem; margin-top: auto; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+    .repo-links a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .result-count { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); font-size: 0.9rem; }
+    .method-note { font-size: 0.8rem; color: var(--text-secondary); background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--info); border-radius: var(--radius-sm); padding: 0.9rem 1.1rem; margin-bottom: 1.5rem; }
+    .method-note strong { color: var(--text-primary); }
+    @media(max-width: 780px) { .tool-filters .row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle">🌙</button>
+        <a href="billing.html" class="btn-nav-login">GST Billing</a>
+        <a href="itr-form.html" class="btn-nav-ai"><i class="fa fa-file-invoice"></i> ITR Wizard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Open-source directory</span></div>
+      <h1>🔍 Verified open-source tools</h1>
+      <p>25 GitHub projects that actually help with Indian tax, GST, accounting, payroll and document work — with licence and maintenance caveats spelled out.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="method-note">
+      <strong>How this list was checked.</strong> Each repository was queried through the GitHub REST API on
+      <strong id="verifiedOn">—</strong>: existence, stars, forks, licence, last push and archived flag all come from that check.
+      Demo and homepage links are recorded from the repository metadata but were <strong>not</strong> reachability-tested,
+      so a dead demo means the project is not necessarily dead. Re-check stars and licences before you depend on anything here.
+    </div>
+
+    <div class="tool-filters">
+      <div class="row">
+        <div class="form-group" style="margin:0">
+          <label for="repoSearch" style="font-size:0.78rem">Search</label>
+          <input type="search" id="repoSearch" placeholder="GSTR, invoice, payroll, OCR, plain-text…" autocomplete="off"/>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label for="licenceFilter" style="font-size:0.78rem">Licence</label>
+          <select id="licenceFilter">
+            <option value="all">Any licence</option>
+            <option value="reusable">Reusable in your own project</option>
+            <option value="copyleft">Copyleft (GPL / AGPL / MPL)</option>
+            <option value="unlicensed">No licence file</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label for="sortBy" style="font-size:0.78rem">Sort by</label>
+          <select id="sortBy">
+            <option value="stars">Most stars</option>
+            <option value="recent">Recently updated</option>
+            <option value="name">Name (A–Z)</option>
+            <option value="licence">Licence</option>
+          </select>
+        </div>
+      </div>
+      <div class="chips" id="categoryChips"></div>
+    </div>
+
+    <p class="result-count" id="resultCount"></p>
+    <div class="repo-grid" id="repoGrid"></div>
+    <div class="empty-state" id="emptyState" hidden>No project matches those filters. Try clearing the search box.</div>
+
+    <p style="font-size:0.78rem;color:var(--text-muted);margin:2rem 0">
+      Listing a project is not an endorsement, and none of these tools replaces a professional's judgement. TaxMitra itself
+      is not affiliated with any project on this page.
+    </p>
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/github-tools.js"></script>
+  <script>
+    (function () {
+      var D = window.TMGitHubTools;
+      if (!D) return;
+
+      var state = { query: '', category: 'all', licence: 'all', sort: 'stars' };
+
+      function esc(v) {
+        return String(v === null || v === undefined ? '' : v)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+
+      function fmtStars(n) {
+        if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'k';
+        return String(n);
+      }
+
+      function renderChips() {
+        var host = document.getElementById('categoryChips');
+        host.innerHTML = D.categoriesWithCounts().map(function (c) {
+          return '<button type="button" data-category="' + esc(c.id) + '" class="' + (state.category === c.id ? 'active' : '') + '">' +
+            esc(c.label) + ' <span style="opacity:0.6">' + c.count + '</span></button>';
+        }).join('');
+      }
+
+      function render() {
+        var results = D.search({ query: state.query, category: state.category, licence: state.licence, sort: state.sort });
+        var grid = document.getElementById('repoGrid');
+        var empty = document.getElementById('emptyState');
+        document.getElementById('resultCount').textContent = 'Showing ' + results.length + ' of ' + D.REPOS.length + ' verified projects';
+        empty.hidden = results.length > 0;
+
+        grid.innerHTML = results.map(function (repo) {
+          var reusable = D.isReusableLicence(repo.license);
+          return '<article class="repo-card">' +
+            '<header><h3><a href="' + esc(repo.url) + '" target="_blank" rel="noopener noreferrer">' + esc(repo.name) + '</a></h3>' +
+            '<span class="tag stars">★ ' + fmtStars(repo.stars) + '</span></header>' +
+            '<p>' + esc(repo.description || 'No description provided by the project.') + '</p>' +
+            '<div class="repo-meta">' +
+            '<span class="tag ' + (reusable ? 'lic-ok' : 'lic-bad') + '">' + esc(repo.license) + '</span>' +
+            (repo.language ? '<span class="tag">' + esc(repo.language) + '</span>' : '') +
+            '<span class="tag">updated ' + esc(repo.lastPush) + '</span>' +
+            (repo.status ? '<span class="tag">' + esc(repo.status) + '</span>' : '') +
+            '</div>' +
+            '<div class="why"><strong>Why it is here:</strong> ' + esc(repo.why) + '</div>' +
+            '<div class="caveat"><strong>Watch out:</strong> ' + esc(repo.caveat) + '</div>' +
+            '<div class="repo-links"><a href="' + esc(repo.url) + '" target="_blank" rel="noopener noreferrer">Repository ↗</a>' +
+            (repo.homepage ? '<a href="' + esc(repo.homepage) + '" target="_blank" rel="noopener noreferrer">Project site ↗</a>' : '') +
+            '</div></article>';
+        }).join('');
+      }
+
+      document.getElementById('verifiedOn').textContent = D.VERIFIED_ON;
+
+      document.getElementById('repoSearch').addEventListener('input', function (e) {
+        state.query = e.target.value;
+        render();
+      });
+      document.getElementById('licenceFilter').addEventListener('change', function (e) {
+        state.licence = e.target.value;
+        render();
+      });
+      document.getElementById('sortBy').addEventListener('change', function (e) {
+        state.sort = e.target.value;
+        render();
+      });
+      document.getElementById('categoryChips').addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-category]');
+        if (!btn) return;
+        state.category = btn.getAttribute('data-category');
+        renderChips();
+        render();
+      });
+
+      renderChips();
+      render();
+    })();
+  </script>
+</body>
+</html>

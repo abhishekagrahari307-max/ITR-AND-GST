@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="description" content="Income Tax Challan 280 Guide — Pay advance tax, self-assessment tax online. Generate challan, verify payment on NSDL. Step-by-step."/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>Tax Challan Management — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper"><ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+      </ul></div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero"><div class="container">
+  <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Tax Challan Management</span></div>
+  <h1>🧾 Tax Challan Management</h1>
+  <p>AY 2026-27 | Budget 2025 | Developed by <strong>Abhishek Agrahari</strong></p>
+</div></div>
+<div class="container" style="padding:1.5rem 0 4rem">
+<div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.15);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem"><strong style="color:var(--primary)">Challan 280/281/282 — Track All Tax Payments</strong></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem"><div class="form-card"><h3 style="font-weight:800;margin-bottom:1.25rem">Add Challan</h3>
+<div class="form-group"><label>Type</label><select id="chType"><option value="280_adv">280 — Advance Tax</option><option value="280_sat">280 — Self Assessment</option><option value="281">281 — TDS/TCS</option><option value="282">282 — Other</option></select></div>
+<div class="form-group"><label>BSR Code</label><input id="chBSR" placeholder="0410210" maxlength="7" class="mg-input"/></div>
+<div class="form-group"><label>Serial No.</label><input id="chSer" placeholder="00001" class="mg-input"/></div>
+<div class="form-group"><label>Date</label><input type="date" id="chDate" class="mg-input"/></div>
+<div class="form-group"><label>Amount (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="chAmt" placeholder="0"/></div></div>
+<div class="form-group"><label>AY</label><select id="chAY"><option value="2026-27" selected>AY 2026-27</option><option value="2025-26">AY 2025-26</option></select></div>
+<div class="form-group"><label>Remarks</label><input id="chRem" placeholder="Q1 Advance Tax" class="mg-input"/></div>
+<button class="btn-primary-solid" onclick="addChal()" style="width:100%"><i class="fa fa-plus"></i> Add</button></div>
+<div class="form-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem"><h4 style="font-weight:800">Challan Register</h4><div style="display:flex;gap:.35rem"><button class="btn-secondary-solid" onclick="expChalCSV()" style="font-size:.75rem;padding:.32rem .6rem">CSV</button><button class="btn-secondary-solid" onclick="expChalPDF()" style="font-size:.75rem;padding:.32rem .6rem">PDF</button></div></div><div id="chalList" style="max-height:380px;overflow-y:auto"></div><div id="chalTotal" style="margin-top:.65rem;padding:.55rem;background:rgba(37,99,235,.06);border-radius:6px;font-size:.82rem"></div></div></div>
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+const fmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+let chals=JSON.parse(localStorage.getItem('tm_chals')||'[]');
+function addChal(){
+  const bsr=document.getElementById('chBSR').value;const ser=document.getElementById('chSer').value;
+  const date=document.getElementById('chDate').value;const amt=parseFloat(document.getElementById('chAmt').value)||0;
+  if(!bsr||!ser||!date||!amt){showToast('All fields required!','warning');return;}
+  chals.push({id:Date.now(),type:document.getElementById('chType').value,bsr,ser,date,amt,ay:document.getElementById('chAY').value,rem:document.getElementById('chRem').value});
+  localStorage.setItem('tm_chals',JSON.stringify(chals));renderChals();showToast('Challan added!','success');
+  document.getElementById('chBSR').value='';document.getElementById('chSer').value='';document.getElementById('chAmt').value='';document.getElementById('chRem').value='';
+}
+const TYPES={'280_adv':'Advance Tax','280_sat':'Self Assessment','281':'TDS/TCS','282':'Other'};
+function renderChals(){
+  const l=document.getElementById('chalList');const t=document.getElementById('chalTotal');
+  if(!chals.length){l.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-muted)">No challans.</div>';t.innerHTML='';return;}
+  const TL={'280_adv':'Advance Tax','280_sat':'Self Assessment','281':'TDS/TCS','282':'Other'};
+  l.innerHTML=chals.map(function(ch,i){
+    return '<div style="display:flex;align-items:center;gap:.6rem;padding:.5rem .65rem;background:var(--bg-secondary);border-radius:6px;margin-bottom:.35rem;font-size:.79rem">'
+      +'<div style="flex:1"><strong>'+(TL[ch.type]||ch.type)+'</strong> BSR:'+ch.bsr+' Ser:'+ch.ser+'<br>'
+      +'<span style="color:var(--text-muted)">'+ch.date+' | '+ch.ay+(ch.rem?' | '+ch.rem:'')+'</span></div>'
+      +'<strong style="color:var(--success)">'+fmt(ch.amt)+'</strong>'
+      +'<button onclick="delChal('+i+')" style="background:none;border:none;cursor:pointer;color:var(--danger)">✕</button></div>';
+  }).join('');
+  const tot=chals.reduce(function(s,ch){return s+ch.amt;},0);
+  t.innerHTML='Total: <strong style="color:var(--primary)">'+fmt(tot)+'</strong> ('+chals.length+' challans)';
+}
+function delChal(i){chals.splice(i,1);localStorage.setItem('tm_chals',JSON.stringify(chals));renderChals();}
+function expChalCSV(){if(!chals.length){showToast('No challans!','warning');return;}const csv='Type,BSR,Serial,Date,Amount,AY\n'+chals.map(c=>c.type+','+c.bsr+','+c.ser+','+c.date+','+c.amt+','+c.ay).join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Challans.csv';a.click();showToast('CSV exported!','success');}
+function expChalPDF(){if(!window.jspdf||!chals.length){showToast(!chals.length?'No challans!':'PDF loading...','warning');return;}const{jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFillColor(30,64,175);doc.rect(0,0,210,28,'F');doc.setTextColor(255,255,255);doc.setFontSize(14);doc.setFont('helvetica','bold');doc.text('Tax Challan Register — AY 2026-27',105,12,{align:'center'});doc.setFontSize(8);doc.text('TaxMitra AI | Abhishek Agrahari',105,22,{align:'center'});doc.setTextColor(30,30,30);doc.autoTable({startY:36,head:[['Type','BSR','Serial','Date','Amount','AY']],body:chals.map(c=>[TYPES[c.type]||c.type,c.bsr,c.ser,c.date,fmt(c.amt),c.ay]),headStyles:{fillColor:[30,64,175],textColor:255,fontSize:8},styles:{fontSize:8}});const tot=chals.reduce((s,c)=>s+c.amt,0);doc.text('Total: '+fmt(tot),15,doc.lastAutoTable.finalY+10);doc.save('Challans_TaxMitra.pdf');showToast('PDF downloaded!','success');}
+document.addEventListener('DOMContentLoaded',renderChals);
+</script>
+</body>
+</html>

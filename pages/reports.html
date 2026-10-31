@@ -1,23 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="description" content="Tax Reports & Analytics — Download computation sheet PDF, financial health score, tax liability trend, Excel export. AY 2026-27."/>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Reports – TaxMitra AI Enterprise</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css">
 </head>
 <body>
-  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
-    <div class="nav-container">
-      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
-      <div style="flex:1"></div>
-      <div class="nav-right"><button class="nav-icon-btn" id="themeToggle">🌙</button><a href="../index.html" class="btn-nav-login">← Home</a></div>
+  <nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
     </div>
-  </nav>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
 
   <div class="page-hero">
     <div class="container">
+          <div style="margin-bottom:1rem;padding:.85rem 1rem;background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.15);border-radius:10px;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+            <span style="font-size:1.1rem">🔔</span>
+            <div style="flex:1">
+              <strong style="font-size:.85rem">Compliance Reminders</strong>
+              <p style="font-size:.75rem;color:var(--text-secondary);margin:0">Deadline se pehle notification pao</p>
+            </div>
+            <button class="btn-primary-solid" style="font-size:.78rem;padding:.42rem .85rem" onclick="window.TaxMitraNotify?.requestPermission().then(ok=>ok?showToast('🔔 Notifications enabled!','success'):showToast('Notification permission denied','warning'))">Enable Alerts</button>
+          </div>
       <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Reports</span></div>
       <h1>📊 Reports & Analytics</h1>
       <p>Professional tax computation reports, financial health score, PDF & Excel export – individual, CA aur business sab ke liye</p>
@@ -74,8 +103,8 @@
         </div>
       </div>
       <div style="background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:1.5rem;border-radius:var(--radius);margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center">
-        <div><div style="font-size:1.3rem;font-weight:800">TaxMitra AI Enterprise</div><div style="font-size:0.82rem;opacity:0.8">Tax Computation Report | AY 2025-26 | Generated: 29 July 2025</div></div>
-        <div style="text-align:right"><div style="font-size:0.8rem;opacity:0.75">Taxpayer: Arjun Kumar</div><div style="font-size:0.8rem;opacity:0.75">PAN: ABCDE1234F</div></div>
+        <div><div style="font-size:1.3rem;font-weight:800">TaxMitra AI Enterprise</div><div style="font-size:0.82rem;opacity:0.8">Tax Computation Report | AY 2026-27 | Generated: 29 July 2025</div></div>
+        <div style="text-align:right"><div style="font-size:0.8rem;opacity:0.75">Taxpayer: </div><div style="font-size:0.8rem;opacity:0.75">PAN: ABCDE1234F</div></div>
       </div>
       <div class="result-breakdown">
         <div class="result-item"><span>Gross Total Income</span><strong>₹12,00,000</strong></div>
@@ -92,7 +121,7 @@
       </div>
       <div style="margin-top:1.5rem;padding:1rem;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius)">
         <strong style="color:var(--success)">🤖 AI Summary:</strong><br>
-        <span style="font-size:0.875rem;color:var(--text-secondary)">New Tax Regime is optimal for your income profile. You save ₹22,000 compared to Old Regime. A refund of ₹10,800 is expected after ITR filing. File ITR-1 before 31 July 2025 to avoid ₹5,000 penalty.</span>
+        <span style="font-size:0.875rem;color:var(--text-secondary)">New Tax Regime is optimal for your income profile. You save ₹22,000 compared to Old Regime. A refund of ₹10,800 is expected after ITR filing. File ITR-1 before 31 July 2026 to avoid ₹5,000 penalty.</span>
       </div>
     </div>
 
@@ -126,54 +155,167 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="../js/taxmitra.js"></script>
-  <script>
+  <script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/pdf-real.js"></script>
+<script>
     function generateReport(type) {
-      const titles = { tax: 'Income Tax Computation Report', gst: 'GST Compliance Report', investment: 'Investment & Deductions Report', health: 'Financial Health Report' };
-      document.getElementById('reportTitle').textContent = titles[type];
-      document.getElementById('reportPreview').style.display = 'block';
-      document.getElementById('reportPreview').scrollIntoView({ behavior: 'smooth' });
-    }
+      const reportPreview = document.getElementById('reportPreview');
+      const reportTitle = document.getElementById('reportTitle');
+      const titles = {
+        tax: 'Income Tax Computation Report',
+        gst: 'GST Compliance Report',
+        investment: 'Investment & Deductions Report',
+        health: 'Financial Health Report'
+      };
+      reportTitle.textContent = titles[type] || 'Tax Report';
+      reportPreview.style.display = 'block';
+      reportPreview.scrollIntoView({behavior:'smooth'});
 
+      // Generate real PDF
+      if (!window.jspdf) { if(typeof showToast==='function') showToast('Click PDF to download','success'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const today = new Date().toLocaleDateString('en-IN');
+      const ay = window.TAXMITRA_DATES?.ay || '2026-27';
+
+      doc.setFillColor(30,64,175); doc.rect(0,0,210,30,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+      doc.text(titles[type] || 'Tax Report', 105, 12, {align:'center'});
+      doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text('AY '+ay+' | TaxMitra AI Enterprise | Abhishek Agrahari | '+today, 105, 22, {align:'center'});
+      doc.setTextColor(30,30,30);
+
+      let rows = [];
+      if (type === 'tax') {
+        // Read real computation data from localStorage
+        const comp = JSON.parse(localStorage.getItem('tm_comp_draft') || '{}');
+        const itr = JSON.parse(localStorage.getItem('itr_draft_1') || '{}');
+        const fmtAmt = n => '₹' + Math.abs(Math.round(n)).toLocaleString('en-IN');
+        const gross = comp.grossSal || itr.grossSalary || 0;
+        const regime = comp.regime || 'new';
+        const stdDed = regime === 'new' ? 75000 : 50000;
+        const tds = (comp.tdsSal || 0) + (comp.tdsInt || 0) + (comp.tdsOth || 0);
+        const advTax = comp.advTax || 0;
+        const totalTax = comp._totalTax || 0;
+        const netPayable = Math.max(0, totalTax - tds - advTax);
+        const refund = Math.max(0, tds + advTax - totalTax);
+        rows = gross > 0 ? [
+          ['Gross Total Income', fmtAmt(gross)],
+          ['Standard Deduction (' + (regime==='new'?'New':'Old') + ' Regime)', '(' + fmtAmt(stdDed) + ')'],
+          ['Net Taxable Income', fmtAmt(Math.max(0, gross - stdDed))],
+          ['Tax Regime', regime === 'new' ? 'New Regime (Default)' : 'Old Regime'],
+          ['Total Tax Liability', fmtAmt(totalTax)],
+          ['TDS Deducted (Form 26AS)', fmtAmt(tds)],
+          ['Advance Tax Paid', fmtAmt(advTax)],
+          ['NET PAYABLE / REFUND', (refund > 0 ? 'REFUND: ' : 'PAYABLE: ') + fmtAmt(refund > 0 ? refund : netPayable)],
+        ] : [
+          ['No Data Found','Import data via Import Center'],
+          ['Go to','pages/import-data.html to import Form 16'],
+          ['Or use','pages/computation.html to compute tax'],
+        ];
+      } else if (type === 'gst') {
+        rows = [
+          ['GSTR-1 Status','Filed'],['GSTR-3B Status','Filed'],
+          ['Total Outward Supplies','₹25,00,000'],['Total ITC Claimed','₹3,50,000'],
+          ['GST Paid (Net)','₹1,00,000'],['GST-9 Annual (Due Dec 2026)','Pending'],
+        ];
+      } else if (type === 'investment') {
+        rows = [
+          ['80C Investments (PPF/ELSS/LIC)','₹1,50,000'],['80CCD(1B) – NPS Extra','₹50,000'],
+          ['80D – Health Insurance','₹25,000'],['Total 80C+CCD Deductions','₹1,50,000'],
+          ['Total Deductions Claimed','₹2,25,000'],['Tax Saved (Old Regime @30%)','₹70,200'],
+        ];
+      } else {
+        rows = [
+          ['Annual Income','₹12,00,000'],['Annual Savings','₹2,40,000'],
+          ['Savings Rate','20%'],['Tax Paid','₹0 (Zero Tax)'],
+          ['Tax Efficiency Score','100%'],['Financial Health Score','72/100'],
+        ];
+      }
+
+      doc.autoTable({startY:38, head:[['Particulars','Amount/Status']], body:rows,
+        headStyles:{fillColor:[30,64,175],textColor:255,fontSize:9,fontStyle:'bold'}, styles:{fontSize:9},
+        didParseCell:(d)=>{
+          if(d.row.index===rows.length-1){d.cell.styles.fontStyle='bold';d.cell.styles.fillColor=[220,230,250];}
+        }});
+      const fy = doc.lastAutoTable.finalY+10;
+      doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(100);
+      doc.text('Disclaimer: This report is for reference only. Verify with a qualified CA. | TaxMitra AI Enterprise', 105, fy, {align:'center'});
+      doc.save(type+'_Report_AY'+ay+'_TaxMitra.pdf');
+      // Also offer XLSX
+      if (window.TaxMitraXLSX) {
+        window.TaxMitraXLSX.exportToXLSX(rows.map(r => ({'Particulars': r[0], 'Amount/Status': r[1]})), type+'_Report_AY'+ay+'_TaxMitra', 'Report');
+      }
+      if(typeof showToast==='function') showToast(titles[type]+' PDF downloaded!','success');
+    }  
     function calcHealthScore() {
-      const income = parseFloat(document.getElementById('fhIncome').value) || 1;
-      const savings = parseFloat(document.getElementById('fhSavings').value) || 0;
-      const tax = parseFloat(document.getElementById('fhTax').value) || 0;
-      const invest = parseFloat(document.getElementById('fhInvest').value) || 0;
-      const emergency = parseFloat(document.getElementById('fhEmergency').value) || 0;
-      const insurance = document.getElementById('fhInsurance').value;
+      const income = parseFloat(document.getElementById('fhIncome')?.value) || 0;
+      const savings = parseFloat(document.getElementById('fhSavings')?.value) || 0;
+      const tax = parseFloat(document.getElementById('fhTax')?.value) || 0;
+      const invest = parseFloat(document.getElementById('fhInvest')?.value) || 0;
+      const emergency = parseFloat(document.getElementById('fhEmergency')?.value) || 0;
+      const insurance = document.getElementById('fhInsurance')?.value || 'No';
+
+      if (!income) { if(typeof showToast==='function') showToast('Income bharo pehle!','error'); return; }
+
+      const savingsRate = income > 0 ? savings / income : 0;
+      const taxEfficiency = income > 0 ? tax / income : 0;
+      const investRatio = invest > 0 ? invest / 150000 : 0;
 
       let score = 0;
-      const savingsRate = savings / income;
-      if (savingsRate >= 0.3) score += 25; else if (savingsRate >= 0.2) score += 18; else if (savingsRate >= 0.1) score += 10; else score += 3;
-      const taxEfficiency = tax / income;
-      if (taxEfficiency <= 0.10) score += 25; else if (taxEfficiency <= 0.15) score += 18; else if (taxEfficiency <= 0.25) score += 12; else score += 5;
-      const investRatio = invest / Math.min(income * 0.15, 150000);
-      if (investRatio >= 0.9) score += 20; else if (investRatio >= 0.6) score += 14; else score += 7;
-      if (emergency >= 6) score += 20; else if (emergency >= 3) score += 13; else score += 5;
-      if (insurance === 'Yes – Adequate') score += 10; else if (insurance === 'Yes – Partial') score += 6; else score += 0;
+      score += savingsRate >= 0.30 ? 25 : savingsRate >= 0.20 ? 18 : savingsRate >= 0.10 ? 10 : 3;
+      score += taxEfficiency <= 0.05 ? 25 : taxEfficiency <= 0.10 ? 20 : taxEfficiency <= 0.15 ? 15 : 8;
+      score += investRatio >= 1.0 ? 20 : investRatio >= 0.6 ? 14 : investRatio >= 0.3 ? 8 : 3;
+      score += emergency >= 6 ? 20 : emergency >= 3 ? 13 : emergency >= 1 ? 7 : 2;
+      score += insurance === 'Yes – Adequate' ? 10 : insurance === 'Yes – Partial' ? 6 : 0;
+
+      const label = score >= 80 ? 'Excellent 🌟' : score >= 65 ? 'Good ✅' : score >= 50 ? 'Fair ⚠️' : 'Needs Work ❌';
+      const color = score >= 80 ? 'var(--success)' : score >= 65 ? '#059669' : score >= 50 ? '#f59e0b' : 'var(--danger)';
 
       document.getElementById('healthScoreResult').style.display = 'block';
+      document.getElementById('healthScoreResult').scrollIntoView({behavior:'smooth'});
       document.getElementById('scoreValue').textContent = score;
-      const label = score >= 80 ? 'Excellent 🌟' : score >= 65 ? 'Good ✅' : score >= 50 ? 'Fair ⚠️' : 'Needs Work 🔴';
-      const color = score >= 80 ? 'var(--success)' : score >= 65 ? 'var(--primary)' : score >= 50 ? 'var(--warning)' : 'var(--danger)';
+      document.getElementById('scoreValue').style.color = color;
       document.getElementById('scoreLabel').textContent = label;
       document.getElementById('scoreLabel').style.color = color;
-      document.getElementById('scoreValue').style.color = color;
-      document.getElementById('scoreCircle').style.background = `conic-gradient(${color} ${score * 3.6}deg, var(--bg-secondary) ${score * 3.6}deg)`;
+      document.getElementById('scoreCircle').style.background = 'conic-gradient('+color+' '+score*3.6+'deg, var(--bg-secondary) '+score*3.6+'deg)';
 
-      document.getElementById('healthBreakdown').innerHTML = `
-        <h4 style="font-size:0.9rem;margin-bottom:0.75rem">Score Breakdown:</h4>
-        <div style="display:flex;flex-direction:column;gap:0.5rem">
-          <div><div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.2rem"><span>Savings Rate (${(savingsRate*100).toFixed(1)}%)</span><span>${savingsRate>=0.3?25:savingsRate>=0.2?18:10}/25</span></div><div style="height:6px;background:var(--bg-secondary);border-radius:3px"><div style="height:100%;background:var(--primary);border-radius:3px;width:${(savingsRate>=0.3?25:savingsRate>=0.2?18:10)/25*100}%"></div></div></div>
-          <div><div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.2rem"><span>Tax Efficiency</span><span>${taxEfficiency<=0.10?25:taxEfficiency<=0.15?18:12}/25</span></div><div style="height:6px;background:var(--bg-secondary);border-radius:3px"><div style="height:100%;background:var(--success);border-radius:3px;width:${(taxEfficiency<=0.10?25:taxEfficiency<=0.15?18:12)/25*100}%"></div></div></div>
-          <div><div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.2rem"><span>Investment Score</span><span>${investRatio>=0.9?20:investRatio>=0.6?14:7}/20</span></div><div style="height:6px;background:var(--bg-secondary);border-radius:3px"><div style="height:100%;background:var(--warning);border-radius:3px;width:${(investRatio>=0.9?20:investRatio>=0.6?14:7)/20*100}%"></div></div></div>
-          <div><div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.2rem"><span>Emergency Fund</span><span>${emergency>=6?20:emergency>=3?13:5}/20</span></div><div style="height:6px;background:var(--bg-secondary);border-radius:3px"><div style="height:100%;background:var(--accent);border-radius:3px;width:${(emergency>=6?20:emergency>=3?13:5)/20*100}%"></div></div></div>
-          <div><div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.2rem"><span>Insurance</span><span>${insurance==='Yes – Adequate'?10:insurance==='Yes – Partial'?6:0}/10</span></div><div style="height:6px;background:var(--bg-secondary);border-radius:3px"><div style="height:100%;background:var(--info);border-radius:3px;width:${(insurance==='Yes – Adequate'?10:insurance==='Yes – Partial'?6:0)/10*100}%"></div></div></div>
-        </div>
-        <p style="font-size:0.78rem;color:var(--text-secondary);margin-top:0.75rem">🤖 AI: ${score>=80?'Excellent financial health! Keep investing and maintain tax efficiency.':score>=65?'Good profile! Increase emergency fund and maximize 80C investments.':score>=50?'Needs improvement – focus on savings rate and tax planning.':'Action needed – consult TaxMitra AI for detailed guidance.'}</p>
-      `;
+      const breakdown = document.getElementById('healthBreakdown');
+      if (breakdown) {
+        const savPts = savingsRate>=0.30?25:savingsRate>=0.20?18:savingsRate>=0.10?10:3;
+        const taxPts = taxEfficiency<=0.05?25:taxEfficiency<=0.10?20:taxEfficiency<=0.15?15:8;
+        const invPts = investRatio>=1.0?20:investRatio>=0.6?14:investRatio>=0.3?8:3;
+        const emgPts = emergency>=6?20:emergency>=3?13:emergency>=1?7:2;
+        const insPts = insurance==='Yes – Adequate'?10:insurance==='Yes – Partial'?6:0;
+        const bar = (pts, max) => '<div style="height:6px;background:var(--bg-secondary);border-radius:3px;margin-top:2px"><div style="height:100%;background:var(--primary);border-radius:3px;width:'+(pts/max*100)+'%"></div></div>';
+        breakdown.innerHTML = '<h4 style="font-size:0.9rem;margin-bottom:0.75rem">Score Breakdown:</h4>' +
+          ['Savings Rate ('+Math.round(savingsRate*100)+'%)|'+savPts+'/25|'+bar(savPts,25),
+           'Tax Efficiency|'+taxPts+'/25|'+bar(taxPts,25),
+           'Investment (80C)|'+invPts+'/20|'+bar(invPts,20),
+           'Emergency Fund ('+emergency+' months)|'+emgPts+'/20|'+bar(emgPts,20),
+           'Insurance|'+insPts+'/10|'+bar(insPts,10)
+          ].map(row => {
+            const [lbl,pts,barHtml] = row.split('|');
+            return '<div style="margin-bottom:0.5rem"><div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.2rem"><span>'+lbl+'</span><span style="font-weight:700">'+pts+'</span></div>'+barHtml+'</div>';
+          }).join('') +
+          '<p style="font-size:0.78rem;color:var(--text-secondary);margin-top:0.75rem">🤖 AI: '+
+          (score>=80?'Excellent! Savings rate bahut achha hai. Tax efficiency bhi great.':
+           score>=65?'Good profile! Emergency fund aur 80C maximize karo.':
+           score>=50?'Improvement needed – savings rate aur tax planning pe focus karo.':
+           'Action needed – TaxMitra AI se detailed guidance lo.')+
+          '</p>';
+      }
+      if (typeof showToast === 'function') showToast('Financial Health Score: '+score+'/100 – '+label,'success');
     }
   </script>
+
+<p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong></p>
 </body>
 </html>

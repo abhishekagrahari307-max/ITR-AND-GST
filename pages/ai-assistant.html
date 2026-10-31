@@ -3,9 +3,19 @@
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AI Tax Assistant – TaxMitra AI Enterprise</title>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://abhishekagrahari307-max.github.io/ITR-AND-GST/pages/ai-assistant.html"/>
+  <meta property="og:title" content="AI Tax Assistant — Gemini + Llama | TaxMitra AI Enterprise"/>
+  <meta property="og:description" content="India ka #1 AI tax assistant — Gemini 2.5 Flash + Llama 3.3 70B. ITR, GST, notices, deductions — Hindi/English mein jawab. Free."/>
+  <meta property="og:image" content="https://abhishekagrahari307-max.github.io/ITR-AND-GST/og-image.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="AI Tax Assistant — Gemini + Llama | TaxMitra AI Enterprise"/>
+  <meta name="twitter:description" content="India ka #1 AI tax assistant — Gemini 2.5 Flash + Llama 3.3 70B. ITR, GST, notices, deductions — Hindi/English mein jawab. Free."/>
+  <meta name="description" content="India ka #1 AI tax assistant — Gemini 2.5 Flash + Llama 3.3 70B. ITR, GST, notices, deductions — Hindi/English mein jawab. Free."/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css">
   <style>
     .ai-layout { display: grid; grid-template-columns: 280px 1fr 260px; gap: 1.5rem; padding: 1.5rem 0 3rem; }
     .ai-sidebar-panel { display: flex; flex-direction: column; gap: 1rem; }
@@ -62,17 +72,32 @@
   </style>
 </head>
 <body>
-  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
-    <div class="nav-container">
-      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
-      <div style="flex:1"></div>
-      <div class="nav-right">
-        <button class="nav-icon-btn" id="themeToggle">🌙</button>
-        <a href="../index.html" class="btn-nav-login">← Home</a>
-        <a href="calculators.html" class="btn-nav-ai">🔢 Calculators</a>
-      </div>
+  <nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
     </div>
-  </nav>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
 
   <div class="container">
     <div class="ai-layout">
@@ -82,9 +107,12 @@
         <div class="form-card">
           <h4 style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem">🌐 Language / भाषा</h4>
           <div class="lang-pill">
-            <button class="active" onclick="setLang('hi',this)">हिंदी</button>
-            <button onclick="setLang('en',this)">English</button>
-            <button onclick="setLang('mr',this)">मराठी</button>
+            <button class="lang-btn active" onclick="setLang('hi',this)">हिंदी</button>
+            <button class="lang-btn" onclick="setLang('en',this)">English</button>
+            <button class="lang-btn" onclick="setLang('ta',this)">தமிழ்</button>
+            <button class="lang-btn" onclick="setLang('te',this)">తెలుగు</button>
+            <button class="lang-btn" onclick="setLang('bn',this)">বাংলা</button>
+            <button class="lang-btn" onclick="setLang('mr',this)">मराठी</button>
           </div>
           <h4 style="font-size:0.9rem;font-weight:700;margin-bottom:0.5rem">🤖 AI Modes</h4>
           <button class="mode-btn active" onclick="setMode('general',this)"><span class="mode-icon">💬</span><div><strong>General Tax Chat</strong></div></button>
@@ -207,10 +235,15 @@
     </div>
   </div>
 
+  <script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+  <script src="../js/ai-real.js"></script>
   <script src="../js/taxmitra.js"></script>
-  <script src="../js/api.js"></script>
-  <script>
-    window.TAXMITRA_API_URL = 'http://localhost:3001/api/v1';
+  <script src="../js/pdf-real.js"></script>
+<script>
+    // Keys loaded from localStorage via firebase-config.js
     const { AIAPI, Auth } = window.TaxMitraAPI || {};
 
     // ===== AI KNOWLEDGE BASE =====
@@ -284,18 +317,20 @@
         Need help with any specific GST matter?`
       },
       regime: {
-        hi: `⚖️ <strong>Old vs New Regime Comparison:</strong><br><br>
+        hi: `⚖️ <strong>Old vs New Regime — AY 2026-27 (Budget 2025):</strong><br><br>
+        <strong>🟢 New Regime (DEFAULT) — Budget 2025 Slabs:</strong><br>
+        ₹0–4L: Nil | ₹4–8L: 5% | ₹8–12L: 10% | ₹12–16L: 15% | ₹16–20L: 20% | ₹20–24L: 25% | >₹24L: 30%<br>
+        Standard Deduction: <strong>₹75,000</strong> | 87A Rebate: <strong>₹60,000</strong> (income ≤ ₹12L)<br>
+        <strong>🎉 ZERO TAX upto ₹12,75,000 gross salary!</strong><br><br>
         <strong>🔵 Old Tax Regime:</strong><br>
         ₹0–2.5L: Nil | ₹2.5–5L: 5% | ₹5–10L: 20% | >₹10L: 30%<br>
-        <em>+ All deductions available (80C, HRA, 80D, etc.)</em><br><br>
-        <strong>🟢 New Tax Regime (Default from FY 2023-24):</strong><br>
-        ₹0–3L: Nil | ₹3–7L: 5% | ₹7–10L: 10% | ₹10–12L: 15% | ₹12–15L: 20% | >₹15L: 30%<br>
-        Standard Deduction: ₹75,000 | <em>No other deductions</em><br>
-        87A Rebate: Up to ₹60,000 (taxable income ≤ ₹12L)<br><br>
-        <strong>📊 Rule of Thumb:</strong><br>
-        • If deductions > ₹3.75L → Old Regime better<br>
-        • If deductions < ₹3.75L → New Regime better<br><br>
-        Apni income batao, main exact calculate karta hoon! 🧮`,
+        Standard Deduction: ₹50,000 | All deductions: 80C, HRA, 80D, Home Loan etc.<br>
+        87A Rebate: ₹12,500 (income ≤ ₹5L)<br><br>
+        <strong>📊 Kab kaunsa regime choose karein:</strong><br>
+        • Total deductions > ₹3.75L → Old Regime better<br>
+        • Total deductions < ₹3.75L → New Regime better<br>
+        • Salary ≤ ₹12.75L → New Regime = ZERO TAX!<br><br>
+        Apni income batao, main exact compare karta hoon! 🧮`,
         en: `⚖️ <strong>Old vs New Tax Regime:</strong><br><br>
         <strong>New Regime (Default):</strong> Lower slabs, ₹75K standard deduction, 87A up to ₹60K<br>
         <strong>Old Regime:</strong> Higher slabs but full deductions (80C, HRA, 80D, etc.)<br><br>
@@ -391,19 +426,123 @@
 
     function getResponse(msg) {
       const m = msg.toLowerCase();
-      const lang = currentLang === 'en' ? 'en' : 'hi';
-      const defaultLang = 'hi';
+      const hi = currentLang !== 'en';
 
-      if (m.includes('itr') || m.includes('form') || m.includes('return') || m.includes('file')) return (KB.itr[lang] || KB.itr[defaultLang]);
-      if (m.includes('80c') || m.includes('deduction') || m.includes('ppf') || m.includes('elss') || m.includes('80d')) return (KB['80c'][lang] || KB['80c'][defaultLang]);
-      if (m.includes('gst') || m.includes('gstr')) return (KB.gst[lang] || KB.gst[defaultLang]);
-      if (m.includes('regime') || m.includes('old') || m.includes('new tax') || m.includes('slab')) return (KB.regime[lang] || KB.regime[defaultLang]);
-      if (m.includes('notice') || m.includes('143') || m.includes('148') || m.includes('demand')) return (KB.notice[lang] || KB.notice[defaultLang]);
-      if (m.includes('tds') || m.includes('form 26') || m.includes('tds rate')) return (KB.tds[lang] || KB.tds[defaultLang]);
-      if (m.includes('invest') || m.includes('sip') || m.includes('nps') || m.includes('mutual') || m.includes('wealth')) return (KB.invest[lang] || KB.invest[defaultLang]);
+      // Use ai-real.js comprehensive engine if loaded
+      if (window.TaxMitraAI && window.TaxMitraAI.getRuleBasedResponse) {
+        return window.TaxMitraAI.getRuleBasedResponse(msg, hi ? 'hi' : 'en', currentMode || 'general');
+      }
 
-      if (lang === 'hi') return `🤔 Samajh gaya aapka sawaal! Tax mein yeh important topics hain:<br><br>📋 <strong>ITR Forms</strong> | 💰 <strong>Tax Computation</strong> | 💡 <strong>80C Deductions</strong><br>🧾 <strong>GST Filing</strong> | 💼 <strong>TDS</strong> | 🔔 <strong>Notice Handling</strong> | 📈 <strong>Investments</strong><br><br>Inme se koi bhi topic puchein – main detail mein explain karunga!`;
-      return `🤔 I understand your question! Key tax topics I can help with:<br><br>📋 <strong>ITR Forms</strong> | 💰 <strong>Tax Computation</strong> | 💡 <strong>80C Deductions</strong><br>🧾 <strong>GST Filing</strong> | 💼 <strong>TDS</strong> | 🔔 <strong>Notice Handling</strong> | 📈 <strong>Investments</strong><br><br>Ask me about any topic in detail!`;
+      // --- Zero tax / salary questions ---
+      if (m.match(/zero.*tax|12[. ]?75|12\.75 lakh|koi.*tax.*nahi|no.*tax/))
+        return `🎉 <strong>₹12.75 Lakh tak ZERO TAX! (Budget 2025)</strong><br><br>Calculation:<br>• Gross Salary: ₹12,75,000<br>• (-) Standard Deduction: ₹75,000<br>• Net Taxable: ₹12,00,000<br>• Tax on Slabs: ₹60,000<br>• (-) 87A Rebate: ₹60,000<br><strong>• NET TAX = ₹0 🎉</strong><br><br>New Regime mein automatic apply hota hai!`;
+
+      // --- ITR forms ---
+      if (m.match(/itr.?1|sahaj/))
+        return `📝 <strong>ITR-1 (Sahaj):</strong><br>• Salaried / Pension income<br>• Income ≤ ₹50 Lakh<br>• 1 House Property<br>• FD, savings interest<br>❌ Capital gains, foreign assets ke liye nahi<br><br>📅 Deadline: 31 July 2026`;
+      if (m.match(/itr.?2/))
+        return `📊 <strong>ITR-2:</strong><br>• Salary + Capital Gains<br>• 2+ Properties<br>• Foreign assets/income<br>• Director in company (no business income)<br><br>Documents: Broker statement, Form 16, Form 26AS`;
+      if (m.match(/itr.?4|sugam|44ad|44ada|presumptive/))
+        return `🏪 <strong>ITR-4 (Sugam) — Presumptive:</strong><br>• 44AD: Business ≤ ₹3Cr → 8%/6% income<br>• 44ADA: Professional ≤ ₹75L → 50% income<br>• Doctors, CAs, lawyers, freelancers ke liye<br>• Simple filing, no books required`;
+      if (m.match(/itr.?3/))
+        return `🏭 <strong>ITR-3:</strong><br>• Business/Profession (full books)<br>• P&L and Balance Sheet required<br>• Audit if turnover > ₹1Cr<br>• All ITR-2 incomes bhi cover karta hai`;
+      if (m.match(/itr|return|form.*bharo|file.*return|kaunsa.*form/))
+        return KB.itr[hi ? 'hi' : 'en'];
+
+      // --- Regime ---
+      if (m.match(/regime|old.*vs.*new|new.*vs.*old|konsa.*regime|slab|compare.*tax/))
+        return KB.regime[hi ? 'hi' : 'en'];
+
+      // --- Deductions ---
+      if (m.match(/80c|ppf|elss|lic.*premium|tax.*bachao|tax saving|investment.*tax/))
+        return KB['80c'][hi ? 'hi' : 'en'];
+      if (m.match(/80d|health.*insur|medical.*insur/))
+        return `🏥 <strong>80D — Health Insurance:</strong><br>• Self + Family (below 60): ₹25,000<br>• Self + Family (60+): ₹50,000<br>• Parents (below 60): ₹25,000<br>• Parents (60+): ₹50,000<br><strong>• Max total: ₹75,000</strong><br><br>Only in Old Regime!`;
+      if (m.match(/nps|80ccd|pension.*fund/))
+        return `🏦 <strong>NPS — National Pension System:</strong><br>• 80CCD(1): Within ₹1.5L limit<br>• <strong>80CCD(1B): Extra ₹50,000 — Old Regime!</strong><br>• <strong>80CCD(2): Employer NPS — New Regime mein bhi!</strong><br>• ~10% annual returns<br>• 60% maturity tax-free, 40% annuity`;
+      if (m.match(/hra|house.*rent|rent.*exempt/))
+        return `🏠 <strong>HRA Exemption = Minimum of 3:</strong><br>1. Actual HRA received<br>2. Rent paid − 10% of Basic Salary<br>3. 50% Basic (Metro) / 40% (Non-Metro)<br><br><strong>Example:</strong> Basic ₹40K, HRA ₹20K, Rent ₹18K (Delhi)<br>→ Min(₹20K, ₹14K, ₹20K) = <strong>₹14,000 exempt/month</strong><br><br>⚠️ Only Old Regime!`;
+      if (m.match(/home.*loan|housing.*loan|24.*b|section 24/))
+        return `🏠 <strong>Home Loan Tax Benefit:</strong><br>• Interest u/s 24(b): Max <strong>₹2,00,000</strong> (self-occupied)<br>• Principal u/s 80C: Within ₹1.5L limit<br>• Let-Out: Full interest deductible (set-off ₹2L)<br><br>⚠️ Old Regime only!`;
+
+      // --- GST ---
+      if (m.match(/gst|gstr|invoice.*gst|input.*tax.*credit|itc/))
+        return KB.gst[hi ? 'hi' : 'en'];
+
+      // --- TDS ---
+      if (m.match(/tds|form 16|form16|26as|tds.*rate|194|192/))
+        return KB.tds[hi ? 'hi' : 'en'];
+
+      // --- Capital Gains ---
+      if (m.match(/capital.*gain|ltcg|stcg|shares.*tax|mutual.*fund.*tax|equity.*tax/))
+        return `📈 <strong>Capital Gains Tax (AY 2026-27):</strong><br><br><strong>Equity / MF (STT paid):</strong><br>• STCG (< 12 months): <strong>20%</strong><br>• LTCG (> 12 months): <strong>12.5%</strong> above ₹1.25L exemption<br><br><strong>Property / Debt:</strong><br>• STCG (< 24 months): Slab rate<br>• LTCG (> 24 months): 12.5% without indexation<br><br><strong>Exemptions:</strong><br>• u/s 54: Reinvest in property<br>• u/s 54EC: NHAI/REC bonds ₹50L`;
+
+      // --- Advance Tax ---
+      if (m.match(/advance.*tax|234b|234c|quarterly.*tax/))
+        return `📅 <strong>Advance Tax Schedule:</strong><br>• 15 June: 15% of annual liability<br>• 15 Sept: 45% cumulative<br>• 15 Dec: 75% cumulative<br>• 15 March: 100%<br><br>Required if tax > ₹10,000 after TDS<br>Interest u/s 234B/C: 1%/month`;
+
+      // --- Notices ---
+      if (m.match(/notice|143|148|156|scrutiny|demand.*notice/))
+        return KB.notice[hi ? 'hi' : 'en'];
+
+      // --- Investment ---
+      if (m.match(/invest|sip|mutual fund|ppf|wealth|portfolio/))
+        return KB.invest[hi ? 'hi' : 'en'];
+
+      // --- Deadlines ---
+      if (m.match(/deadline|last date|due date|31.*july|kab.*file|when.*file/))
+        return `📅 <strong>ITR Deadlines AY 2026-27:</strong><br>• Non-Audit (Salary): <strong>31 July 2026</strong><br>• Audit cases: 31 October 2026<br>• Belated return: 31 December 2026<br>• ITR-U (Updated): 31 March 2029<br><br>Late fee u/s 234F: Income ≤ ₹5L → ₹1,000 | > ₹5L → ₹5,000`;
+
+      // --- Salary specific ---
+      if (m.match(/\d+.*lakh.*salary|\d+.*lac.*salary|salary.*\d+.*lakh|meri.*salary|my.*salary/)) {
+        const match = m.match(/(\d+(?:\.\d+)?)\s*(?:lakh|lac|l)/);
+        const sal = match ? parseFloat(match[1]) : 0;
+        if (sal > 0) {
+          const gross = sal * 100000;
+          const stdDed = 75000;
+          const taxable = Math.max(0, gross - stdDed);
+          let tax = 0;
+          const slabs = [[400000,0],[400000,.05],[400000,.10],[400000,.15],[400000,.20],[400000,.25],[Infinity,.30]];
+          let rem = taxable;
+          for (const [lim,r] of slabs) { const t = Math.min(rem,lim); tax+=t*r; rem-=t; if(rem<=0)break; }
+          if (taxable <= 1200000) tax = Math.max(0, tax - Math.min(tax, 60000));
+          const total = Math.round(tax * 1.04);
+          const fmtN = n => '₹' + Math.round(n).toLocaleString('en-IN');
+          return `💰 <strong>${sal}L Salary — New Regime Tax:</strong><br>• Gross: ${fmtN(gross)}<br>• Std Deduction: (₹75,000)<br>• Taxable: ${fmtN(taxable)}<br>• Tax + Cess: <strong>${total===0?'₹0 🎉 ZERO TAX!':fmtN(total)}</strong><br><br>${total===0?'Aapko koi tax nahi dena! 🎉':'Monthly TDS: '+fmtN(total/12)+'/month'}`;
+        }
+      }
+
+      // --- Generic helpful response (not same sentence) ---
+      const topics = [
+        '📋 ITR form selection (ITR-1/2/3/4)',
+        '⚖️ Old vs New Regime comparison',
+        '💡 80C, 80D, NPS deductions',
+        '🏠 HRA calculation formula',
+        '🧾 GST filing & ITC rules',
+        '💼 TDS rates & Form 16',
+        '📈 Capital Gains (LTCG/STCG)',
+        '🔔 IT Notice explanation',
+        '📅 Deadlines & penalties',
+        '🧮 Salary-specific tax calculation'
+      ];
+      return hi
+        ? `🙏 <strong>TaxMitra AI — Aapka CA Sahayak!</strong><br><br>Aapka sawaal samajh nahi aaya — thoda aur detail mein puchein!<br><br>Main in topics mein help kar sakta hoon:<br>${topics.map(t=>'• '+t).join('<br>')}<br><br>💡 <em>Example: "Meri salary 15 lakh hai, kitna tax lagega?"</em>`
+        : `🙏 <strong>TaxMitra AI</strong><br><br>Please rephrase your question! I can help with:<br>${topics.map(t=>'• '+t).join('<br>')}<br><br>💡 <em>Example: "My salary is 15 lakh, how much tax?"</em>`;
+    }
+
+    
+    // ── HTML Sanitizer for AI output ───────────────────────────
+    function sanitizeAIOutput(text) {
+      if (!text) return '';
+      // Allow basic formatting tags, block script/events
+      return text
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+        .replace(/<iframe[^>]*>/gi, '')
+        .replace(/<object[^>]*>/gi, '')
+        .replace(/<embed[^>]*>/gi, '')
+        .replace(/javascript:/gi, '')
+        .replace(/vbscript:/gi, '');
     }
 
     function addMessage(text, isUser = false, isHTML = false) {
@@ -440,35 +579,69 @@
       addTyping();
 
       try {
-        // ── Try Real Backend AI (Gemini/OpenAI) ──────────────
-        if (AIAPI && Auth?.isLoggedIn()) {
-          const result = await AIAPI.chat({
-            message: msg,
-            language: currentLang,
-            mode: currentMode,
-            sessionId: window._aiSessionId,
-          });
-          window._aiSessionId = result.sessionId;
-          removeTyping();
-          addMessage(result.response, false, true);
-          // Show suggestions as chips
-          if (result.suggestions?.length) {
-            const qc = document.getElementById('quickChips');
-            qc.innerHTML = result.suggestions.map(s => `<span class="chip" onclick="sendQuick('${s}')">${s}</span>`).join('');
-          }
+        let aiText = '';
+        let provider = 'rule-based';
+
+        // Check if key is configured (show setup hint once)
+        const _keys = JSON.parse(localStorage.getItem('tm_keys') || '{}');
+        const _hasKey = (_keys.geminiApiKey && (_keys.geminiApiKey.startsWith('AIzaSy') || _keys.geminiApiKey.startsWith('AQ.')) && _keys.geminiApiKey.length > 20);
+        
+        // ── Try Real Gemini AI (via ai-real.js TaxMitraAI) ─────
+        if (_hasKey && window.TaxMitraAI && window.TaxMitraAI.callGemini) {
+          const history = getRecentHistory();
+          const result = await window.TaxMitraAI.callGemini(msg, currentMode, currentLang, history);
+          aiText   = result.text;
+          provider = result.provider;
+        } else if (!_hasKey && window.TaxMitraAI && window.TaxMitraAI.callGemini) {
+          // Has TaxMitraAI but key missing - use rule-based comprehensive engine
+          const result = await window.TaxMitraAI.callGemini(msg, currentMode, currentLang, getRecentHistory());
+          aiText = result.text || getResponse(msg);
+          provider = result.provider || 'rule-based';
         } else {
-          // ── Fallback: Rule-based AI ───────────────────────
-          setTimeout(() => {
-            removeTyping();
-            addMessage(getResponse(msg), false, true);
-          }, 800 + Math.random() * 600);
+          // ── Fallback: Rule-based ─────────────────────────────
+          aiText = getResponse(msg);
+          provider = 'rule-based';
         }
-      } catch (err) {
+
         removeTyping();
-        // Fallback on error
-        addMessage(getResponse(msg), false, true);
-        console.warn('Backend AI error, using fallback:', err.message);
+        addMessage(aiText, false, true);
+        saveToHistory(msg, aiText);
+
+        // Update provider indicator
+        const modeLabel = document.getElementById('modeLabel');
+        if (modeLabel) {
+          modeLabel.textContent = `● ${(provider && provider !== 'rule-based') ? '🤖 ' + provider + ' Active' : '📚 Rule-based'} | ${currentMode}`;
+        }
+
+      } catch(err) {
+        removeTyping();
+        // Always fallback to rule-based on error
+        const fallback = getResponse(msg);
+        addMessage(fallback, false, true);
+        console.warn('AI error, using fallback:', err.message);
       }
+    }
+
+    // ── Chat history helpers ─────────────────────────────────
+    let _chatHistory = [];
+    function getRecentHistory() {
+      return _chatHistory.slice(-6);
+    }
+    function saveToHistory(userMsg, aiMsg) {
+      _chatHistory.push({ role: 'user', content: userMsg });
+      _chatHistory.push({ role: 'assistant', content: aiMsg });
+      if (_chatHistory.length > 20) _chatHistory = _chatHistory.slice(-20);
+    }
+
+
+    function explainNotice() {
+      const notice = prompt('IT Notice text paste karein (ya section number jaise 143(1), 148 etc.):');
+      if (!notice) return;
+      document.getElementById('aiInput').value = 'IT Notice explain karo: ' + notice;
+      currentMode = 'notice';
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.mode-btn').forEach(b => { if(b.dataset.mode === 'notice') b.classList.add('active'); });
+      sendMessage();
     }
 
     function sendQuick(msg) { document.getElementById('aiInput').value = msg; sendMessage(); }
@@ -509,7 +682,7 @@
 
     // Voice
     function startVoice() {
-      if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) { alert('Voice not supported in this browser'); return; }
+      if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) { showToast('⚠️ Voice input not supported in this browser. Use Chrome.','warning'); return; }
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       const r = new SR(); r.lang = currentLang === 'en' ? 'en-IN' : 'hi-IN'; r.continuous = false;
       const btn = document.getElementById('voiceBtn');
@@ -531,15 +704,93 @@
       a.download = 'taxmitra-ai-chat.txt'; a.click();
     }
 
-    function handleDocUpload(input) {
+    async function handleDocUpload(input) {
       const file = input.files[0];
       if (!file) return;
-      document.getElementById('uploadedDoc').style.display = 'block';
-      document.getElementById('uploadedDoc').textContent = `📄 "${file.name}" uploaded. AI is reading...`;
-      setTimeout(() => {
-        addMessage(`📄 Document uploaded: <strong>${file.name}</strong><br><br>AI OCR Analysis (Simulated):<br>• Document detected: <strong>${file.name.includes('16') ? 'Form 16' : file.name.includes('26') ? 'Form 26AS' : 'Tax Document'}</strong><br>• Gross Salary found: ₹8,40,000<br>• TDS Deducted: ₹72,500<br>• PAN: XXXXX1234X<br><br>✅ <strong>Ready to answer document-specific questions!</strong> Ask anything about this document.`, false, true);
-        document.getElementById('uploadedDoc').textContent = `✅ "${file.name}" – AI ready to answer`;
-      }, 2000);
+      const upEl = document.getElementById('uploadedDoc');
+      upEl.style.display = 'block';
+      upEl.textContent = `📄 "${file.name}" uploading... AI OCR mein bhej raha hoon`;
+
+      try {
+        // Read file as base64
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+        const mimeType = file.type || 'image/jpeg';
+        const docType = file.name.toLowerCase().includes('16') ? 'Form 16'
+          : file.name.toLowerCase().includes('26') ? 'Form 26AS'
+          : file.name.toLowerCase().includes('pan') ? 'PAN Card'
+          : file.name.toLowerCase().includes('ais') ? 'AIS'
+          : file.name.toLowerCase().includes('aadhaar') ? 'Aadhaar Card'
+          : 'Tax Document';
+
+        upEl.textContent = `🔍 Gemini Vision OCR processing "${file.name}"...`;
+        addMessage(`📄 <strong>${file.name}</strong> upload ho gaya. Gemini AI se OCR kar raha hoon...`, false, false);
+
+        // Use Gemini Vision via ai-real.js
+        let ocrResult = null;
+        if (window.TaxMitraAI && window.TaxMitraAI.extractDocumentData) {
+          ocrResult = await window.TaxMitraAI.extractDocumentData(docType, base64, mimeType);
+        } else {
+          // Direct Gemini call
+          const keys = JSON.parse(localStorage.getItem('tm_keys') || '{}');
+          const geminiKey = keys.geminiApiKey || '';
+          // Valid Gemini key must start with 'AIzaSy'
+          if ((geminiKey && (geminiKey.startsWith('AIzaSy') || geminiKey.startsWith('AQ.')) && geminiKey.length > 20)) {
+            const prompt = `Extract all tax-relevant information from this ${docType}. Return a JSON object with fields: documentType, name, pan, aadhaar, grossSalary, tdsDeducted, employer, tan, assessmentYear, otherIncome, totalTax, refund, and any other relevant fields found. Mask PAN to XXXXXNNNNN format (last 4 visible). Return ONLY valid JSON.`;
+            // Use x-goog-api-key header (Google recommended, July 2026)
+            // Model: gemini-2.5-flash (1.5 & 2.0 retired June 2026)
+            const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-goog-api-key': geminiKey,
+              },
+              body: JSON.stringify({
+                contents: [{parts: [
+                  {text: prompt},
+                  {inlineData: {mimeType, data: base64}}
+                ]}],
+                generationConfig: {temperature: 0.1, maxOutputTokens: 1024}
+              })
+            });
+            if (resp.ok) {
+              const data = await resp.json();
+              const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+              const jsonMatch = text.match(/\{[\s\S]*\}/);
+              if (jsonMatch) ocrResult = JSON.parse(jsonMatch[0]);
+            } else {
+              console.error('[TaxMitra OCR] Gemini error:', resp.status, await resp.text());
+            }
+          } else if ((geminiKey && !geminiKey.startsWith('AIzaSy') && !geminiKey.startsWith('AQ.'))) {
+            console.error('[TaxMitra] Invalid Gemini key! Key must start with AIzaSy. Get key from: aistudio.google.com');
+          }
+        }
+
+        if (ocrResult) {
+          const lines = Object.entries(ocrResult)
+            .filter(([k, v]) => v && v !== 'null' && v !== null)
+            .map(([k, v]) => `• <strong>${k.replace(/([A-Z])/g, ' $1').trim()}:</strong> ${v}`)
+            .join('<br>');
+          addMessage(`✅ <strong>Gemini Vision OCR — ${docType}</strong><br><br>${lines}<br><br>📌 Ab aap is document ke baare mein koi bhi sawaal puch sakte hain!`, false, true);
+          upEl.textContent = `✅ "${file.name}" – OCR complete, ready for Q&A`;
+          // Store context for follow-up questions
+          window._uploadedDocContext = JSON.stringify(ocrResult);
+          window._uploadedDocType = docType;
+        } else {
+          // Fallback: rule-based extraction hint
+          addMessage(`📄 <strong>${docType}: "${file.name}"</strong> upload hua.<br><br>💡 <em>Gemini API key set karein for full OCR.</em><br>Console mein type karein: <code>TaxMitra.setKeys({geminiApiKey:'AIza...'})</code><br><br>Tab main is document ki detailed analysis karunga!`, false, true);
+          upEl.textContent = `📄 "${file.name}" – Set API key for OCR`;
+        }
+      } catch (err) {
+        console.error('Doc upload error:', err);
+        upEl.textContent = `⚠️ "${file.name}" – OCR error`;
+        addMessage(`⚠️ OCR mein error aaya: ${err.message || 'Unknown error'}. Please try again.`, false, false);
+      }
     }
 
     // Daily tips
@@ -566,21 +817,39 @@
 
     // Quick tax
     function quickTaxCalc() {
-      const inc = parseFloat(document.getElementById('quickIncome').value) || 0;
-      if (!inc) { document.getElementById('quickTaxResult').style.display='none'; return; }
-      const ti = Math.max(0, inc - 75000);
+      // AY 2026-27 Budget 2025 New Regime slabs
+      const grossInc = parseFloat(document.getElementById('quickIncome').value) || 0;
+      if (!grossInc) { document.getElementById('quickTaxResult').style.display='none'; return; }
+      
+      // Standard deduction Rs 75,000 for salaried
+      const ti = Math.max(0, grossInc - 75000);
+      
+      // New Regime Slabs: 0-4L:0%, 4-8L:5%, 8-12L:10%, 12-16L:15%, 16-20L:20%, 20-24L:25%, >24L:30%
       let t = 0;
-      if (ti <= 300000) t = 0;
-      else if (ti <= 700000) t = (ti-300000)*0.05;
-      else if (ti <= 1000000) t = 20000+(ti-700000)*0.10;
-      else if (ti <= 1200000) t = 50000+(ti-1000000)*0.15;
-      else if (ti <= 1500000) t = 80000+(ti-1200000)*0.20;
-      else t = 140000+(ti-1500000)*0.30;
-      if (ti <= 1200000) t = Math.max(0, t-Math.min(t,60000));
+      if (ti <= 400000)       t = 0;
+      else if (ti <= 800000)  t = (ti-400000)*0.05;
+      else if (ti <= 1200000) t = 20000+(ti-800000)*0.10;
+      else if (ti <= 1600000) t = 60000+(ti-1200000)*0.15;
+      else if (ti <= 2000000) t = 120000+(ti-1600000)*0.20;
+      else if (ti <= 2400000) t = 200000+(ti-2000000)*0.25;
+      else                    t = 300000+(ti-2400000)*0.30;
+      
+      // Rebate u/s 87A: if income <= Rs 12L, full rebate up to Rs 60,000
+      const rebate = (ti <= 1200000) ? Math.min(t, 60000) : 0;
+      t = Math.max(0, t - rebate);
+      
+      // Surcharge + 4% cess
       const total = Math.round(t * 1.04);
+      
       const res = document.getElementById('quickTaxResult');
       res.style.display = 'block';
-      res.innerHTML = `New Regime: <strong>₹${total.toLocaleString('en-IN')}</strong><br><small style="color:var(--text-muted);font-weight:400">Effective rate: ${inc>0?((total/inc)*100).toFixed(2):0}%</small>`;
+      
+      // Show zero tax benefit if applicable
+      const zeroTax = grossInc <= 1275000 && total === 0;
+      res.innerHTML = zeroTax
+        ? '<span style="color:var(--success);font-weight:700">🎉 ZERO TAX! (Budget 2025)</span><br><small style="color:var(--text-muted)">Gross ≤₹12.75L = Zero Tax in New Regime</small>'
+        : 'New Regime: <strong>₹' + total.toLocaleString('en-IN') + '</strong>' +
+          '<br><small style="color:var(--text-muted);font-weight:400">Eff. rate: ' + (grossInc>0?((total/grossInc)*100).toFixed(2):0) + '% | Rebate: ₹' + rebate.toLocaleString('en-IN') + '</small>';
     }
 
     function clearHistory() { if(confirm('Clear history?')) document.getElementById('historyList').innerHTML = '<div style="font-size:0.78rem;color:var(--text-muted);text-align:center;padding:1rem">Cleared!</div>'; }
@@ -594,5 +863,103 @@
       localStorage.setItem('tm-theme', isDark ? 'dark' : 'light');
     });
   </script>
+
+<div style="background:rgba(30,64,175,0.04);border-top:1px solid var(--border);padding:0.75rem;text-align:center;font-size:0.72rem;color:var(--text-muted)">
+  <span id="aiModelStatus">🔄 Checking AI model...</span> | 
+  <a href="#" onclick="setupAIKeys();return false;" style="color:var(--primary);font-weight:700">⚙️ Setup AI Keys</a> |
+  Developed by <strong>Abhishek Agrahari</strong>
+</div>
+<script>
+    // ── AI Initialization check ──────────────────────────────
+    window.addEventListener('load', () => {
+      const geminiKey = window.TAXMITRA_CONFIG?.GEMINI_API_KEY;
+      const modeLabel = document.getElementById('modeLabel');
+      if (geminiKey && geminiKey !== 'YOUR_GEMINI_API_KEY' && !geminiKey.includes('XXXX') && !geminiKey.includes('AAPKI')) {
+        console.log('✅ Gemini API key found — Real AI active');
+        if (modeLabel) modeLabel.textContent = '● 🤖 Gemini AI Ready | Hindi + English';
+      } else {
+        console.warn('⚠️ Gemini key not set — using rule-based AI');
+        if (modeLabel) modeLabel.textContent = '● 📚 Rule-based AI | Set Gemini key for real AI';
+      }
+      // Load daily tip
+      loadDailyTip();
+    updateModelStatus();
+      loadDeadlines();
+    });
+
+    function loadDailyTip() {
+      const tips = [
+        '💡 New Regime: ₹12.75L tak ZERO tax! Std. Deduction ₹75K + 87A rebate ₹60K.',
+        '💡 Section 80D: Self ₹25K + Parents ₹50K = ₹75K health insurance deduction (Old Regime)',
+        '💡 NPS 80CCD(1B): Extra ₹50,000 deduction over 80C limit — Old Regime ka biggest advantage!',
+        '💡 LTCG on equity >₹1.25L taxed at 12.5%. Hold 1+ year for LTCG benefit.',
+        '💡 Advance Tax: If total tax >₹10K, pay quarterly to avoid 234B interest.',
+        '💡 HRA Exemption: Minimum of HRA received, 50%/40% of basic, Rent-10%basic.',
+        '💡 GSTR-3B: File by 20th every month. Late fee ₹50/day. Interest 18% pa.',
+        '💡 Form 26AS se TDS mismatch check karo before filing ITR.',
+      ];
+      const tip = document.getElementById('dailyTip');
+      if (tip) tip.innerHTML = tips[Math.floor(Math.random() * tips.length)];
+    }
+
+    function setupAIKeys() {
+      const gemKey = prompt('Gemini API Key (from aistudio.google.com/app/apikey):');
+      if (gemKey && gemKey.trim().length > 10) {
+        const orKey = prompt('OpenRouter API Key (optional, from openrouter.ai/keys) — press Cancel to skip:');
+        const keys = { geminiApiKey: gemKey.trim() };
+        if (orKey && orKey.trim().length > 10) keys.openrouterApiKey = orKey.trim();
+        if (window.TaxMitra) {
+          window.TaxMitra.setKeys(keys);
+          updateModelStatus();
+          if(typeof showToast==='function') showToast('AI keys saved! AI is now active.', 'success');
+        } else {
+          localStorage.setItem('tm_keys', JSON.stringify(keys));
+          if(typeof showToast==='function') showToast('Keys saved! Refresh to activate AI.', 'success');
+        }
+      }
+    }
+
+    function updateModelStatus() {
+      const statusEl = document.getElementById('aiModelStatus');
+      if (!statusEl) return;
+      const keys = JSON.parse(localStorage.getItem('tm_keys') || '{}');
+      const gOk = keys.geminiApiKey && keys.geminiApiKey.length > 10 && !keys.geminiApiKey.includes('XXX');
+      const oOk = keys.openrouterApiKey && keys.openrouterApiKey.length > 10;
+      if (gOk && oOk) {
+        statusEl.innerHTML = '🤖 <strong>Multi-AI Active:</strong> Gemini + DeepSeek R1 + Llama 3.3';
+        statusEl.style.color = 'var(--success)';
+      } else if (gOk) {
+        statusEl.innerHTML = '🤖 <strong>Gemini AI Active</strong> (set OpenRouter for DeepSeek/Llama)';
+        statusEl.style.color = 'var(--primary)';
+      } else if (oOk) {
+        statusEl.innerHTML = '🤖 <strong>OpenRouter AI Active:</strong> Llama 3.3 70B + DeepSeek R1';
+        statusEl.style.color = 'var(--primary)';
+      } else {
+        statusEl.innerHTML = '📚 Rule-based mode — <a href="#" onclick="setupAIKeys();return false;" style="color:var(--primary)">Set API key for real AI</a>';
+        statusEl.style.color = 'var(--text-muted)';
+      }
+    }
+
+    function loadDeadlines() {
+      const widget = document.getElementById('deadlinesWidget');
+      if (!widget) return;
+      const today = new Date();
+      const dates = [
+        { label:'GSTR-3B', date:'2026-08-20', urgent:true },
+        { label:'TDS Payment', date:'2026-08-07', urgent:true },
+        { label:'GSTR-1', date:'2026-08-11', urgent:false },
+        { label:'Adv Tax Q2', date:'2026-09-15', urgent:false },
+      ];
+      widget.innerHTML = dates.map(d => {
+        const days = Math.ceil((new Date(d.date)-today)/(864e5));
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:.75rem">${d.label}</span>
+          <span style="font-size:.72rem;font-weight:600;color:${days<=7?'var(--danger)':'var(--success)'}">${d.date.split('-').slice(1).join('/')}</span>
+        </div>`;
+      }).join('');
+    }
+
+  </script>
+
 </body>
 </html>

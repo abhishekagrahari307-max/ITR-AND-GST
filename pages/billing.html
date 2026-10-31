@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GST Billing & Invoicing – TaxMitra</title>
+  <meta name="description" content="Free local-first GST invoicing for Indian small businesses: tax invoices, HSN summary, ageing report and GSTR-1 working paper export. All data stays in your browser."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .bill-tabs { display: flex; gap: 0.35rem; flex-wrap: wrap; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.4rem; margin: 1.5rem 0; position: sticky; top: 64px; z-index: 50; box-shadow: var(--shadow-sm); }
+    .bill-tabs button { border: 0; background: transparent; padding: 0.55rem 0.9rem; border-radius: var(--radius-sm); font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+    .bill-tabs button.active { background: var(--primary); color: #fff; }
+    .bill-tabs button:hover:not(.active) { background: rgba(30,64,175,0.08); color: var(--primary); }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.15rem; }
+    .stat-card span { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .stat-card strong { display: block; font-size: 1.35rem; font-weight: 800; margin-top: 0.3rem; color: var(--text-primary); }
+    .stat-card small { color: var(--text-muted); font-size: 0.72rem; }
+    .tm-table { width: 100%; border-collapse: collapse; background: var(--bg-card); }
+    .tm-table th, .tm-table td { padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; text-align: left; vertical-align: top; }
+    .tm-table th { background: var(--bg-secondary); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .tm-table td.num, .tm-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tm-table .sub { font-size: 0.72rem; color: var(--text-muted); }
+    .tm-table .empty { text-align: center; color: var(--text-muted); padding: 1.5rem; }
+    .tm-table .actions { white-space: nowrap; }
+    .pill { display: inline-block; padding: 0.15rem 0.5rem; border-radius: var(--radius-full); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+    .pill.ok { background: rgba(16,185,129,0.15); color: #047857; }
+    .pill.bad { background: rgba(239,68,68,0.15); color: #b91c1c; }
+    .pill.warn { background: rgba(245,158,11,0.18); color: #b45309; }
+    .pill.muted { background: var(--bg-secondary); color: var(--text-muted); }
+    .btn-icon { border: 1px solid var(--border); background: var(--bg-card); border-radius: var(--radius-sm); padding: 0.3rem 0.45rem; cursor: pointer; font-size: 0.85rem; line-height: 1; }
+    .btn-icon:hover { border-color: var(--primary); }
+    .btn-icon.danger:hover { border-color: var(--danger); }
+    .card-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; }
+    .card-block > h3 { font-size: 1rem; font-weight: 800; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    .line-table { width: 100%; border-collapse: collapse; }
+    .line-table th { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); padding: 0.4rem; text-align: left; }
+    .line-table td { padding: 0.25rem; }
+    .line-table input, .line-table select { width: 100%; padding: 0.45rem 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.82rem; background: var(--bg-card); color: var(--text-primary); }
+    .line-table td.num { text-align: right; font-size: 0.82rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .line-table .w-qty { width: 80px; } .line-table .w-rate { width: 105px; } .line-table .w-gst { width: 80px; }
+    .totals-panel { margin-top: 1rem; margin-left: auto; width: min(360px, 100%); }
+    .totals-panel div { display: flex; justify-content: space-between; padding: 0.35rem 0; font-size: 0.85rem; }
+    .totals-panel .grand { border-top: 2px solid var(--border); margin-top: 0.35rem; padding-top: 0.6rem; font-size: 1.05rem; font-weight: 800; }
+    .totals-words { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
+    .field-hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; display: block; }
+    .field-hint.ok { color: #047857; } .field-hint.bad { color: #b91c1c; }
+    .alert { padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.85rem; margin-bottom: 1rem; border: 1px solid; }
+    .alert.warn { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); color: #92400e; }
+    .alert.bad { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); color: #991b1b; }
+    .alert ul { margin: 0.4rem 0 0 1.1rem; }
+    .toast-host { position: fixed; right: 1rem; bottom: 1rem; z-index: 999; display: flex; flex-direction: column; gap: 0.5rem; }
+    .tm-toast { background: var(--bg-dark); color: #fff; padding: 0.65rem 1rem; border-radius: var(--radius-sm); font-size: 0.82rem; max-width: 340px; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; box-shadow: var(--shadow-lg); }
+    .tm-toast.show { opacity: 1; transform: translateY(0); }
+    .tm-toast.ok { border-left: 3px solid var(--success); }
+    .tm-toast.bad { border-left: 3px solid var(--danger); }
+    .tm-toast.warn { border-left: 3px solid var(--warning); }
+    .tm-toast.info { border-left: 3px solid var(--info); }
+    .disclaimer { font-size: 0.78rem; color: var(--text-muted); border-left: 3px solid var(--secondary); padding: 0.6rem 0.9rem; background: rgba(245,158,11,0.06); border-radius: var(--radius-sm); margin-bottom: 1.5rem; }
+
+    /* ---------- printable invoice ---------- */
+    .print-area { display: none; }
+    .invoice-sheet { background: #fff; color: #111; padding: 24px; font-size: 12px; }
+    .invoice-sheet h2 { font-size: 18px; margin-bottom: 2px; }
+    .invoice-sheet h3 { font-size: 15px; letter-spacing: 1px; }
+    .invoice-sheet h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #555; margin: 8px 0 2px; }
+    .invoice-sheet .sub { color: #555; font-size: 11px; }
+    .sheet-head { display: flex; justify-content: space-between; border-bottom: 2px solid #111; padding-bottom: 10px; }
+    .sheet-title { text-align: right; }
+    .sheet-grid { display: flex; gap: 24px; justify-content: space-between; margin: 12px 0; }
+    .sheet-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+    .sheet-table th, .sheet-table td { border: 1px solid #ccc; padding: 5px 6px; text-align: left; vertical-align: top; }
+    .sheet-table th { background: #f2f2f2; font-size: 10px; text-transform: uppercase; }
+    .sheet-table .num, .sheet-totals .num { text-align: right; white-space: nowrap; }
+    .sheet-totals { display: flex; justify-content: space-between; gap: 24px; margin-top: 8px; }
+    .sheet-totals table { border-collapse: collapse; min-width: 240px; }
+    .sheet-totals td { padding: 3px 6px; border-bottom: 1px solid #e5e5e5; }
+    .sheet-totals .grand td { font-weight: 800; font-size: 14px; border-top: 2px solid #111; border-bottom: none; }
+    .sheet-note { flex: 1; max-width: 55%; }
+    .sheet-foot { margin-top: 18px; border-top: 1px solid #ccc; padding-top: 8px; display: flex; justify-content: space-between; gap: 24px; }
+    .sheet-foot .sign { text-align: right; font-size: 11px; }
+    @media print {
+      body { background: #fff !important; }
+      body > *:not(.print-area) { display: none !important; }
+      .print-area { display: block !important; }
+      .invoice-sheet { padding: 0; }
+      @page { margin: 12mm; }
+    }
+    @media(max-width: 900px) {
+      .dash-cols { grid-template-columns: 1fr !important; }
+      .line-table thead { display: none; }
+      .line-table tr { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
+      .line-table td { display: block; }
+      .line-table td::before { content: attr(data-label); display: block; font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); }
+      .line-table .w-qty, .line-table .w-rate, .line-table .w-gst { width: auto; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle">🌙</button>
+        <a href="itr-form.html" class="btn-nav-login">ITR Wizard</a>
+        <a href="../index.html" class="btn-nav-ai"><i class="fa fa-home"></i> Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Billing</span></div>
+      <h1>🧾 GST Billing &amp; Invoicing</h1>
+      <p>Tax invoices, HSN summaries and GSTR-1 working papers — free, unlimited, and saved only in your own browser.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="disclaimer">
+      <strong>What this does not do:</strong> it does not file returns or generate IRNs, and it does not talk to the GST portal.
+      The GSTR-1 export is a reconciliation working paper, not an official upload file. Data lives in this browser — download a backup regularly.
+    </div>
+
+    <div id="appError" class="alert bad" style="display:none"></div>
+
+    <div class="bill-tabs" role="tablist">
+      <button data-tab-btn="dashboard" role="tab" class="active" aria-selected="true">📊 Dashboard</button>
+      <button data-tab-btn="new" role="tab" aria-selected="false">➕ New invoice</button>
+      <button data-tab-btn="invoices" role="tab" aria-selected="false">📄 Invoices</button>
+      <button data-tab-btn="customers" role="tab" aria-selected="false">👥 Customers</button>
+      <button data-tab-btn="items" role="tab" aria-selected="false">📦 Items</button>
+      <button data-tab-btn="settings" role="tab" aria-selected="false">⚙️ Settings</button>
+    </div>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section data-tab-panel="dashboard">
+      <div id="gstinWarning" class="alert warn" hidden></div>
+      <div class="stat-grid">
+        <div class="stat-card"><span>Invoiced (<span id="statFy">—</span>)</span><strong id="statInvoiced">₹0.00</strong><small id="statCount">0 invoices</small></div>
+        <div class="stat-card"><span>Collected</span><strong id="statCollected">₹0.00</strong><small>marked paid</small></div>
+        <div class="stat-card"><span>Outstanding</span><strong id="statOutstanding">₹0.00</strong><small>awaiting payment</small></div>
+        <div class="stat-card"><span>GST in these invoices</span><strong id="statTax">₹0.00</strong><small>CGST + SGST + IGST + cess</small></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:1.25rem;margin-top:1.25rem" class="dash-cols">
+        <div class="card-block">
+          <h3>Recent invoices <button type="button" class="btn-secondary-solid" id="newInvoiceBtn" style="font-size:0.78rem">+ New invoice</button></h3>
+          <table class="tm-table">
+            <thead><tr><th>Invoice</th><th>Buyer</th><th>Date</th><th class="num">Total</th><th>Status</th></tr></thead>
+            <tbody id="recentBody"><tr><td colspan="5" class="empty">No invoices yet.</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card-block">
+          <h3>Receivables ageing</h3>
+          <table class="tm-table">
+            <thead><tr><th>Bucket</th><th class="num">Amount</th></tr></thead>
+            <tbody id="ageingBody"></tbody>
+          </table>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem">
+            <button class="btn-primary-solid" id="exportGstr1Btn" style="font-size:0.8rem">⬇ Export GSTR-1 working paper</button>
+            <button class="btn-secondary-solid" id="exportJsonBtn" style="font-size:0.8rem">💾 Backup (JSON)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ NEW / EDIT INVOICE ============ -->
+    <section data-tab-panel="new" hidden>
+      <div id="formErrors" class="alert bad" hidden></div>
+
+      <div class="card-block">
+        <h3><span id="editorTitle">New invoice</span><span style="font-size:0.75rem;font-weight:600;color:var(--text-muted)" id="totSupply"></span></h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="buyerSelect">Pick a saved customer</label>
+            <select id="buyerSelect"><option value="">— new / ad-hoc buyer —</option></select>
+          </div>
+          <div class="form-group">
+            <label for="invoiceNumber">Invoice number *</label>
+            <input type="text" id="invoiceNumber" placeholder="INV/2026-27/0001"/>
+          </div>
+          <div class="form-group">
+            <label for="invoiceDate">Invoice date *</label>
+            <input type="date" id="invoiceDate"/>
+          </div>
+          <div class="form-group">
+            <label for="dueDate">Payment due</label>
+            <input type="date" id="dueDate"/>
+          </div>
+          <div class="form-group">
+            <label for="buyerName">Buyer name *</label>
+            <input type="text" id="buyerName" placeholder="M/s Sharma Traders"/>
+          </div>
+          <div class="form-group">
+            <label for="buyerGstin">Buyer GSTIN (blank for B2C)</label>
+            <input type="text" id="buyerGstin" maxlength="15" placeholder="27AAPFU0939F1ZV" style="text-transform:uppercase"/>
+            <span class="field-hint" id="gstinHint">Unregistered buyer – B2C supply</span>
+          </div>
+          <div class="form-group">
+            <label for="buyerState">Place of supply *</label>
+            <select id="buyerState"></select>
+          </div>
+          <div class="form-group">
+            <label for="buyerEmail">Buyer email</label>
+            <input type="email" id="buyerEmail" placeholder="accounts@example.com"/>
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label for="buyerAddress">Buyer address</label>
+            <input type="text" id="buyerAddress" placeholder="Street, city, PIN"/>
+          </div>
+          <div class="form-group">
+            <label for="invoiceStatus">Status</label>
+            <select id="invoiceStatus">
+              <option value="unpaid">Unpaid</option>
+              <option value="partial">Partially paid</option>
+              <option value="paid">Paid</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="reverseCharge">Reverse charge applies</label>
+            <input type="checkbox" id="reverseCharge" style="width:auto"/>
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label for="invoiceNotes">Notes on the invoice</label>
+            <input type="text" id="invoiceNotes" placeholder="PO number, transport details, etc."/>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <h3>Line items <button class="btn-secondary-solid" id="addLine" style="font-size:0.78rem">+ Add line</button></h3>
+        <table class="line-table">
+          <thead>
+            <tr><th>Description</th><th>HSN/SAC</th><th>Qty</th><th>Rate</th><th>Discount</th><th>GST</th><th style="text-align:right">Taxable</th><th style="text-align:right">Amount</th><th></th></tr>
+          </thead>
+          <tbody id="lineRows"></tbody>
+        </table>
+
+        <div class="totals-panel">
+          <div><span>Taxable value</span><span id="totTaxable">₹0.00</span></div>
+          <div><span>CGST</span><span id="totCgst">₹0.00</span></div>
+          <div><span>SGST</span><span id="totSgst">₹0.00</span></div>
+          <div id="igstRow" hidden><span>IGST</span><span id="totIgst">₹0.00</span></div>
+          <div><span>Round off</span><span id="totRound">₹0.00</span></div>
+          <div class="grand"><span>Invoice total</span><span id="totGrand">₹0.00</span></div>
+          <div class="totals-words" id="totWords"></div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary-solid" id="saveInvoice">💾 Save invoice</button>
+          <button class="btn-secondary-solid" id="printDraft">🖨 Print / PDF</button>
+          <span style="font-size:0.75rem;color:var(--text-muted);align-self:center">Tip: Ctrl/Cmd + S saves</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ INVOICES ============ -->
+    <section data-tab-panel="invoices" hidden>
+      <div class="card-block">
+        <h3>All invoices <button class="btn-secondary-solid" id="exportGstr1Btn2" style="font-size:0.78rem">⬇ GSTR-1 working paper</button></h3>
+        <div class="form-grid" style="margin-bottom:1rem">
+          <div class="form-group"><label for="filterSearch">Search</label><input type="search" id="filterSearch" placeholder="Invoice no, buyer, GSTIN"/></div>
+          <div class="form-group"><label for="filterStatus">Status</label>
+            <select id="filterStatus"><option value="all">All</option><option value="unpaid">Unpaid</option><option value="partial">Partially paid</option><option value="paid">Paid</option><option value="cancelled">Cancelled</option></select>
+          </div>
+          <div class="form-group"><label for="filterMonth">Month</label><select id="filterMonth"><option value="all">All months</option></select></div>
+        </div>
+        <table class="tm-table">
+          <thead><tr><th>Invoice</th><th>Date</th><th>Buyer</th><th class="num">Taxable</th><th class="num">GST</th><th class="num">Total</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="invoiceBody"><tr><td colspan="8" class="empty">No invoices yet.</td></tr></tbody>
+        </table>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.75rem" id="invoiceListTotal"></p>
+      </div>
+    </section>
+
+    <!-- ============ CUSTOMERS ============ -->
+    <section data-tab-panel="customers" hidden>
+      <div class="card-block">
+        <h3>Add customer</h3>
+        <form id="customerForm">
+          <div class="form-grid">
+            <div class="form-group"><label for="cname">Name *</label><input type="text" id="cname" name="name" required/></div>
+            <div class="form-group"><label for="cgstin">GSTIN</label><input type="text" id="cgstin" name="gstin" maxlength="15" style="text-transform:uppercase" placeholder="Unregistered – leave blank"/></div>
+            <div class="form-group"><label for="cstate">State</label><select id="cstate" name="state"></select></div>
+            <div class="form-group"><label for="cemail">Email</label><input type="email" id="cemail" name="email"/></div>
+            <div class="form-group"><label for="cphone">Phone</label><input type="tel" id="cphone" name="phone"/></div>
+            <div class="form-group"><label for="caddress">Address</label><input type="text" id="caddress" name="address"/></div>
+          </div>
+          <div class="form-actions"><button class="btn-primary-solid" type="submit">+ Add customer</button></div>
+        </form>
+      </div>
+      <div class="card-block">
+        <h3>Customers</h3>
+        <table class="tm-table">
+          <thead><tr><th>Name</th><th>GSTIN</th><th>State</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead>
+          <tbody id="customerBody"><tr><td colspan="6" class="empty">No customers saved yet.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ ITEMS ============ -->
+    <section data-tab-panel="items" hidden>
+      <div class="card-block">
+        <h3>Add item / service</h3>
+        <form id="itemForm">
+          <div class="form-grid">
+            <div class="form-group"><label for="iname">Name *</label><input type="text" id="iname" name="name" required/></div>
+            <div class="form-group"><label for="ihsn">HSN / SAC</label><input type="text" id="ihsn" name="hsn"/></div>
+            <div class="form-group"><label for="irate">Default rate (₹) *</label><input type="number" id="irate" name="rate" min="0" step="0.01" required/></div>
+            <div class="form-group"><label for="igst">GST rate</label>
+              <select id="igst" name="gstRate">
+                <option value="0">0% – Nil / exempt</option>
+                <option value="5">5% – essentials</option>
+                <option value="12">12% – legacy</option>
+                <option value="18" selected>18% – standard</option>
+                <option value="28">28% – legacy</option>
+                <option value="40">40% – sin &amp; luxury</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions"><button class="btn-primary-solid" type="submit">+ Save item</button></div>
+        </form>
+      </div>
+      <div class="card-block">
+        <h3>Saved items</h3>
+        <table class="tm-table">
+          <thead><tr><th>Name</th><th>HSN/SAC</th><th class="num">Rate</th><th class="num">GST</th><th>Actions</th></tr></thead>
+          <tbody id="itemBody"><tr><td colspan="5" class="empty">No saved items yet.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section data-tab-panel="settings" hidden>
+      <div class="card-block">
+        <h3>Business details (shown on every invoice)</h3>
+        <form id="settingsForm">
+          <div class="form-grid">
+            <div class="form-group"><label for="set_businessName">Business name</label><input type="text" id="set_businessName" name="businessName"/></div>
+            <div class="form-group"><label for="set_gstin">GSTIN</label><input type="text" id="set_gstin" name="gstin" maxlength="15" style="text-transform:uppercase"/><span class="field-hint" id="sellerGstinHint">Not set</span></div>
+            <div class="form-group"><label for="set_pan">PAN</label><input type="text" id="set_pan" name="pan" maxlength="10" style="text-transform:uppercase"/></div>
+            <div class="form-group"><label for="set_state">State (seller)</label><select id="set_state" name="state"></select></div>
+            <div class="form-group"><label for="set_phone">Phone</label><input type="tel" id="set_phone" name="phone"/></div>
+            <div class="form-group"><label for="set_email">Email</label><input type="email" id="set_email" name="email"/></div>
+            <div class="form-group" style="grid-column:1/-1"><label for="set_address">Address</label><input type="text" id="set_address" name="address"/></div>
+            <div class="form-group"><label for="set_invoicePrefix">Invoice prefix</label><input type="text" id="set_invoicePrefix" name="invoicePrefix" placeholder="INV/"/></div>
+            <div class="form-group"><label for="set_nextNumber">Next number (display only)</label><input type="number" id="set_nextNumber" name="nextNumber" min="1"/></div>
+            <div class="form-group"><label for="set_bankName">Bank name</label><input type="text" id="set_bankName" name="bankName"/></div>
+            <div class="form-group"><label for="set_bankAccount">Bank account</label><input type="text" id="set_bankAccount" name="bankAccount"/></div>
+            <div class="form-group"><label for="set_bankIfsc">IFSC</label><input type="text" id="set_bankIfsc" name="bankIfsc"/></div>
+            <div class="form-group"><label for="set_priceIncludesTax">Prices are GST-inclusive</label><input type="checkbox" id="set_priceIncludesTax" name="priceIncludesTax" style="width:auto"/></div>
+            <div class="form-group" style="grid-column:1/-1"><label for="set_terms">Invoice terms</label><input type="text" id="set_terms" name="terms"/></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-primary-solid" type="submit">💾 Save settings</button>
+            <span style="font-size:0.78rem;color:var(--text-muted);align-self:center">Invoices saved so far in the counter: <strong id="counterValue">0</strong></span>
+          </div>
+        </form>
+      </div>
+
+      <div class="card-block">
+        <h3>Data &amp; backups</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem">
+          Everything is stored in this browser's localStorage. Clearing site data, private windows or a different browser means starting empty —
+          so download a backup after every billing session. <a href="admin.html">Open the storage &amp; backup console →</a>
+        </p>
+        <div class="form-actions">
+          <button class="btn-secondary-solid" type="button" onclick="location.href='admin.html'">🗄 Storage &amp; backup console</button>
+          <button class="btn-secondary-solid" type="button" id="clearInvoicesBtn" style="border-color:var(--danger);color:var(--danger)">🗑 Delete all invoices</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast-host" id="toastHost" aria-live="polite"></div>
+  <div class="print-area" id="printArea"></div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/gst-billing.js"></script>
+  <script src="../js/tm-store.js"></script>
+  <script src="../js/billing-app.js"></script>
+</body>
+</html>
