@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Storage &amp; Backup Console – TaxMitra</title>
+  <meta name="description" content="Inspect, back up, restore and verify the TaxMitra data stored in your own browser. Local-only, no account, no server."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+    .admin-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.15rem; }
+    .admin-card span { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .admin-card strong { display: block; font-size: 1.2rem; font-weight: 800; margin-top: 0.3rem; word-break: break-word; }
+    .card-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; }
+    .card-block > h3 { font-size: 1rem; font-weight: 800; margin-bottom: 0.9rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); }
+    .card-block p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.9rem; }
+    .tm-table { width: 100%; border-collapse: collapse; }
+    .tm-table th, .tm-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; text-align: left; }
+    .tm-table th { background: var(--bg-secondary); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .tm-table td.num, .tm-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tm-table .strong-row td { font-weight: 800; background: rgba(30,64,175,0.05); }
+    .tm-table .empty { text-align: center; color: var(--text-muted); padding: 1.5rem; }
+    .pill { display: inline-block; padding: 0.15rem 0.5rem; border-radius: var(--radius-full); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+    .pill.ok { background: rgba(16,185,129,0.15); color: #047857; }
+    .pill.bad { background: rgba(239,68,68,0.15); color: #b91c1c; }
+    .pill.warn { background: rgba(245,158,11,0.18); color: #b45309; }
+    .pill.muted { background: var(--bg-secondary); color: var(--text-muted); }
+    .btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .alert { padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.85rem; margin-bottom: 1rem; border: 1px solid; }
+    .alert.warn { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); color: #92400e; }
+    .alert.bad { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); color: #991b1b; }
+    .alert.info { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.35); color: #155e75; }
+    .toast-host { position: fixed; right: 1rem; bottom: 1rem; z-index: 999; display: flex; flex-direction: column; gap: 0.5rem; }
+    .tm-toast { background: var(--bg-dark); color: #fff; padding: 0.65rem 1rem; border-radius: var(--radius-sm); font-size: 0.82rem; max-width: 340px; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; box-shadow: var(--shadow-lg); }
+    .tm-toast.show { opacity: 1; transform: translateY(0); }
+    .tm-toast.ok { border-left: 3px solid var(--success); }
+    .tm-toast.bad { border-left: 3px solid var(--danger); }
+    .tm-toast.warn { border-left: 3px solid var(--warning); }
+    .tm-toast.info { border-left: 3px solid var(--info); }
+    .danger-zone { border-color: rgba(239,68,68,0.45); }
+    .danger-zone > h3 { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle">🌙</button>
+        <a href="billing.html" class="btn-nav-login">GST Billing</a>
+        <a href="itr-form.html" class="btn-nav-ai"><i class="fa fa-file-invoice"></i> ITR Wizard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Admin</span></div>
+      <h1>🗄 Storage &amp; Backup Console</h1>
+      <p>Everything TaxMitra stores lives in this browser. Inspect it, verify it, back it up — or wipe it.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="appError" class="alert bad" style="display:none"></div>
+    <div id="persistenceWarning" class="alert warn" hidden>
+      <strong>localStorage is not available.</strong> Data will vanish when you refresh. Disable private browsing or allow site data for this page.
+    </div>
+
+    <div class="admin-grid">
+      <div class="admin-card"><span>Total stored</span><strong id="storageTotal">—</strong></div>
+      <div class="admin-card"><span>localStorage</span><strong id="storagePersistent">—</strong></div>
+      <div class="admin-card"><span>Invoices</span><strong id="invoiceCount">0</strong></div>
+      <div class="admin-card"><span>Customers</span><strong id="customerCount">0</strong></div>
+      <div class="admin-card"><span>Saved items</span><strong id="itemCount">0</strong></div>
+      <div class="admin-card"><span>Invoice value</span><strong id="invoicedTotal">₹0.00</strong></div>
+      <div class="admin-card"><span>GST in invoices</span><strong id="gstTotal">₹0.00</strong></div>
+      <div class="admin-card"><span>ITR draft</span><strong id="draftState">—</strong></div>
+      <div class="admin-card"><span>Business</span><strong id="settingsState">—</strong></div>
+    </div>
+
+    <div class="card-block">
+      <h3>What is taking up space</h3>
+      <table class="tm-table">
+        <thead><tr><th>Store</th><th class="num">Size</th></tr></thead>
+        <tbody id="sizeBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card-block">
+      <h3>Backup &amp; restore</h3>
+      <p>
+        A backup is a single JSON file containing your settings, customers, items, invoices and the ITR wizard draft.
+        It is plain text — treat it like a client file and store it somewhere safe. Restoring replaces everything currently in this browser.
+      </p>
+      <div class="btn-row">
+        <button class="btn-primary-solid" id="exportBackupBtn">⬇ Download backup (JSON)</button>
+        <button class="btn-secondary-solid" id="importBackupBtn">⬆ Restore from backup</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden/>
+      </div>
+    </div>
+
+    <div class="card-block">
+      <h3>Integrity check</h3>
+      <p>Recomputes every saved invoice, validates GSTINs and dates, and looks for duplicate invoice numbers.</p>
+      <div class="alert info" id="integritySummary" hidden></div>
+      <table class="tm-table">
+        <thead><tr><th>Level</th><th>Finding</th></tr></thead>
+        <tbody id="integrityBody"><tr><td colspan="2" class="empty">Run a check to inspect the stored data.</td></tr></tbody>
+      </table>
+      <div class="btn-row" style="margin-top:1rem">
+        <button class="btn-secondary-solid" id="checkBtn">🔍 Re-run check</button>
+        <button class="btn-secondary-solid" id="seedBtn">🧪 Load demo data</button>
+      </div>
+    </div>
+
+    <div class="card-block danger-zone">
+      <h3>Danger zone</h3>
+      <p>Deleting is immediate and cannot be undone in this browser. Download a backup first.</p>
+      <div class="btn-row">
+        <button class="btn-secondary-solid" id="clearBtn" style="border-color:var(--danger);color:var(--danger)">🗑 Delete all TaxMitra data</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-host" id="toastHost" aria-live="polite"></div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/gst-billing.js"></script>
+  <script src="../js/income-tax.js"></script>
+  <script src="../js/tm-store.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>

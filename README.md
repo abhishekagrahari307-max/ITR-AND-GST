@@ -127,6 +127,36 @@ ITR-AND-GST/
 
 ---
 
+## 🧾 Local-first modules (billing, ITR wizard, directory, backups)
+
+Four modules that work with no account, no server and no network — all data stays in your
+browser's localStorage.
+
+| Page | What you get |
+|---|---|
+| **`pages/billing.html`** | GST tax invoices with CGST/SGST/IGST split, round-off, amount in words, customers, item master, receivables ageing, print/PDF, and a **GSTR-1 working-paper CSV** export |
+| **`pages/itr-form.html`** | Seven-step ITR preparation wizard for FY 2024-25 → 2026-27: schedule-wise income, HRA, house property, Chapter VI-A, capital gains, old-vs-new regime comparison with the 87A rebate and marginal relief, advance-tax schedule, and an **ITR-1 → ITR-7 form recommendation** |
+| **`pages/github-tools.html`** | Searchable directory of **25 open-source projects** (tax, GST, accounting, payroll, OCR), each verified through the GitHub API with licence and maintenance caveats |
+| **`pages/admin.html`** | Storage inspector, JSON backup/restore, integrity check (recomputes every invoice, validates GSTINs, finds duplicate numbers), demo seeding and wipe |
+
+Shared engines: `js/gst-billing.js` and `js/income-tax.js` are pure, DOM-free libraries used
+by the pages *and* by the test suite. Full rules, data model and limitations are documented in
+[`IMPLEMENTATION.md`](IMPLEMENTATION.md).
+
+> **Not a filing portal.** Nothing here submits a return, registers an IRN or talks to a
+> government API. The GSTR-1 CSV is a reconciliation working paper, not the official upload
+> file. Download a backup from the admin console regularly — clearing site data deletes your books.
+
+### Tests
+
+```bash
+npm test                    # 197 unit tests · 1,935 assertions · zero dependencies
+npm install --no-save jsdom
+node tests/smoke.js         # 36 checks driving the real pages in a DOM
+```
+
+---
+
 ## 🚀 Getting Started
 
 ```bash

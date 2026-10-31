@@ -1,0 +1,14 @@
+# dependencies (only needed for the optional jsdom smoke test)
+node_modules/
+package-lock.json
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# local backup files produced by the app
+taxmitra-backup-*.json
+GSTR1-working-paper-*.csv
+itr-working-paper-*.json

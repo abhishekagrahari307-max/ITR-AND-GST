@@ -1,0 +1,25 @@
+{
+  "name": "taxmitra",
+  "version": "10.1.0",
+  "private": true,
+  "description": "TaxMitra – GST billing, income tax and ITR preparation tools, local-first in the browser.",
+  "license": "SEE LICENSE IN README.md",
+  "scripts": {
+    "test": "node tests/run.js",
+    "test:gst": "node tests/run.js gst",
+    "test:tax": "node tests/run.js income-tax",
+    "test:pages": "node tests/run.js pages",
+    "serve": "npx --yes http-server . -p 8080 -c-1"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "keywords": [
+    "gst",
+    "itr",
+    "income-tax",
+    "invoicing",
+    "india",
+    "offline-first"
+  ]
+}
