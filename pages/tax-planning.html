@@ -349,7 +349,24 @@ function renderAdvanceTax(totalTax) {
 }
 
 function renderChart(income, tax, savings) {
-  var ctx = document.getElementById('savingsChart').getContext('2d');
+  var canvas = document.getElementById('savingsChart');
+  if (!canvas) return;
+  // Chart.js comes from a CDN; if it is blocked or the user is offline the
+  // numbers above must still stand, so fail quietly with a visible note.
+  if (typeof Chart === 'undefined') {
+    var holder = canvas.parentNode;
+    if (holder && !holder.querySelector('.chart-fallback')) {
+      canvas.style.display = 'none';
+      var note = document.createElement('p');
+      note.className = 'chart-fallback';
+      note.style.cssText = 'font-size:.8rem;color:var(--text-muted);padding:.75rem 0';
+      note.textContent = 'The chart library did not load (offline or blocked CDN). Every figure above is still correct.';
+      holder.appendChild(note);
+    }
+    return;
+  }
+  var ctx = canvas.getContext ? canvas.getContext('2d') : null;
+  if (!ctx) return;
   if (savingsChart) savingsChart.destroy();
   var netIncome = income - tax;
   savingsChart = new Chart(ctx, {

@@ -4,7 +4,7 @@ This document records what was built, how the calculations work, what is deliber
 **not** implemented, and how to verify any of it. It is written to be read alongside the
 code, not instead of it.
 
-Last updated: 2026-10-31 · Branch: `arena/3f484b82-itr-and-gst`
+Last updated: 2026-10-31 · Branch: `arena/3f484b82-itr-and-gst` (merged to `main`, deployed)
 
 ---
 
@@ -168,7 +168,9 @@ node tests/smoke.js   # 36 browser checks driving the real pages
 | `tests/tm-store.test.js` | Round-trips, corrupt JSON, quota failure, backup/restore, clearing |
 | `tests/github-tools.test.js` | 25 entries, unique URLs, required fields, filters, sort order, no mutation |
 | `tests/pages.test.js` | Broken script/link references, duplicate ids, script load order, missing DOM hooks, disclaimers, `aria-live`, print support |
-| `tests/smoke.js` | Create/save/reject an invoice, mark paid, print, add customer, walk the ITR wizard end to end, search the directory, seed/verify/clear the store |
+| `tests/handlers.test.js` | Every one of the 559 inline handlers across 59 pages resolves to a real definition; no shipped page hardcodes `localhost`; no dead `href="#"` in the primary pages |
+| `tests/smoke.js` | Homepage chat answers and escapes input, create/save/reject an invoice, mark paid, print, add customer, walk the ITR wizard end to end, search the directory, seed/verify/clear the store |
+| `tests/pages-load.js` | Loads all 62 pages with their local scripts and fails if any page throws while starting up |
 
 The suite caught four genuine defects during development: float rounding in `toPaise`,
 the 15-March instalment landing in the wrong year, the editor aliasing the stored invoice,
@@ -231,3 +233,50 @@ options in `pages/billing.html` and the item form; `isValidRate` follows automat
 **New page**: follow the existing pattern (nav with `#themeToggle`, `page-hero`, container,
 `../css/taxmitra.css`, local scripts at the end), then extend `tests/pages.test.js` — it
 checks script references, duplicate ids and load order automatically.
+
+
+---
+
+## 10. Deployment and the live site
+
+**Live URL:** <https://abhishekagrahari307-max.github.io/ITR-AND-GST/>
+
+### How a deploy happens
+
+1. A pull request from `arena/3f484b82-itr-and-gst` is merged into `main`.
+2. The push to `main` triggers `.github/workflows/deploy.yml` ("Inject Keys + Deploy").
+3. The workflow runs `node build.js`, which reads `GEMINI_API_KEY` and
+   `OPENROUTER_API_KEY` from repository secrets and regenerates `js/config-generated.js`.
+4. `actions/upload-pages-artifact` packages the repo and `actions/deploy-pages` publishes it.
+
+Because the keys are injected at build time, **`js/config-generated.js` must never be
+edited by hand** — the next deploy overwrites it. To change the AI keys, update the
+repository secrets and re-run the workflow.
+
+### Watch out for this
+
+The Pages *source* field still reads `arena/019fabf8-itr-and-gst` (a leftover from the
+previous setup). Deploys are driven by the workflow, not that field — but the old branch is
+also listed in the workflow's `push` trigger, so **a push to `arena/019fabf8-itr-and-gst`
+would republish the older content and temporarily hide this work**. Retire that branch (or
+remove it from the workflow trigger) to prevent it.
+
+### Local preview
+
+```bash
+npm run serve          # python3 -m http.server 8080 → http://localhost:8080
+```
+
+No build step is needed for local work: with an empty `config-generated.js` the AI features
+fall back to their rule-based answers, which is the same experience a visitor gets until a
+key is configured.
+
+### What is genuinely live vs. simulated
+
+| Works live with no backend | Needs the NestJS backend (`backend/`) |
+|---|---|
+| Billing, ITR wizard, directory, admin console, calculators, GST/TDS pages, ledger, client CRM, document vault, all localStorage tools | Account login, signup, saved cloud data — these now show a clear "running without the backend" message instead of failing silently |
+
+Still explicitly labelled as simulated on the page itself: e-invoice IRN generation
+(`pages/einvoice.html` shows a `Status: SIMULATED` badge). Everything filing-related remains
+a working paper or a guide, never an official submission.

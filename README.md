@@ -150,10 +150,22 @@ by the pages *and* by the test suite. Full rules, data model and limitations are
 ### Tests
 
 ```bash
-npm test                    # 197 unit tests · 1,935 assertions · zero dependencies
-npm install --no-save jsdom
-node tests/smoke.js         # 36 checks driving the real pages in a DOM
+npm test                    # 327 tests · 2,420 assertions · zero dependencies
+npm run serve               # local preview on http://localhost:8080
+
+npm install --no-save jsdom # optional, for the browser-level audits
+node tests/smoke.js         # 42 checks driving the real pages
+node tests/pages-load.js    # loads all 62 pages, fails if any throws on startup
 ```
+
+### Live site
+
+<https://abhishekagrahari307-max.github.io/ITR-AND-GST/>
+
+Merging into `main` triggers `.github/workflows/deploy.yml`, which injects the AI keys and
+publishes to GitHub Pages. Do not hand-edit `js/config-generated.js` — the build regenerates
+it. See section 10 of [`IMPLEMENTATION.md`](IMPLEMENTATION.md) for the deployment details and
+the one branch caveat to watch.
 
 ---
 
