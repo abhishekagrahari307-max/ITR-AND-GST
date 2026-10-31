@@ -1,23 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="description" content="Tax Knowledge Center — Income Tax Act explained in simple Hindi/English. 80C, HRA, capital gains, GST basics, TDS guide for beginners."/>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Knowledge Center – TaxMitra AI Enterprise</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css">
 </head>
 <body>
-  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
-    <div class="nav-container">
-      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
-      <div style="flex:1"></div>
-      <div class="nav-right"><button class="nav-icon-btn" id="themeToggle">🌙</button><a href="../index.html" class="btn-nav-login">← Home</a></div>
+  <nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
     </div>
-  </nav>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
 
   <div class="page-hero">
     <div class="container">
+  <div style="padding:1.25rem 0;margin-bottom:.5rem">
+    <div style="position:relative;max-width:520px">
+      <i class="fa fa-search" style="position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted)"></i>
+      <input type="text" id="knowledgeSearch" placeholder="Search tax topics, sections, FAQs..." 
+             style="width:100%;padding:.65rem 1rem .65rem 2.4rem;border:1.5px solid var(--border);border-radius:var(--radius-full);font-size:.875rem;background:var(--bg-card);color:var(--text-primary);font-family:inherit"
+             oninput="searchKnowledge()"/>
+    </div>
+    <div id="searchCount" style="font-size:.75rem;color:var(--text-muted);margin-top:.35rem"></div>
+  </div>
       <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Knowledge Center</span></div>
       <h1>📚 Knowledge Center</h1>
       <p>Tax laws, Budget highlights, CBDT circulars, finance articles aur video tutorials – complete tax library</p>
@@ -36,7 +66,7 @@
         <div style="padding:1rem;background:rgba(16,185,129,0.06);border-radius:var(--radius);border:1px solid rgba(16,185,129,0.15)"><h4 style="font-size:0.9rem;color:var(--success)">✅ New Regime Standard Deduction</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.4rem">₹50,000 → ₹75,000 increased. Salaried individuals ko zyada benefit.</p></div>
         <div style="padding:1rem;background:rgba(30,64,175,0.06);border-radius:var(--radius);border:1px solid rgba(30,64,175,0.15)"><h4 style="font-size:0.9rem;color:var(--primary)">✅ Capital Gain Tax Changes</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.4rem">STCG equity: 15%→20% | LTCG equity: 10%→12.5% | LTCG exemption: ₹1L→₹1.25L</p></div>
         <div style="padding:1rem;background:rgba(245,158,11,0.06);border-radius:var(--radius);border:1px solid rgba(245,158,11,0.15)"><h4 style="font-size:0.9rem;color:var(--warning)">✅ 87A Rebate Extended</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.4rem">New regime mein ₹7L tak zero tax (rebate ₹25K→₹60K) effective taxable income ≤₹12L</p></div>
-        <div style="padding:1rem;background:rgba(99,102,241,0.06);border-radius:var(--radius);border:1px solid rgba(99,102,241,0.15)"><h4 style="font-size:0.9rem;color:var(--accent)">✅ New Basic Exemption Limit</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.4rem">New regime: ₹3L basic limit. Effective zero tax up to ₹12.75L (incl. std. deduction)</p></div>
+        <div style="padding:1rem;background:rgba(99,102,241,0.06);border-radius:var(--radius);border:1px solid rgba(99,102,241,0.15)"><h4 style="font-size:0.9rem;color:var(--accent)">✅ New Basic Exemption Limit</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.4rem">New regime: ₹4L basic nil slab (Budget 2025). Effective zero tax up to ₹12.75L (₹12L + ₹75K std ded + ₹60K rebate 87A)</p></div>
         <div style="padding:1rem;background:rgba(16,185,129,0.06);border-radius:var(--radius);border:1px solid rgba(16,185,129,0.15)"><h4 style="font-size:0.9rem;color:var(--success)">✅ TDS Threshold Increased</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.4rem">194A interest threshold: ₹40K→₹50K. 194I rent: ₹2.4L→₹2.4L (no change)</p></div>
         <div style="padding:1rem;background:rgba(239,68,68,0.06);border-radius:var(--radius);border:1px solid rgba(239,68,68,0.15)"><h4 style="font-size:0.9rem;color:var(--danger)">⚠️ STT Increase</h4><p style="font-size:0.82rem;color:var(--text-secondary);margin-top:0.4rem">Securities Transaction Tax on F&O increased. Options: 0.0625% → 0.1%</p></div>
       </div>
@@ -90,7 +120,7 @@
             </details>
             <details style="border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
               <summary style="padding:0.9rem 1rem;font-weight:600;cursor:pointer;font-size:0.875rem;list-style:none;display:flex;justify-content:space-between">PAN-Aadhaar linking nahi ki – kya hoga? <span>+</span></summary>
-              <div style="padding:1rem;background:var(--bg-secondary);font-size:0.82rem;color:var(--text-secondary)">Deadline already past ho gayi hai (30 June 2023). Ab ₹1,000 penalty deke link karo. Link nahi karne par PAN inoperative ho jaata hai, TDS double rate par katega, refund nahi milega, high-value transactions restricted honge.</div>
+              <div style="padding:1rem;background:var(--bg-secondary);font-size:0.82rem;color:var(--text-secondary)">Deadline already past ho gayi hai (30 June 2023) — Link karne ke liye ₹1,000 penalty ke saath portal available hai. Ab ₹1,000 penalty deke link karo. Link nahi karne par PAN inoperative ho jaata hai, TDS double rate par katega, refund nahi milega, high-value transactions restricted honge.</div>
             </details>
           </div>
         </div>
@@ -103,7 +133,7 @@
           <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:0.75rem">
             <div style="padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.25rem">May 2025</div><strong style="font-size:0.82rem">Circular No. 5/2025</strong><p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem">Extension of ITR filing deadline for certain categories</p></div>
             <div style="padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.25rem">April 2025</div><strong style="font-size:0.82rem">Circular No. 3/2025</strong><p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem">Guidelines for new capital gain tax computation post July 2024</p></div>
-            <div style="padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.25rem">March 2025</div><strong style="font-size:0.82rem">Notification No. 16/2025</strong><p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem">New ITR forms for AY 2025-26 notified</p></div>
+            <div style="padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.25rem">March 2025</div><strong style="font-size:0.82rem">Notification No. 16/2025</strong><p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem">New ITR forms for AY 2026-27 notified</p></div>
             <div style="padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm)"><div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.25rem">Jan 2025</div><strong style="font-size:0.82rem">Circular No. 1/2025</strong><p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem">Faceless assessment scheme guidelines updated</p></div>
           </div>
         </div>
@@ -148,5 +178,50 @@
   </div>
 
   <script src="../js/taxmitra.js"></script>
+
+<p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong></p>
+<script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/pdf-real.js"></script>
+
+<script>
+'use strict';
+// Knowledge center search
+function searchKnowledge() {
+  const q = (document.getElementById('knowledgeSearch')?.value || '').toLowerCase().trim();
+  const articles = document.querySelectorAll('.knowledge-article, details, [data-search]');
+  if (!q) {
+    articles.forEach(el => el.style.display = '');
+    return;
+  }
+  let count = 0;
+  articles.forEach(el => {
+    const text = el.textContent.toLowerCase();
+    const match = text.includes(q);
+    el.style.display = match ? '' : 'none';
+    if (match) count++;
+  });
+  const countEl = document.getElementById('searchCount');
+  if (countEl) countEl.textContent = count + ' results found for "' + q + '"';
+}
+
+// FAQ toggle enhancement
+document.addEventListener('DOMContentLoaded', function() {
+  // Update dates
+  const ay = window.TAXMITRA_DATES?.ay || '2026-27';
+  document.querySelectorAll('.knowledge-ay').forEach(el => el.textContent = ay);
+  
+  // Add click tracking
+  document.querySelectorAll('details').forEach(d => {
+    d.addEventListener('toggle', function() {
+      const icon = this.querySelector('summary span');
+      if (icon) icon.textContent = this.open ? '−' : '+';
+    });
+  });
+});
+</script>
 </body>
 </html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="description" content="GST Analytics Dashboard — Monthly GST trends, ITC utilization ratio, supplier compliance score, liability vs ITC analysis, tax payment tracker. TaxMitra AI Enterprise."/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>GST Analytics – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.analytics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;padding:1.25rem 0}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.kpi-grid{grid-template-columns:1fr 1fr}}
+.kpi-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1rem;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card.blue::before{background:var(--grad-primary)}
+.kpi-card.green::before{background:var(--grad-success)}
+.kpi-card.orange::before{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.kpi-card.purple::before{background:linear-gradient(90deg,#8b5cf6,#6d28d9)}
+.kpi-label{font-size:.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.35rem}
+.kpi-value{font-size:1.65rem;font-weight:900}
+.kpi-sub{font-size:.72rem;color:var(--text-muted);margin-top:.2rem}
+.kpi-badge{position:absolute;top:.75rem;right:.75rem;font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:99px}
+.badge-up{background:rgba(16,185,129,.12);color:var(--success)}
+.badge-down{background:rgba(239,68,68,.12);color:var(--danger)}
+.chart-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1rem}
+.chart-card-header{font-size:.85rem;font-weight:700;margin-bottom:.85rem;display:flex;align-items:center;gap:.35rem}
+.compliance-bar{height:24px;background:var(--bg-secondary);border-radius:12px;overflow:hidden;margin:.3rem 0;position:relative}
+.compliance-fill{height:100%;border-radius:12px;display:flex;align-items:center;padding-left:.5rem;font-size:.65rem;font-weight:700;color:#fff;transition:width 1s ease}
+.supplier-row{display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.8rem}
+.supplier-row:last-child{border-bottom:none}
+.score-badge{padding:.2rem .55rem;border-radius:99px;font-size:.68rem;font-weight:700}
+.score-high{background:rgba(16,185,129,.12);color:var(--success)}
+.score-med{background:rgba(245,158,11,.12);color:#d97706}
+.score-low{background:rgba(239,68,68,.12);color:var(--danger)}
+.period-btn{padding:.3rem .75rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:.75rem;cursor:pointer;background:var(--bg-secondary);transition:var(--transition)}
+.period-btn.active{border-color:var(--primary);background:rgba(30,64,175,.1);color:var(--primary);font-weight:700}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link active">🧾 GST</a></li>
+        <li><a href="reports.html" class="nav-link">📊 Reports</a></li>
+        <li><a href="dashboard.html" class="nav-link">🏠 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem">
+    <div>
+      <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+        <a href="../index.html" style="color:var(--text-muted)">Home</a> ›
+        <a href="gst.html" style="color:var(--text-muted)">GST</a> ›
+        <span style="color:var(--primary)">GST Analytics</span>
+      </nav>
+      <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">📊 GST Analytics Dashboard</h1>
+      <p style="color:var(--text-secondary);font-size:.88rem;margin:0">Trends · ITC Ratio · Supplier Compliance · Liability Analysis | Dev: Abhishek Agrahari</p>
+    </div>
+    <div style="display:flex;gap:.35rem">
+      <button class="period-btn active" onclick="setPeriod(this,'q1')">Q1</button>
+      <button class="period-btn" onclick="setPeriod(this,'q2')">Q2</button>
+      <button class="period-btn" onclick="setPeriod(this,'q3')">Q3</button>
+      <button class="period-btn" onclick="setPeriod(this,'fy')">Full Year</button>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <span class="kpi-badge badge-up">+12% ↑</span>
+      <div class="kpi-label">Total GST Liability</div>
+      <div class="kpi-value">₹4.85L</div>
+      <div class="kpi-sub">FY 2025-26 (IGST+CGST+SGST)</div>
+    </div>
+    <div class="kpi-card green">
+      <span class="kpi-badge badge-up">+8% ↑</span>
+      <div class="kpi-label">ITC Available</div>
+      <div class="kpi-value">₹3.12L</div>
+      <div class="kpi-sub">As per GSTR-2B (matched)</div>
+    </div>
+    <div class="kpi-card orange">
+      <span class="kpi-badge badge-down">-3% ↓</span>
+      <div class="kpi-label">Net Cash Tax Paid</div>
+      <div class="kpi-value">₹1.73L</div>
+      <div class="kpi-sub">After ITC utilization</div>
+    </div>
+    <div class="kpi-card purple">
+      <span class="kpi-badge badge-up">+5% ↑</span>
+      <div class="kpi-label">ITC Utilization Rate</div>
+      <div class="kpi-value">64.3%</div>
+      <div class="kpi-sub">ITC used / ITC available</div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem">
+    <div class="chart-card">
+      <div class="chart-card-header"><i class="fa fa-chart-bar"></i> Monthly GST Liability vs ITC</div>
+      <canvas id="monthlyChart" height="120"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-header"><i class="fa fa-chart-pie"></i> GST Type Breakdown</div>
+      <canvas id="typeChart" height="160"></canvas>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+    <div class="chart-card">
+      <div class="chart-card-header"><i class="fa fa-chart-line"></i> Output Tax Trend (Monthly)</div>
+      <canvas id="trendChart" height="140"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-header"><i class="fa fa-users"></i> Top Supplier Compliance Score</div>
+      <div id="supplierList"></div>
+    </div>
+  </div>
+
+  <!-- Row 3 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+    <!-- GSTR Filing Status -->
+    <div class="chart-card">
+      <div class="chart-card-header"><i class="fa fa-file-alt"></i> GSTR Filing Status (FY 2025-26)</div>
+      <div id="filingStatus"></div>
+    </div>
+
+    <!-- ITC Risk Analysis -->
+    <div class="chart-card">
+      <div class="chart-card-header"><i class="fa fa-shield-alt"></i> ITC Risk Analysis</div>
+      <div id="itcRisk"></div>
+    </div>
+  </div>
+
+  <!-- Liability Tracker -->
+  <div class="chart-card" style="margin-bottom:2rem">
+    <div class="chart-card-header"><i class="fa fa-calendar-check"></i> Monthly Tax Payment Tracker</div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.8rem" id="paymentTracker">
+        <thead>
+          <tr style="background:var(--bg-secondary)">
+            <th style="padding:.5rem .75rem;text-align:left;border-bottom:1px solid var(--border)">Month</th>
+            <th style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">Output Tax</th>
+            <th style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">ITC Availed</th>
+            <th style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">Cash Paid</th>
+            <th style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">Due Date</th>
+            <th style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">Status</th>
+          </tr>
+        </thead>
+        <tbody id="trackerBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+var MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+var OUTPUT = [45000,52000,48000,61000,58000,65000,42000,55000,68000,72000,59000,66000];
+var ITC =    [28000,32000,30000,38000,35000,40000,25000,34000,42000,45000,37000,41000];
+var CASH =   OUTPUT.map((o,i) => o-ITC[i]);
+
+// ── Charts ──────────────────────────────────────────────────
+var monthlyChart, typeChart, trendChart;
+
+function initCharts() {
+  // Monthly Bar Chart
+  var ctx1 = document.getElementById('monthlyChart').getContext('2d');
+  monthlyChart = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        { label: 'Output Tax', data: OUTPUT, backgroundColor: 'rgba(239,68,68,.7)', borderRadius: 4 },
+        { label: 'ITC', data: ITC, backgroundColor: 'rgba(16,185,129,.7)', borderRadius: 4 },
+        { label: 'Cash Paid', data: CASH, backgroundColor: 'rgba(30,64,175,.7)', borderRadius: 4 }
+      ]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'top', labels: { font: { size: 11 } } } }, scales: { y: { ticks: { callback: v => '₹'+v.toLocaleString('en-IN'), font: { size: 10 } } } } }
+  });
+
+  // Donut - GST Type
+  var ctx2 = document.getElementById('typeChart').getContext('2d');
+  typeChart = new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+      labels: ['IGST', 'CGST', 'SGST', 'Cess'],
+      datasets: [{ data: [185000, 142000, 142000, 16000], backgroundColor: ['#3b82f6','#10b981','#f59e0b','#8b5cf6'] }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
+  });
+
+  // Line - Trend
+  var ctx3 = document.getElementById('trendChart').getContext('2d');
+  trendChart = new Chart(ctx3, {
+    type: 'line',
+    data: {
+      labels: MONTHS,
+      datasets: [{ label: 'Output Tax', data: OUTPUT, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,.1)', fill: true, tension: 0.4, pointRadius: 3 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => '₹'+v.toLocaleString('en-IN'), font: { size: 10 } } } } }
+  });
+}
+
+function renderSuppliers() {
+  var suppliers = [
+    { name: 'ABC Enterprises', gstin: '09ABCE1234F1Z5', score: 96, filings: 12, mismatches: 0 },
+    { name: 'XYZ Corp Ltd', gstin: '27XYZA5678G1Z3', score: 82, filings: 11, mismatches: 1 },
+    { name: 'PQR Industries', gstin: '29PQRI3456H1Z7', score: 71, filings: 10, mismatches: 2 },
+    { name: 'LMN Trading Co', gstin: '07LMNT7890J1Z1', score: 55, filings: 8, mismatches: 4 },
+    { name: 'DEF Solutions', gstin: '33DEFS2345K1Z9', score: 40, filings: 6, mismatches: 6 },
+  ];
+  
+  document.getElementById('supplierList').innerHTML = suppliers.map(s => {
+    var cls = s.score >= 85 ? 'score-high' : s.score >= 65 ? 'score-med' : 'score-low';
+    return `<div class="supplier-row">
+      <div>
+        <div style="font-weight:600">${s.name}</div>
+        <div style="font-size:.68rem;color:var(--text-muted);font-family:monospace">${s.gstin}</div>
+      </div>
+      <div style="text-align:right">
+        <span class="score-badge ${cls}">${s.score}/100</span>
+        <div style="font-size:.68rem;color:var(--text-muted);margin-top:.2rem">${s.filings}/12 filed · ${s.mismatches} mismatch</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFilingStatus() {
+  var returns = [
+    { form: 'GSTR-1', period: 'Apr-25 to Jul-25', filed: 4, due: 4 },
+    { form: 'GSTR-3B', period: 'Apr-25 to Jul-25', filed: 4, due: 4 },
+    { form: 'GSTR-9', period: 'FY 2024-25', filed: 1, due: 1 },
+    { form: 'GSTR-9C', period: 'FY 2024-25', filed: 0, due: 1 },
+  ];
+  
+  document.getElementById('filingStatus').innerHTML = returns.map(r => {
+    var pct = Math.round(r.filed/r.due*100);
+    var color = pct===100?'#10b981':pct>=75?'#f59e0b':'#ef4444';
+    return `<div style="margin-bottom:.75rem">
+      <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.2rem">
+        <strong>${r.form}</strong>
+        <span style="color:var(--text-muted);font-size:.72rem">${r.period}</span>
+        <span style="color:${color};font-weight:700">${r.filed}/${r.due}</span>
+      </div>
+      <div class="compliance-bar">
+        <div class="compliance-fill" style="width:${pct}%;background:${color}">${pct}%</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderITCRisk() {
+  var risks = [
+    { label: 'GSTR-2B Matched ITC', pct: 78, color: '#10b981', risk: 'LOW' },
+    { label: 'Pending Reconciliation', pct: 15, color: '#f59e0b', risk: 'MEDIUM' },
+    { label: 'Supplier Non-filers', pct: 7, color: '#ef4444', risk: 'HIGH' },
+  ];
+  
+  var totalITC = 312000;
+  document.getElementById('itcRisk').innerHTML = risks.map(r => {
+    var amt = Math.round(totalITC * r.pct / 100);
+    var rClass = r.risk==='LOW'?'score-high':r.risk==='MEDIUM'?'score-med':'score-low';
+    return `<div style="margin-bottom:.75rem">
+      <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.2rem">
+        <span>${r.label}</span>
+        <div style="display:flex;gap:.4rem;align-items:center">
+          <span class="score-badge ${rClass}">${r.risk}</span>
+          <strong>₹${amt.toLocaleString('en-IN')}</strong>
+        </div>
+      </div>
+      <div class="compliance-bar">
+        <div class="compliance-fill" style="width:${r.pct}%;background:${r.color}">${r.pct}%</div>
+      </div>
+    </div>`;
+  }).join('') + `<div style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">⚠️ Supplier non-filer ITC (₹${Math.round(totalITC*.07).toLocaleString('en-IN')}) is at risk — Sec 16(2)(aa)</div>`;
+}
+
+function renderPaymentTracker() {
+  var data = [
+    { month:'Apr 2025', output:45000, itc:28000, cash:17000, due:'20-May-2025', status:'PAID' },
+    { month:'May 2025', output:52000, itc:32000, cash:20000, due:'20-Jun-2025', status:'PAID' },
+    { month:'Jun 2025', output:48000, itc:30000, cash:18000, due:'20-Jul-2025', status:'PAID' },
+    { month:'Jul 2025', output:61000, itc:38000, cash:23000, due:'20-Aug-2025', status:'PENDING' },
+    { month:'Aug 2025', output:58000, itc:35000, cash:23000, due:'20-Sep-2025', status:'UPCOMING' },
+  ];
+  
+  var tbody = document.getElementById('trackerBody');
+  tbody.innerHTML = data.map(function(d) {
+    var statusColor = d.status==='PAID'?'var(--success)':d.status==='PENDING'?'var(--danger)':'#d97706';
+    var statusBg = d.status==='PAID'?'rgba(16,185,129,.1)':d.status==='PENDING'?'rgba(239,68,68,.1)':'rgba(245,158,11,.1)';
+    return `<tr>
+      <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border);font-weight:600">${d.month}</td>
+      <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">₹${d.output.toLocaleString('en-IN')}</td>
+      <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border);color:var(--success)">₹${d.itc.toLocaleString('en-IN')}</td>
+      <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border);font-weight:700;color:var(--danger)">₹${d.cash.toLocaleString('en-IN')}</td>
+      <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border);font-size:.78rem;color:var(--text-muted)">${d.due}</td>
+      <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">
+        <span style="background:${statusBg};color:${statusColor};border-radius:99px;padding:.18rem .6rem;font-size:.68rem;font-weight:700">${d.status}</span>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function setPeriod(btn, period) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // In real app, reload data for period
+  showToast('Period: ' + period.toUpperCase() + ' data loaded', 'info');
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  if (typeof Chart !== 'undefined') {
+    initCharts();
+  }
+  renderSuppliers();
+  renderFilingStatus();
+  renderITCRisk();
+  renderPaymentTracker();
+});
+</script>
+</body>
+</html>

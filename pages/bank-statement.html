@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="Bank Statement Parser & Reconciliation — Auto-categorize transactions, match with Form 26AS, detect tax-relevant entries. TaxMitra AI Enterprise."/>
+<title>Bank Statement Parser – TaxMitra AI Enterprise</title>
+<meta property="og:title" content="Bank Statement Parser & Reconciliation | TaxMitra AI Enterprise"/>
+<meta property="og:description" content="Upload bank statement CSV/Excel, auto-categorize transactions, reconcile with 26AS, find tax-relevant entries. AI-powered."/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.bs-layout{display:grid;grid-template-columns:300px 1fr;gap:1.25rem;padding:1.25rem 0 3rem;align-items:start}
+@media(max-width:900px){.bs-layout{grid-template-columns:1fr}}
+.bs-sidebar{position:sticky;top:72px;display:flex;flex-direction:column;gap:.9rem}
+.upload-zone{border:2.5px dashed var(--primary);border-radius:var(--radius);padding:2rem 1.5rem;text-align:center;cursor:pointer;transition:var(--transition);background:rgba(30,64,175,.03)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--success);background:rgba(16,185,129,.06)}
+.upload-zone i{font-size:2.5rem;color:var(--primary);margin-bottom:.75rem}
+.upload-zone p{font-size:.85rem;color:var(--text-secondary);margin:.25rem 0}
+.upload-zone .hint{font-size:.72rem;color:var(--text-muted)}
+.file-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(16,185,129,.12);color:var(--success);border-radius:99px;padding:.2rem .7rem;font-size:.72rem;font-weight:700;margin-top:.5rem}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.25rem}
+@media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+.stat-mini{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.85rem;text-align:center}
+.stat-mini .val{font-size:1.3rem;font-weight:800;color:var(--primary)}
+.stat-mini .lbl{font-size:.68rem;color:var(--text-muted);margin-top:.2rem;font-weight:600;text-transform:uppercase}
+.cat-badge{display:inline-flex;align-items:center;gap:.25rem;padding:.18rem .55rem;border-radius:99px;font-size:.68rem;font-weight:700}
+.cat-salary{background:rgba(16,185,129,.12);color:#059669}
+.cat-tax{background:rgba(239,68,68,.12);color:#dc2626}
+.cat-invest{background:rgba(139,92,246,.12);color:#7c3aed}
+.cat-business{background:rgba(245,158,11,.12);color:#d97706}
+.cat-expense{background:rgba(100,116,139,.12);color:#475569}
+.cat-transfer{background:rgba(14,165,233,.12);color:#0284c7}
+.cat-other{background:rgba(156,163,175,.12);color:#6b7280}
+.txn-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.txn-table th{background:var(--bg-secondary);padding:.6rem .75rem;font-weight:700;font-size:.72rem;color:var(--text-secondary);border-bottom:2px solid var(--border);text-align:left;white-space:nowrap}
+.txn-table td{padding:.55rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.txn-table tr:hover td{background:rgba(30,64,175,.03)}
+.credit{color:var(--success);font-weight:700}
+.debit{color:var(--danger);font-weight:700}
+.match-icon{font-size:.9rem}
+.match-yes{color:var(--success)}
+.match-no{color:var(--danger)}
+.match-na{color:var(--text-muted)}
+.filter-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.85rem;align-items:center}
+.filter-row select,.filter-row input{padding:.38rem .7rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.8rem;font-family:inherit}
+.filter-row select:focus,.filter-row input:focus{outline:none;border-color:var(--primary)}
+.ai-insight{background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(99,102,241,.04));border:1px solid rgba(124,58,237,.2);border-radius:var(--radius);padding:1rem;margin-top:1rem}
+.ai-insight h4{font-size:.85rem;font-weight:700;color:#7c3aed;margin-bottom:.5rem;display:flex;align-items:center;gap:.35rem}
+.ai-insight p{font-size:.82rem;color:var(--text-secondary);line-height:1.6;margin:.25rem 0;white-space:pre-wrap}
+.recon-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-top:1rem}
+.recon-item{display:flex;align-items:center;justify-content:space-between;padding:.55rem 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.recon-item:last-child{border-bottom:none}
+.btn-sm{padding:.35rem .8rem;border:none;border-radius:var(--radius-sm);font-size:.78rem;font-weight:600;cursor:pointer;transition:var(--transition)}
+.btn-primary-sm{background:var(--primary);color:#fff}
+.btn-primary-sm:hover{opacity:.85}
+.progress-bar{height:6px;background:var(--bg-secondary);border-radius:3px;overflow:hidden;margin:.4rem 0}
+.progress-fill{height:100%;background:var(--grad-primary);border-radius:3px;transition:width .8s}
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--text-muted)}
+.empty-state i{font-size:4rem;margin-bottom:1rem;opacity:.4}
+.empty-state h3{font-size:1.1rem;font-weight:700;margin-bottom:.5rem;color:var(--text-secondary)}
+.bank-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.5rem 0}
+.bank-btn{padding:.5rem;border:2px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);font-size:.72rem;font-weight:600;cursor:pointer;transition:var(--transition);text-align:center}
+.bank-btn:hover,.bank-btn.selected{border-color:var(--primary);background:rgba(30,64,175,.08);color:var(--primary)}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> › 
+      <a href="import-data.html" style="color:var(--text-muted)">Import Center</a> › 
+      <span style="color:var(--primary)">Bank Statement Parser</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">🏦 Bank Statement Parser <span style="font-size:.9rem;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;padding:.18rem .6rem;border-radius:99px;font-weight:700;vertical-align:middle">AI</span></h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">CSV/Excel bank statement upload → Auto-categorize → 26AS Reconciliation → Tax-relevant entry detection | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <div class="bs-layout">
+    <!-- Sidebar -->
+    <div class="bs-sidebar">
+      <div class="card">
+        <div class="card-header"><i class="fa fa-university"></i> Bank Format</div>
+        <div class="card-body">
+          <label style="font-size:.75rem;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:.4rem">Select Your Bank:</label>
+          <div class="bank-selector">
+            <button class="bank-btn selected" onclick="selectBank(this,'SBI')">SBI</button>
+            <button class="bank-btn" onclick="selectBank(this,'HDFC')">HDFC</button>
+            <button class="bank-btn" onclick="selectBank(this,'ICICI')">ICICI</button>
+            <button class="bank-btn" onclick="selectBank(this,'Axis')">Axis</button>
+            <button class="bank-btn" onclick="selectBank(this,'PNB')">PNB</button>
+            <button class="bank-btn" onclick="selectBank(this,'Generic')">Other</button>
+          </div>
+          <div style="margin-top:.75rem;font-size:.72rem;color:var(--text-muted)">
+            <strong>Format Info:</strong><br>
+            Date, Description, Debit, Credit, Balance columns expected. First row = header.
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="fa fa-upload"></i> Upload Statement</div>
+        <div class="card-body">
+          <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" 
+               ondragover="event.preventDefault();this.classList.add('drag')" 
+               ondragleave="this.classList.remove('drag')"
+               ondrop="handleDrop(event)">
+            <i class="fa fa-file-csv"></i>
+            <p><strong>Click or Drag & Drop</strong></p>
+            <p class="hint">CSV, XLSX, XLS supported<br>Max 10MB</p>
+            <div id="fileBadge"></div>
+          </div>
+          <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="handleFile(this)"/>
+          
+          <div style="margin-top:.75rem">
+            <button class="btn btn-primary" style="width:100%" onclick="loadSampleData()">
+              <i class="fa fa-database"></i> Load Sample Data
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="fa fa-filter"></i> Filters</div>
+        <div class="card-body">
+          <div class="fg" style="margin-bottom:.5rem">
+            <label>Date From</label>
+            <input type="date" id="filterFrom" onchange="applyFilters()"/>
+          </div>
+          <div class="fg" style="margin-bottom:.5rem">
+            <label>Date To</label>
+            <input type="date" id="filterTo" onchange="applyFilters()"/>
+          </div>
+          <div class="fg" style="margin-bottom:.5rem">
+            <label>Category</label>
+            <select id="filterCat" onchange="applyFilters()">
+              <option value="">All Categories</option>
+              <option value="salary">Salary/Income</option>
+              <option value="tax">Tax Payment</option>
+              <option value="invest">Investment</option>
+              <option value="business">Business</option>
+              <option value="expense">Expense</option>
+              <option value="transfer">Transfer</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="fg" style="margin-bottom:.5rem">
+            <label>Min Amount (₹)</label>
+            <input type="number" id="filterMin" placeholder="0" onchange="applyFilters()"/>
+          </div>
+          <div class="fg">
+            <label>Type</label>
+            <select id="filterType" onchange="applyFilters()">
+              <option value="">All</option>
+              <option value="credit">Credits Only</option>
+              <option value="debit">Debits Only</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="fa fa-file-export"></i> Export</div>
+        <div class="card-body">
+          <button class="btn btn-primary" style="width:100%;margin-bottom:.5rem" onclick="exportCSV()"><i class="fa fa-file-csv"></i> Export CSV</button>
+          <button class="btn" style="width:100%;margin-bottom:.5rem;background:var(--success);color:#fff" onclick="exportTaxSummary()"><i class="fa fa-file-alt"></i> Tax Summary PDF</button>
+          <button class="btn" style="width:100%;background:#16a34a;color:#fff" onclick="exportExcel()"><i class="fa fa-file-excel"></i> Export Excel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div>
+      <!-- Stats row -->
+      <div class="stats-row" id="statsRow">
+        <div class="stat-mini"><div class="val" id="statTotal">—</div><div class="lbl">Total Txns</div></div>
+        <div class="stat-mini"><div class="val" id="statCredits" style="color:var(--success)">—</div><div class="lbl">Total Credits</div></div>
+        <div class="stat-mini"><div class="val" id="statDebits" style="color:var(--danger)">—</div><div class="lbl">Total Debits</div></div>
+        <div class="stat-mini"><div class="val" id="statTaxRelevant" style="color:#f59e0b">—</div><div class="lbl">Tax Relevant</div></div>
+      </div>
+
+      <!-- Category breakdown -->
+      <div class="card" style="margin-bottom:1rem" id="catBreakdown" style="display:none">
+        <div class="card-header"><i class="fa fa-chart-pie"></i> Category Breakdown</div>
+        <div class="card-body" id="catBreakdownBody">
+          <p style="color:var(--text-muted);font-size:.82rem">Upload statement to see breakdown...</p>
+        </div>
+      </div>
+
+      <!-- Filter row -->
+      <div class="filter-row">
+        <input type="text" id="searchTxn" placeholder="🔍 Search transactions..." style="flex:1;min-width:150px" oninput="applyFilters()"/>
+        <select id="filterTaxRel" onchange="applyFilters()">
+          <option value="">All</option>
+          <option value="yes">Tax Relevant</option>
+          <option value="no">Not Tax Relevant</option>
+        </select>
+        <button class="btn-sm btn-primary-sm" onclick="runAIAnalysis()">🤖 AI Analysis</button>
+        <button class="btn-sm" style="background:var(--bg-secondary);border:1px solid var(--border)" onclick="resetFilters()">Reset</button>
+      </div>
+
+      <!-- Table -->
+      <div class="card" id="tableCard">
+        <div class="card-body" style="padding:.5rem;overflow-x:auto">
+          <div id="emptyState" class="empty-state">
+            <i class="fa fa-university"></i>
+            <h3>Bank Statement Upload Karen</h3>
+            <p>CSV ya Excel file upload karein ya Sample Data load karein dekhnay ke liye</p>
+            <button class="btn btn-primary" style="margin-top:1rem" onclick="loadSampleData()">
+              <i class="fa fa-play"></i> Sample Data Load Karein
+            </button>
+          </div>
+          <table class="txn-table" id="txnTable" style="display:none">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Debit (₹)</th>
+                <th>Credit (₹)</th>
+                <th>Balance (₹)</th>
+                <th>Tax Relevant</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="txnBody"></tbody>
+          </table>
+        </div>
+        <div style="padding:.5rem .75rem;background:var(--bg-secondary);font-size:.72rem;color:var(--text-muted);display:flex;justify-content:space-between">
+          <span id="rowCount">0 transactions</span>
+          <span>Sorted by date (newest first)</span>
+        </div>
+      </div>
+
+      <!-- AI Insights -->
+      <div class="ai-insight" id="aiInsightPanel" style="display:none">
+        <h4>🤖 AI Tax Analysis</h4>
+        <div id="aiInsightContent"></div>
+      </div>
+
+      <!-- 26AS Reconciliation -->
+      <div class="recon-panel" id="reconPanel" style="display:none">
+        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem">
+          <i class="fa fa-balance-scale" style="color:var(--primary)"></i> 26AS Reconciliation
+        </h4>
+        <div class="progress-bar"><div class="progress-fill" id="reconProgress" style="width:0%"></div></div>
+        <p style="font-size:.72rem;color:var(--text-muted);margin:.3rem 0 .75rem" id="reconProgressText">Calculating...</p>
+        <div id="reconBody"></div>
+        <div style="margin-top:.75rem;padding:.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:.78rem;color:var(--text-secondary)">
+          <strong>💡 26AS Match Criteria:</strong> Salary credits ≥ ₹5L/month, Interest credits, TDS entries, Large cash transactions ≥ ₹2L auto-flagged for 26AS match check.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script src="../js/ai-real.js"></script>
+<script>
+var allTransactions = [];
+var filteredTransactions = [];
+var selectedBank = 'SBI';
+
+function selectBank(el, bank) {
+  document.querySelectorAll('.bank-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedBank = bank;
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag');
+  var files = e.dataTransfer.files;
+  if (files.length > 0) processFile(files[0]);
+}
+
+function handleFile(input) {
+  if (input.files.length > 0) processFile(input.files[0]);
+}
+
+function processFile(file) {
+  if (!file) return;
+  var ext = file.name.split('.').pop().toLowerCase();
+  document.getElementById('fileBadge').innerHTML = '<div class="file-badge">✅ ' + file.name + '</div>';
+  showToast('📂 ' + file.name + ' loading...', 'info');
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      if (ext === 'csv' || ext === 'txt') {
+        var data = e.target.result;
+        parseCSV(data);
+      } else {
+        showToast('CSV format mein export karein please. XLSX support coming soon.', 'warning');
+        loadSampleData();
+      }
+    } catch(err) {
+      showToast('File parse error: ' + err.message, 'error');
+      loadSampleData();
+    }
+  };
+  reader.readAsText(file);
+}
+
+function parseCSV(csvText) {
+  var lines = csvText.split('\n').filter(l => l.trim());
+  if (lines.length < 2) { showToast('File mein data nahi hai', 'error'); return; }
+  
+  var headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
+  var dateIdx = headers.findIndex(h => h.includes('date'));
+  var descIdx = headers.findIndex(h => h.includes('desc') || h.includes('narr') || h.includes('particular'));
+  var debitIdx = headers.findIndex(h => h.includes('debit') || h.includes('withdrawal'));
+  var creditIdx = headers.findIndex(h => h.includes('credit') || h.includes('deposit'));
+  var balIdx = headers.findIndex(h => h.includes('balance'));
+
+  if (dateIdx === -1 || descIdx === -1) {
+    showToast('Date/Description columns nahi mili. Sample data loading...', 'warning');
+    loadSampleData();
+    return;
+  }
+
+  var txns = [];
+  for (var i = 1; i < lines.length; i++) {
+    var cols = lines[i].split(',').map(c => c.trim().replace(/"/g,''));
+    if (cols.length < 3) continue;
+    var debit = parseFloat(cols[debitIdx] || 0) || 0;
+    var credit = parseFloat(cols[creditIdx] || 0) || 0;
+    if (debit === 0 && credit === 0) continue;
+    txns.push({
+      date: cols[dateIdx] || '',
+      desc: cols[descIdx] || '',
+      debit: debit,
+      credit: credit,
+      balance: parseFloat(cols[balIdx] || 0) || 0,
+      category: categorize(cols[descIdx] || '', debit, credit),
+      taxRelevant: isTaxRelevant(cols[descIdx] || '', debit, credit)
+    });
+  }
+
+  if (txns.length === 0) { showToast('No valid transactions found', 'error'); loadSampleData(); return; }
+  
+  allTransactions = txns;
+  filteredTransactions = txns;
+  renderTable();
+  updateStats();
+  updateCategoryBreakdown();
+  showToast('✅ ' + txns.length + ' transactions loaded!', 'success');
+}
+
+function categorize(desc, debit, credit) {
+  var d = desc.toLowerCase();
+  if (d.includes('salary') || d.includes('sal/') || d.includes('payroll') || d.includes('neft cr')) return 'salary';
+  if (d.includes('income tax') || d.includes('tds') || d.includes('advance tax') || d.includes('challan') || d.includes('tax dept')) return 'tax';
+  if (d.includes('mutual fund') || d.includes('mf/') || d.includes('sip') || d.includes('nps') || d.includes('ppf') || d.includes('lic') || d.includes('insurance') || d.includes('fd/')) return 'invest';
+  if (d.includes('gst') || d.includes('invoice') || d.includes('business') || d.includes('vendor') || d.includes('supplier')) return 'business';
+  if (d.includes('transfer') || d.includes('neft') || d.includes('rtgs') || d.includes('imps') || d.includes('upi') || d.includes('atm')) return 'transfer';
+  if (debit > 0 && credit === 0) return 'expense';
+  return 'other';
+}
+
+function isTaxRelevant(desc, debit, credit) {
+  var d = desc.toLowerCase();
+  if (d.includes('salary') || d.includes('income tax') || d.includes('tds') || d.includes('advance tax')) return true;
+  if (d.includes('mutual fund') || d.includes('sip') || d.includes('ppf') || d.includes('nps') || d.includes('lic') || d.includes('fd/')) return true;
+  if (d.includes('rent') || d.includes('hra') || d.includes('housing')) return true;
+  if (credit >= 50000) return true;
+  if (debit >= 200000) return true;
+  return false;
+}
+
+function catLabel(cat) {
+  var map = {salary:'salary',tax:'tax',invest:'invest',business:'business',expense:'expense',transfer:'transfer',other:'other'};
+  var labels = {salary:'💰 Salary/Income',tax:'🏛️ Tax Payment',invest:'📈 Investment',business:'🏢 Business',expense:'💸 Expense',transfer:'🔄 Transfer',other:'📌 Other'};
+  return '<span class="cat-badge cat-' + (map[cat]||'other') + '">' + (labels[cat] || cat) + '</span>';
+}
+
+function renderTable() {
+  var tbody = document.getElementById('txnBody');
+  var table = document.getElementById('txnTable');
+  var empty = document.getElementById('emptyState');
+  
+  if (filteredTransactions.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    document.getElementById('rowCount').textContent = '0 transactions';
+    return;
+  }
+  
+  empty.style.display = 'none';
+  table.style.display = 'table';
+  document.getElementById('rowCount').textContent = filteredTransactions.length + ' transactions shown';
+  
+  tbody.innerHTML = filteredTransactions.slice(0,200).map(function(t) {
+    return '<tr>' +
+      '<td style="white-space:nowrap;font-size:.75rem">' + t.date + '</td>' +
+      '<td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + t.desc + '">' + t.desc + '</td>' +
+      '<td>' + catLabel(t.category) + '</td>' +
+      '<td class="debit">' + (t.debit > 0 ? '₹' + fmt(t.debit) : '—') + '</td>' +
+      '<td class="credit">' + (t.credit > 0 ? '₹' + fmt(t.credit) : '—') + '</td>' +
+      '<td style="font-size:.75rem">₹' + fmt(t.balance) + '</td>' +
+      '<td><span class="match-icon ' + (t.taxRelevant ? 'match-yes' : 'match-na') + '">' + (t.taxRelevant ? '🔴' : '⚪') + '</span></td>' +
+      '<td><button class="btn-sm btn-primary-sm" onclick="changeCat(this,' + allTransactions.indexOf(t) + ')">Edit</button></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function fmt(n) {
+  if (!n) return '0';
+  return Math.abs(n).toLocaleString('en-IN', {maximumFractionDigits:0});
+}
+
+function changeCat(btn, idx) {
+  var cats = ['salary','tax','invest','business','expense','transfer','other'];
+  var cur = allTransactions[idx].category;
+  var next = cats[(cats.indexOf(cur)+1) % cats.length];
+  allTransactions[idx].category = next;
+  applyFilters();
+}
+
+function updateStats() {
+  var totalCredits = allTransactions.reduce(function(s,t){return s+t.credit;},0);
+  var totalDebits = allTransactions.reduce(function(s,t){return s+t.debit;},0);
+  var taxRelevant = allTransactions.filter(function(t){return t.taxRelevant;}).length;
+  document.getElementById('statTotal').textContent = allTransactions.length;
+  document.getElementById('statCredits').textContent = '₹' + fmt(totalCredits);
+  document.getElementById('statDebits').textContent = '₹' + fmt(totalDebits);
+  document.getElementById('statTaxRelevant').textContent = taxRelevant;
+}
+
+function updateCategoryBreakdown() {
+  var cats = {};
+  allTransactions.forEach(function(t) {
+    var key = t.category;
+    if (!cats[key]) cats[key] = {count:0,credit:0,debit:0};
+    cats[key].count++;
+    cats[key].credit += t.credit;
+    cats[key].debit += t.debit;
+  });
+  
+  var total = allTransactions.length;
+  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">';
+  Object.keys(cats).forEach(function(cat) {
+    var pct = Math.round(cats[cat].count/total*100);
+    html += '<div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.6rem">' +
+      catLabel(cat) + '<div class="progress-bar" style="margin-top:.3rem"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+      '<div style="font-size:.68rem;color:var(--text-muted);margin-top:.2rem">' + cats[cat].count + ' txns · ₹' + fmt(cats[cat].credit - cats[cat].debit) + ' net</div>' +
+    '</div>';
+  });
+  html += '</div>';
+  document.getElementById('catBreakdownBody').innerHTML = html;
+  document.getElementById('catBreakdown').style.display = 'block';
+}
+
+function applyFilters() {
+  var search = document.getElementById('searchTxn').value.toLowerCase();
+  var cat = document.getElementById('filterCat').value;
+  var type = document.getElementById('filterType').value;
+  var taxRel = document.getElementById('filterTaxRel').value;
+  var minAmt = parseFloat(document.getElementById('filterMin').value) || 0;
+  var from = document.getElementById('filterFrom').value;
+  var to = document.getElementById('filterTo').value;
+
+  filteredTransactions = allTransactions.filter(function(t) {
+    if (search && !t.desc.toLowerCase().includes(search)) return false;
+    if (cat && t.category !== cat) return false;
+    if (type === 'credit' && t.credit <= 0) return false;
+    if (type === 'debit' && t.debit <= 0) return false;
+    if (taxRel === 'yes' && !t.taxRelevant) return false;
+    if (taxRel === 'no' && t.taxRelevant) return false;
+    if (minAmt > 0 && Math.max(t.debit, t.credit) < minAmt) return false;
+    return true;
+  });
+  renderTable();
+}
+
+function resetFilters() {
+  document.getElementById('searchTxn').value = '';
+  document.getElementById('filterCat').value = '';
+  document.getElementById('filterType').value = '';
+  document.getElementById('filterTaxRel').value = '';
+  document.getElementById('filterMin').value = '';
+  document.getElementById('filterFrom').value = '';
+  document.getElementById('filterTo').value = '';
+  filteredTransactions = allTransactions;
+  renderTable();
+}
+
+function runAIAnalysis() {
+  if (allTransactions.length === 0) { showToast('Pehle statement upload karein', 'warning'); return; }
+  
+  var panel = document.getElementById('aiInsightPanel');
+  var content = document.getElementById('aiInsightContent');
+  panel.style.display = 'block';
+  content.innerHTML = '<div style="color:var(--text-muted);font-size:.82rem">🔍 Analyzing ' + allTransactions.length + ' transactions...</div>';
+
+  var salaryTxns = allTransactions.filter(t => t.category === 'salary');
+  var totalSalary = salaryTxns.reduce((s,t) => s+t.credit, 0);
+  var taxPayments = allTransactions.filter(t => t.category === 'tax');
+  var totalTax = taxPayments.reduce((s,t) => s+t.debit, 0);
+  var investments = allTransactions.filter(t => t.category === 'invest');
+  var totalInvest = investments.reduce((s,t) => s+t.debit, 0);
+  var largeTxns = allTransactions.filter(t => Math.max(t.debit,t.credit) >= 100000);
+
+  var summary = 'Bank: ' + selectedBank + '\nTotal Txns: ' + allTransactions.length + '\n\n';
+  summary += 'Salary/Income: ₹' + fmt(totalSalary) + ' (' + salaryTxns.length + ' credits)\n';
+  summary += 'Tax Payments: ₹' + fmt(totalTax) + ' (' + taxPayments.length + ' entries)\n';
+  summary += 'Investments: ₹' + fmt(totalInvest) + ' (' + investments.length + ' entries)\n';
+  summary += 'Large Txns (>1L): ' + largeTxns.length + ' found';
+
+  var prompt = 'Bank statement analysis (India, AY 2026-27):\n' + summary + '\n\nProvide:\n1. Income taxability assessment\n2. Tax-saving investments identified\n3. Missing tax payments (advance tax if income > ₹10L)\n4. Red flags for scrutiny\n5. Recommendations\nIn Hindi + English, concise bullet points.';
+
+  var keys = window.TAXMITRA_CONFIG;
+  if (keys && keys.GEMINI_API_KEY) {
+    window.getAIResponse(prompt).then(function(resp) {
+      content.innerHTML = '<p>' + resp.replace(/\n/g,'<br>') + '</p>';
+      buildReconPanel(totalSalary, totalTax, totalInvest, largeTxns);
+    }).catch(function() {
+      content.innerHTML = buildRuleBasedAnalysis(totalSalary, totalTax, totalInvest, largeTxns);
+      buildReconPanel(totalSalary, totalTax, totalInvest, largeTxns);
+    });
+  } else {
+    content.innerHTML = buildRuleBasedAnalysis(totalSalary, totalTax, totalInvest, largeTxns);
+    buildReconPanel(totalSalary, totalTax, totalInvest, largeTxns);
+  }
+}
+
+function buildRuleBasedAnalysis(salary, taxPaid, invest, largeTxns) {
+  var insights = [];
+  if (salary > 0) insights.push('✅ <strong>Salary Income:</strong> ₹' + fmt(salary) + ' — Form 16 se match karein');
+  if (taxPaid > 0) insights.push('🏛️ <strong>Tax Paid:</strong> ₹' + fmt(taxPaid) + ' — Advance tax + TDS verify karein');
+  if (invest > 0) insights.push('📈 <strong>80C/80D Investments:</strong> ₹' + fmt(invest) + ' — ITR mein claim karein');
+  if (salary > 1000000 && taxPaid < salary * 0.1) insights.push('⚠️ <strong>Advance Tax:</strong> Income > ₹10L, advance tax paid karna chahiye tha');
+  if (largeTxns.length > 0) insights.push('🔴 <strong>Large Transactions:</strong> ' + largeTxns.length + ' txns > ₹1L — 26AS check zaroor karein');
+  if (invest >= 150000) insights.push('✅ <strong>80C Limit:</strong> ₹1.5L investment limit reach ho gayi — deduction milegi');
+  insights.push('💡 <strong>Tip:</strong> All credits > ₹50,000 are tax-relevant — verify with AIS/26AS');
+  return insights.map(i => '<p>' + i + '</p>').join('');
+}
+
+function buildReconPanel(salary, taxPaid, invest, largeTxns) {
+  var panel = document.getElementById('reconPanel');
+  panel.style.display = 'block';
+  
+  var matched = 0, total = 3;
+  var items = [];
+  
+  if (salary > 0) {
+    matched++;
+    items.push({label: 'Salary Income (26AS Part A)', amount: '₹' + fmt(salary), status: 'match'});
+  } else {
+    items.push({label: 'Salary Income (26AS Part A)', amount: 'Not Found', status: 'miss'});
+  }
+  
+  if (taxPaid > 0) {
+    matched++;
+    items.push({label: 'Advance Tax / TDS (26AS Part C)', amount: '₹' + fmt(taxPaid), status: 'match'});
+  } else {
+    items.push({label: 'Advance Tax / TDS (26AS Part C)', amount: 'Not Found', status: 'miss'});
+  }
+  
+  if (largeTxns.length > 0) {
+    items.push({label: 'High-Value Txns (SFT Report)', amount: largeTxns.length + ' transactions', status: 'warn'});
+  } else {
+    matched++;
+    items.push({label: 'High-Value Txns (SFT Report)', amount: 'None found ✓', status: 'match'});
+  }
+  
+  var pct = Math.round(matched/total*100);
+  document.getElementById('reconProgress').style.width = pct + '%';
+  document.getElementById('reconProgressText').textContent = matched + '/' + total + ' items matched (' + pct + '%)';
+  
+  document.getElementById('reconBody').innerHTML = items.map(function(item) {
+    var statusIcon = item.status === 'match' ? '✅' : item.status === 'warn' ? '⚠️' : '❌';
+    var statusColor = item.status === 'match' ? 'var(--success)' : item.status === 'warn' ? '#f59e0b' : 'var(--danger)';
+    return '<div class="recon-item">' +
+      '<div><strong style="font-size:.82rem">' + item.label + '</strong></div>' +
+      '<div style="display:flex;align-items:center;gap:.5rem">' +
+        '<span style="font-size:.8rem;color:var(--text-secondary)">' + item.amount + '</span>' +
+        '<span style="color:' + statusColor + ';font-size:.9rem">' + statusIcon + '</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function exportCSV() {
+  if (filteredTransactions.length === 0) { showToast('Koi data nahi export karne ke liye', 'warning'); return; }
+  var csv = 'Date,Description,Category,Debit,Credit,Balance,TaxRelevant\n';
+  filteredTransactions.forEach(function(t) {
+    csv += '"' + t.date + '","' + t.desc + '",' + t.category + ',' + t.debit + ',' + t.credit + ',' + t.balance + ',' + (t.taxRelevant?'Yes':'No') + '\n';
+  });
+  var blob = new Blob([csv], {type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bank_statement_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('✅ CSV exported!', 'success');
+}
+
+function exportTaxSummary() {
+  if (allTransactions.length === 0) { showToast('Data nahi hai', 'warning'); return; }
+  var cats = {};
+  allTransactions.forEach(function(t) {
+    if (!cats[t.category]) cats[t.category] = {credit:0,debit:0,count:0};
+    cats[t.category].credit += t.credit;
+    cats[t.category].debit += t.debit;
+    cats[t.category].count++;
+  });
+  
+  var content = 'TAXMITRA AI ENTERPRISE\nBank Statement Tax Summary\nDeveloped by: Abhishek Agrahari\nBank: ' + selectedBank + '\nGenerated: ' + new Date().toLocaleDateString('en-IN') + '\n\n';
+  content += '='.repeat(50) + '\nCATEGORY SUMMARY\n' + '='.repeat(50) + '\n';
+  Object.keys(cats).forEach(function(cat) {
+    content += '\n' + cat.toUpperCase() + ':\n  Credits: ₹' + fmt(cats[cat].credit) + '\n  Debits: ₹' + fmt(cats[cat].debit) + '\n  Count: ' + cats[cat].count + '\n';
+  });
+  
+  var taxRelTxns = allTransactions.filter(function(t){return t.taxRelevant;});
+  content += '\n' + '='.repeat(50) + '\nTAX-RELEVANT TRANSACTIONS\n' + '='.repeat(50) + '\n';
+  taxRelTxns.forEach(function(t) {
+    content += t.date + ' | ' + t.desc.slice(0,30) + ' | ₹' + fmt(Math.max(t.debit,t.credit)) + '\n';
+  });
+  
+  var blob = new Blob([content], {type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'tax_summary_' + selectedBank + '_' + new Date().toISOString().slice(0,10) + '.txt';
+  a.click();
+  showToast('✅ Tax Summary exported!', 'success');
+}
+
+function exportExcel() {
+  showToast('Excel export: CSV mein export karein aur Excel mein open karein', 'info');
+  exportCSV();
+}
+
+function loadSampleData() {
+  var sample = [
+    {date:'01-Apr-2025',desc:'SALARY NEFT FROM INFOSYS LTD',debit:0,credit:85000,balance:185000},
+    {date:'05-Apr-2025',desc:'SIP HDFC MUTUAL FUND',debit:5000,credit:0,balance:180000},
+    {date:'10-Apr-2025',desc:'LIC PREMIUM PAYMENT',debit:15000,credit:0,balance:165000},
+    {date:'15-Apr-2025',desc:'ADVANCE TAX CHALLAN NSDL',debit:12000,credit:0,balance:153000},
+    {date:'20-Apr-2025',desc:'UPI PAYMENT AMAZON',debit:3500,credit:0,balance:149500},
+    {date:'01-May-2025',desc:'SALARY NEFT FROM INFOSYS LTD',debit:0,credit:85000,balance:234500},
+    {date:'07-May-2025',desc:'NPS CONTRIBUTION PENSION',debit:5000,credit:0,balance:229500},
+    {date:'12-May-2025',desc:'RENT PAYMENT MR SHARMA',debit:25000,credit:0,balance:204500},
+    {date:'18-May-2025',desc:'INTEREST CREDIT SB ACCOUNT',debit:0,credit:2500,balance:207000},
+    {date:'01-Jun-2025',desc:'SALARY NEFT FROM INFOSYS LTD',debit:0,credit:85000,balance:292000},
+    {date:'05-Jun-2025',desc:'PPFNSDL PUBLIC PROVIDENT FUND',debit:12500,credit:0,balance:279500},
+    {date:'10-Jun-2025',desc:'TDS PAYMENT INCOME TAX DEPT',debit:8000,credit:0,balance:271500},
+    {date:'15-Jun-2025',desc:'FD BOOKING HDFC BANK',debit:100000,credit:0,balance:171500},
+    {date:'20-Jun-2025',desc:'NEFT TRANSFER TO PARENTS',debit:20000,credit:0,balance:151500},
+    {date:'25-Jun-2025',desc:'GST PAYMENT CHALLAN',debit:5500,credit:0,balance:146000},
+    {date:'01-Jul-2025',desc:'SALARY NEFT FROM INFOSYS LTD',debit:0,credit:85000,balance:231000},
+    {date:'04-Jul-2025',desc:'MEDICAL INSURANCE PREMIUM',debit:18000,credit:0,balance:213000},
+    {date:'08-Jul-2025',desc:'ADVANCE TAX Q2 CHALLAN 280',debit:12000,credit:0,balance:201000},
+    {date:'15-Jul-2025',desc:'DIVIDEND CREDIT HDFC BANK',debit:0,credit:3200,balance:204200},
+    {date:'22-Jul-2025',desc:'HOME LOAN EMI PAYMENT SBI',debit:35000,credit:0,balance:169200},
+    {date:'01-Aug-2025',desc:'SALARY NEFT FROM INFOSYS LTD',debit:0,credit:85000,balance:254200},
+    {date:'10-Aug-2025',desc:'ELSS MUTUAL FUND AXIS',debit:10000,credit:0,balance:244200},
+    {date:'15-Aug-2025',desc:'BONUS CREDIT INFOSYS',debit:0,credit:50000,balance:294200},
+    {date:'20-Aug-2025',desc:'ATM CASH WITHDRAWAL',debit:10000,credit:0,balance:284200}
+  ];
+  
+  allTransactions = sample.map(function(t) {
+    return {
+      date: t.date,
+      desc: t.desc,
+      debit: t.debit,
+      credit: t.credit,
+      balance: t.balance,
+      category: categorize(t.desc, t.debit, t.credit),
+      taxRelevant: isTaxRelevant(t.desc, t.debit, t.credit)
+    };
+  });
+  
+  filteredTransactions = allTransactions;
+  renderTable();
+  updateStats();
+  updateCategoryBreakdown();
+  document.getElementById('fileBadge').innerHTML = '<div class="file-badge">📊 Sample Data (24 transactions)</div>';
+  showToast('✅ Sample bank statement loaded!', 'success');
+}
+</script>
+</body>
+</html>

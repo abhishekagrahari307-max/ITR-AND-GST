@@ -29,9 +29,9 @@ var ORIGIN = 'https://taxmitra.test';
 
 var results = { passed: 0, failed: 0, failures: [] };
 
-function check(name, fn) {
+async function check(name, fn) {
   try {
-    fn();
+    await fn();
     results.passed += 1;
     console.log('  ✓ ' + name);
   } catch (error) {
@@ -152,25 +152,25 @@ async function billingTests() {
   var window = dom.window;
   var document = window.document;
 
-  check('scripts load without a page error', function () {
+  await check('scripts load without a page error', function () {
     equal((window.__errors || []).length, 0, 'window errors: ' + (window.__errors || []).join(' | '));
     assert(window.TMGST, 'TMGST missing');
     assert(window.TMStore, 'TMStore missing');
     assert(window.TMBilling, 'TMBilling missing');
   });
 
-  check('dashboard renders the empty state', function () {
+  await check('dashboard renders the empty state', function () {
     assert(document.getElementById('recentBody').textContent.indexOf('No invoices yet') !== -1, 'expected the empty recent list');
     equal(document.getElementById('statInvoiced').textContent, '₹0.00');
   });
 
-  check('the GSTIN warning appears when no seller GSTIN is set', function () {
+  await check('the GSTIN warning appears when no seller GSTIN is set', function () {
     var warn = document.getElementById('gstinWarning');
     assert(warn.hidden === false, 'warning should be visible');
     assert(warn.textContent.indexOf('No seller GSTIN') !== -1);
   });
 
-  check('business settings can be saved', function () {
+  await check('business settings can be saved', function () {
     setValue(window, 'set_businessName', 'Kulkarni & Associates');
     setValue(window, 'set_gstin', '27AAPFU0939F1ZV');
     setValue(window, 'set_state', '27');
@@ -181,11 +181,11 @@ async function billingTests() {
     equal(saved.gstin, '27AAPFU0939F1ZV');
   });
 
-  check('the GSTIN warning disappears once a valid GSTIN is set', function () {
+  await check('the GSTIN warning disappears once a valid GSTIN is set', function () {
     assert(document.getElementById('gstinWarning').hidden === true, 'warning should be hidden');
   });
 
-  check('a new invoice can be created and saved', function () {
+  await check('a new invoice can be created and saved', function () {
     click(window, '[data-tab-btn="new"]');
     setValue(window, 'buyerName', 'Sharma Traders');
     setValue(window, 'buyerGstin', '27AAPFU0939F1ZV');
@@ -212,7 +212,7 @@ async function billingTests() {
     assert(document.getElementById('invoiceBody').textContent.indexOf('Sharma Traders') !== -1, 'invoice list should show the buyer');
   });
 
-  check('an invalid GSTIN blocks the save with a readable error', function () {
+  await check('an invalid GSTIN blocks the save with a readable error', function () {
     click(window, '[data-tab-btn="new"]');
     setValue(window, 'buyerName', 'Bad GSTIN Buyer');
     setValue(window, 'buyerGstin', '27AAPFU0939F1ZX');
@@ -234,7 +234,7 @@ async function billingTests() {
     equal(stored.computed.grandTotal, 5900, 'the saved total must not change because of a failed edit');
   });
 
-  check('marking an invoice paid updates the dashboard', function () {
+  await check('marking an invoice paid updates the dashboard', function () {
     click(window, '[data-tab-btn="invoices"]');
     click(window, '[data-toggle-paid]');
     equal(window.TMBilling.state.invoices[0].status, 'paid');
@@ -243,7 +243,7 @@ async function billingTests() {
     equal(document.getElementById('statOutstanding').textContent, '₹0.00');
   });
 
-  check('printing builds the invoice sheet', function () {
+  await check('printing builds the invoice sheet', function () {
     click(window, '[data-tab-btn="invoices"]');
     click(window, '[data-print]');
     var sheet = document.getElementById('printArea').innerHTML;
@@ -252,7 +252,7 @@ async function billingTests() {
     assert(window.__printed === 1, 'window.print should have been called once');
   });
 
-  check('a customer can be added and reused', function () {
+  await check('a customer can be added and reused', function () {
     click(window, '[data-tab-btn="customers"]');
     setValue(window, 'cname', 'Patel Textiles');
     setValue(window, 'cgstin', '27AAPFU0939F1ZV');
@@ -262,7 +262,7 @@ async function billingTests() {
     equal(document.getElementById('buyerName').value, document.querySelector('#customerBody tr td').textContent);
   });
 
-  check('the GSTR-1 export stays disabled-free and honest', function () {
+  await check('the GSTR-1 export stays disabled-free and honest', function () {
     var button = document.getElementById('exportGstr1Btn');
     assert(button, 'export button missing');
     var text = document.body.textContent;
@@ -278,25 +278,25 @@ async function itrTests() {
   var window = dom.window;
   var document = window.document;
 
-  check('scripts load without a page error', function () {
+  await check('scripts load without a page error', function () {
     equal((window.__errors || []).length, 0, 'window errors: ' + (window.__errors || []).join(' | '));
     assert(window.TMIT, 'TMIT missing');
     assert(window.TMITRWizard, 'TMITRWizard missing');
   });
 
-  check('step 1 is visible and later steps are hidden', function () {
+  await check('step 1 is visible and later steps are hidden', function () {
     equal(document.getElementById('step1').hidden, false);
     equal(document.getElementById('step7').hidden, true);
     assert(document.getElementById('stepNav').querySelectorAll('button').length === 7, 'expected 7 step buttons');
   });
 
-  check('the ITR-1..7 reference cards are rendered', function () {
+  await check('the ITR-1..7 reference cards are rendered', function () {
     var cards = document.getElementById('formList').querySelectorAll('article');
     equal(cards.length, 7);
     assert(document.getElementById('formList').textContent.indexOf('Sahaj') !== -1);
   });
 
-  check('an invalid PAN blocks the step', function () {
+  await check('an invalid PAN blocks the step', function () {
     setValue(window, 'name', 'Asha Kulkarni');
     setValue(window, 'pan', 'ABCDE123');
     setValue(window, 'age', '34');
@@ -307,7 +307,7 @@ async function itrTests() {
     equal(document.getElementById('step1').hidden, false, 'should stay on step 1');
   });
 
-  check('a valid profile advances to step 2 and suggests a form', function () {
+  await check('a valid profile advances to step 2 and suggests a form', function () {
     setValue(window, 'pan', 'ABCDE1234F');
     var hint = document.getElementById('panHint');
     assert(hint.className.indexOf('ok') !== -1, 'PAN hint should turn green');
@@ -317,14 +317,14 @@ async function itrTests() {
     assert(document.getElementById('formRecommendation').textContent.indexOf('ITR-1') !== -1, 'a simple salary profile should suggest ITR-1');
   });
 
-  check('salary income is accepted and advances', function () {
+  await check('salary income is accepted and advances', function () {
     setValue(window, 'grossSalary', '1275000');
     setValue(window, 'basicDa', '600000');
     click(window, '[data-next]');
     equal(document.getElementById('step3').hidden, false);
   });
 
-  check('capital gains step and deductions step advance', function () {
+  await check('capital gains step and deductions step advance', function () {
     setValue(window, 'ltcg112a', '225000');
     click(window, '[data-next]');
     equal(document.getElementById('step4').hidden, false);
@@ -333,7 +333,7 @@ async function itrTests() {
     equal(document.getElementById('step5').hidden, false);
   });
 
-  check('the regime comparison renders both columns', function () {
+  await check('the regime comparison renders both columns', function () {
     var table = document.getElementById('comparisonBody').querySelector('table');
     assert(table, 'comparison table missing');
     assert(table.textContent.indexOf('New regime') !== -1 && table.textContent.indexOf('Old regime') !== -1);
@@ -342,18 +342,18 @@ async function itrTests() {
     assert(document.getElementById('comparisonSummary').textContent.indexOf('regime') !== -1, 'summary should name a regime');
   });
 
-  check('the slab breakdown shows the special-rate income', function () {
+  await check('the slab breakdown shows the special-rate income', function () {
     assert(document.getElementById('slabBreakdown').textContent.indexOf('%') !== -1, 'slab table missing');
     assert(document.getElementById('specialBreakdown').textContent.indexOf('112A') !== -1, 'LTCG 112A row missing');
   });
 
-  check('choosing the old regime updates the selection', function () {
+  await check('choosing the old regime updates the selection', function () {
     click(window, '#chooseOld');
     assert(document.getElementById('chooseOld').className.indexOf('selected') !== -1);
     assert(document.getElementById('chooseNew').className.indexOf('selected') === -1);
   });
 
-  check('the advance tax schedule renders', function () {
+  await check('the advance tax schedule renders', function () {
     click(window, '[data-next]');
     equal(document.getElementById('step6').hidden, false);
     var body = document.getElementById('advanceTaxBody');
@@ -361,7 +361,7 @@ async function itrTests() {
     assert(document.getElementById('taxesTotal').textContent.indexOf('₹') !== -1, 'liability should be formatted');
   });
 
-  check('the review step recommends a form and shows the computation', function () {
+  await check('the review step recommends a form and shows the computation', function () {
     click(window, '[data-next]');
     equal(document.getElementById('step7').hidden, false);
     var form = document.getElementById('reviewForm').textContent;
@@ -370,7 +370,7 @@ async function itrTests() {
     assert(document.getElementById('reviewWarnings').textContent.length > 0, 'warnings should be shown for this profile');
   });
 
-  check('the export payload is honest and complete', function () {
+  await check('the export payload is honest and complete', function () {
     var payload = window.TMITRWizard.buildExport();
     assert(payload.disclaimer.indexOf('not a return of income') !== -1, 'disclaimer missing from the export');
     assert(payload.computation.newRegime && payload.computation.oldRegime, 'both regimes should be exported');
@@ -380,7 +380,7 @@ async function itrTests() {
 
   await new Promise(function (resolve) { setTimeout(resolve, 600); });
 
-  check('the draft is persisted to localStorage (after the debounce)', function () {
+  await check('the draft is persisted to localStorage (after the debounce)', function () {
     var raw = window.localStorage.getItem('tm-itr-draft');
     assert(raw, 'draft not saved');
     var draft = JSON.parse(raw);
@@ -396,13 +396,13 @@ async function directoryTests() {
   var window = dom.window;
   var document = window.document;
 
-  check('all 25 projects render', function () {
+  await check('all 25 projects render', function () {
     equal((window.__errors || []).length, 0, 'window errors: ' + (window.__errors || []).join(' | '));
     equal(document.querySelectorAll('.repo-card').length, 25);
     assert(document.getElementById('resultCount').textContent.indexOf('25') !== -1);
   });
 
-  check('every card links to GitHub and shows a licence tag', function () {
+  await check('every card links to GitHub and shows a licence tag', function () {
     var cards = document.querySelectorAll('.repo-card');
     for (var i = 0; i < cards.length; i++) {
       var link = cards[i].querySelector('a[href^="https://github.com/"]');
@@ -411,7 +411,7 @@ async function directoryTests() {
     }
   });
 
-  check('search filters the grid', function () {
+  await check('search filters the grid', function () {
     var input = document.getElementById('repoSearch');
     input.value = 'gstr';
     input.dispatchEvent(new window.Event('input', { bubbles: true }));
@@ -419,7 +419,7 @@ async function directoryTests() {
     assert(shown > 0 && shown < 25, 'expected a narrowed list, got ' + shown);
   });
 
-  check('a nonsense query shows the empty state', function () {
+  await check('a nonsense query shows the empty state', function () {
     var input = document.getElementById('repoSearch');
     input.value = 'zzzzz-nothing';
     input.dispatchEvent(new window.Event('input', { bubbles: true }));
@@ -427,7 +427,7 @@ async function directoryTests() {
     equal(document.getElementById('emptyState').hidden, false);
   });
 
-  check('category chips filter by category', function () {
+  await check('category chips filter by category', function () {
     var input = document.getElementById('repoSearch');
     input.value = '';
     input.dispatchEvent(new window.Event('input', { bubbles: true }));
@@ -436,7 +436,7 @@ async function directoryTests() {
     equal(cards.length, 4, 'four document tools are listed');
   });
 
-  check('the unlicensed projects are flagged in the UI', function () {
+  await check('the unlicensed projects are flagged in the UI', function () {
     click(window, '[data-category="all"]');
     var select = document.getElementById('licenceFilter');
     select.value = 'unlicensed';
@@ -454,14 +454,14 @@ async function adminTests() {
   var window = dom.window;
   var document = window.document;
 
-  check('scripts load and the empty state is reported', function () {
+  await check('scripts load and the empty state is reported', function () {
     equal((window.__errors || []).length, 0, 'window errors: ' + (window.__errors || []).join(' | '));
     assert(window.TMAdmin, 'TMAdmin missing');
     equal(document.getElementById('invoiceCount').textContent, '0');
     assert(document.getElementById('integrityBody').textContent.length > 0, 'integrity check should run on load');
   });
 
-  check('seeding demo data fills the console', function () {
+  await check('seeding demo data fills the console', function () {
     click(window, '#seedBtn');
     equal(document.getElementById('invoiceCount').textContent, '3');
     equal(document.getElementById('customerCount').textContent, '2');
@@ -469,22 +469,87 @@ async function adminTests() {
     assert(document.getElementById('invoicedTotal').textContent.indexOf('₹') !== -1);
   });
 
-  check('the seeded data passes the integrity check', function () {
+  await check('the seeded data passes the integrity check', function () {
     var text = document.getElementById('integrityBody').textContent;
     assert(text.indexOf('error') === -1 || text.indexOf('0 error') !== -1, 'unexpected errors: ' + text.slice(0, 200));
     assert(/ok|warning/i.test(text), 'expected an ok/warning verdict');
   });
 
-  check('a backup can be produced', function () {
+  await check('a backup can be produced', function () {
     click(window, '#exportBackupBtn');
     // download() is stubbed by jsdom's createObjectURL mock; assert no throw
     assert(true);
   });
 
-  check('clearing wipes everything', function () {
+  await check('clearing wipes everything', function () {
     click(window, '#clearBtn');
     equal(document.getElementById('invoiceCount').textContent, '0');
     equal(window.localStorage.getItem('tm-billing-invoices'), null);
+  });
+
+  dom.window.close();
+}
+
+
+async function homeTests() {
+  console.log('\nHomepage AI chat');
+  var dom = await loadPage('index.html');
+  var window = dom.window;
+  var document = window.document;
+
+  await check('scripts load without a page error', function () {
+    equal((window.__errors || []).length, 0, 'window errors: ' + (window.__errors || []).join(' | '));
+    assert(window.TaxMitraAI, 'TaxMitraAI missing');
+    assert(window.TMHomeAssistant, 'home-assistant.js did not run');
+    assert(typeof window.sendDemoMsg === 'function', 'sendDemoMsg should be global');
+  });
+
+  await check('the status label is honest when no API key is configured', function () {
+    var dot = document.querySelector('.online-dot');
+    assert(dot, 'status dot missing');
+    assert(dot.textContent.indexOf('Offline') !== -1, 'should not claim Gemini without a key, got: ' + dot.textContent);
+    assert(dot.textContent.indexOf('rule-based') !== -1);
+  });
+
+  await check('the language switch works', function () {
+    window.switchLang('en');
+    var input = document.getElementById('demoInput');
+    assert(input.placeholder.indexOf('Ask') !== -1, 'placeholder should switch to English');
+    window.switchLang('hi');
+    assert(document.getElementById('demoInput').placeholder.indexOf('Tax') !== -1);
+  });
+
+  await check('a homepage question gets a real answer', async function () {
+    window.switchLang('en');
+    var input = document.getElementById('demoInput');
+    input.value = 'Which ITR form should I file?';
+    var before = document.querySelectorAll('#aiDemoMessages .chat-msg').length;
+    await window.sendDemoMsg();
+    var after = document.querySelectorAll('#aiDemoMessages .chat-msg').length;
+    assert(after >= before + 2, 'expected a user bubble and a bot reply, went from ' + before + ' to ' + after);
+    var bubbles = document.querySelectorAll('#aiDemoMessages .chat-msg.bot');
+    var last = bubbles[bubbles.length - 1].textContent;
+    assert(last.length > 40, 'the answer looks empty: ' + last.slice(0, 80));
+    assert(last.indexOf('Soch raha hoon') === -1, 'the thinking placeholder was never replaced');
+    assert(/ITR-1|ITR-2|ITR-3|ITR-4|form/i.test(last), 'answer should mention ITR forms for an ITR question');
+  });
+
+  await check('the quick-action helper opens the float window and answers', async function () {
+    await window.askQuick('Old vs New Regime');
+    var win = document.getElementById('aiFloatWindow');
+    assert(win.classList.contains('open'), 'float window should open');
+    var msgs = document.querySelectorAll('#afwMessages .afw-msg');
+    assert(msgs.length >= 2, 'expected a user + bot message in the float window');
+    var last = msgs[msgs.length - 1].textContent;
+    assert(last.length > 30, 'float window answer is empty');
+  });
+
+  await check('answers are escaped, never injected as raw HTML', async function () {
+    var input = document.getElementById('demoInput');
+    input.value = '<img src=x onerror=alert(1)>';
+    await window.sendDemoMsg();
+    var host = document.getElementById('aiDemoMessages');
+    equal(host.querySelectorAll('img').length, 0, 'user input must not become markup');
   });
 
   dom.window.close();
@@ -494,6 +559,7 @@ async function adminTests() {
   console.log('TaxMitra browser smoke test (jsdom)');
   console.log('─'.repeat(64));
   try {
+    await homeTests();
     await billingTests();
     await itrTests();
     await directoryTests();

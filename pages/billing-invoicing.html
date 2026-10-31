@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="description" content="CA Billing & Invoicing System — Generate professional invoices for clients, track payments, subscription management, receipt generation. TaxMitra AI Enterprise."/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Billing & Invoicing – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+.billing-layout{display:grid;grid-template-columns:300px 1fr;gap:1.25rem;padding:1.25rem 0 3rem;align-items:start}
+@media(max-width:900px){.billing-layout{grid-template-columns:1fr}}
+.invoice-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:.65rem;transition:var(--transition);cursor:pointer}
+.invoice-card:hover{border-color:var(--primary);box-shadow:var(--shadow)}
+.invoice-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.35rem}
+.invoice-no{font-weight:700;font-size:.85rem}
+.invoice-amount{font-weight:800;font-size:.95rem;color:var(--primary)}
+.invoice-meta{font-size:.72rem;color:var(--text-muted)}
+.status-pill{font-size:.65rem;font-weight:700;padding:.18rem .5rem;border-radius:99px}
+.status-paid{background:rgba(16,185,129,.12);color:var(--success)}
+.status-unpaid{background:rgba(239,68,68,.12);color:var(--danger)}
+.status-partial{background:rgba(245,158,11,.12);color:#d97706}
+.status-draft{background:rgba(100,116,139,.12);color:var(--text-muted)}
+.billing-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem}
+@media(max-width:768px){.billing-stats{grid-template-columns:repeat(2,1fr)}}
+.stat-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.85rem;text-align:center}
+.stat-box .val{font-size:1.3rem;font-weight:800}
+.stat-box .lbl{font-size:.65rem;color:var(--text-muted);margin-top:.15rem;font-weight:600;text-transform:uppercase}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.55rem}
+.fg label{font-size:.7rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.3px}
+.fg input,.fg select,.fg textarea{padding:.4rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.82rem;font-family:inherit;transition:var(--transition)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.service-row{display:grid;grid-template-columns:2fr 1fr 1fr 40px;gap:.4rem;align-items:center;margin-bottom:.4rem}
+.service-row input{padding:.35rem .5rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.8rem;font-family:inherit;width:100%}
+.inv-preview{background:#fff;border:1px solid #e2e8f0;border-radius:var(--radius);padding:1.5rem;font-size:.8rem;color:#334155;min-height:500px}
+.dark-mode .inv-preview{background:#1e293b;color:#e2e8f0;border-color:#334155}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="client-crm.html" class="nav-link">👥 CRM</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+        <li><a href="reports.html" class="nav-link">📈 Reports</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> ›
+      <a href="client-crm.html" style="color:var(--text-muted)">Client CRM</a> ›
+      <span style="color:var(--primary)">Billing & Invoicing</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">💰 Billing & Invoicing</h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">Professional invoices · Payment tracking · Receipt generation · Subscription management | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="billing-stats">
+    <div class="stat-box"><div class="val" id="statTotal" style="color:var(--primary)">₹0</div><div class="lbl">Total Billed</div></div>
+    <div class="stat-box"><div class="val" id="statPaid" style="color:var(--success)">₹0</div><div class="lbl">Received</div></div>
+    <div class="stat-box"><div class="val" id="statPending" style="color:var(--danger)">₹0</div><div class="lbl">Pending</div></div>
+    <div class="stat-box"><div class="val" id="statInvoices">0</div><div class="lbl">Total Invoices</div></div>
+  </div>
+
+  <div class="billing-layout">
+    <!-- Left: Invoice List -->
+    <div>
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+          <span><i class="fa fa-list"></i> Invoices</span>
+          <div style="display:flex;gap:.35rem">
+            <select id="statusFilter" style="padding:.25rem .5rem;border:1px solid var(--border);border-radius:4px;font-size:.72rem;background:var(--bg-secondary);color:var(--text-primary)" onchange="filterInvoices()">
+              <option value="">All</option>
+              <option value="PAID">Paid</option>
+              <option value="UNPAID">Unpaid</option>
+              <option value="DRAFT">Draft</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body" id="invoiceList" style="padding:.5rem;max-height:450px;overflow-y:auto">
+          <div style="text-align:center;padding:2rem;color:var(--text-muted)">
+            Create your first invoice →
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;margin-bottom:.5rem" onclick="loadSampleInvoices()">
+        <i class="fa fa-magic"></i> Load Sample Invoices
+      </button>
+      <button class="btn" style="width:100%;background:var(--success);color:#fff" onclick="exportAllCSV()">
+        <i class="fa fa-download"></i> Export All CSV
+      </button>
+    </div>
+
+    <!-- Right: Create Invoice -->
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-plus-circle"></i> Create New Invoice</div>
+        <div class="card-body">
+          <div class="grid2">
+            <div class="fg"><label>Invoice Number</label><input type="text" id="newInvNo" placeholder="INV-2025-001"/></div>
+            <div class="fg"><label>Invoice Date</label><input type="date" id="newInvDate" value="2026-08-02"/></div>
+          </div>
+          <div class="grid2">
+            <div class="fg"><label>Client Name</label><input type="text" id="clientName" placeholder="Ravi Kumar"/></div>
+            <div class="fg"><label>Client PAN</label><input type="text" id="clientPAN" placeholder="ABCDE1234F" oninput="this.value=this.value.toUpperCase()"/></div>
+          </div>
+          <div class="fg"><label>Client Address</label><input type="text" id="clientAddr" placeholder="Client address"/></div>
+          <div class="fg"><label>Due Date</label><input type="date" id="dueDate"/></div>
+
+          <!-- Services -->
+          <div style="font-size:.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.3px;margin:.75rem 0 .4rem">Services</div>
+          <div style="display:grid;grid-template-columns:2fr 1fr 1fr 40px;gap:.4rem;font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:.25rem">
+            <span>Description</span><span>Qty</span><span>Rate (₹)</span><span></span>
+          </div>
+          <div id="serviceRows">
+            <div class="service-row">
+              <input type="text" placeholder="ITR Filing - AY 2026-27" value="ITR Filing - AY 2026-27" oninput="updatePreview()"/>
+              <input type="number" placeholder="1" value="1" oninput="updatePreview()"/>
+              <input type="number" placeholder="2500" value="2500" oninput="updatePreview()"/>
+              <button onclick="removeRow(this)" style="background:rgba(239,68,68,.1);color:var(--danger);border:none;border-radius:4px;cursor:pointer;font-size:.85rem;padding:.2rem .4rem">×</button>
+            </div>
+          </div>
+          <button class="btn" style="font-size:.78rem;background:var(--bg-secondary);border:1px solid var(--border);width:100%;margin:.4rem 0" onclick="addServiceRow()">
+            <i class="fa fa-plus"></i> Add Service
+          </button>
+
+          <div class="grid2">
+            <div class="fg"><label>GST Rate (%)</label>
+              <select id="gstRate" onchange="updatePreview()">
+                <option value="18" selected>18%</option>
+                <option value="12">12%</option>
+                <option value="0">0% (Exempt)</option>
+              </select>
+            </div>
+            <div class="fg"><label>Discount (₹)</label><input type="number" id="discount" placeholder="0" value="0" oninput="updatePreview()"/></div>
+          </div>
+
+          <div class="fg"><label>Notes / Terms</label>
+            <textarea id="invNotes" rows="2" style="width:100%;padding:.4rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.78rem;resize:vertical;font-family:inherit" placeholder="Payment due within 15 days. NEFT/UPI accepted.">Payment due within 15 days. NEFT/UPI accepted. GST applicable as per rates.</textarea>
+          </div>
+
+          <div style="display:flex;gap:.5rem">
+            <button class="btn btn-primary" style="flex:1" onclick="saveInvoice()"><i class="fa fa-save"></i> Save Invoice</button>
+            <button class="btn" style="background:var(--danger);color:#fff;flex:1" onclick="downloadPDF()"><i class="fa fa-file-pdf"></i> Download PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="card">
+        <div class="card-header"><i class="fa fa-eye"></i> Invoice Preview</div>
+        <div class="card-body" style="padding:.5rem">
+          <div class="inv-preview" id="invPreview">
+            <div style="text-align:center;padding:2rem;color:#94a3b8">Fill details to see preview</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+var BILLING_KEY = 'tm_billing_invoices';
+var invoices = [];
+
+function loadInvoicesFromStorage() {
+  try { return JSON.parse(localStorage.getItem(BILLING_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveInvoicesToStorage() {
+  try { localStorage.setItem(BILLING_KEY, JSON.stringify(invoices)); } catch(e) {}
+}
+
+function getServices() {
+  return Array.from(document.querySelectorAll('.service-row')).map(function(row) {
+    var inputs = row.querySelectorAll('input');
+    var desc = inputs[0]?.value || '';
+    var qty = parseFloat(inputs[1]?.value) || 1;
+    var rate = parseFloat(inputs[2]?.value) || 0;
+    return { desc, qty, rate, total: qty * rate };
+  }).filter(s => s.total > 0);
+}
+
+function calcTotals(services) {
+  var gstRate = parseFloat(document.getElementById('gstRate')?.value) || 18;
+  var discount = parseFloat(document.getElementById('discount')?.value) || 0;
+  var subtotal = services.reduce((s,i) => s+i.total, 0);
+  var taxable = Math.max(0, subtotal - discount);
+  var gst = Math.round(taxable * gstRate / 100);
+  var total = taxable + gst;
+  return { subtotal, discount, taxable, gstRate, gst, total };
+}
+
+function updatePreview() {
+  var invNo = document.getElementById('newInvNo').value || 'INV-001';
+  var invDate = document.getElementById('newInvDate').value || '2026-08-02';
+  var clientName = document.getElementById('clientName').value || 'Client Name';
+  var clientPAN = document.getElementById('clientPAN').value || '';
+  var clientAddr = document.getElementById('clientAddr').value || '';
+  var notes = document.getElementById('invNotes').value || '';
+  var services = getServices();
+  var totals = calcTotals(services);
+  
+  document.getElementById('invPreview').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1e40af;padding-bottom:1rem;margin-bottom:1rem">
+      <div>
+        <div style="font-size:1.1rem;font-weight:900;color:#1e40af">⚡ TaxMitra CA Firm</div>
+        <div style="font-size:.7rem;color:#64748b;margin-top:.2rem">Abhishek Agrahari | Kanpur, UP</div>
+        <div style="font-size:.7rem;color:#64748b">GSTIN: 09ABCDE1234F1Z5</div>
+      </div>
+      <div style="text-align:right">
+        <div style="background:#1e40af;color:#fff;padding:.2rem .6rem;border-radius:4px;font-size:.72rem;font-weight:700;margin-bottom:.3rem">TAX INVOICE</div>
+        <div style="font-weight:700">${invNo}</div>
+        <div style="font-size:.7rem;color:#64748b">Date: ${invDate}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:1rem">
+      <div style="font-size:.65rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:.2rem">Bill To</div>
+      <div style="font-weight:700">${clientName}</div>
+      ${clientPAN ? `<div style="font-size:.7rem;color:#64748b">PAN: ${clientPAN}</div>` : ''}
+      ${clientAddr ? `<div style="font-size:.7rem;color:#64748b">${clientAddr}</div>` : ''}
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:.75rem;margin-bottom:1rem">
+      <thead><tr style="background:#f1f5f9">
+        <th style="padding:.35rem .5rem;text-align:left;border-bottom:1px solid #e2e8f0">#</th>
+        <th style="padding:.35rem .5rem;text-align:left;border-bottom:1px solid #e2e8f0">Description</th>
+        <th style="padding:.35rem .5rem;border-bottom:1px solid #e2e8f0">Qty</th>
+        <th style="padding:.35rem .5rem;border-bottom:1px solid #e2e8f0">Rate</th>
+        <th style="padding:.35rem .5rem;border-bottom:1px solid #e2e8f0">Amount</th>
+      </tr></thead>
+      <tbody>
+        ${services.map((s,i) => `<tr>
+          <td style="padding:.3rem .5rem;border-bottom:1px solid #f1f5f9">${i+1}</td>
+          <td style="padding:.3rem .5rem;border-bottom:1px solid #f1f5f9">${s.desc}</td>
+          <td style="padding:.3rem .5rem;border-bottom:1px solid #f1f5f9;text-align:center">${s.qty}</td>
+          <td style="padding:.3rem .5rem;border-bottom:1px solid #f1f5f9;text-align:right">₹${fmtN(s.rate)}</td>
+          <td style="padding:.3rem .5rem;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:700">₹${fmtN(s.total)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="display:flex;justify-content:flex-end">
+      <div style="min-width:200px">
+        ${totals.subtotal > 0 ? `<div style="display:flex;justify-content:space-between;padding:.25rem 0;font-size:.75rem;border-bottom:1px solid #f1f5f9"><span>Subtotal</span><span>₹${fmtN(totals.subtotal)}</span></div>` : ''}
+        ${totals.discount > 0 ? `<div style="display:flex;justify-content:space-between;padding:.25rem 0;font-size:.75rem;color:#059669;border-bottom:1px solid #f1f5f9"><span>Discount</span><span>–₹${fmtN(totals.discount)}</span></div>` : ''}
+        <div style="display:flex;justify-content:space-between;padding:.25rem 0;font-size:.75rem;border-bottom:1px solid #f1f5f9"><span>GST @${totals.gstRate}%</span><span>₹${fmtN(totals.gst)}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:.4rem .5rem;background:#1e40af;color:#fff;border-radius:4px;font-weight:800;margin-top:.25rem"><span>TOTAL</span><span>₹${fmtN(totals.total)}</span></div>
+      </div>
+    </div>
+    ${notes ? `<div style="margin-top:1rem;padding:.6rem .75rem;background:#f8fafc;border-radius:4px;font-size:.7rem;color:#64748b"><strong>Terms:</strong> ${notes}</div>` : ''}
+    <div style="margin-top:1rem;text-align:center;font-size:.65rem;color:#94a3b8">Generated by TaxMitra AI Enterprise | Developer: Abhishek Agrahari</div>
+  `;
+}
+
+function saveInvoice(status) {
+  var invNo = document.getElementById('newInvNo').value;
+  if (!invNo) { showToast('Invoice number required', 'warning'); return; }
+  var services = getServices();
+  if (!services.length) { showToast('Add at least one service', 'warning'); return; }
+  var totals = calcTotals(services);
+  
+  var inv = {
+    id: Date.now(),
+    invNo: invNo,
+    date: document.getElementById('newInvDate').value,
+    dueDate: document.getElementById('dueDate').value,
+    clientName: document.getElementById('clientName').value,
+    clientPAN: document.getElementById('clientPAN').value,
+    clientAddr: document.getElementById('clientAddr').value,
+    services,
+    ...totals,
+    notes: document.getElementById('invNotes').value,
+    status: status || 'UNPAID',
+    paidAmount: 0,
+    createdAt: new Date().toISOString()
+  };
+  
+  var existing = invoices.findIndex(i => i.invNo === invNo);
+  if (existing >= 0) { invoices[existing] = inv; }
+  else { invoices.push(inv); }
+  
+  saveInvoicesToStorage();
+  renderInvoiceList();
+  updateStats();
+  // Auto-generate next invoice number
+  var num = parseInt(invNo.split('-').pop()) + 1;
+  document.getElementById('newInvNo').value = 'INV-' + new Date().getFullYear() + '-' + String(num).padStart(3,'0');
+  showToast('✅ Invoice ' + invNo + ' saved!', 'success');
+}
+
+function markPaid(id) {
+  var inv = invoices.find(i => i.id === id);
+  if (inv) { inv.status = 'PAID'; inv.paidAmount = inv.total; saveInvoicesToStorage(); renderInvoiceList(); updateStats(); showToast('✅ Marked as paid', 'success'); }
+}
+
+function deleteInvoice(id) {
+  invoices = invoices.filter(i => i.id !== id);
+  saveInvoicesToStorage(); renderInvoiceList(); updateStats();
+  showToast('Invoice deleted', 'info');
+}
+
+function filterInvoices() {
+  renderInvoiceList();
+}
+
+function renderInvoiceList() {
+  var filter = document.getElementById('statusFilter')?.value || '';
+  var filtered = filter ? invoices.filter(i => i.status === filter) : invoices;
+  var container = document.getElementById('invoiceList');
+  if (!filtered.length) { container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--text-muted)">No invoices</div>'; return; }
+  
+  container.innerHTML = filtered.sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt)).map(function(inv) {
+    var cls = inv.status==='PAID'?'status-paid':inv.status==='DRAFT'?'status-draft':'status-unpaid';
+    return `<div class="invoice-card" onclick="loadInvoice(${inv.id})">
+      <div class="invoice-card-header">
+        <div>
+          <div class="invoice-no">${inv.invNo}</div>
+          <div class="invoice-meta">${inv.clientName} · ${inv.date}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="invoice-amount">₹${fmtN(inv.total)}</div>
+          <span class="status-pill ${cls}">${inv.status}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:.35rem;margin-top:.4rem">
+        ${inv.status !== 'PAID' ? `<button class="btn" style="font-size:.7rem;padding:.2rem .5rem;background:rgba(16,185,129,.1);color:var(--success);border:none;cursor:pointer;border-radius:4px" onclick="event.stopPropagation();markPaid(${inv.id})">✅ Mark Paid</button>` : ''}
+        <button class="btn" style="font-size:.7rem;padding:.2rem .5rem;background:rgba(239,68,68,.1);color:var(--danger);border:none;cursor:pointer;border-radius:4px" onclick="event.stopPropagation();deleteInvoice(${inv.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStats() {
+  var total = invoices.reduce((s,i) => s+i.total, 0);
+  var paid = invoices.filter(i=>i.status==='PAID').reduce((s,i) => s+i.total, 0);
+  var pending = invoices.filter(i=>i.status!=='PAID').reduce((s,i) => s+i.total, 0);
+  document.getElementById('statTotal').textContent = '₹'+fmtN(total);
+  document.getElementById('statPaid').textContent = '₹'+fmtN(paid);
+  document.getElementById('statPending').textContent = '₹'+fmtN(pending);
+  document.getElementById('statInvoices').textContent = invoices.length;
+}
+
+function loadInvoice(id) {
+  var inv = invoices.find(i => i.id === id);
+  if (!inv) return;
+  document.getElementById('newInvNo').value = inv.invNo;
+  document.getElementById('newInvDate').value = inv.date;
+  document.getElementById('clientName').value = inv.clientName;
+  document.getElementById('clientPAN').value = inv.clientPAN || '';
+  document.getElementById('clientAddr').value = inv.clientAddr || '';
+  document.getElementById('gstRate').value = String(inv.gstRate);
+  document.getElementById('discount').value = String(inv.discount || 0);
+  document.getElementById('invNotes').value = inv.notes || '';
+  updatePreview();
+  showToast('Invoice loaded: ' + inv.invNo, 'info');
+}
+
+function addServiceRow() {
+  var div = document.createElement('div');
+  div.className = 'service-row';
+  div.innerHTML = `<input type="text" placeholder="Service description" oninput="updatePreview()"/>
+    <input type="number" placeholder="1" value="1" oninput="updatePreview()"/>
+    <input type="number" placeholder="0" oninput="updatePreview()"/>
+    <button onclick="removeRow(this)" style="background:rgba(239,68,68,.1);color:var(--danger);border:none;border-radius:4px;cursor:pointer;font-size:.85rem;padding:.2rem .4rem">×</button>`;
+  document.getElementById('serviceRows').appendChild(div);
+}
+
+function removeRow(btn) {
+  btn.closest('.service-row').remove();
+  updatePreview();
+}
+
+function downloadPDF() {
+  if (typeof jspdf === 'undefined' && typeof window.jspdf === 'undefined') {
+    showToast('PDF library loading... Try again in 2 seconds', 'info');
+    return;
+  }
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF();
+  var invNo = document.getElementById('newInvNo').value || 'INV-001';
+  var clientName = document.getElementById('clientName').value || 'Client';
+  var services = getServices();
+  var totals = calcTotals(services);
+  
+  doc.setFillColor(30, 64, 175);
+  doc.rect(0, 0, 210, 35, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16); doc.setFont('helvetica','bold');
+  doc.text('TAX INVOICE', 15, 15);
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text('TaxMitra CA Firm | Abhishek Agrahari, Kanpur', 15, 23);
+  doc.text(invNo, 150, 15); doc.text(document.getElementById('newInvDate').value, 150, 23);
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10); doc.setFont('helvetica','bold');
+  doc.text('Bill To:', 15, 45); doc.setFont('helvetica','normal');
+  doc.text(clientName, 15, 52);
+  
+  doc.autoTable({
+    startY: 65,
+    head: [['#', 'Description', 'Qty', 'Rate', 'Amount']],
+    body: services.map((s,i) => [i+1, s.desc, s.qty, '₹'+fmtN(s.rate), '₹'+fmtN(s.total)]),
+    foot: [['', '', '', 'GST @'+totals.gstRate+'%', '₹'+fmtN(totals.gst)], ['', '', '', 'TOTAL', '₹'+fmtN(totals.total)]],
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [30, 64, 175] },
+    footStyles: { fontStyle: 'bold' }
+  });
+  
+  doc.save('Invoice_' + invNo + '.pdf');
+  showToast('✅ PDF downloaded!', 'success');
+}
+
+function loadSampleInvoices() {
+  invoices = [
+    { id:1, invNo:'INV-2025-001', date:'2025-07-01', dueDate:'2025-07-15', clientName:'Ravi Kumar', clientPAN:'ABCDE1234F', clientAddr:'Kanpur, UP', services:[{desc:'ITR-1 Filing AY 2026-27',qty:1,rate:2500,total:2500}], subtotal:2500, discount:0, taxable:2500, gstRate:18, gst:450, total:2950, status:'PAID', paidAmount:2950, createdAt:'2025-07-01T00:00:00Z' },
+    { id:2, invNo:'INV-2025-002', date:'2025-07-05', dueDate:'2025-07-20', clientName:'Meera Enterprises', clientPAN:'PQRST5678Y', clientAddr:'Lucknow, UP', services:[{desc:'GSTR-3B Filing (3 months)',qty:3,rate:1500,total:4500},{desc:'GSTR-1 Filing',qty:3,rate:800,total:2400}], subtotal:6900, discount:0, taxable:6900, gstRate:18, gst:1242, total:8142, status:'UNPAID', paidAmount:0, createdAt:'2025-07-05T00:00:00Z' },
+    { id:3, invNo:'INV-2025-003', date:'2025-07-10', dueDate:'2025-07-25', clientName:'ABC Tech Pvt Ltd', clientPAN:'LMNOP3456Z', clientAddr:'Noida, UP', services:[{desc:'TDS Return Q1 24Q',qty:1,rate:3000,total:3000},{desc:'Tax Audit Sec 44AB',qty:1,rate:15000,total:15000}], subtotal:18000, discount:1000, taxable:17000, gstRate:18, gst:3060, total:20060, status:'UNPAID', paidAmount:0, createdAt:'2025-07-10T00:00:00Z' },
+  ];
+  saveInvoicesToStorage();
+  renderInvoiceList();
+  updateStats();
+  showToast('✅ 3 sample invoices loaded!', 'success');
+}
+
+function exportAllCSV() {
+  if (!invoices.length) { showToast('No invoices', 'warning'); return; }
+  var csv = 'Invoice No,Date,Client,Total,GST,Status\n';
+  invoices.forEach(i => { csv += `${i.invNo},${i.date},"${i.clientName}",${i.total},${i.gst},${i.status}\n`; });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'invoices_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('✅ Exported!', 'success');
+}
+
+function fmtN(n) { return Math.round(n).toLocaleString('en-IN'); }
+
+window.addEventListener('DOMContentLoaded', function() {
+  invoices = loadInvoicesFromStorage();
+  renderInvoiceList();
+  updateStats();
+  updatePreview();
+  // Set default due date (+15 days)
+  var due = new Date(); due.setDate(due.getDate() + 15);
+  document.getElementById('dueDate').value = due.toISOString().slice(0,10);
+  document.getElementById('newInvNo').value = 'INV-' + new Date().getFullYear() + '-' + String(invoices.length + 1).padStart(3,'0');
+});
+</script>
+</body>
+</html>

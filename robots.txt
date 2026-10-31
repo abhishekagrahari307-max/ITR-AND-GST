@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://abhishekagrahari307-max.github.io/ITR-AND-GST/sitemap.xml

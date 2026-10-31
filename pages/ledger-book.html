@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="description" content="Digital Ledger Book — Double-entry accounting, account-wise ledger, trial balance, journal entries. Real-time balance tracking. TaxMitra AI Enterprise."/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Ledger Book – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.ledger-layout{display:grid;grid-template-columns:240px 1fr;gap:1.25rem;padding:1.25rem 0 3rem;align-items:start}
+@media(max-width:900px){.ledger-layout{grid-template-columns:1fr}}
+.account-list{list-style:none;padding:0;margin:0}
+.account-item{display:flex;align-items:center;justify-content:space-between;padding:.55rem .85rem;border-radius:var(--radius-sm);font-size:.82rem;cursor:pointer;transition:var(--transition);margin-bottom:.2rem}
+.account-item:hover,.account-item.active{background:rgba(30,64,175,.1);color:var(--primary);font-weight:600}
+.account-item .bal{font-size:.72rem;font-weight:700}
+.account-group{font-size:.68rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:.5rem .85rem .2rem;margin-top:.5rem}
+.ledger-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.ledger-table th{background:var(--bg-secondary);padding:.55rem .75rem;font-weight:700;font-size:.72rem;color:var(--text-secondary);border-bottom:2px solid var(--border);text-align:left;white-space:nowrap}
+.ledger-table td{padding:.5rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.ledger-table tr:hover td{background:rgba(30,64,175,.02)}
+.ledger-table .credit-row td{background:rgba(16,185,129,.03)}
+.ledger-table .debit-row td{background:rgba(239,68,68,.03)}
+.balance-credit{color:var(--success);font-weight:700}
+.balance-debit{color:var(--danger);font-weight:700}
+.entry-form{background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.9rem;margin-bottom:.9rem}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.5rem}
+.fg label{font-size:.7rem;font-weight:600;color:var(--text-secondary)}
+.fg input,.fg select,.fg textarea{padding:.38rem .6rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-primary);font-size:.82rem;font-family:inherit;transition:var(--transition)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary)}
+.ledger-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:1rem}
+@media(max-width:768px){.ledger-stats{grid-template-columns:repeat(2,1fr)}}
+.stat-mini{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.75rem;text-align:center}
+.stat-mini .val{font-size:1.1rem;font-weight:800}
+.stat-mini .lbl{font-size:.65rem;color:var(--text-muted);margin-top:.15rem;font-weight:600;text-transform:uppercase}
+.tb-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.tb-table th{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:.5rem .75rem;text-align:left;font-weight:700}
+.tb-table td{padding:.45rem .75rem;border-bottom:1px solid var(--border)}
+.tb-table tr:last-child td{font-weight:700;background:rgba(30,64,175,.06)}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="accounting.html" class="nav-link active">📒 Accounting</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="reports.html" class="nav-link">📊 Reports</a></li>
+        <li><a href="dashboard.html" class="nav-link">🏠 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> ›
+      <a href="accounting.html" style="color:var(--text-muted)">Accounting</a> ›
+      <span style="color:var(--primary)">Ledger Book</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">📒 Digital Ledger Book</h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">Double-entry · Account-wise Ledger · Trial Balance · Journal · Export | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="ledger-stats">
+    <div class="stat-mini"><div class="val" id="statEntries">0</div><div class="lbl">Journal Entries</div></div>
+    <div class="stat-mini"><div class="val" id="statDebits" style="color:var(--danger)">₹0</div><div class="lbl">Total Debits</div></div>
+    <div class="stat-mini"><div class="val" id="statCredits" style="color:var(--success)">₹0</div><div class="lbl">Total Credits</div></div>
+    <div class="stat-mini"><div class="val" id="statBalance">₹0</div><div class="lbl">Balance (Debit-Credit)</div></div>
+  </div>
+
+  <div class="ledger-layout">
+    <!-- Sidebar: Accounts Chart -->
+    <div>
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-book"></i> Chart of Accounts</div>
+        <div class="card-body" style="padding:.5rem">
+          <div class="account-group">Assets</div>
+          <ul class="account-list" id="assetAccounts">
+            <li class="account-item active" onclick="showLedger('Cash/Bank')">💰 Cash/Bank <span class="bal balance-debit" id="bal_cash">₹0</span></li>
+            <li class="account-item" onclick="showLedger('Accounts Receivable')">📋 Accounts Receivable <span class="bal balance-debit" id="bal_ar">₹0</span></li>
+            <li class="account-item" onclick="showLedger('Fixed Assets')">🏗️ Fixed Assets <span class="bal balance-debit" id="bal_fa">₹0</span></li>
+            <li class="account-item" onclick="showLedger('Inventory')">📦 Inventory <span class="bal balance-debit" id="bal_inv">₹0</span></li>
+          </ul>
+          <div class="account-group">Liabilities</div>
+          <ul class="account-list">
+            <li class="account-item" onclick="showLedger('Accounts Payable')">💳 Accounts Payable <span class="bal balance-credit" id="bal_ap">₹0</span></li>
+            <li class="account-item" onclick="showLedger('GST Payable')">🧾 GST Payable <span class="bal balance-credit" id="bal_gst">₹0</span></li>
+            <li class="account-item" onclick="showLedger('TDS Payable')">📋 TDS Payable <span class="bal balance-credit" id="bal_tds">₹0</span></li>
+            <li class="account-item" onclick="showLedger('Loans')">🏦 Loans <span class="bal balance-credit" id="bal_loans">₹0</span></li>
+          </ul>
+          <div class="account-group">Capital & Reserves</div>
+          <ul class="account-list">
+            <li class="account-item" onclick="showLedger('Capital Account')">💼 Capital Account <span class="bal balance-credit" id="bal_cap">₹0</span></li>
+            <li class="account-item" onclick="showLedger('Profit & Loss')">📈 Profit & Loss <span class="bal balance-credit" id="bal_pl">₹0</span></li>
+          </ul>
+          <div class="account-group">Income</div>
+          <ul class="account-list">
+            <li class="account-item" onclick="showLedger('Sales/Revenue')">💹 Sales/Revenue <span class="bal balance-credit" id="bal_sales">₹0</span></li>
+            <li class="account-item" onclick="showLedger('Other Income')">📌 Other Income <span class="bal balance-credit" id="bal_oinc">₹0</span></li>
+          </ul>
+          <div class="account-group">Expenses</div>
+          <ul class="account-list">
+            <li class="account-item" onclick="showLedger('Purchase/COGS')">🛒 Purchase/COGS <span class="bal balance-debit" id="bal_purch">₹0</span></li>
+            <li class="account-item" onclick="showLedger('Salary Expense')">👨‍💼 Salary Expense <span class="bal balance-debit" id="bal_sal">₹0</span></li>
+            <li class="account-item" onclick="showLedger('Rent Expense')">🏠 Rent Expense <span class="bal balance-debit" id="bal_rent">₹0</span></li>
+            <li class="account-item" onclick="showLedger('Other Expense')">📌 Other Expense <span class="bal balance-debit" id="bal_oexp">₹0</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Add Account -->
+      <div class="card">
+        <div class="card-header"><i class="fa fa-plus"></i> Quick Actions</div>
+        <div class="card-body">
+          <button class="btn btn-primary" style="width:100%;margin-bottom:.4rem" onclick="showTrialBalance()"><i class="fa fa-balance-scale"></i> Trial Balance</button>
+          <button class="btn" style="width:100%;margin-bottom:.4rem;background:var(--success);color:#fff" onclick="exportCSV()"><i class="fa fa-download"></i> Export CSV</button>
+          <button class="btn" style="width:100%;background:var(--bg-secondary);border:1px solid var(--border)" onclick="loadSampleData()"><i class="fa fa-magic"></i> Load Sample Data</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Area -->
+    <div>
+      <!-- Journal Entry Form -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-pen"></i> New Journal Entry (Double-Entry)</div>
+        <div class="card-body">
+          <div class="entry-form">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.65rem">
+              <div class="fg">
+                <label>Date</label>
+                <input type="date" id="entryDate" value="2026-08-02"/>
+              </div>
+              <div class="fg">
+                <label>Voucher No</label>
+                <input type="text" id="voucherNo" placeholder="JV-001"/>
+              </div>
+              <div class="fg">
+                <label>Narration</label>
+                <input type="text" id="narration" placeholder="Description of transaction"/>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.65rem;align-items:end">
+              <div class="fg" style="margin-bottom:0">
+                <label>Debit Account</label>
+                <select id="debitAcc">
+                  <option value="Cash/Bank">Cash/Bank</option>
+                  <option value="Accounts Receivable">Accounts Receivable</option>
+                  <option value="Purchase/COGS">Purchase/COGS</option>
+                  <option value="Salary Expense">Salary Expense</option>
+                  <option value="Rent Expense">Rent Expense</option>
+                  <option value="Fixed Assets">Fixed Assets</option>
+                  <option value="Inventory">Inventory</option>
+                  <option value="Other Expense">Other Expense</option>
+                  <option value="GST Input Credit">GST Input Credit</option>
+                  <option value="TDS Receivable">TDS Receivable</option>
+                </select>
+              </div>
+              <div class="fg" style="margin-bottom:0">
+                <label>Credit Account</label>
+                <select id="creditAcc">
+                  <option value="Capital Account">Capital Account</option>
+                  <option value="Sales/Revenue">Sales/Revenue</option>
+                  <option value="Accounts Payable">Accounts Payable</option>
+                  <option value="GST Payable">GST Payable</option>
+                  <option value="TDS Payable">TDS Payable</option>
+                  <option value="Loans">Loans</option>
+                  <option value="Cash/Bank">Cash/Bank</option>
+                  <option value="Other Income">Other Income</option>
+                  <option value="Profit & Loss">Profit & Loss</option>
+                </select>
+              </div>
+              <div class="fg" style="margin-bottom:0">
+                <label>Amount (₹)</label>
+                <input type="number" id="amount" placeholder="0" min="0"/>
+              </div>
+              <button class="btn btn-primary" onclick="postEntry()" style="height:38px">
+                <i class="fa fa-plus"></i> Post Entry
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ledger View -->
+      <div class="card" id="ledgerCard">
+        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+          <span><i class="fa fa-book-open"></i> Ledger: <span id="currentAccountName">Cash/Bank</span></span>
+          <div style="display:flex;gap:.4rem">
+            <input type="text" id="searchLedger" placeholder="🔍 Search..." style="padding:.3rem .6rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.78rem;font-family:inherit" oninput="filterLedger()"/>
+          </div>
+        </div>
+        <div class="card-body" style="padding:.5rem;overflow-x:auto">
+          <table class="ledger-table" id="ledgerTable">
+            <thead>
+              <tr>
+                <th>Date</th><th>Voucher</th><th>Narration</th>
+                <th>Debit (₹)</th><th>Credit (₹)</th><th>Balance (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerBody">
+              <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted)">
+                Post journal entries or load sample data to see ledger
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:.5rem .75rem;background:var(--bg-secondary);font-size:.72rem;color:var(--text-muted);display:flex;justify-content:space-between">
+          <span id="ledgerSummary">0 entries</span>
+          <span id="ledgerBalance" style="font-weight:700"></span>
+        </div>
+      </div>
+
+      <!-- Trial Balance -->
+      <div class="card" id="trialBalanceCard" style="display:none;margin-top:1rem">
+        <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+          <span><i class="fa fa-balance-scale"></i> Trial Balance</span>
+          <button class="btn" style="font-size:.72rem;background:var(--bg-secondary);border:1px solid var(--border)" onclick="hideTrialBalance()">✕ Close</button>
+        </div>
+        <div class="card-body" style="overflow-x:auto">
+          <table class="tb-table" id="trialBalanceTable">
+            <thead><tr><th>Account</th><th>Debit (₹)</th><th>Credit (₹)</th></tr></thead>
+            <tbody id="trialBalanceBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+var LEDGER_KEY = 'tm_ledger_entries';
+var currentAccount = 'Cash/Bank';
+var voucherCounter = 1;
+
+function loadEntries() {
+  try { return JSON.parse(localStorage.getItem(LEDGER_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveEntries(entries) {
+  try { localStorage.setItem(LEDGER_KEY, JSON.stringify(entries)); } catch(e) { showToast('Storage full', 'error'); }
+}
+
+function postEntry() {
+  var date = document.getElementById('entryDate').value;
+  var voucher = document.getElementById('voucherNo').value || ('JV-' + String(voucherCounter).padStart(3,'0'));
+  var narration = document.getElementById('narration').value;
+  var debitAcc = document.getElementById('debitAcc').value;
+  var creditAcc = document.getElementById('creditAcc').value;
+  var amount = parseFloat(document.getElementById('amount').value) || 0;
+  
+  if (!date) { showToast('Date required', 'warning'); return; }
+  if (!narration) { showToast('Narration required', 'warning'); return; }
+  if (amount <= 0) { showToast('Amount must be > 0', 'warning'); return; }
+  if (debitAcc === creditAcc) { showToast('Debit and Credit accounts cannot be same', 'warning'); return; }
+  
+  var entries = loadEntries();
+  var entry = { id: Date.now(), date, voucher, narration, debitAcc, creditAcc, amount: Math.round(amount * 100) / 100, createdAt: new Date().toISOString() };
+  entries.push(entry);
+  saveEntries(entries);
+  voucherCounter++;
+  
+  // Reset form
+  document.getElementById('narration').value = '';
+  document.getElementById('amount').value = '';
+  document.getElementById('voucherNo').value = '';
+  
+  updateAll();
+  showToast('✅ Entry posted: Dr ' + debitAcc + ' / Cr ' + creditAcc + ' ₹' + fmtN(amount), 'success');
+}
+
+function updateAll() {
+  var entries = loadEntries();
+  updateStats(entries);
+  updateAccountBalances(entries);
+  showLedger(currentAccount);
+}
+
+function updateStats(entries) {
+  var totalD = entries.reduce((s,e) => s+e.amount, 0);
+  var totalC = entries.reduce((s,e) => s+e.amount, 0);
+  document.getElementById('statEntries').textContent = entries.length;
+  document.getElementById('statDebits').textContent = '₹' + fmtN(totalD);
+  document.getElementById('statCredits').textContent = '₹' + fmtN(totalC);
+  document.getElementById('statBalance').textContent = '₹0 (Balanced)';
+}
+
+function getAccountBalance(entries, account) {
+  var debit = entries.filter(e => e.debitAcc === account).reduce((s,e) => s+e.amount, 0);
+  var credit = entries.filter(e => e.creditAcc === account).reduce((s,e) => s+e.amount, 0);
+  return { debit, credit, net: debit - credit };
+}
+
+function updateAccountBalances(entries) {
+  var accounts = {
+    'Cash/Bank': 'bal_cash', 'Accounts Receivable': 'bal_ar', 'Fixed Assets': 'bal_fa',
+    'Inventory': 'bal_inv', 'Accounts Payable': 'bal_ap', 'GST Payable': 'bal_gst',
+    'TDS Payable': 'bal_tds', 'Loans': 'bal_loans', 'Capital Account': 'bal_cap',
+    'Profit & Loss': 'bal_pl', 'Sales/Revenue': 'bal_sales', 'Other Income': 'bal_oinc',
+    'Purchase/COGS': 'bal_purch', 'Salary Expense': 'bal_sal', 'Rent Expense': 'bal_rent', 'Other Expense': 'bal_oexp'
+  };
+  for (var acc in accounts) {
+    var el = document.getElementById(accounts[acc]);
+    if (!el) continue;
+    var bal = getAccountBalance(entries, acc);
+    var net = Math.abs(bal.net);
+    el.textContent = net > 0 ? '₹' + fmtN(net) : '—';
+  }
+}
+
+function showLedger(account) {
+  currentAccount = account;
+  document.getElementById('currentAccountName').textContent = account;
+  document.querySelectorAll('.account-item').forEach(el => {
+    el.classList.toggle('active', el.textContent.includes(account));
+  });
+  
+  var entries = loadEntries();
+  var relevant = entries.filter(e => e.debitAcc === account || e.creditAcc === account)
+    .sort((a,b) => new Date(a.date) - new Date(b.date));
+  
+  var tbody = document.getElementById('ledgerBody');
+  if (relevant.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted)">No entries for ' + account + '</td></tr>';
+    document.getElementById('ledgerSummary').textContent = '0 entries';
+    document.getElementById('ledgerBalance').textContent = '';
+    return;
+  }
+  
+  var runBalance = 0;
+  tbody.innerHTML = relevant.map(function(e) {
+    var isDebit = e.debitAcc === account;
+    var dr = isDebit ? e.amount : 0;
+    var cr = !isDebit ? e.amount : 0;
+    runBalance += dr - cr;
+    var balClass = runBalance >= 0 ? 'balance-debit' : 'balance-credit';
+    var balLabel = runBalance >= 0 ? 'Dr' : 'Cr';
+    return `<tr class="${isDebit?'debit-row':'credit-row'}">
+      <td>${e.date}</td>
+      <td style="font-size:.72rem;color:var(--text-muted)">${e.voucher}</td>
+      <td>${e.narration} <span style="font-size:.7rem;color:var(--text-muted)">(${isDebit?'To '+e.creditAcc:'By '+e.debitAcc})</span></td>
+      <td>${dr > 0 ? '<strong>₹'+fmtN(dr)+'</strong>' : '—'}</td>
+      <td>${cr > 0 ? '<strong style="color:var(--success)">₹'+fmtN(cr)+'</strong>' : '—'}</td>
+      <td class="${balClass}">₹${fmtN(Math.abs(runBalance))} ${balLabel}</td>
+    </tr>`;
+  }).join('');
+  
+  document.getElementById('ledgerSummary').textContent = relevant.length + ' entries';
+  document.getElementById('ledgerBalance').innerHTML = `Closing: <span class="${runBalance>=0?'balance-debit':'balance-credit'}">₹${fmtN(Math.abs(runBalance))} ${runBalance>=0?'Dr':'Cr'}</span>`;
+}
+
+function filterLedger() {
+  var search = document.getElementById('searchLedger').value.toLowerCase();
+  document.querySelectorAll('#ledgerBody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
+  });
+}
+
+function showTrialBalance() {
+  var entries = loadEntries();
+  var accounts = {};
+  entries.forEach(function(e) {
+    if (!accounts[e.debitAcc]) accounts[e.debitAcc] = {dr:0,cr:0};
+    if (!accounts[e.creditAcc]) accounts[e.creditAcc] = {dr:0,cr:0};
+    accounts[e.debitAcc].dr += e.amount;
+    accounts[e.creditAcc].cr += e.amount;
+  });
+  
+  var totalDr = 0, totalCr = 0;
+  var rows = Object.entries(accounts).map(function([acc, bal]) {
+    var netDr = Math.max(0, bal.dr - bal.cr);
+    var netCr = Math.max(0, bal.cr - bal.dr);
+    totalDr += netDr;
+    totalCr += netCr;
+    return `<tr><td>${acc}</td><td>${netDr>0?'₹'+fmtN(netDr):'—'}</td><td>${netCr>0?'₹'+fmtN(netCr):'—'}</td></tr>`;
+  });
+  
+  var balanced = Math.abs(totalDr - totalCr) < 1;
+  rows.push(`<tr><td><strong>TOTAL</strong></td><td><strong style="color:var(--primary)">₹${fmtN(totalDr)}</strong></td><td><strong style="color:var(--primary)">₹${fmtN(totalCr)}</strong></td></tr>`);
+  rows.push(`<tr><td colspan="3" style="text-align:center;font-size:.75rem;color:${balanced?'var(--success)':'var(--danger)'}">${balanced?'✅ Trial Balance AGREES':'❌ Trial Balance DOES NOT agree — check entries'}</td></tr>`);
+  
+  document.getElementById('trialBalanceBody').innerHTML = rows.join('');
+  document.getElementById('trialBalanceCard').style.display = 'block';
+  document.getElementById('trialBalanceCard').scrollIntoView({behavior:'smooth'});
+}
+
+function hideTrialBalance() {
+  document.getElementById('trialBalanceCard').style.display = 'none';
+}
+
+function exportCSV() {
+  var entries = loadEntries();
+  if (!entries.length) { showToast('No entries to export', 'warning'); return; }
+  var csv = 'Date,Voucher,Narration,Debit Account,Credit Account,Amount\n';
+  entries.forEach(e => { csv += `${e.date},${e.voucher},"${e.narration}","${e.debitAcc}","${e.creditAcc}",${e.amount}\n`; });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'ledger_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('✅ Exported!', 'success');
+}
+
+function loadSampleData() {
+  var samples = [
+    { id:1, date:'2025-04-01', voucher:'JV-001', narration:'Opening capital introduced', debitAcc:'Cash/Bank', creditAcc:'Capital Account', amount:500000 },
+    { id:2, date:'2025-04-05', voucher:'JV-002', narration:'Computer purchased', debitAcc:'Fixed Assets', creditAcc:'Cash/Bank', amount:80000 },
+    { id:3, date:'2025-04-10', voucher:'JV-003', narration:'Services rendered to XYZ Corp', debitAcc:'Accounts Receivable', creditAcc:'Sales/Revenue', amount:150000 },
+    { id:4, date:'2025-04-15', voucher:'JV-004', narration:'GST on sales (18%)', debitAcc:'Accounts Receivable', creditAcc:'GST Payable', amount:27000 },
+    { id:5, date:'2025-04-20', voucher:'JV-005', narration:'Cash received from XYZ Corp', debitAcc:'Cash/Bank', creditAcc:'Accounts Receivable', amount:177000 },
+    { id:6, date:'2025-04-30', voucher:'JV-006', narration:'Office rent paid April', debitAcc:'Rent Expense', creditAcc:'Cash/Bank', amount:25000 },
+    { id:7, date:'2025-04-30', voucher:'JV-007', narration:'Staff salary paid', debitAcc:'Salary Expense', creditAcc:'Cash/Bank', amount:55000 },
+    { id:8, date:'2025-05-15', voucher:'JV-008', narration:'GST payment to government', debitAcc:'GST Payable', creditAcc:'Cash/Bank', amount:27000 },
+    { id:9, date:'2025-05-20', voucher:'JV-009', narration:'Office supplies purchased', debitAcc:'Other Expense', creditAcc:'Cash/Bank', amount:8500 },
+    { id:10, date:'2025-06-01', voucher:'JV-010', narration:'New project invoice raised', debitAcc:'Accounts Receivable', creditAcc:'Sales/Revenue', amount:200000 },
+  ];
+  saveEntries(samples);
+  voucherCounter = 11;
+  updateAll();
+  showToast('✅ Sample data loaded (10 entries)', 'success');
+}
+
+function fmtN(n) { return Math.round(n).toLocaleString('en-IN'); }
+
+// Initialize
+window.addEventListener('DOMContentLoaded', function() {
+  var entries = loadEntries();
+  if (entries.length > 0) {
+    updateAll();
+  }
+});
+</script>
+</body>
+</html>

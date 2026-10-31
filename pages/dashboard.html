@@ -3,9 +3,19 @@
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard – TaxMitra AI Enterprise</title>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://abhishekagrahari307-max.github.io/ITR-AND-GST/pages/dashboard.html"/>
+  <meta property="og:title" content="Tax Dashboard — AY 2026-27 | TaxMitra AI Enterprise"/>
+  <meta property="og:description" content="Your personal tax dashboard — filing status, tax summary, compliance calendar, AI recommendations. All in one."/>
+  <meta property="og:image" content="https://abhishekagrahari307-max.github.io/ITR-AND-GST/og-image.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Tax Dashboard — AY 2026-27 | TaxMitra AI Enterprise"/>
+  <meta name="twitter:description" content="Your personal tax dashboard — filing status, tax summary, compliance calendar, AI recommendations. All in one."/>
+  <meta name="description" content="Your personal tax dashboard — filing status, tax summary, compliance calendar, AI recommendations. All in one."/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css">
   <style>
     .dashboard-layout { display: grid; grid-template-columns: 240px 1fr; gap: 1.5rem; padding: 1.5rem 0 3rem; }
     .dash-sidebar { display: flex; flex-direction: column; gap: 0.5rem; position: sticky; top: 80px; max-height: calc(100vh-90px); }
@@ -40,17 +50,32 @@
   </style>
 </head>
 <body>
-  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
-    <div class="nav-container">
-      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
-      <div style="flex:1"></div>
-      <div class="nav-right">
-        <button class="nav-icon-btn" id="themeToggle">🌙</button>
-        <span style="font-size:0.875rem;font-weight:600;color:var(--text-secondary)">👤 Arjun Kumar</span>
-        <a href="../index.html" class="btn-nav-login">← Home</a>
-      </div>
+  <nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link active">📊 Dashboard</a></li>
+      </ul>
     </div>
-  </nav>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
 
   <div class="container">
     <div class="dashboard-layout">
@@ -60,7 +85,7 @@
         <div class="form-card" style="padding:1rem">
           <div style="text-align:center;margin-bottom:1rem">
             <div style="width:60px;height:60px;background:var(--grad-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.75rem;margin:0 auto 0.5rem">👤</div>
-            <strong style="display:block">Arjun Kumar</strong>
+            <strong style="display:block"></strong>
             <span style="font-size:0.75rem;color:var(--text-muted)">PAN: ABCDE1234F</span>
             <div style="font-size:0.72rem;background:rgba(16,185,129,0.1);color:var(--success);padding:0.2rem 0.6rem;border-radius:var(--radius-full);margin-top:0.5rem;display:inline-block">✅ Premium User</div>
           </div>
@@ -83,8 +108,8 @@
         <!-- Header -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
           <div>
-            <h2 style="font-size:1.4rem;font-weight:800">Good Morning, Arjun! 👋</h2>
-            <p style="color:var(--text-secondary);font-size:0.875rem">Tuesday, 29 July 2025 | AY 2025-26 | Last Login: 2 hours ago</p>
+            <h2 style="font-size:1.4rem;font-weight:800">Good Morning, User! 👋</h2>
+            <p style="color:var(--text-secondary);font-size:0.875rem">Tuesday, 29 July 2025 | AY 2026-27 | Last Login: 2 hours ago</p>
           </div>
           <div style="display:flex;gap:0.75rem">
             <a href="itr-center.html" class="btn-primary-solid">📋 File ITR</a>
@@ -95,16 +120,16 @@
         <!-- AI ALERT -->
         <div style="background:linear-gradient(135deg,rgba(239,68,68,0.08),rgba(245,158,11,0.05));border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem">
           <span style="font-size:1.5rem">⚠️</span>
-          <div style="flex:1"><strong style="color:var(--danger)">ITR Filing Deadline: 31 July 2025</strong><br><span style="font-size:0.82rem;color:var(--text-secondary)">Sirf 2 din bacha hai! Abhi file karo – penalty se bachao</span></div>
+          <div style="flex:1"><strong style="color:var(--danger)">ITR Filing Deadline: 31 July 2026</strong> — <span id="itrDeadlineDays" style="font-weight:800"></span><br><span style="font-size:0.82rem;color:var(--text-secondary)">Abhi file karo – penalty se bachao</span></div>
           <a href="itr-center.html" class="btn-primary-solid" style="font-size:0.82rem;padding:0.5rem 1rem">File Now →</a>
         </div>
 
         <!-- STATS -->
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-card-label">Tax Liability</div>
-            <div class="stat-card-value">₹1,24,500</div>
-            <div class="stat-card-sub">AY 2025-26 (New Regime)</div>
+            <div class="stat-card-label">Gross Salary / Income</div>
+            <div class="stat-card-value" id="dashGrossSal">—</div>
+            <div class="stat-card-sub">AY 2026-27 (New Regime)</div>
             <div class="stat-card-icon">💰</div>
           </div>
           <div class="stat-card green">
@@ -132,7 +157,7 @@
 
           <!-- FILING STATUS -->
           <div class="form-card">
-            <h3>📋 Filing Status – AY 2025-26</h3>
+            <h3>📋 Filing Status – AY 2026-27</h3>
             <div style="margin-top:1rem">
               <div class="filing-status-item"><div><strong style="font-size:0.875rem">ITR-1 (Salary)</strong><br><small style="color:var(--text-muted)">Income Tax Return</small></div><span class="status-badge sb-pending">🟡 Pending</span></div>
               <div class="filing-status-item"><div><strong style="font-size:0.875rem">GSTR-3B July</strong><br><small style="color:var(--text-muted)">GST Monthly Return</small></div><span class="status-badge sb-pending">🟡 Due: 20 Aug</span></div>
@@ -152,13 +177,20 @@
               <div style="border-top:1px solid var(--border);padding-top:0.75rem"><div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700"><span>Total Tax</span><span style="color:var(--primary)">₹1,24,800</span></div></div>
               <div><div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.25rem"><span>TDS Deducted</span><span style="font-weight:700;color:var(--success)">-₹1,42,750</span></div></div>
               <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius-sm);padding:0.75rem"><strong style="color:var(--success)">🎉 Refund: ₹17,950</strong><br><small style="color:var(--text-muted)">Will be credited after ITR filing & verification</small></div>
+              <div style="margin-top:1rem;padding:.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">
+                  <span style="font-size:.78rem;color:var(--text-secondary)">Financial Health Score</span>
+                  <strong id="dashHealthScore" style="font-size:1.1rem">—</strong>
+                </div>
+                <div class="progress-bar"><div id="dashHealthBar" class="progress-fill" style="width:0%;transition:width 1.2s ease"></div></div>
+              </div>
             </div>
           </div>
 
           <!-- RECENT ACTIVITY -->
           <div class="form-card">
             <h3>📜 Recent Activity</h3>
-            <div style="margin-top:1rem">
+            <div id="activityLog" style="margin-top:1rem">
               <div class="activity-item"><div class="activity-icon" style="background:rgba(30,64,175,0.1)">📋</div><div class="activity-text"><strong>AIS downloaded and analyzed</strong><span>Today, 10:30 AM</span></div></div>
               <div class="activity-item"><div class="activity-icon" style="background:rgba(16,185,129,0.1)">✅</div><div class="activity-text"><strong>Form 26AS verified – ₹1,42,750 TDS</strong><span>Yesterday, 3:45 PM</span></div></div>
               <div class="activity-item"><div class="activity-icon" style="background:rgba(99,102,241,0.1)">🤖</div><div class="activity-text"><strong>AI recommended New Regime – saves ₹32K</strong><span>28 Jul, 11:20 AM</span></div></div>
@@ -203,5 +235,114 @@
   </div>
 
   <script src="../js/taxmitra.js"></script>
+
+<p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong></p>
+<script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/pdf-real.js"></script>
+
+<script>
+'use strict';
+
+// Auto-update dates and dynamic stats
+document.addEventListener('DOMContentLoaded', function() {
+  const today = new Date();
+  const todayStr = today.toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'});
+  
+  // Update all date displays
+  document.querySelectorAll('.dash-today').forEach(el => { el.textContent = todayStr; });
+  
+  // AY info
+  const month = today.getMonth() + 1;
+  const year = today.getFullYear();
+  const fyStart = month >= 4 ? year : year - 1;
+  const ay = (fyStart+1) + '-' + String(fyStart+2).slice(2);
+  const fy = fyStart + '-' + String(fyStart+1).slice(2);
+  document.querySelectorAll('.dash-ay').forEach(el => { el.textContent = ay; });
+  document.querySelectorAll('.dash-fy').forEach(el => { el.textContent = fy; });
+  
+  // Deadline countdown
+  const itrDeadline = new Date(fyStart+1, 6, 31); // 31 July of AY year
+  const daysLeft = Math.ceil((itrDeadline - today) / 86400000);
+  const deadlineEl = document.getElementById('itrDeadlineDays');
+  if (deadlineEl) {
+    deadlineEl.textContent = daysLeft > 0 ? daysLeft + ' days left' : 'Deadline passed!';
+    deadlineEl.style.color = daysLeft < 7 ? 'var(--danger)' : daysLeft < 30 ? '#f59e0b' : 'var(--success)';
+  }
+  
+  // Load stored computation data if available
+  const draft = JSON.parse(localStorage.getItem('tm_comp_draft') || '{}');
+  if (draft.grossSal) {
+    const el = document.getElementById('dashGrossSal');
+    if (el) el.textContent = '₹' + parseFloat(draft.grossSal).toLocaleString('en-IN');
+  }
+  
+  // Activity log from localStorage
+  renderActivityLog();
+  
+  // Financial health score  
+  calcDashHealthScore();
+});
+
+function renderActivityLog() {
+  const log = JSON.parse(localStorage.getItem('tm_activity') || '[]');
+  const el = document.getElementById('activityLog');
+  if (!el) return;
+  if (!log.length) {
+    // Add default activity
+    const defaultLog = [
+      {icon:'📋',text:'ITR Center visited',time:'Just now'},
+      {icon:'🧮',text:'Tax computation checked',time:'Today'},
+      {icon:'🧾',text:'GST Suite opened',time:'Today'},
+    ];
+    el.innerHTML = defaultLog.map(a => 
+      '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid var(--border)"><span style="font-size:1.25rem">'+a.icon+'</span><div><div style="font-size:0.82rem;font-weight:600">'+a.text+'</div><div style="font-size:0.72rem;color:var(--text-muted)">'+a.time+'</div></div></div>'
+    ).join('');
+    return;
+  }
+  el.innerHTML = log.slice(-10).reverse().map(a => 
+    '<div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid var(--border)"><span style="font-size:1.25rem">'+a.icon+'</span><div><div style="font-size:0.82rem;font-weight:600">'+a.text+'</div><div style="font-size:0.72rem;color:var(--text-muted)">'+new Date(a.ts).toLocaleString('en-IN')+'</div></div></div>'
+  ).join('');
+}
+
+function calcDashHealthScore() {
+  // Simple score based on what's available
+  const draft = JSON.parse(localStorage.getItem('tm_comp_draft') || '{}');
+  let score = 40; // base score
+  if (draft.grossSal) score += 15;
+  if (draft.d80c) score += 10;
+  if (draft.d80d) score += 5;
+  if (draft.tdsSal) score += 10;
+  if (draft.regime) score += 5;
+  score = Math.min(score, 85);
+  const el = document.getElementById('dashHealthScore');
+  if (el) {
+    el.textContent = score;
+    el.style.color = score >= 70 ? 'var(--success)' : score >= 50 ? '#f59e0b' : 'var(--danger)';
+  }
+  const scoreBar = document.getElementById('dashHealthBar');
+  if (scoreBar) scoreBar.style.width = score + '%';
+}
+
+function refreshDashboard() {
+  location.reload();
+}
+
+function quickAction(action) {
+  const urls = {
+    'itr': 'itr-form.html?form=1',
+    'gst': 'gst.html',
+    'compute': 'computation.html',
+    'ai': 'ai-assistant.html',
+    'tds': 'tds-payroll.html',
+    'calc': 'calculators.html',
+  };
+  if (urls[action]) window.location.href = urls[action];
+}
+</script>
+
 </body>
 </html>

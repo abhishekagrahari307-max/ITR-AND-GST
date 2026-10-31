@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="Fixed Assets & Depreciation Calculator — WDV/SLM method, Income Tax Act Depreciation, Block of Assets, Sale/Disposal. TaxMitra AI Enterprise."/>
+<title>Fixed Assets & Depreciation – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.fa-layout{display:grid;grid-template-columns:280px 1fr;gap:1.25rem;padding:1.25rem 0 3rem;align-items:start}
+@media(max-width:900px){.fa-layout{grid-template-columns:1fr}}
+.asset-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:.75rem;transition:var(--transition)}
+.asset-card:hover{border-color:var(--primary);box-shadow:var(--shadow)}
+.asset-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.asset-card-title{font-weight:700;font-size:.88rem}
+.asset-card-meta{font-size:.72rem;color:var(--text-muted)}
+.dep-bar{height:8px;background:var(--bg-secondary);border-radius:4px;overflow:hidden;margin:.35rem 0}
+.dep-fill{height:100%;background:var(--grad-primary);border-radius:4px}
+.dep-fill.red{background:linear-gradient(90deg,#ef4444,#dc2626)}
+.block-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.block-table th{background:var(--bg-secondary);padding:.6rem .75rem;font-weight:700;font-size:.72rem;color:var(--text-secondary);border-bottom:2px solid var(--border);text-align:left}
+.block-table td{padding:.55rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.block-table tr:hover td{background:rgba(30,64,175,.03)}
+.block-table .subtotal{background:rgba(30,64,175,.05);font-weight:700}
+.block-table .grand{background:var(--primary);color:#fff;font-weight:700}
+.dep-rate-badge{display:inline-flex;align-items:center;background:rgba(139,92,246,.1);color:#7c3aed;border-radius:99px;padding:.15rem .5rem;font-size:.68rem;font-weight:700}
+.method-toggle{display:flex;gap:.35rem;margin-bottom:.75rem}
+.method-btn{flex:1;padding:.45rem;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:.78rem;font-weight:600;cursor:pointer;background:var(--bg-secondary);transition:var(--transition);text-align:center}
+.method-btn.active{border-color:var(--primary);background:rgba(30,64,175,.1);color:var(--primary)}
+.add-asset-form{background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.85rem;margin-top:.5rem}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.5rem}
+.fg label{font-size:.72rem;font-weight:600;color:var(--text-secondary)}
+.fg input,.fg select{padding:.42rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text-primary);font-size:.82rem;font-family:inherit;transition:var(--transition)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary)}
+.result-highlight{background:linear-gradient(135deg,rgba(30,64,175,.08),rgba(99,102,241,.05));border:2px solid var(--primary);border-radius:var(--radius);padding:1rem;text-align:center;margin-bottom:1rem}
+.result-highlight .val{font-size:2rem;font-weight:900;color:var(--primary)}
+.result-highlight .lbl{font-size:.78rem;color:var(--text-muted);margin-top:.25rem}
+.schedule-row{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px dotted var(--border);font-size:.8rem}
+.schedule-row:last-child{border-bottom:none;font-weight:700;color:var(--primary)}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> › 
+      <span style="color:var(--primary)">Fixed Assets & Depreciation</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">🏗️ Fixed Assets & Depreciation Calculator</h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">WDV/SLM Method · Income Tax Act Rates · Block of Assets · Auto Schedule | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <div class="fa-layout">
+    <!-- Sidebar -->
+    <div>
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-cog"></i> Settings</div>
+        <div class="card-body">
+          <div class="fg">
+            <label>Assessment Year</label>
+            <select id="ayYear">
+              <option value="2026-27" selected>AY 2026-27 (FY 2025-26)</option>
+              <option value="2025-26">AY 2025-26 (FY 2024-25)</option>
+              <option value="2024-25">AY 2024-25 (FY 2023-24)</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Depreciation Method</label>
+            <div class="method-toggle">
+              <button class="method-btn active" id="btnWDV" onclick="setMethod('WDV')">WDV</button>
+              <button class="method-btn" id="btnSLM" onclick="setMethod('SLM')">SLM</button>
+            </div>
+            <div style="font-size:.68rem;color:var(--text-muted)">WDV = Written Down Value (IT Act) | SLM = Straight Line (Companies Act)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-plus-circle"></i> Add Asset</div>
+        <div class="card-body">
+          <div class="fg">
+            <label>Asset Name</label>
+            <input type="text" id="assetName" placeholder="e.g. Laptop, Car, Plant"/>
+          </div>
+          <div class="fg">
+            <label>Asset Category (IT Act)</label>
+            <select id="assetCat" onchange="updateRate()">
+              <option value="building_rcc" data-rate="10">Building (RCC) — 10%</option>
+              <option value="building_wood" data-rate="40">Temporary Building — 40%</option>
+              <option value="plant_general" data-rate="15">Plant & Machinery — 15%</option>
+              <option value="computer" data-rate="40" selected>Computer/Software — 40%</option>
+              <option value="furniture" data-rate="10">Furniture — 10%</option>
+              <option value="vehicles" data-rate="15">Motor Vehicles — 15%</option>
+              <option value="vehicles_heavy" data-rate="30">Commercial Vehicles — 30%</option>
+              <option value="intangible" data-rate="25">Intangible Assets — 25%</option>
+              <option value="ship" data-rate="20">Ships/Vessels — 20%</option>
+              <option value="aircraft" data-rate="40">Aircraft — 40%</option>
+              <option value="custom" data-rate="0">Custom Rate</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Custom Rate (%)</label>
+            <input type="number" id="customRate" min="0" max="100" value="40" step="0.01"/>
+          </div>
+          <div class="fg">
+            <label>Cost / Opening WDV (₹)</label>
+            <input type="number" id="assetCost" placeholder="500000" min="0"/>
+          </div>
+          <div class="fg">
+            <label>Date of Purchase / Addition</label>
+            <input type="date" id="assetDate" value="2025-04-01"/>
+          </div>
+          <div class="fg">
+            <label>Additions during year (₹)</label>
+            <input type="number" id="assetAdditions" placeholder="0" value="0" min="0"/>
+          </div>
+          <div class="fg">
+            <label>Disposal / Sales (₹)</label>
+            <input type="number" id="assetDisposal" placeholder="0" value="0" min="0"/>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="addAsset()">
+            <i class="fa fa-plus"></i> Add to Register
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="fa fa-file-export"></i> Export</div>
+        <div class="card-body">
+          <button class="btn btn-primary" style="width:100%;margin-bottom:.5rem" onclick="exportCSV()"><i class="fa fa-file-csv"></i> Export CSV</button>
+          <button class="btn" style="width:100%;background:var(--bg-secondary);border:1px solid var(--border)" onclick="clearAll()"><i class="fa fa-trash"></i> Clear All</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div>
+      <!-- Summary -->
+      <div class="card" style="margin-bottom:1rem" id="summaryCard">
+        <div class="card-header"><i class="fa fa-chart-bar"></i> Depreciation Summary — AY <span id="displayAY">2026-27</span></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem">
+            <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.85rem;text-align:center">
+              <div style="font-size:1.3rem;font-weight:800;color:var(--primary)" id="totalCost">₹0</div>
+              <div style="font-size:.68rem;color:var(--text-muted);font-weight:600;text-transform:uppercase">Total Cost</div>
+            </div>
+            <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.85rem;text-align:center">
+              <div style="font-size:1.3rem;font-weight:800;color:var(--danger)" id="totalDep">₹0</div>
+              <div style="font-size:.68rem;color:var(--text-muted);font-weight:600;text-transform:uppercase">Total Dep.</div>
+            </div>
+            <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.85rem;text-align:center">
+              <div style="font-size:1.3rem;font-weight:800;color:var(--success)" id="closingWDV">₹0</div>
+              <div style="font-size:.68rem;color:var(--text-muted);font-weight:600;text-transform:uppercase">Closing WDV</div>
+            </div>
+            <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.85rem;text-align:center">
+              <div style="font-size:1.3rem;font-weight:800;color:#7c3aed" id="taxSaving">₹0</div>
+              <div style="font-size:.68rem;color:var(--text-muted);font-weight:600;text-transform:uppercase">Tax Saving (30%)</div>
+            </div>
+          </div>
+          <div id="emptyMsg" style="text-align:center;padding:2rem;color:var(--text-muted)">
+            <i class="fa fa-building" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:.5rem"></i>
+            Assets add karein register mein
+          </div>
+          <div id="blockRegister" style="display:none">
+            <h4 style="font-size:.82rem;font-weight:700;margin-bottom:.5rem;color:var(--text-secondary)">Block of Assets Register</h4>
+            <div style="overflow-x:auto">
+              <table class="block-table" id="assetTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Asset Name</th>
+                    <th>Category</th>
+                    <th>Rate</th>
+                    <th>Opening WDV</th>
+                    <th>Additions</th>
+                    <th>Disposals</th>
+                    <th>Dep. (₹)</th>
+                    <th>Closing WDV</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="assetBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IT Act Reference -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-book"></i> IT Act Depreciation Rates (Section 32)</div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;font-size:.78rem">
+            <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)"><strong>Building (RCC):</strong> 10%</div>
+            <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)"><strong>Temporary Building:</strong> 40%</div>
+            <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)"><strong>Plant & Machinery:</strong> 15%</div>
+            <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)"><strong>Computers/Software:</strong> 40%</div>
+            <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)"><strong>Motor Vehicles:</strong> 15%</div>
+            <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)"><strong>Commercial Vehicles:</strong> 30%</div>
+            <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)"><strong>Furniture:</strong> 10%</div>
+            <div style="background:var(--bg-secondary);padding:.6rem .8rem;border-radius:var(--radius-sm)"><strong>Intangible Assets:</strong> 25%</div>
+          </div>
+          <div style="margin-top:.75rem;background:rgba(30,64,175,.06);border-radius:var(--radius-sm);padding:.75rem;font-size:.78rem;color:var(--text-secondary)">
+            <strong>⚡ Half-Year Rule:</strong> Asset purchased after 3rd October → 50% depreciation for that year (IT Act Sec 32)<br>
+            <strong>📌 WDV Method:</strong> Depreciation calculated on Written Down Value each year<br>
+            <strong>🏢 Block Concept:</strong> Assets of same class treated as single block — individual disposal reduces block value
+          </div>
+        </div>
+      </div>
+
+      <!-- Depreciation Schedule for selected asset -->
+      <div class="card" id="scheduleCard" style="display:none">
+        <div class="card-header"><i class="fa fa-calendar-alt"></i> Depreciation Schedule — <span id="scheduleAssetName">Asset</span></div>
+        <div class="card-body">
+          <div id="scheduleBody"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+var assets = [];
+var depMethod = 'WDV';
+
+function setMethod(m) {
+  depMethod = m;
+  document.getElementById('btnWDV').className = 'method-btn' + (m==='WDV'?' active':'');
+  document.getElementById('btnSLM').className = 'method-btn' + (m==='SLM'?' active':'');
+  renderAssets();
+}
+
+function updateRate() {
+  var sel = document.getElementById('assetCat');
+  var opt = sel.options[sel.selectedIndex];
+  var rate = parseFloat(opt.getAttribute('data-rate')) || 0;
+  document.getElementById('customRate').value = rate;
+}
+
+function addAsset() {
+  var name = document.getElementById('assetName').value.trim();
+  if (!name) { showToast('Asset name required', 'warning'); return; }
+  var cost = parseFloat(document.getElementById('assetCost').value) || 0;
+  if (cost <= 0) { showToast('Opening WDV/Cost required', 'warning'); return; }
+  
+  var catEl = document.getElementById('assetCat');
+  var catText = catEl.options[catEl.selectedIndex].text.split('—')[0].trim();
+  var rate = parseFloat(document.getElementById('customRate').value) || 0;
+  var additions = parseFloat(document.getElementById('assetAdditions').value) || 0;
+  var disposal = parseFloat(document.getElementById('assetDisposal').value) || 0;
+  var dateStr = document.getElementById('assetDate').value;
+  
+  // Half-year rule: if purchased after Oct 3
+  var purchaseDate = new Date(dateStr);
+  var oct3 = new Date(purchaseDate.getFullYear(), 9, 3); // Oct 3
+  var halfYear = purchaseDate > oct3;
+  
+  // WDV/SLM calculation
+  var effectiveRate = halfYear ? rate/2 : rate;
+  var depBase = cost + additions - disposal;
+  if (depBase < 0) depBase = 0;
+  var dep = 0;
+  if (depMethod === 'WDV') {
+    dep = Math.round(depBase * effectiveRate / 100);
+  } else {
+    // SLM: use original cost as base always
+    dep = Math.round(cost * effectiveRate / 100);
+  }
+  var closingWDV = depBase - dep;
+  if (closingWDV < 0) closingWDV = 0;
+  
+  assets.push({
+    id: Date.now(),
+    name: name,
+    cat: catText,
+    rate: rate,
+    cost: cost,
+    additions: additions,
+    disposal: disposal,
+    dep: dep,
+    closingWDV: closingWDV,
+    halfYear: halfYear,
+    date: dateStr
+  });
+  
+  document.getElementById('assetName').value = '';
+  document.getElementById('assetCost').value = '';
+  document.getElementById('assetAdditions').value = '0';
+  document.getElementById('assetDisposal').value = '0';
+  
+  renderAssets();
+  showToast('✅ ' + name + ' added!', 'success');
+}
+
+function deleteAsset(id) {
+  assets = assets.filter(a => a.id !== id);
+  renderAssets();
+  showToast('Asset removed', 'info');
+}
+
+function showSchedule(id) {
+  var asset = assets.find(a => a.id === id);
+  if (!asset) return;
+  
+  var card = document.getElementById('scheduleCard');
+  var body = document.getElementById('scheduleBody');
+  document.getElementById('scheduleAssetName').textContent = asset.name;
+  card.style.display = 'block';
+  
+  var html = '';
+  var wdv = asset.cost;
+  var years = 10;
+  html += '<div style="overflow-x:auto"><table class="block-table"><thead><tr><th>Year</th><th>Opening WDV</th><th>Rate</th><th>Depreciation</th><th>Closing WDV</th><th>Dep %</th></tr></thead><tbody>';
+  for (var y = 1; y <= years && wdv > 1000; y++) {
+    var d = Math.round(wdv * asset.rate / 100);
+    var closing = wdv - d;
+    var pct = Math.round(d/asset.cost*100);
+    html += '<tr><td>Year ' + y + '</td><td>₹' + fmtN(wdv) + '</td><td>' + asset.rate + '%</td><td>₹' + fmtN(d) + '</td><td>₹' + fmtN(closing) + '</td><td>' + pct + '%</td></tr>';
+    wdv = closing;
+    if (closing <= 0) break;
+  }
+  html += '</tbody></table></div>';
+  body.innerHTML = html;
+  card.scrollIntoView({behavior:'smooth'});
+}
+
+function renderAssets() {
+  var empty = document.getElementById('emptyMsg');
+  var block = document.getElementById('blockRegister');
+  
+  if (assets.length === 0) {
+    empty.style.display = 'block';
+    block.style.display = 'none';
+    document.getElementById('totalCost').textContent = '₹0';
+    document.getElementById('totalDep').textContent = '₹0';
+    document.getElementById('closingWDV').textContent = '₹0';
+    document.getElementById('taxSaving').textContent = '₹0';
+    return;
+  }
+  
+  empty.style.display = 'none';
+  block.style.display = 'block';
+  
+  var totalCost = assets.reduce((s,a) => s+a.cost+a.additions, 0);
+  var totalDep = assets.reduce((s,a) => s+a.dep, 0);
+  var totalClosing = assets.reduce((s,a) => s+a.closingWDV, 0);
+  var taxSaving = Math.round(totalDep * 0.30);
+  
+  document.getElementById('totalCost').textContent = '₹' + fmtN(totalCost);
+  document.getElementById('totalDep').textContent = '₹' + fmtN(totalDep);
+  document.getElementById('closingWDV').textContent = '₹' + fmtN(totalClosing);
+  document.getElementById('taxSaving').textContent = '₹' + fmtN(taxSaving);
+  
+  var tbody = document.getElementById('assetBody');
+  tbody.innerHTML = assets.map(function(a, i) {
+    var halfNote = a.halfYear ? '<span style="font-size:.65rem;color:#f59e0b"> (½yr)</span>' : '';
+    return '<tr>' +
+      '<td>' + (i+1) + '</td>' +
+      '<td><strong>' + a.name + '</strong>' + halfNote + '</td>' +
+      '<td style="font-size:.75rem">' + a.cat + '</td>' +
+      '<td><span class="dep-rate-badge">' + a.rate + '%</span></td>' +
+      '<td>₹' + fmtN(a.cost) + '</td>' +
+      '<td>' + (a.additions > 0 ? '₹' + fmtN(a.additions) : '—') + '</td>' +
+      '<td>' + (a.disposal > 0 ? '<span style="color:var(--danger)">₹' + fmtN(a.disposal) + '</span>' : '—') + '</td>' +
+      '<td><strong style="color:var(--danger)">₹' + fmtN(a.dep) + '</strong></td>' +
+      '<td><strong style="color:var(--success)">₹' + fmtN(a.closingWDV) + '</strong></td>' +
+      '<td><button class="btn-sm" style="background:var(--primary);color:#fff;margin-right:.25rem" onclick="showSchedule(' + a.id + ')">📅</button>' +
+           '<button class="btn-sm" style="background:rgba(239,68,68,.1);color:#dc2626" onclick="deleteAsset(' + a.id + ')">🗑️</button></td>' +
+    '</tr>';
+  }).join('') +
+  '<tr class="subtotal"><td colspan="7"><strong>TOTAL</strong></td>' +
+  '<td><strong style="color:var(--danger)">₹' + fmtN(totalDep) + '</strong></td>' +
+  '<td><strong style="color:var(--success)">₹' + fmtN(totalClosing) + '</strong></td>' +
+  '<td></td></tr>';
+}
+
+function fmtN(n) {
+  return Math.round(n).toLocaleString('en-IN');
+}
+
+function exportCSV() {
+  if (assets.length === 0) { showToast('Assets nahi hain export karne ke liye', 'warning'); return; }
+  var csv = 'Asset Name,Category,Rate %,Opening WDV,Additions,Disposals,Depreciation,Closing WDV,Half Year Rule\n';
+  assets.forEach(function(a) {
+    csv += '"' + a.name + '","' + a.cat + '",' + a.rate + ',' + a.cost + ',' + a.additions + ',' + a.disposal + ',' + a.dep + ',' + a.closingWDV + ',' + (a.halfYear?'Yes':'No') + '\n';
+  });
+  var blob = new Blob([csv], {type:'text/csv'});
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'fixed_assets_register_AY2026-27.csv';
+  link.click();
+  showToast('✅ CSV exported!', 'success');
+}
+
+function clearAll() {
+  if (assets.length === 0) return;
+  if (!confirm('Sare assets delete karein?')) return;
+  assets = [];
+  renderAssets();
+  document.getElementById('scheduleCard').style.display = 'none';
+  showToast('Cleared', 'info');
+}
+
+// Load sample data
+window.addEventListener('DOMContentLoaded', function() {
+  // Add a couple sample assets
+  assets = [
+    {id:1, name:'Office Computers (5 units)', cat:'Computer/Software', rate:40, cost:250000, additions:0, disposal:0, dep:100000, closingWDV:150000, halfYear:false, date:'2025-04-01'},
+    {id:2, name:'Delivery Vehicle', cat:'Motor Vehicles', rate:15, cost:800000, additions:0, disposal:0, dep:120000, closingWDV:680000, halfYear:false, date:'2025-04-01'},
+    {id:3, name:'Office Furniture', cat:'Furniture', rate:10, cost:150000, additions:50000, disposal:0, dep:20000, closingWDV:180000, halfYear:false, date:'2025-04-01'}
+  ];
+  renderAssets();
+});
+</script>
+</body>
+</html>

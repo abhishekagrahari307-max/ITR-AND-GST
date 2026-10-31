@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="description" content="AI Notice Analyzer — Paste your Income Tax or GST notice. AI explains it in simple Hindi/English and gives step-by-step action plan."/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<title>AI Notice Analyzer & Response Generator — TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="ai-assistant.html" class="nav-link">🤖 AI</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);padding:.28rem .55rem;font-weight:700;font-size:.8rem">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>AI Notice Analyzer & Response Generator</span></div>
+    <h1>🤖 AI Notice Analyzer & Response Generator</h1>
+    <p>AY 2026-27 | Budget 2025 | Developed by <strong>Abhishek Agrahari</strong></p>
+  </div>
+</div>
+<div class="container" style="padding:1.5rem 0 4rem">
+
+<div style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(37,99,235,.06));border:1px solid rgba(124,58,237,.2);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:.85rem">
+  <span style="font-size:1.75rem">🤖</span>
+  <div><strong>Gemini AI + DeepSeek R1 — Deep Notice Analysis</strong>
+  <p style="font-size:.82rem;margin:.3rem 0 0;color:var(--text-secondary)">Notice ka full text paste karo — AI explain karega: Type, Risk Level, Deadline, What to do, Draft Response.</p></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+<div>
+  <div class="form-card">
+    <h3 style="font-weight:800;margin-bottom:1rem">📋 Notice Input</h3>
+    <div class="form-group"><label>Notice Text (Full)</label>
+      <textarea id="aiNoticeFullText" rows="12" style="width:100%;padding:.75rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;font-size:.85rem;resize:vertical" placeholder="Income Tax Notice ka pura text yahan paste karein...&#10;&#10;Example:&#10;'The Income Tax Department has selected your return for scrutiny u/s 143(2)...'&#10;&#10;Ya&#10;&#10;'This is to inform you that as per our records, there is an outstanding demand of ₹...'"></textarea></div>
+    <div class="form-group"><label>Or Select Notice Type</label>
+      <select id="aiNoticeType" onchange="quickAnalyze()">
+        <option value="">-- Select if no text --</option>
+        <option value="143_1">143(1) Intimation</option>
+        <option value="143_2">143(2) Scrutiny</option>
+        <option value="148">148 Reassessment</option>
+        <option value="156">156 Demand</option>
+        <option value="245">245 Refund Adjusted</option>
+      </select></div>
+    <div class="form-group"><label>Your Language</label>
+      <select id="aiNoticeLang">
+        <option value="hi">Hindi</option>
+        <option value="en">English</option>
+      </select></div>
+    <div style="display:flex;gap:.65rem;margin-top:.5rem;flex-wrap:wrap">
+      <button class="btn-primary-solid" onclick="analyzeNoticeWithAI()" style="flex:1"><i class="fa fa-robot"></i> AI Deep Analyze</button>
+      <button class="btn-secondary-solid" onclick="generateResponse()" style="flex:1"><i class="fa fa-pen"></i> Draft Response</button>
+      <button class="btn-secondary-solid" onclick="clearNoticeAI()" style="width:auto;padding:.65rem 1rem"><i class="fa fa-trash"></i></button>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="form-card" id="aiNoticeResultCard" style="min-height:200px">
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem">
+      <span style="font-size:1.1rem">🤖</span>
+      <strong>AI Analysis Result</strong>
+      <button onclick="copyNoticeResult()" class="nav-icon-btn" style="margin-left:auto;font-size:.78rem" title="Copy">📋 Copy</button>
+    </div>
+    <div id="aiNoticeOutput" style="font-size:.875rem;line-height:1.7;color:var(--text-secondary);white-space:pre-wrap">
+      Notice text paste karein aur "AI Deep Analyze" click karein...
+    </div>
+    <div id="aiNoticeTypingDots" style="display:none">
+      <span class="typing-dots"><span></span><span></span><span></span></span>
+    </div>
+  </div>
+
+  <div class="form-card" id="responseDraftCard" style="margin-top:1rem;display:none">
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem">
+      <strong>📝 Draft Response</strong>
+      <button onclick="copyResponseDraft()" class="nav-icon-btn" style="margin-left:auto;font-size:.78rem">📋 Copy</button>
+      <button onclick="downloadResponsePDF()" class="nav-icon-btn" style="font-size:.78rem">📄 PDF</button>
+    </div>
+    <div id="responseDraftContent" style="font-size:.82rem;line-height:1.65;white-space:pre-wrap;background:var(--bg-secondary);padding:.85rem;border-radius:var(--radius-sm)"></div>
+  </div>
+</div>
+</div>
+
+</div>
+<p style="text-align:center;padding:.75rem;font-size:.68rem;color:var(--text-muted)">Developed by <strong>Abhishek Agrahari</strong> | TaxMitra AI Enterprise | AY 2026-27</p>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+'use strict';
+
+async function analyzeNoticeWithAI() {
+  const text = document.getElementById('aiNoticeFullText').value.trim();
+  const type = document.getElementById('aiNoticeType').value;
+  const lang = document.getElementById('aiNoticeLang').value;
+  const output = document.getElementById('aiNoticeOutput');
+  const typing = document.getElementById('aiNoticeTypingDots');
+  
+  if (!text && !type) { showToast('Notice text ya type select karein!','warning'); return; }
+  
+  output.style.display = 'none';
+  typing.style.display = 'block';
+  
+  const prompt = text 
+    ? `Analyze this Indian Income Tax notice and explain in ${lang==='hi'?'Hindi':'English'}:
+
+${text}
+
+Provide: 1) Notice type and section, 2) Risk level (High/Medium/Low), 3) Deadline to respond, 4) Exact action steps, 5) Documents needed, 6) Penalty if ignored.`
+    : `Explain IT notice u/s ${type} in detail in ${lang==='hi'?'Hindi':'English'}. Include: type, risk, deadline, action steps, documents needed.`;
+  
+  try {
+    let result = '';
+    if (window.TaxMitraAI && window.TaxMitraAI.callGemini) {
+      const res = await window.TaxMitraAI.callGemini(prompt, 'notice', lang, []);
+      result = res.text || 'AI response not available.';
+    } else if (window.TaxMitraAI && window.TaxMitraAI.getRuleBasedResponse) {
+      result = window.TaxMitraAI.getRuleBasedResponse(text || type, lang, 'notice');
+    } else {
+      result = 'API key set karo for AI analysis.\n\nConsole mein type karo:\nTaxMitra.setKeys({geminiApiKey:"AIzaSy..."})';
+    }
+    output.textContent = result;
+    output.style.display = 'block';
+    window._lastNoticeAnalysis = result;
+  } catch(e) {
+    output.textContent = 'Error: ' + e.message;
+    output.style.display = 'block';
+  }
+  typing.style.display = 'none';
+  showToast('Notice analyzed!','success');
+}
+
+function quickAnalyze() {
+  const type = document.getElementById('aiNoticeType').value;
+  if (type) analyzeNoticeWithAI();
+}
+
+async function generateResponse() {
+  const text = document.getElementById('aiNoticeFullText').value.trim();
+  const lang = document.getElementById('aiNoticeLang').value;
+  const card = document.getElementById('responseDraftCard');
+  const content = document.getElementById('responseDraftContent');
+  
+  card.style.display = 'block';
+  content.textContent = 'Generating response draft...';
+  
+  const prompt = `Generate a formal response/reply letter to this Income Tax notice in ${lang==='hi'?'Hindi':'English'}:
+
+${text || 'General income tax notice response'}
+
+Include: Date, To/From fields, Subject, Body with legal references, closing. Keep it professional and legally appropriate.`;
+  
+  try {
+    if (window.TaxMitraAI && window.TaxMitraAI.callGemini) {
+      const res = await window.TaxMitraAI.callGemini(prompt, 'notice', lang, []);
+      content.textContent = res.text;
+      window._lastResponseDraft = res.text;
+    } else {
+      content.textContent = `[Date: ${new Date().toLocaleDateString('en-IN')}]
+
+To,
+The Assessing Officer,
+Income Tax Department,
+[Your City]
+
+Subject: Response to Notice u/s [Section] for AY [Year]
+
+Respected Sir/Madam,
+
+I acknowledge receipt of your notice dated [Date]. 
+
+I hereby submit my response:
+[Your explanation and documents list]
+
+Requested to kindly treat my response favorably.
+
+Thanking You,
+[Your Name]
+PAN: [Your PAN]
+Mobile: [Your Mobile]
+
+Note: Set Gemini API key for AI-generated response draft.`;
+    }
+  } catch(e) { content.textContent = 'Error generating response: ' + e.message; }
+}
+
+function copyNoticeResult() {
+  const text = document.getElementById('aiNoticeOutput').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Copied!','success'));
+}
+function copyResponseDraft() {
+  const text = document.getElementById('responseDraftContent').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Response copied!','success'));
+}
+function clearNoticeAI() {
+  document.getElementById('aiNoticeFullText').value = '';
+  document.getElementById('aiNoticeOutput').textContent = 'Notice text paste karein aur "AI Deep Analyze" click karein...';
+  document.getElementById('responseDraftCard').style.display = 'none';
+}
+function downloadResponsePDF() {
+  if (!window.jspdf) { showToast('PDF loading...','error'); return; }
+  const { jsPDF } = window.jspdf; const doc = new jsPDF();
+  const text = document.getElementById('responseDraftContent').textContent;
+  doc.setFontSize(11);
+  const lines = doc.splitTextToSize(text, 180);
+  doc.text(lines, 15, 20);
+  doc.save('IT_Notice_Response_TaxMitra.pdf');
+  showToast('Response PDF downloaded!','success');
+}
+</script>
+</body>
+</html>

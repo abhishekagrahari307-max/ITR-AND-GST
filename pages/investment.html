@@ -1,20 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="description" content="Investment & Tax Saving Planner AY 2026-27 — 80C tracker, NPS, PPF, ELSS comparison. Optimize deductions, goal-based planning."/>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Investment Planner – TaxMitra AI Enterprise</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <link rel="stylesheet" href="../css/responsive.css">
 </head>
 <body>
-  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
-    <div class="nav-container">
-      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
-      <div style="flex:1"></div>
-      <div class="nav-right"><button class="nav-icon-btn" id="themeToggle">🌙</button><a href="../index.html" class="btn-nav-login">← Home</a></div>
+  <nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
     </div>
-  </nav>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <a href="import-data.html" class="btn-nav-login">📥</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
 
   <div class="page-hero">
     <div class="container">
@@ -139,8 +160,28 @@
     </div>
   </div>
 
-  <script src="../js/taxmitra.js"></script>
-  <script>
+  <script src="../js/taxmitra.js">
+  // Tax saved calculation based on regime and investments
+  function calcTaxSaved() {
+    const total80c = parseFloat(document.querySelector('#total80c')?.textContent?.replace(/[₹,]/g,'')) || 150000;
+    const total80d = parseFloat(document.querySelector('#total80d')?.textContent?.replace(/[₹,]/g,'')) || 0;
+    const nps = parseFloat(document.querySelector('#totalNPS')?.textContent?.replace(/[₹,]/g,'')) || 0;
+    const totalDed = total80c + total80d + nps;
+    const taxSaved = Math.round(totalDed * 0.30); // @30% slab
+    const el = document.getElementById('taxSavedAmt');
+    if (el) el.textContent = '₹' + taxSaved.toLocaleString('en-IN');
+    return taxSaved;
+  }
+  window.calcTaxSaved = calcTaxSaved;
+
+</script>
+  <script src="../js/config-generated.js"></script>
+<script src="../js/ai-proxy-config.js"></script>
+<script src="../js/config-generated.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/ai-real.js"></script>
+<script src="../js/pdf-real.js"></script>
+<script>
     function update80C() {
       const inputs = document.querySelectorAll('.s80c-input');
       let total = 0;
@@ -179,5 +220,7 @@
       `;
     }
   </script>
+
+<p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong></p>
 </body>
 </html>

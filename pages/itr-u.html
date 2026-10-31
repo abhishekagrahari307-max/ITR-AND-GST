@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="description" content="ITR-U Updated Return — File updated return u/s 139(8A) within 2 years. Additional tax 25%/50%, eligibility check, computation. AY 2026-27."/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ITR-U Updated Return – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.itr-u-layout{display:grid;grid-template-columns:280px 1fr;gap:1.25rem;padding:1.25rem 0 3rem;align-items:start}
+@media(max-width:900px){.itr-u-layout{grid-template-columns:1fr}}
+.reason-card{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:.9rem;cursor:pointer;transition:var(--transition);margin-bottom:.5rem}
+.reason-card:hover,.reason-card.selected{border-color:var(--primary);background:rgba(30,64,175,.05)}
+.reason-card h4{font-size:.85rem;font-weight:700;margin:0 0 .2rem}
+.reason-card p{font-size:.72rem;color:var(--text-muted);margin:0}
+.tax-band{background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.85rem;margin-bottom:.65rem;font-size:.82rem}
+.tax-band .label{font-size:.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.3px;margin-bottom:.3rem}
+.tax-band .value{font-size:1.1rem;font-weight:800;color:var(--primary)}
+.timeline-item{display:flex;gap:.75rem;margin-bottom:.9rem;align-items:flex-start}
+.timeline-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0}
+.dot-green{background:rgba(16,185,129,.15);color:var(--success);border:2px solid var(--success)}
+.dot-orange{background:rgba(245,158,11,.15);color:#d97706;border:2px solid #f59e0b}
+.dot-red{background:rgba(239,68,68,.15);color:var(--danger);border:2px solid var(--danger)}
+.eligibility-check{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:var(--radius-sm);margin-bottom:.4rem;font-size:.8rem}
+.elig-pass{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2)}
+.elig-fail{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)}
+.elig-warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2)}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.65rem}
+.fg label{font-size:.72rem;font-weight:600;color:var(--text-secondary)}
+.fg input,.fg select{padding:.42rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.82rem;font-family:inherit;transition:var(--transition)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary)}
+.result-big{background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(220,38,38,.04));border:2px solid var(--danger);border-radius:var(--radius);padding:1.25rem;text-align:center;margin-bottom:1rem}
+.result-big .amount{font-size:2.2rem;font-weight:900;color:var(--danger)}
+.result-big .label{font-size:.78rem;color:var(--text-muted);margin-top:.25rem}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link active">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> ›
+      <a href="itr-center.html" style="color:var(--text-muted)">ITR Center</a> ›
+      <span style="color:var(--primary)">ITR-U Updated Return</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">🔄 ITR-U — Updated Return</h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">Section 139(8A) · File within 2 years · Additional Tax 25%/50% · Correct mistakes without scrutiny | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <div class="itr-u-layout">
+    <!-- Left Panel -->
+    <div>
+      <!-- Key Info -->
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-info-circle"></i> ITR-U क्या है?</div>
+        <div class="card-body" style="font-size:.82rem;line-height:1.7;color:var(--text-secondary)">
+          <p>Section 139(8A) ke tahat, aap original/revised ITR file karne ke baad bhi apna return update kar sakte hain:</p>
+          <div class="timeline-item">
+            <div class="timeline-dot dot-green">1</div>
+            <div><strong>Within 12 months</strong> from end of relevant AY → 25% additional tax on tax + interest payable</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot dot-orange">2</div>
+            <div><strong>12-24 months</strong> from end of relevant AY → 50% additional tax on tax + interest payable</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot dot-red">⚠️</div>
+            <div><strong>After 24 months</strong> → ITR-U cannot be filed. Window permanently closed.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filing Reason -->
+      <div class="card" style="margin-bottom:.9rem">
+        <div class="card-header"><i class="fa fa-list-check"></i> Update Reason</div>
+        <div class="card-body">
+          <div class="reason-card selected" onclick="selectReason(this,'income_not_reported')" id="r_income">
+            <h4>📈 Income Not Reported</h4>
+            <p>Koi income miss ho gayi — salary, interest, rent, capital gain</p>
+          </div>
+          <div class="reason-card" onclick="selectReason(this,'wrong_head')" id="r_head">
+            <h4>🔄 Wrong Head of Income</h4>
+            <p>Income galat head mein daali — business vs other sources</p>
+          </div>
+          <div class="reason-card" onclick="selectReason(this,'deduction_missed')" id="r_ded">
+            <h4>💰 Deduction Not Claimed</h4>
+            <p>80C, 80D ya koi aur deduction claim nahi ki</p>
+          </div>
+          <div class="reason-card" onclick="selectReason(this,'tds_mismatch')" id="r_tds">
+            <h4>📋 TDS/TCS Mismatch</h4>
+            <p>Form 26AS ya AIS se TDS amount mismatch</p>
+          </div>
+          <div class="reason-card" onclick="selectReason(this,'carry_forward')" id="r_cf">
+            <h4>📊 Carry Forward Loss Error</h4>
+            <p>Loss carry forward ya set-off galat hua</p>
+          </div>
+          <div class="reason-card" onclick="selectReason(this,'other')" id="r_other">
+            <h4>📌 Other Reason</h4>
+            <p>Koi aur computation ya data error</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Eligibility Check -->
+      <div class="card">
+        <div class="card-header"><i class="fa fa-check-circle"></i> Eligibility Quick Check</div>
+        <div class="card-body">
+          <div class="eligibility-check elig-pass">✅ ITR-U sirf additional tax ho toh file hoti hai — refund ke liye nahi</div>
+          <div class="eligibility-check elig-pass">✅ Prosecution cases mein ITR-U allowed hai (with conditions)</div>
+          <div class="eligibility-check elig-fail">❌ Already search/survey ho chuka ho — NOT allowed</div>
+          <div class="eligibility-check elig-fail">❌ Assessment order pass ho chuka ho — NOT allowed</div>
+          <div class="eligibility-check elig-warn">⚠️ Ek AY ke liye sirf EK ITR-U filed ja sakti hai</div>
+          <div class="eligibility-check elig-warn">⚠️ Original ITR filed honi chahiye pehle (ya Sec 139(4) belated)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div>
+      <!-- Calculator -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-calculator"></i> ITR-U Additional Tax Calculator</div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="fg">
+              <label>Assessment Year</label>
+              <select id="ayYear" onchange="calcAdditionalTax()">
+                <option value="2026-27">AY 2026-27 (FY 2025-26)</option>
+                <option value="2025-26">AY 2025-26 (FY 2024-25)</option>
+                <option value="2024-25">AY 2024-25 (FY 2023-24)</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Filing Month (Today)</label>
+              <select id="filingMonth" onchange="calcAdditionalTax()">
+                <option value="1">January 2026</option>
+                <option value="2">February 2026</option>
+                <option value="3">March 2026</option>
+                <option value="4">April 2026</option>
+                <option value="5">May 2026</option>
+                <option value="6">June 2026</option>
+                <option value="7" selected>July 2026</option>
+                <option value="8">August 2026</option>
+                <option value="9">September 2026</option>
+                <option value="10">October 2026</option>
+                <option value="11">November 2026</option>
+                <option value="12">December 2026</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="fg">
+              <label>Tax in Original Return (₹)</label>
+              <input type="number" id="origTax" placeholder="0" value="52000" oninput="calcAdditionalTax()"/>
+            </div>
+            <div class="fg">
+              <label>Tax as per Updated Return (₹)</label>
+              <input type="number" id="updatedTax" placeholder="0" value="85000" oninput="calcAdditionalTax()"/>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="fg">
+              <label>Interest u/s 234A/B/C (₹)</label>
+              <input type="number" id="interest234" placeholder="0" value="3600" oninput="calcAdditionalTax()"/>
+            </div>
+            <div class="fg">
+              <label>TDS/TCS already paid (₹)</label>
+              <input type="number" id="tdsPaid" placeholder="0" value="52000" oninput="calcAdditionalTax()"/>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%" onclick="calcAdditionalTax()">
+            <i class="fa fa-calculator"></i> Calculate Additional Tax
+          </button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="resultSection" style="display:none">
+        <div class="result-big">
+          <div class="amount" id="totalPayable">₹0</div>
+          <div class="label">Total Amount Payable (Tax + Interest + Additional Tax)</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1rem">
+          <div class="tax-band">
+            <div class="label">Additional Tax Rate</div>
+            <div class="value" id="addlRate">25%</div>
+          </div>
+          <div class="tax-band">
+            <div class="label">Additional Tax</div>
+            <div class="value" id="addlTax" style="color:var(--danger)">₹0</div>
+          </div>
+          <div class="tax-band">
+            <div class="label">Window Status</div>
+            <div class="value" id="windowStatus" style="color:var(--success)">Open</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header"><i class="fa fa-list"></i> Computation Breakdown</div>
+          <div class="card-body" id="breakdownBody" style="font-size:.82rem"></div>
+        </div>
+      </div>
+
+      <!-- Filing Steps -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header"><i class="fa fa-route"></i> ITR-U Filing Steps</div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.82rem">
+            <div style="background:var(--bg-secondary);padding:.65rem .85rem;border-radius:var(--radius-sm);display:flex;gap:.5rem">
+              <span style="color:var(--primary);font-weight:700;min-width:22px">1.</span>
+              <span>Login → <a href="https://www.incometax.gov.in" target="_blank" style="color:var(--primary)">incometax.gov.in</a> → e-File → Income Tax Returns → File ITR</span>
+            </div>
+            <div style="background:var(--bg-secondary);padding:.65rem .85rem;border-radius:var(--radius-sm);display:flex;gap:.5rem">
+              <span style="color:var(--primary);font-weight:700;min-width:22px">2.</span>
+              <span>Select AY → ITR Form → Filing Type: <strong>"Updated Return u/s 139(8A)"</strong></span>
+            </div>
+            <div style="background:var(--bg-secondary);padding:.65rem .85rem;border-radius:var(--radius-sm);display:flex;gap:.5rem">
+              <span style="color:var(--primary);font-weight:700;min-width:22px">3.</span>
+              <span>Select reason for updating → Fill corrected income details → Compute tax</span>
+            </div>
+            <div style="background:var(--bg-secondary);padding:.65rem .85rem;border-radius:var(--radius-sm);display:flex;gap:.5rem">
+              <span style="color:var(--primary);font-weight:700;min-width:22px">4.</span>
+              <span>Pay additional tax via Challan 280 (Self Assessment) → Enter BSR code</span>
+            </div>
+            <div style="background:rgba(16,185,129,.06);padding:.65rem .85rem;border-radius:var(--radius-sm);border:1px solid rgba(16,185,129,.2);display:flex;gap:.5rem">
+              <span style="color:var(--success);font-weight:700;min-width:22px">5.</span>
+              <span>Submit → E-verify with Aadhaar OTP / Net Banking → Download ITR-V</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AY Deadlines -->
+      <div class="card">
+        <div class="card-header"><i class="fa fa-calendar-alt"></i> ITR-U Filing Deadlines</div>
+        <div class="card-body">
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:.8rem">
+              <thead>
+                <tr style="background:var(--bg-secondary)">
+                  <th style="padding:.5rem .75rem;text-align:left;border-bottom:2px solid var(--border)">AY</th>
+                  <th style="padding:.5rem .75rem;text-align:left;border-bottom:2px solid var(--border)">25% Deadline</th>
+                  <th style="padding:.5rem .75rem;text-align:left;border-bottom:2px solid var(--border)">50% Deadline</th>
+                  <th style="padding:.5rem .75rem;text-align:left;border-bottom:2px solid var(--border)">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">AY 2024-25</td>
+                  <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">31-Mar-2026</td>
+                  <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">31-Mar-2027</td>
+                  <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="color:#d97706;font-weight:700">⏳ 50% Window</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">AY 2025-26</td>
+                  <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">31-Mar-2027</td>
+                  <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)">31-Mar-2028</td>
+                  <td style="padding:.5rem .75rem;border-bottom:1px solid var(--border)"><span style="color:var(--success);font-weight:700">✅ 25% Window Open</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:.5rem .75rem">AY 2026-27</td>
+                  <td style="padding:.5rem .75rem">31-Mar-2028</td>
+                  <td style="padding:.5rem .75rem">31-Mar-2029</td>
+                  <td style="padding:.5rem .75rem"><span style="color:var(--success);font-weight:700">✅ 25% Window Open</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+var selectedReason = 'income_not_reported';
+
+function selectReason(el, reason) {
+  document.querySelectorAll('.reason-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedReason = reason;
+}
+
+function calcAdditionalTax() {
+  var ay = document.getElementById('ayYear').value;
+  var filingMonth = parseInt(document.getElementById('filingMonth').value);
+  var origTax = parseFloat(document.getElementById('origTax').value) || 0;
+  var updatedTax = parseFloat(document.getElementById('updatedTax').value) || 0;
+  var interest234 = parseFloat(document.getElementById('interest234').value) || 0;
+  var tdsPaid = parseFloat(document.getElementById('tdsPaid').value) || 0;
+
+  if (updatedTax <= origTax) {
+    showToast('Updated tax must be MORE than original tax for ITR-U', 'warning');
+    return;
+  }
+
+  // Determine additional tax rate based on AY and filing month
+  // AY end = March 31 of that year
+  var ayEndYear = parseInt(ay.split('-')[0]);
+  var window1End = new Date(ayEndYear + 1, 2, 31); // 12 months from end of AY
+  var window2End = new Date(ayEndYear + 2, 2, 31); // 24 months
+  var today = new Date(2026, filingMonth - 1, 15); // approximate
+
+  var rate = 0;
+  var windowStatus = '';
+  if (today <= window1End) {
+    rate = 0.25;
+    windowStatus = '✅ 25% Window';
+  } else if (today <= window2End) {
+    rate = 0.50;
+    windowStatus = '⚠️ 50% Window';
+  } else {
+    rate = -1;
+    windowStatus = '❌ CLOSED';
+  }
+
+  if (rate === -1) {
+    showToast('ITR-U window closed for this AY. 24 months elapsed.', 'error');
+    document.getElementById('windowStatus').textContent = '❌ Closed';
+    document.getElementById('windowStatus').style.color = 'var(--danger)';
+    return;
+  }
+
+  // Computation
+  var taxDiff = updatedTax - origTax;
+  var netTaxDiff = Math.max(0, taxDiff - tdsPaid + origTax - tdsPaid); // simplified
+  var taxPayable = Math.max(0, updatedTax - tdsPaid);
+  var baseForAddl = taxPayable + interest234;
+  var additionalTax = Math.round(baseForAddl * rate);
+  var totalPayable = taxPayable + interest234 + additionalTax;
+
+  // Update UI
+  document.getElementById('resultSection').style.display = 'block';
+  document.getElementById('totalPayable').textContent = '₹' + fmtN(totalPayable);
+  document.getElementById('addlRate').textContent = (rate * 100) + '%';
+  document.getElementById('addlTax').textContent = '₹' + fmtN(additionalTax);
+  document.getElementById('windowStatus').textContent = windowStatus;
+  document.getElementById('windowStatus').style.color = rate === 0.25 ? 'var(--success)' : '#d97706';
+
+  // Breakdown
+  document.getElementById('breakdownBody').innerHTML = [
+    `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border)"><span>Tax as per Updated Return</span><strong>₹${fmtN(updatedTax)}</strong></div>`,
+    `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border)"><span>(–) Tax in Original Return</span><span style="color:var(--success)">–₹${fmtN(origTax)}</span></div>`,
+    `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border)"><span>(–) TDS/TCS already paid</span><span style="color:var(--success)">–₹${fmtN(tdsPaid)}</span></div>`,
+    `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border)"><span>Interest u/s 234A/B/C</span><strong>₹${fmtN(interest234)}</strong></div>`,
+    `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:2px solid var(--primary)"><span>Base for Additional Tax</span><strong>₹${fmtN(baseForAddl)}</strong></div>`,
+    `<div style="display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border)"><span>Additional Tax @ ${rate*100}%</span><strong style="color:var(--danger)">₹${fmtN(additionalTax)}</strong></div>`,
+    `<div style="display:flex;justify-content:space-between;padding:.5rem 0;font-size:.92rem;font-weight:800;color:var(--primary)"><span>TOTAL PAYABLE</span><span>₹${fmtN(totalPayable)}</span></div>`,
+    `<div style="margin-top:.5rem;padding:.65rem;background:rgba(30,64,175,.06);border-radius:var(--radius-sm);font-size:.75rem;color:var(--text-secondary)">Pay via Challan 280 → Self Assessment Tax → Minor Head 300. Add BSR code + date in ITR-U.</div>`
+  ].join('');
+}
+
+function fmtN(n) { return Math.round(n).toLocaleString('en-IN'); }
+
+// Auto-calculate on load
+window.addEventListener('DOMContentLoaded', calcAdditionalTax);
+</script>
+</body>
+</html>

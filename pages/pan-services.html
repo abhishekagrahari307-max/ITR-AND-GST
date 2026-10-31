@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="author" content="Abhishek Agrahari"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="PAN Services — New PAN Application, PAN Correction, PAN-Aadhaar Linking Status, PAN Verification, e-PAN Download. TaxMitra AI Enterprise."/>
+<title>PAN Services – TaxMitra AI Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css"/>
+<link rel="stylesheet" href="../css/responsive.css"/>
+<style>
+.pan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+@media(max-width:900px){.pan-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.pan-grid{grid-template-columns:1fr}}
+.pan-service-card{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:1.25rem;cursor:pointer;transition:var(--transition);text-align:center}
+.pan-service-card:hover{border-color:var(--primary);transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.pan-service-card .icon{font-size:2rem;margin-bottom:.65rem}
+.pan-service-card h3{font-size:.92rem;font-weight:700;margin:0 0 .25rem}
+.pan-service-card p{font-size:.72rem;color:var(--text-muted);margin:0}
+.pan-card-visual{background:linear-gradient(135deg,#1e3a8a,#2563eb);border-radius:12px;padding:1.25rem 1.5rem;color:#fff;position:relative;overflow:hidden;margin-bottom:1rem}
+.pan-card-visual::before{content:'INCOME TAX DEPARTMENT';position:absolute;top:.5rem;right:1rem;font-size:.55rem;opacity:.4;letter-spacing:.5px}
+.pan-number{font-size:1.4rem;font-weight:900;letter-spacing:4px;font-family:monospace;margin:.65rem 0 .25rem}
+.pan-name{font-size:.78rem;opacity:.8}
+.pan-dob{font-size:.72rem;opacity:.6;margin-top:.1rem}
+.pan-chip{width:36px;height:26px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:4px;margin-bottom:.5rem}
+.fg{display:flex;flex-direction:column;gap:.2rem;margin-bottom:.65rem}
+.fg label{font-size:.72rem;font-weight:600;color:var(--text-secondary)}
+.fg input,.fg select{padding:.42rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.82rem;font-family:inherit;transition:var(--transition)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary)}
+.verify-result{padding:1rem;border-radius:var(--radius-sm);margin-top:.85rem;font-size:.85rem;display:none}
+.verify-valid{background:rgba(16,185,129,.08);border:1.5px solid var(--success)}
+.verify-invalid{background:rgba(239,68,68,.08);border:1.5px solid var(--danger)}
+.link-status{padding:.85rem;border-radius:var(--radius-sm);font-size:.82rem;display:flex;align-items:center;gap:.65rem;margin-top:.75rem}
+.link-linked{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3)}
+.link-pending{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3)}
+.link-not-linked{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;font-size:.8rem}
+@media(max-width:600px){.info-grid{grid-template-columns:1fr}}
+.info-item{background:var(--bg-secondary);padding:.75rem;border-radius:var(--radius-sm)}
+.info-item strong{display:block;margin-bottom:.2rem;font-size:.75rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.3px}
+.step-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.4rem}
+.step-list li{display:flex;gap:.5rem;font-size:.8rem;padding:.4rem 0;border-bottom:1px solid var(--border);color:var(--text-secondary)}
+.step-list li:last-child{border-bottom:none}
+.step-list .num{width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0}
+.pan-format-guide{background:rgba(30,64,175,.06);border:1px solid rgba(30,64,175,.2);border-radius:var(--radius-sm);padding:.85rem;font-size:.82rem;margin-bottom:1rem}
+</style>
+</head>
+<body>
+<nav class="navbar-main" id="mainNav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div>
+    </a>
+    <div class="nav-links-wrapper" id="navLinksWrapper">
+      <ul class="nav-links">
+        <li><a href="../index.html" class="nav-link">🏠 Home</a></li>
+        <li><a href="itr-form.html" class="nav-link">📋 ITR</a></li>
+        <li><a href="gst.html" class="nav-link">🧾 GST</a></li>
+        <li><a href="calculators.html" class="nav-link">🔢 Calc</a></li>
+        <li><a href="computation.html" class="nav-link">🧮 Compute</a></li>
+        <li><a href="tds-payroll.html" class="nav-link">💼 TDS</a></li>
+        <li><a href="dashboard.html" class="nav-link">📊 Dashboard</a></li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <button class="nav-icon-btn" id="themeToggle" title="Dark/Light Mode">🌙</button>
+      <a href="setup.html" class="nav-icon-btn" title="Setup AI Key" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-radius:var(--radius-sm);width:auto;padding:.28rem .55rem;font-size:.8rem;font-weight:700">🔑</a>
+      <a href="ai-assistant.html" class="btn-nav-ai"><i class="fa fa-robot"></i> AI</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:72px">
+  <div style="padding:1.5rem 0 .75rem">
+    <nav style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem">
+      <a href="../index.html" style="color:var(--text-muted)">Home</a> › 
+      <span style="color:var(--primary)">PAN Services</span>
+    </nav>
+    <h1 style="font-size:1.65rem;font-weight:900;margin:0 0 .3rem">🪪 PAN Services Center</h1>
+    <p style="color:var(--text-secondary);font-size:.88rem;margin:0">New PAN · Correction · Aadhaar Link · Verify · e-PAN Download · Status Check | Dev: Abhishek Agrahari</p>
+  </div>
+
+  <!-- Service Cards -->
+  <div class="pan-grid">
+    <div class="pan-service-card" onclick="showSection('verify')">
+      <div class="icon">🔍</div>
+      <h3>PAN Verify</h3>
+      <p>Validate PAN format & get basic details</p>
+    </div>
+    <div class="pan-service-card" onclick="showSection('aadhaar-link')">
+      <div class="icon">🔗</div>
+      <h3>Aadhaar-PAN Link</h3>
+      <p>Check status & link Aadhaar to PAN</p>
+    </div>
+    <div class="pan-service-card" onclick="showSection('new-pan')">
+      <div class="icon">🆕</div>
+      <h3>New PAN Apply</h3>
+      <p>Form 49A (Individuals) / 49AA (Foreign)</p>
+    </div>
+    <div class="pan-service-card" onclick="showSection('correction')">
+      <div class="icon">✏️</div>
+      <h3>PAN Correction</h3>
+      <p>Name, DOB, address correction in PAN</p>
+    </div>
+    <div class="pan-service-card" onclick="showSection('epan')">
+      <div class="icon">📥</div>
+      <h3>e-PAN Download</h3>
+      <p>Download instant e-PAN from IT Portal</p>
+    </div>
+    <div class="pan-service-card" onclick="showSection('status')">
+      <div class="icon">📍</div>
+      <h3>Application Status</h3>
+      <p>Track PAN application status by acknowledgement</p>
+    </div>
+  </div>
+
+  <!-- PAN Format Guide -->
+  <div class="pan-format-guide">
+    <strong>📌 PAN Format:</strong> 10 alphanumeric characters — AAAAA9999A<br>
+    • Characters 1-3: Series (any 3 alphabets)<br>
+    • Character 4: Type — <strong>P</strong>=Person, <strong>C</strong>=Company, <strong>H</strong>=HUF, <strong>F</strong>=Firm, <strong>A</strong>=AOP, <strong>T</strong>=Trust, <strong>B</strong>=BOI, <strong>L</strong>=Local, <strong>J</strong>=AJP, <strong>G</strong>=Govt<br>
+    • Character 5: First letter of surname<br>
+    • Characters 6-9: Sequential number (0001-9999)<br>
+    • Character 10: Check digit (alphabet)
+  </div>
+
+  <!-- Section: Verify -->
+  <div id="section-verify" class="card" style="margin-bottom:1rem">
+    <div class="card-header"><i class="fa fa-search"></i> PAN Verification</div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start">
+        <div>
+          <div class="fg">
+            <label>Enter PAN Number</label>
+            <input type="text" id="panInput" placeholder="ABCDE1234F" maxlength="10" oninput="this.value=this.value.toUpperCase();verifyPAN()"/>
+          </div>
+          <div class="fg">
+            <label>Registered Name (optional)</label>
+            <input type="text" id="panName" placeholder="As on PAN card"/>
+          </div>
+          <div class="fg">
+            <label>Date of Birth</label>
+            <input type="date" id="panDOB"/>
+          </div>
+          <button class="btn btn-primary" onclick="verifyPAN()"><i class="fa fa-check"></i> Verify PAN</button>
+          
+          <div class="verify-result" id="verifyResult">
+            <div id="verifyContent"></div>
+          </div>
+        </div>
+        <div>
+          <!-- PAN Card Visual -->
+          <div class="pan-card-visual" id="panCardVisual">
+            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem">
+              <div class="pan-chip"></div>
+              <div>
+                <div style="font-size:.65rem;opacity:.6;letter-spacing:1px">INCOME TAX DEPARTMENT</div>
+                <div style="font-size:.7rem;font-weight:700">GOVT. OF INDIA</div>
+              </div>
+              <div style="margin-left:auto;font-size:1.25rem">🇮🇳</div>
+            </div>
+            <div class="pan-name" id="displayPanName">YOUR NAME</div>
+            <div class="pan-dob" id="displayPanDOB">DOB: DD/MM/YYYY</div>
+            <div class="pan-number" id="displayPAN">ABCDE 1234 F</div>
+            <div style="font-size:.58rem;opacity:.5;margin-top:.5rem">Permanent Account Number</div>
+          </div>
+          <button class="btn" style="width:100%;background:var(--success);color:#fff;margin-top:.5rem" onclick="updateCardVisual()">
+            <i class="fa fa-id-card"></i> Preview Card
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Aadhaar Link -->
+  <div id="section-aadhaar-link" class="card" style="margin-bottom:1rem;display:none">
+    <div class="card-header"><i class="fa fa-link"></i> Aadhaar-PAN Linking</div>
+    <div class="card-body">
+      <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius-sm);padding:.85rem;font-size:.82rem;margin-bottom:1rem">
+        <strong>⚠️ Important:</strong> Aadhaar-PAN linking deadline already passed (June 30, 2023). If not linked, PAN is inoperative. Fine: ₹1,000. Link now to avoid higher TDS (20%) and other issues.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <div class="fg"><label>PAN Number</label><input type="text" id="linkPAN" placeholder="ABCDE1234F" maxlength="10" oninput="this.value=this.value.toUpperCase()"/></div>
+          <div class="fg"><label>Aadhaar Number (12 digits)</label><input type="text" id="linkAadhaar" placeholder="1234 5678 9012" maxlength="14" oninput="formatAadhaar(this)"/></div>
+          <div class="fg"><label>Name as per Aadhaar</label><input type="text" id="linkName" placeholder="Your Name"/></div>
+          <div class="fg"><label>Mobile (OTP will be sent)</label><input type="tel" id="linkMobile" placeholder="10-digit mobile"/></div>
+          <button class="btn btn-primary" onclick="checkLinkStatus()"><i class="fa fa-search"></i> Check Status</button>
+          <button class="btn" style="background:var(--success);color:#fff;margin-left:.5rem;margin-top:.5rem" onclick="openLinkPortal()"><i class="fa fa-external-link-alt"></i> Link on Portal</button>
+        </div>
+        <div>
+          <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.65rem">Steps to Link Online</h4>
+          <ul class="step-list">
+            <li><span class="num">1</span>Go to <a href="https://www.incometax.gov.in/iec/foportal/help/how-to-link-aadhaar-with-pan" target="_blank" style="color:var(--primary)">IT Portal</a></li>
+            <li><span class="num">2</span>Click Quick Links → Link Aadhaar</li>
+            <li><span class="num">3</span>Enter PAN + Aadhaar + Name</li>
+            <li><span class="num">4</span>Pay ₹1,000 via challan if deadline missed</li>
+            <li><span class="num">5</span>Submit — OTP verification</li>
+            <li><span class="num">6</span>Linking completes within 10 days</li>
+          </ul>
+          <div id="linkStatusResult" class="link-status" style="display:none">
+            <span id="linkStatusIcon" style="font-size:1.25rem"></span>
+            <div id="linkStatusText"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: New PAN -->
+  <div id="section-new-pan" class="card" style="margin-bottom:1rem;display:none">
+    <div class="card-header"><i class="fa fa-plus-circle"></i> Apply for New PAN — Form 49A</div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.65rem">Who Should Apply?</h4>
+          <div class="info-grid">
+            <div class="info-item"><strong>Individual</strong>Indian citizens — Form 49A</div>
+            <div class="info-item"><strong>Foreign</strong>Non-citizens — Form 49AA</div>
+            <div class="info-item"><strong>Company</strong>At incorporation time</div>
+            <div class="info-item"><strong>HUF</strong>Hindu Undivided Family</div>
+          </div>
+          <h4 style="font-size:.85rem;font-weight:700;margin:.85rem 0 .5rem">Required Documents</h4>
+          <ul class="step-list">
+            <li><span class="num">✓</span>Proof of Identity (Aadhaar / Passport / Voter ID)</li>
+            <li><span class="num">✓</span>Proof of Address (Aadhaar / Utility Bill)</li>
+            <li><span class="num">✓</span>Proof of DOB (Birth Certificate / Matric certificate)</li>
+            <li><span class="num">✓</span>2 passport size photographs</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.65rem">Application Modes</h4>
+          <div style="display:flex;flex-direction:column;gap:.5rem">
+            <div style="background:rgba(30,64,175,.06);border:1px solid rgba(30,64,175,.2);border-radius:var(--radius-sm);padding:.75rem">
+              <div style="font-weight:700;font-size:.85rem;margin-bottom:.2rem">🌐 Instant e-PAN (Aadhaar-based)</div>
+              <div style="font-size:.78rem;color:var(--text-secondary)">Free, instant, paperless — only if Aadhaar linked to mobile. Get e-PAN in minutes.</div>
+              <a href="https://www.incometax.gov.in/iec/foportal/help/how-to-apply-for-pan" target="_blank" class="btn btn-primary" style="display:inline-flex;margin-top:.5rem;font-size:.78rem">Apply Online →</a>
+            </div>
+            <div style="background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.75rem">
+              <div style="font-weight:700;font-size:.85rem;margin-bottom:.2rem">🏢 NSDL / UTIITSL Online</div>
+              <div style="font-size:.78rem;color:var(--text-secondary)">Fee: ₹107 (Indian address) | ₹1,017 (foreign). Physical PAN card dispatched in 15-20 days.</div>
+              <div style="display:flex;gap:.4rem;margin-top:.5rem">
+                <a href="https://www.onlineservices.nsdl.com/paam/endUserRegisterContact.html" target="_blank" class="btn" style="background:var(--primary);color:#fff;font-size:.72rem">NSDL →</a>
+                <a href="https://www.utiitsl.com/UTIITSL_SITE/pan/panOnline.html" target="_blank" class="btn" style="background:#7c3aed;color:#fff;font-size:.72rem">UTIITSL →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: e-PAN Download -->
+  <div id="section-epan" class="card" style="margin-bottom:1rem;display:none">
+    <div class="card-header"><i class="fa fa-download"></i> e-PAN Download</div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <div class="fg"><label>PAN Number</label><input type="text" id="epanPAN" placeholder="ABCDE1234F" maxlength="10" oninput="this.value=this.value.toUpperCase()"/></div>
+          <div class="fg"><label>Aadhaar Number</label><input type="text" id="epanAadhaar" placeholder="1234 5678 9012"/></div>
+          <div class="fg"><label>Date of Birth</label><input type="date" id="epanDOB"/></div>
+          <button class="btn btn-primary" onclick="downloadEPAN()"><i class="fa fa-download"></i> Download e-PAN</button>
+          <div style="margin-top:.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.65rem;font-size:.78rem;color:var(--text-secondary)">
+            e-PAN PDF format mein download hoga. IT Portal par OTP verification lagega. <a href="https://www.incometax.gov.in/iec/foportal/help/how-to-download-e-pan" target="_blank" style="color:var(--primary)">IT Portal par jaayein →</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.65rem">e-PAN Features</h4>
+          <ul class="step-list">
+            <li><span class="num">✓</span>Free download from IT Portal</li>
+            <li><span class="num">✓</span>PDF format — valid everywhere</li>
+            <li><span class="num">✓</span>Includes QR code for verification</li>
+            <li><span class="num">✓</span>Same as physical PAN — legally valid</li>
+            <li><span class="num">✓</span>Available 3 times free; after that ₹8.26</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Status -->
+  <div id="section-status" class="card" style="margin-bottom:1rem;display:none">
+    <div class="card-header"><i class="fa fa-map-marker-alt"></i> PAN Application Status</div>
+    <div class="card-body">
+      <div class="fg"><label>Acknowledgement Number (15 digits)</label><input type="text" id="panAckNo" placeholder="012345678901234" maxlength="15"/></div>
+      <button class="btn btn-primary" onclick="checkPANStatus()"><i class="fa fa-search"></i> Check Status</button>
+      <div style="margin-top:.85rem;background:var(--bg-secondary);border-radius:var(--radius-sm);padding:.85rem;font-size:.8rem;color:var(--text-secondary)">
+        <strong>Track on Official Portals:</strong><br>
+        • <a href="https://tin.tin.nsdl.com/pantan/StatusTrack.html" target="_blank" style="color:var(--primary)">NSDL Status Track →</a><br>
+        • <a href="https://www.trackpan.utiitsl.com/PANONLINE/" target="_blank" style="color:var(--primary)">UTIITSL Status Track →</a><br>
+        • <a href="https://www.incometax.gov.in" target="_blank" style="color:var(--primary)">IT Portal — Know Your PAN →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Correction -->
+  <div id="section-correction" class="card" style="margin-bottom:1rem;display:none">
+    <div class="card-header"><i class="fa fa-edit"></i> PAN Correction / Update</div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div>
+          <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">What Can Be Corrected?</h4>
+          <ul class="step-list">
+            <li><span class="num">✓</span>Name correction (spelling mistake)</li>
+            <li><span class="num">✓</span>Date of Birth correction</li>
+            <li><span class="num">✓</span>Father's name correction</li>
+            <li><span class="num">✓</span>Address update</li>
+            <li><span class="num">✓</span>Photo update</li>
+            <li><span class="num">✓</span>Signature update</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="font-size:.85rem;font-weight:700;margin-bottom:.5rem">How to Correct</h4>
+          <ul class="step-list">
+            <li><span class="num">1</span>Go to NSDL/UTIITSL → "Changes/Correction in PAN"</li>
+            <li><span class="num">2</span>Fill correction form (49A type)</li>
+            <li><span class="num">3</span>Upload supporting documents</li>
+            <li><span class="num">4</span>Pay ₹107 (Indian) or ₹1,017 (foreign)</li>
+            <li><span class="num">5</span>Submit — new PAN card dispatched in 15-20 days</li>
+          </ul>
+          <div style="margin-top:.65rem;display:flex;gap:.4rem;flex-wrap:wrap">
+            <a href="https://www.onlineservices.nsdl.com/paam/endUserRegisterContact.html" target="_blank" class="btn" style="background:var(--primary);color:#fff;font-size:.78rem"><i class="fa fa-external-link-alt"></i> NSDL Correction</a>
+            <a href="https://www.utiitsl.com" target="_blank" class="btn" style="background:#7c3aed;color:#fff;font-size:.78rem"><i class="fa fa-external-link-alt"></i> UTIITSL</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
+
+<script src="../js/firebase-config.js"></script>
+<script src="../js/taxmitra.js"></script>
+<script>
+function showSection(id) {
+  ['verify','aadhaar-link','new-pan','correction','epan','status'].forEach(function(s) {
+    var el = document.getElementById('section-' + s);
+    if (el) el.style.display = 'none';
+  });
+  var target = document.getElementById('section-' + id);
+  if (target) {
+    target.style.display = 'block';
+    target.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+
+function verifyPAN() {
+  var pan = document.getElementById('panInput').value.trim().toUpperCase();
+  var result = document.getElementById('verifyResult');
+  var content = document.getElementById('verifyContent');
+  
+  if (pan.length < 10) { result.style.display = 'none'; return; }
+  
+  // Validate format: AAAAA9999A
+  var panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+  if (!panRegex.test(pan)) {
+    result.className = 'verify-result verify-invalid';
+    result.style.display = 'block';
+    content.innerHTML = '❌ <strong>Invalid PAN Format</strong><br>PAN must be 10 chars: 5 letters + 4 digits + 1 letter<br>Example: ABCDE1234F';
+    return;
+  }
+  
+  // Determine type from 4th character
+  var typeMap = {P:'Individual Person',C:'Company',H:'HUF (Hindu Undivided Family)',F:'Firm/Partnership',A:'AOP (Association of Persons)',T:'Trust',B:'BOI (Body of Individuals)',L:'Local Authority',J:'AJP (Artificial Juridical Person)',G:'Government Entity'};
+  var panType = typeMap[pan[3]] || 'Unknown Entity';
+  var surname = pan[4];
+  
+  result.className = 'verify-result verify-valid';
+  result.style.display = 'block';
+  content.innerHTML = '✅ <strong>Valid PAN Format</strong><br>' +
+    '• Type: <strong>' + panType + '</strong><br>' +
+    '• Surname Initial: <strong>' + surname + '</strong><br>' +
+    '• Sequence: <strong>' + pan.slice(5,9) + '</strong><br>' +
+    '• Series: <strong>' + pan.slice(0,3) + '</strong><br>' +
+    '<small style="color:var(--text-muted)">Note: Format valid. For actual verification of name/status, visit IT Portal.</small>';
+  
+  updateCardVisual();
+}
+
+function updateCardVisual() {
+  var pan = document.getElementById('panInput').value.trim().toUpperCase() || 'ABCDE1234F';
+  var name = document.getElementById('panName').value.trim().toUpperCase() || 'YOUR NAME';
+  var dob = document.getElementById('panDOB').value;
+  
+  document.getElementById('displayPAN').textContent = pan.slice(0,5) + ' ' + pan.slice(5,9) + ' ' + pan.slice(9);
+  document.getElementById('displayPanName').textContent = name;
+  if (dob) {
+    var d = new Date(dob);
+    document.getElementById('displayPanDOB').textContent = 'DOB: ' + d.toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
+  }
+}
+
+function formatAadhaar(el) {
+  var val = el.value.replace(/\D/g,'').slice(0,12);
+  el.value = val.replace(/(\d{4})(?=\d)/g,'$1 ');
+}
+
+function checkLinkStatus() {
+  var pan = document.getElementById('linkPAN').value.trim();
+  var aadhaar = document.getElementById('linkAadhaar').value.replace(/\s/g,'');
+  
+  if (!pan || !aadhaar) { showToast('PAN aur Aadhaar dono enter karein', 'warning'); return; }
+  if (pan.length !== 10) { showToast('Valid PAN enter karein', 'warning'); return; }
+  if (aadhaar.length !== 12) { showToast('Valid 12-digit Aadhaar enter karein', 'warning'); return; }
+  
+  // Simulate status check (in production: API call to IT Portal)
+  var result = document.getElementById('linkStatusResult');
+  result.style.display = 'flex';
+  // Randomly show different statuses for demo
+  var statuses = ['linked','pending','not-linked'];
+  var status = statuses[Math.floor(Math.random() * statuses.length)];
+  
+  if (status === 'linked') {
+    result.className = 'link-status link-linked';
+    document.getElementById('linkStatusIcon').textContent = '✅';
+    document.getElementById('linkStatusText').innerHTML = '<strong>Linked!</strong><br>PAN ' + pan + ' Aadhaar se linked hai. No action needed.';
+  } else if (status === 'pending') {
+    result.className = 'link-status link-pending';
+    document.getElementById('linkStatusIcon').textContent = '⏳';
+    document.getElementById('linkStatusText').innerHTML = '<strong>Linking Pending</strong><br>Request submitted. 10-15 days mein complete hoga.';
+  } else {
+    result.className = 'link-status link-not-linked';
+    document.getElementById('linkStatusIcon').textContent = '❌';
+    document.getElementById('linkStatusText').innerHTML = '<strong>Not Linked</strong><br>PAN inoperative. ₹1,000 fee ke saath link karein IT Portal par.';
+  }
+  
+  showToast('Status check ke liye IT Portal par verify karein', 'info');
+}
+
+function openLinkPortal() {
+  window.open('https://www.incometax.gov.in/iec/foportal/help/how-to-link-aadhaar-with-pan', '_blank');
+  showToast('IT Portal opening...', 'info');
+}
+
+function downloadEPAN() {
+  var pan = document.getElementById('epanPAN').value.trim();
+  if (!pan || pan.length !== 10) { showToast('Valid PAN enter karein', 'warning'); return; }
+  window.open('https://www.incometax.gov.in/iec/foportal/help/how-to-download-e-pan', '_blank');
+  showToast('IT Portal par jaayein e-PAN download karne ke liye', 'info');
+}
+
+function checkPANStatus() {
+  var ack = document.getElementById('panAckNo').value.trim();
+  if (!ack || ack.length !== 15) { showToast('15-digit acknowledgement number enter karein', 'warning'); return; }
+  window.open('https://tin.tin.nsdl.com/pantan/StatusTrack.html', '_blank');
+  showToast('NSDL status portal opening...', 'info');
+}
+
+// Initialize with verify section visible
+window.addEventListener('DOMContentLoaded', function() {
+  // All sections visible initially
+});
+</script>
+</body>
+</html>

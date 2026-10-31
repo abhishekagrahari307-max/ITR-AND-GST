@@ -3,7 +3,17 @@
    Connects frontend to NestJS backend
    =================================================== */
 
-const API_BASE = window.TAXMITRA_API_URL || 'http://localhost:3001/api/v1';
+/* Resolve the API base without hardcoding a dev machine.
+   Order: explicit override → same-origin /api/v1 (works behind a reverse proxy)
+   → none. When no backend is configured the client fails fast and offline
+   instead of firing requests at a developer address from a visitor's browser. */
+const API_BASE = (function () {
+  if (window.TAXMITRA_API_URL) return String(window.TAXMITRA_API_URL).replace(/\/$/, '');
+  if (window.TAXMITRA_BACKEND_ENABLED === true) return window.location.origin + '/api/v1';
+  return ''; // no backend configured – apiRequest() will reject with a clear message
+})();
+
+const BACKEND_ENABLED = !!API_BASE;
 
 // ─── Token Management ───────────────────────────────────────────────────────
 const Auth = {
@@ -19,6 +29,12 @@ const Auth = {
 
 // ─── Base Fetch Wrapper ────────────────────────────────────────────────────
 async function apiRequest(endpoint, options = {}) {
+  if (!BACKEND_ENABLED) {
+    // Static deployment: say so plainly instead of a confusing network error.
+    const err = new Error('This page is running without the TaxMitra backend. Local-first tools (Billing, ITR Wizard, Calculators) work offline; accounts need the NestJS backend from backend/.');
+    err.code = 'BACKEND_UNAVAILABLE';
+    throw err;
+  }
   const token = Auth.getToken();
   const headers = {
     'Content-Type': 'application/json',
