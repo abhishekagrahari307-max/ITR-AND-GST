@@ -854,6 +854,130 @@ async function itrCentreTests() {
   dom.window.close();
 }
 
+
+async function itcReconTests() {
+  console.log('\nITC reconciliation page');
+  var dom = await loadPage('pages/itc-recon.html');
+  var window = dom.window;
+  var document = window.document;
+
+  await check('scripts load without a page error', function () {
+    equal((window.__errors || []).length, 0, 'page errors: ' + (window.__errors || []).join(' | '));
+    assert(window.TMGSTRecon, 'gst-recon.js should be loaded');
+    assert(window.TMITCRecon, 'itc-recon.js should be loaded');
+  });
+
+  await check('the page starts empty with no result shown', function () {
+    equal(document.getElementById('booksInput').value, '');
+    equal(document.getElementById('portalInput').value, '');
+    equal(document.getElementById('resultSection').hidden, true);
+    equal(document.getElementById('csvBtn').disabled, true);
+    equal(document.getElementById('inputMsg').textContent.indexOf('Nothing pasted yet') !== -1, true);
+  });
+
+  await check('reconciling nothing is refused instead of inventing a result', function () {
+    click(window, '#reconcileBtn');
+    equal(document.getElementById('resultSection').hidden, true);
+    assert(document.getElementById('inputMsg').textContent.indexOf('Paste at least one document') !== -1);
+  });
+
+  await check('unusable paste gives a readable error', function () {
+    setValue(window, 'booksInput', 'foo,bar\n1,2');
+    click(window, '#reconcileBtn');
+    equal(document.getElementById('resultSection').hidden, true);
+    assert(document.getElementById('inputMsg').textContent.indexOf('Could not read') !== -1);
+  });
+
+  await check('a real reconciliation renders every bucket', function () {
+    setValue(window, 'booksInput', [
+      'GSTIN,Supplier Name,Invoice Number,Invoice Date,Taxable Value,IGST,CGST,SGST',
+      '27AAPFU0939F1ZV,Sharma Traders,INV/001,01/04/2026,100000,0,9000,9000',
+      '29ABCDE1234F1Z5,Karnataka Supplies,INV-002,05/04/2026,50000,9000,0,0',
+      '27AABCU9603R1ZM,Unreported Vendor,INV/003,10/04/2026,20000,0,1800,1800'
+    ].join('\n'));
+    setValue(window, 'portalInput', [
+      'GSTIN,Invoice Number,Invoice Date,Taxable Value,IGST,CGST,SGST',
+      '27AAPFU0939F1ZV,INV001,01-04-2026,100000,0,9000,9000',
+      '29ABCDE1234F1Z5,INV002,05-04-2026,50000,9000,0,0',
+      '33AAGCB1234M1ZP,INV-777,15/04/2026,40000,0,3600,3600'
+    ].join('\n'));
+    click(window, '#reconcileBtn');
+    equal(document.getElementById('resultSection').hidden, false);
+    equal(document.getElementById('csvBtn').disabled, false);
+
+    var kpis = document.getElementById('kpiGrid').textContent;
+    assert(kpis.indexOf('Confirmed ITC') !== -1, 'expected the confirmed KPI');
+    assert(kpis.indexOf('27,000.00') !== -1, 'confirmed credit should be ₹27,000, got: ' + kpis.slice(0, 200));
+    assert(kpis.indexOf('3,600.00') !== -1, 'at-risk credit should be ₹3,600');
+
+    var buckets = document.getElementById('buckets').textContent;
+    ['Matched', 'Only in your books', 'Only in 2B'].forEach(function (label) {
+      assert(buckets.indexOf(label) !== -1, 'missing bucket: ' + label);
+    });
+    assert(buckets.indexOf('Possible risk') === -1 && buckets.indexOf('Unreported Vendor') !== -1, 'the unfiled invoice must be named');
+  });
+
+  await check('the 2B vs books totals are compared head by head', function () {
+    var totals = document.getElementById('totalsBody').textContent;
+    assert(totals.indexOf('IGST') !== -1 && totals.indexOf('Cess') !== -1);
+    assert(totals.indexOf('34,200.00') !== -1, '2B total should be ₹34,200.00, got: ' + totals.slice(0, 260));
+    assert(totals.indexOf('30,600.00') !== -1, 'books total should be ₹30,600.00');
+    assert(totals.indexOf('3,600.00') !== -1, 'the difference should be shown');
+  });
+
+  await check('Rule 88A set-off uses only confirmed credit', function () {
+    setValue(window, 'liabIgst', '5000');
+    setValue(window, 'liabCgst', '4000');
+    setValue(window, 'liabSgst', '4000');
+    click(window, '#setoffBtn');
+    equal(document.getElementById('setoffResult').hidden, false);
+    var text = document.getElementById('setoffBody').textContent;
+    assert(text.indexOf('IGST credit') !== -1, 'expected the IGST credit row');
+    var summary = document.getElementById('setoffSummary').textContent;
+    assert(summary.indexOf('paid in cash') !== -1, 'expected a cash figure');
+    assert(summary.indexOf('excluded on purpose') !== -1, 'the page must state that disputed credit is excluded');
+  });
+
+  await check('the working can be saved and restored', function () {
+    click(window, '#saveBtn');
+    var saved = window.TMStore.read('tm-itc-recon', null);
+    assert(saved, 'expected the working to be stored');
+    assert(saved.books.indexOf('Sharma Traders') !== -1);
+    equal(saved.liability.igst, '5000');
+  });
+
+  await check('clearing removes the paste, the result and the saved copy', function () {
+    click(window, '#clearBtn');
+    equal(document.getElementById('booksInput').value, '');
+    equal(document.getElementById('resultSection').hidden, true);
+    equal(document.getElementById('csvBtn').disabled, true);
+    equal(window.TMStore.read('tm-itc-recon', null), null);
+  });
+
+  await check('"fill from invoices" refuses when there are no saved invoices', function () {
+    window.TMStore.saveList('invoices', []);
+    click(window, '#loadInvoicesBtn');
+    equal(document.getElementById('booksInput').value, '');
+    assert(document.getElementById('inputMsg').textContent.indexOf('no saved invoices') !== -1);
+  });
+
+  await check('"fill from invoices" builds a register from real saved invoices', function () {
+    window.TMStore.saveList('invoices', [{
+      id: 'i1', invoiceNumber: 'PUR/001', invoiceDate: '2026-04-01',
+      buyerName: 'Sharma Traders', supplierGstin: '27AAPFU0939F1ZV',
+      sellerState: '27', buyerState: '27', status: 'unpaid',
+      lines: [{ description: 'Goods', quantity: 1, rate: 1000, gstRate: 18 }]
+    }]);
+    click(window, '#loadInvoicesBtn');
+    var value = document.getElementById('booksInput').value;
+    assert(value.indexOf('27AAPFU0939F1ZV') !== -1, 'the GSTIN should be carried over');
+    assert(value.indexOf('90.00') !== -1, 'CGST should be ₹90.00 for ₹1,000 at 18%', value);
+    assert(value.indexOf('GSTIN,Supplier Name') === 0, 'a header row must be generated');
+  });
+
+  dom.window.close();
+}
+
 (async function main() {
   console.log('TaxMitra browser smoke test (jsdom)');
   console.log('─'.repeat(64));
@@ -865,6 +989,7 @@ async function itrCentreTests() {
     await adminTests();
     await accountTests();
     await itrCentreTests();
+    await itcReconTests();
   } catch (error) {
     results.failed += 1;
     results.failures.push({ name: 'harness', error: error });

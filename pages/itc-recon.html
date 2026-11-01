@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GSTR-2B ↔ Purchase Register Reconciliation (ITC) – TaxMitra</title>
+  <meta name="description" content="Match your purchase register against GSTR-2B, see matched, mismatched and at-risk input tax credit, and work out the Rule 88A set-off order. Everything stays in your browser."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .recon-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.35rem; margin-bottom: 1.25rem; }
+    .recon-card h2 { font-size: 1.05rem; font-weight: 800; margin-bottom: 0.35rem; }
+    .recon-card > p.lead { font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 1rem; }
+    .alert { padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.84rem; margin-bottom: 1rem; border: 1px solid; }
+    .alert.warn { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); color: #92400e; }
+    .alert.bad { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); color: #991b1b; }
+    .alert.info { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.35); color: #155e75; }
+    .alert.ok { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.35); color: #065f46; }
+    .paste-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; }
+    .paste-grid textarea { width: 100%; min-height: 190px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.76rem; line-height: 1.5; padding: 0.7rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-primary); resize: vertical; }
+    .paste-grid label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .paste-grid .hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem; display: block; }
+    .recon-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-top: 1rem; }
+    .recon-actions .spacer { flex: 1; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.85rem; margin: 1rem 0 1.5rem; }
+    .kpi { background: var(--bg-card); border: 1px solid var(--border); border-top: 3px solid var(--border); border-radius: var(--radius); padding: 0.9rem 1rem; }
+    .kpi.ok { border-top-color: var(--success); } .kpi.review { border-top-color: var(--warning); }
+    .kpi.risk { border-top-color: var(--danger); } .kpi.extra { border-top-color: var(--info); }
+    .kpi-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .kpi-value { font-size: 1.35rem; font-weight: 800; margin-top: 0.25rem; font-variant-numeric: tabular-nums; }
+    .kpi-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem; }
+    .tm-table { width: 100%; border-collapse: collapse; }
+    .tm-table th, .tm-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); font-size: 0.8rem; text-align: left; }
+    .tm-table th { background: var(--bg-secondary); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .tm-table td.num, .tm-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tm-table .strong-row td { font-weight: 800; background: rgba(30,64,175,0.05); }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .bucket { margin-bottom: 1.5rem; }
+    .bucket h3 { font-size: 0.9rem; font-weight: 800; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+    .bucket .count { font-size: 0.7rem; font-weight: 700; background: var(--bg-secondary); border-radius: var(--radius-full); padding: 0.1rem 0.5rem; color: var(--text-muted); }
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); }
+    .empty-state .big { font-size: 2.5rem; display: block; margin-bottom: 0.6rem; }
+    .empty-state p { font-size: 0.86rem; max-width: 460px; margin: 0 auto; }
+    .setoff-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; }
+    .form-group label { font-size: 0.78rem; font-weight: 600; }
+    .muted-note { font-size: 0.78rem; color: var(--text-muted); }
+    .disclaimer { font-size: 0.78rem; color: var(--text-muted); border-left: 3px solid var(--secondary); padding: 0.6rem 0.9rem; background: rgba(245,158,11,0.06); border-radius: var(--radius-sm); margin-bottom: 1.5rem; }
+    @media (max-width: 640px) {
+      .recon-card { padding: 1rem; }
+      .paste-grid { grid-template-columns: 1fr; }
+      .recon-actions > button, .recon-actions > a { width: 100%; text-align: center; }
+      .recon-actions { flex-direction: column; align-items: stretch; }
+      .recon-actions .spacer { display: none; }
+      .kpi-value { font-size: 1.15rem; }
+      .tm-table th, .tm-table td { padding: 0.45rem 0.5rem; font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle">🌙</button>
+        <a href="account.html" class="btn-nav-login">Account</a>
+        <a href="billing.html" class="btn-nav-login">Billing</a>
+        <a href="../index.html" class="btn-nav-ai"><i class="fa fa-home"></i> Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>ITC Reconciliation</span></div>
+      <h1>🔁 GSTR-2B ↔ Purchase Register</h1>
+      <p>Match what your suppliers filed against what your books say, see the credit that is safe, disputed or at risk — and work out the Rule 88A set-off order.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="appError" class="alert bad" style="display:none"></div>
+
+    <p class="disclaimer">
+      This is a reconciliation <strong>working paper</strong>. It does not file GSTR-1, GSTR-3B or claim ITC on the portal.
+      Nothing is uploaded anywhere: both pastes stay in this browser.
+    </p>
+
+    <!-- ============ INPUT ============ -->
+    <section class="recon-card">
+      <h2>1 · Paste the two documents</h2>
+      <p class="lead">Any CSV or tab-separated paste with a header row works. Recognised columns: GSTIN, Invoice Number, Invoice Date,
+        Taxable Value, IGST, CGST, SGST, Cess. Download the 2B from the portal as Excel/CSV and open it in a spreadsheet before pasting.</p>
+      <div class="paste-grid">
+        <div>
+          <label for="booksInput">Purchase register (your books)</label>
+          <textarea id="booksInput" spellcheck="false" placeholder="GSTIN,Invoice Number,Invoice Date,Taxable Value,IGST,CGST,SGST"></textarea>
+          <span class="hint">Tip: <button class="btn-secondary-solid" id="loadInvoicesBtn" type="button" style="padding:0.25rem 0.6rem;font-size:0.72rem">Fill from my saved invoices</button></span>
+        </div>
+        <div>
+          <label for="portalInput">GSTR-2B (as downloaded)</label>
+          <textarea id="portalInput" spellcheck="false" placeholder="GSTIN,Invoice Number,Invoice Date,Taxable Value,IGST,CGST,SGST"></textarea>
+          <span class="hint">Header names from the portal export are recognised automatically.</span>
+        </div>
+      </div>
+      <div class="recon-actions">
+        <button class="btn-primary-solid" id="reconcileBtn" type="button">🔎 Reconcile</button>
+        <button class="btn-secondary-solid" id="saveBtn" type="button">💾 Save this working</button>
+        <button class="btn-secondary-solid" id="clearBtn" type="button">Clear</button>
+        <div class="spacer"></div>
+        <button class="btn-secondary-solid" id="csvBtn" type="button" disabled>⬇ Export CSV</button>
+      </div>
+      <div id="inputMsg" class="alert info" style="margin-top:1rem;margin-bottom:0">Nothing pasted yet — the result area stays empty until you reconcile real data.</div>
+    </section>
+
+    <!-- ============ RESULT ============ -->
+    <section id="resultSection" hidden>
+      <section class="recon-card">
+        <h2>2 · What the two documents agree on</h2>
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="table-wrap">
+          <table class="tm-table" id="totalsTable">
+            <thead><tr><th>Head</th><th class="num">As per 2B</th><th class="num">As per books</th><th class="num">Difference</th></tr></thead>
+            <tbody id="totalsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="recon-card">
+        <h2>3 · Bucket by bucket</h2>
+        <div id="buckets"></div>
+      </section>
+
+      <section class="recon-card">
+        <h2>4 · Rule 88A set-off (s. 49(5) order)</h2>
+        <p class="lead">Enter this period's output liability. The set-off is computed from the <strong>confirmed</strong> credit above,
+          in the statutory order: IGST credit → IGST, CGST, SGST; CGST credit → CGST, IGST; SGST credit → SGST, IGST; cess only against cess.</p>
+        <div class="setoff-grid">
+          <div class="form-group"><label for="liabIgst">Output IGST (₹)</label><input type="number" id="liabIgst" min="0" step="0.01" value=""/></div>
+          <div class="form-group"><label for="liabCgst">Output CGST (₹)</label><input type="number" id="liabCgst" min="0" step="0.01" value=""/></div>
+          <div class="form-group"><label for="liabSgst">Output SGST (₹)</label><input type="number" id="liabSgst" min="0" step="0.01" value=""/></div>
+          <div class="form-group"><label for="liabCess">Output cess (₹)</label><input type="number" id="liabCess" min="0" step="0.01" value=""/></div>
+        </div>
+        <div class="recon-actions">
+          <button class="btn-secondary-solid" id="setoffBtn" type="button">🧮 Compute set-off</button>
+        </div>
+        <div id="setoffResult" hidden style="margin-top:1.25rem">
+          <div class="table-wrap">
+            <table class="tm-table">
+              <thead><tr><th>Credit used</th><th class="num">Against IGST</th><th class="num">Against CGST</th><th class="num">Against SGST</th><th class="num">Against cess</th></tr></thead>
+              <tbody id="setoffBody"></tbody>
+            </table>
+          </div>
+          <p class="muted-note" id="setoffSummary" style="margin-top:0.75rem"></p>
+        </div>
+      </section>
+    </section>
+
+    <p class="muted-note" style="margin:2rem 0 2.5rem">
+      TaxMitra is not affiliated with the GSTN or the GST Council. Reconciliation and the Rule 88A order follow the statute and the
+      CGST Rules as published; always confirm your figures against the portal before filing.
+    </p>
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/gst-billing.js"></script>
+  <script src="../js/gst-recon.js"></script>
+  <script src="../js/github-auth.js"></script>
+  <script src="../js/tm-store.js"></script>
+  <script src="../js/session-boot.js"></script>
+  <script src="../js/itc-recon.js"></script>
+</body>
+</html>
