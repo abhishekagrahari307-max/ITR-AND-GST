@@ -243,58 +243,57 @@
     toast('All TaxMitra data cleared', 'warn');
   }
 
-  function seedDemo() {
-    if (!window.confirm('Add demo customers, items and three invoices? This is useful for trying the app, not for real books.')) return;
-    var settings = S.getSettings();
-    if (!settings.businessName) {
-      settings.businessName = 'Demo Traders (sample data)';
-      settings.state = '27';
-      settings.gstin = G ? G.makeGSTIN('27', 'AAPFU0939F') : '';
-      S.saveSettings(settings);
+  /* ------------------------- role gating ------------------------- */
+  function roleState() {
+    // Read the live session so a sign-in/out in another tab (or a re-render
+    // after sign-in) is reflected without a page reload.
+    var auth = window.TMGitHubAuth;
+    if (auth) {
+      var session = null;
+      try { session = auth.getSession(); } catch (e) { session = null; }
+      if (session) return { signedIn: true, admin: session.role === 'admin', login: session.login, role: session.role };
+      return { signedIn: false, admin: false, login: null, role: 'guest' };
     }
-    var customers = S.list('customers');
-    var items = S.list('items');
-    if (!customers.length) {
-      customers.push({ id: S.uid('cus'), name: 'Sharma Kirana Store', gstin: G.makeGSTIN('27', 'AAACR5055A'), state: '27', email: '', phone: '', address: 'Shop 4, Dadar, Mumbai' });
-      customers.push({ id: S.uid('cus'), name: 'Walk-in customer', gstin: '', state: '27', email: '', phone: '', address: '' });
-      S.saveList('customers', customers);
-    }
-    if (!items.length) {
-      items.push({ id: S.uid('itm'), name: 'Consulting service', hsn: '998221', rate: 5000, gstRate: 18 });
-      items.push({ id: S.uid('itm'), name: 'Packed snack box', hsn: '2106', rate: 250, gstRate: 5 });
-      S.saveList('items', items);
-    }
+    var s = window.TMSession;
+    if (!s) return { signedIn: false, admin: false, login: null, role: 'guest' };
+    return { signedIn: s.isSignedIn, admin: s.isAdmin, login: s.login, role: s.role };
+  }
 
-    var invoices = S.list('invoices');
-    var today = new Date().toISOString().slice(0, 10);
-    for (var n = 0; n < 3; n++) {
-      var number = S.nextInvoiceNumber(settings.invoicePrefix || 'INV/', 4);
-      var invoice = {
-        id: S.uid('inv'),
-        invoiceNumber: number,
-        invoiceDate: today,
-        dueDate: today,
-        buyerName: customers[n % customers.length].name,
-        buyerGstin: customers[n % customers.length].gstin || '',
-        buyerState: '27',
-        status: n === 0 ? 'paid' : 'unpaid',
-        lines: [
-          { description: 'Consulting service', hsn: '998221', quantity: 1, rate: 5000, gstRate: 18, discount: 0, discountType: 'amount', cessRate: 0 },
-          { description: 'Packed snack box', hsn: '2106', quantity: 2, rate: 250, gstRate: 5, discount: 0, discountType: 'amount', cessRate: 0 }
-        ],
-        createdAt: new Date().toISOString()
-      };
-      var calc = G.calcInvoice(invoice);
-      invoice.computed = {
-        taxableValue: calc.totals.taxableValue, cgst: calc.totals.cgst, sgst: calc.totals.sgst,
-        igst: calc.totals.igst, cess: calc.totals.cess, totalTax: calc.totalTax, grandTotal: calc.grandTotal
-      };
-      invoices.push(invoice);
+  function applyRole() {
+    var role = roleState();
+    var banner = $('roleBanner');
+    if (banner) {
+      if (!role.signedIn) {
+        banner.className = 'alert info';
+        banner.innerHTML = '<strong>Working as a guest.</strong> Everything here reads and backs up this browser’s local books. ' +
+          'Restoring a backup over everything and wiping data need an administrator — <a href="account.html">sign in with GitHub</a>.';
+      } else if (role.admin) {
+        banner.className = 'alert warn';
+        banner.innerHTML = '<strong>Administrator: ' + esc(role.login) + '.</strong> Destructive actions are unlocked for this session. ' +
+          'Data is still only ever stored on this browser.';
+      } else {
+        banner.className = 'alert info';
+        banner.innerHTML = '<strong>Signed in as ' + esc(role.login) + ' (user).</strong> Backup and inspection are available; ' +
+          'restore and wipe need an administrator.';
+      }
     }
-    S.saveList('invoices', invoices);
-    renderOverview();
-    runIntegrityCheck();
-    toast('Demo data added', 'ok');
+    ['importBackupBtn', 'clearBtn'].forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      el.disabled = !role.admin;
+      el.title = role.admin ? '' : 'Administrator sign-in required';
+      el.style.opacity = role.admin ? '1' : '0.5';
+      el.style.cursor = role.admin ? 'pointer' : 'not-allowed';
+    });
+    var note = $('adminOnlyNote');
+    if (note) note.hidden = role.admin;
+  }
+
+  function requireAdmin(action) {
+    var role = roleState();
+    if (role.admin) return true;
+    toast('“' + action + '” needs an administrator. Sign in with GitHub on the Account page.', 'warn');
+    return false;
   }
 
   function init() {
@@ -304,6 +303,7 @@
     };
     bind('exportBackupBtn', exportBackup);
     bind('importBackupBtn', function () {
+      if (!requireAdmin('Restore from backup')) return;
       var input = $('importFile');
       if (input) input.click();
     });
@@ -313,14 +313,17 @@
       input.value = '';
     });
     bind('checkBtn', runIntegrityCheck);
-    bind('seedBtn', seedDemo);
-    bind('clearBtn', clearAll);
+    bind('clearBtn', function () {
+      if (!requireAdmin('Delete all data')) return;
+      clearAll();
+    });
 
+    applyRole();
     renderOverview();
     runIntegrityCheck();
   }
 
   document.addEventListener('DOMContentLoaded', init);
 
-  window.TMAdmin = { renderOverview: renderOverview, runIntegrityCheck: runIntegrityCheck, exportBackup: exportBackup };
+  window.TMAdmin = { renderOverview: renderOverview, runIntegrityCheck: runIntegrityCheck, exportBackup: exportBackup, applyRole: applyRole };
 })();

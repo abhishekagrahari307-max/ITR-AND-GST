@@ -155,10 +155,11 @@ Restore validates the shape, refuses files over 5 MB, and asks before replacing 
 ## 6. Testing
 
 ```bash
-npm test              # 197 unit tests · 1,935 assertions (no dependencies)
+npm test              # 372 unit tests · 2,893 assertions (no dependencies)
 npm test -- gst       # only gst-billing.test.js
 npm install --no-save jsdom
-node tests/smoke.js   # 36 browser checks driving the real pages
+node tests/smoke.js   # 65 browser checks driving the real pages
+node tests/pages-load.js  # all 63 pages must start without throwing
 ```
 
 | File | Focus |
@@ -167,10 +168,11 @@ node tests/smoke.js   # 36 browser checks driving the real pages
 | `tests/income-tax.test.js` | Every slab boundary, 87A + marginal relief, surcharge + relief, HRA, caps, gains, comparison, advance tax, ITR-form choice |
 | `tests/tm-store.test.js` | Round-trips, corrupt JSON, quota failure, backup/restore, clearing |
 | `tests/github-tools.test.js` | 25 entries, unique URLs, required fields, filters, sort order, no mutation |
-| `tests/pages.test.js` | Broken script/link references, duplicate ids, script load order, missing DOM hooks, disclaimers, `aria-live`, print support |
+| `tests/pages.test.js` | Broken script/link references, duplicate ids, script load order, missing DOM hooks, disclaimers, `aria-live`, print support, and a **no-fabricated-data** guard (no demo seeder, no fake 26AS/OCR output, no credential form, no baked-in token) |
+| `tests/github-auth.test.js` | Device flow polling (`pending`, `slow_down`, `expired_token`, `access_denied`, `device_flow_disabled`), PAT verification and 401/403 handling, role resolution, session save/restore/refresh/sign-out, per-account data isolation |
 | `tests/handlers.test.js` | Every one of the 559 inline handlers across 59 pages resolves to a real definition; no shipped page hardcodes `localhost`; no dead `href="#"` in the primary pages |
-| `tests/smoke.js` | Homepage chat answers and escapes input, create/save/reject an invoice, mark paid, print, add customer, walk the ITR wizard end to end, search the directory, seed/verify/clear the store |
-| `tests/pages-load.js` | Loads all 62 pages with their local scripts and fails if any page throws while starting up |
+| `tests/smoke.js` | Homepage chat answers and escapes input, create/save/reject an invoice, mark paid, print, add customer, walk the ITR wizard end to end, search the directory, admin role gating, GitHub sign-in (device flow + PAT) on the account page, AIS/26AS/Form 16 real entry and validation |
+| `tests/pages-load.js` | Loads all 63 pages with their local scripts and fails if any page throws while starting up |
 
 The suite caught four genuine defects during development: float rounding in `toPaise`,
 the 15-March instalment landing in the wrong year, the editor aliasing the stored invoice,
@@ -275,8 +277,88 @@ key is configured.
 
 | Works live with no backend | Needs the NestJS backend (`backend/`) |
 |---|---|
-| Billing, ITR wizard, directory, admin console, calculators, GST/TDS pages, ledger, client CRM, document vault, all localStorage tools | Account login, signup, saved cloud data — these now show a clear "running without the backend" message instead of failing silently |
+| GitHub sign-in (device flow + personal access token), roles, per-account local profiles, billing, ITR wizard, directory, admin console, calculators, GST/TDS pages, ledger, client CRM, document vault, all localStorage tools | Cloud-synced data (server-side accounts, multi-device books). The `js/api.js` helper throws a typed `BACKEND_UNAVAILABLE` instead of pretending to save. |
 
 Still explicitly labelled as simulated on the page itself: e-invoice IRN generation
 (`pages/einvoice.html` shows a `Status: SIMULATED` badge). Everything filing-related remains
 a working paper or a guide, never an official submission.
+
+## 11. Authentication — real GitHub sign-in
+
+There is **no password form anywhere in this site**, and no mock auth. Identity comes from
+GitHub itself, in two supported ways. The whole engine is one dependency-free file,
+`js/github-auth.js` (~430 lines, UMD, works in the browser and under Node for tests).
+
+### 11.1 Method A — OAuth **device flow** (recommended)
+
+1. GitHub → Settings → Developer settings →
+   [OAuth Apps → New OAuth App](https://github.com/settings/applications/new).
+2. Homepage URL: the live site (`https://abhishekagrahari307-max.github.io/ITR-AND-GST/`).
+   The callback URL is irrelevant for device flow — device flow never uses it.
+3. In the app's settings tick **Enable Device Flow**.
+4. Copy the **Client ID** only. The client **secret** must never be used here: it cannot be kept
+   in a static site, and device flow does not need it.
+5. Open `pages/account.html` → *Setup* → paste the client ID → **Save client ID**. It is stored in
+   that browser under `tm-gh-client-id` (public value, safe to share).
+
+Flow used: `POST https://github.com/login/device/code` → user sees a `user_code` and opens
+`https://github.com/login/device` → the page polls `POST https://github.com/login/oauth/access_token`
+with `grant_type=urn:ietf:params:oauth:grant-type:device_code`, honouring
+`authorization_pending`, `slow_down` (+5 s), `expired_token`, `access_denied` and
+`device_flow_disabled`.
+
+Nothing about a client ID is baked into the repository, so every deployment has to save its own —
+that is why the page prompts for it instead of hardcoding one.
+
+### 11.2 Method B — personal access token
+
+Works with **zero setup** and needs no OAuth App. The visitor creates a token at
+`https://github.com/settings/tokens` (classic: `read:user` is enough; fine-grained: no permissions
+needed) and pastes it. It is verified immediately with `GET https://api.github.com/user`, so a
+revoked or mistyped token fails honestly with `401 Bad credentials` instead of "succeeding".
+
+### 11.3 Roles
+
+| Role | How it is decided |
+|---|---|
+| **Administrator** | The GitHub login is in `DEFAULT_ADMINS` (`['abhishekagrahari307-max']`), **or** the token reports `admin` permission on `DEFAULT_REPO` (`abhishekagrahari307-max/ITR-AND-GST`). |
+| **User** | Any other authenticated GitHub account. |
+| **Guest** | Not signed in — everything still works, and the local books are the visitor's own. |
+
+Roles are a UI convenience, not server-side security: this is a static site with no server, so
+"admin" unlocks the destructive buttons in `pages/admin.html` (restore-over-everything, wipe) and
+that is all it does. Those two actions are disabled for guests and for non-admin users, with the
+reason shown on the page.
+
+### 11.4 Sessions and per-account data
+
+- "Keep me signed in" → `localStorage['tm-gh-session']`; otherwise `sessionStorage['tm-gh-session-tmp']`
+  (tab-only). Both are cleared by **Sign out**.
+- `js/session-boot.js` runs before any data script, reads the session and calls
+  `TMStore.setNamespace('gh-<login>')`. Every store key therefore becomes
+  `tm-gh-<login>-billing-invoices` etc., so two people sharing one browser never see each other's
+  invoices, customers or drafts. Signed-out visitors keep using the original `tm-*` keys, so
+  existing books keep working untouched.
+- `pages/account.html` offers a one-time **Copy into my account** action
+  (`TMStore.migrateNamespace('', 'gh-<login>')`) that copies signed-out data into the account.
+  It never overwrites data the account already has.
+
+### 11.5 Security caveats — read these
+
+- A token in a browser can be read by any script that manages to run on this origin. Treat XSS as
+  a real risk; never paste a token you cannot rotate.
+- Revocation only happens on GitHub: [Settings → Applications](https://github.com/settings/applications).
+  A static site cannot revoke a token, because that needs the client secret.
+- Nothing is sent anywhere except `github.com` and `api.github.com`. There is no backend, so no
+  server ever sees the token.
+- The default scope requested is `read:user`; repository scope is optional and only used to detect
+  repository admin rights.
+
+### 11.6 Tests
+
+`tests/github-auth.test.js` (36 tests) mocks `fetch` through `setFetch()` and covers pending →
+approved polling, `slow_down`, `expired_token`, `access_denied`, `device_flow_disabled`, `401`
+revoked tokens, rate limiting, malformed tokens, admin-by-login, admin-by-repository-permission,
+session save/restore/refresh/sign-out and namespace isolation. `tests/smoke.js` additionally drives
+`pages/account.html` in jsdom: the client-ID gate, a full device-flow sign-in, PAT sign-in, the
+role badges, sign-out, and a check that no client secret or baked-in token exists in the page.

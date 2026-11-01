@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Account &amp; GitHub Sign-in – TaxMitra</title>
+  <meta name="description" content="Sign in to TaxMitra with your GitHub account. Real OAuth device flow, no password stored, admin and user roles, and per-account local data."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .acct-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+    .card-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.35rem; }
+    .card-block > h3 { font-size: 1rem; font-weight: 800; margin-bottom: 0.9rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
+    .card-block p { font-size: 0.85rem; color: var(--text-secondary); }
+    .card-block ul { font-size: 0.82rem; color: var(--text-secondary); margin: 0.5rem 0 0 1.1rem; }
+    .card-block li { margin-bottom: 0.35rem; }
+    .gh-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; width: 100%; padding: 0.85rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--text-primary); background: var(--text-primary); color: #fff; font-family: inherit; font-size: 0.92rem; font-weight: 700; cursor: pointer; transition: var(--transition); }
+    .gh-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .gh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .user-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1.6rem; font-weight: 800; letter-spacing: 0.28rem; text-align: center; padding: 0.85rem; background: var(--bg-secondary); border: 1px dashed var(--border); border-radius: var(--radius-sm); margin: 0.75rem 0; user-select: all; }
+    .device-status { font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.6rem; min-height: 1.2rem; }
+    .profile-head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .profile-head img { width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg-secondary); }
+    .profile-head h2 { font-size: 1.15rem; font-weight: 800; }
+    .profile-head .login { font-size: 0.85rem; color: var(--text-muted); }
+    .role-badge { display: inline-block; padding: 0.25rem 0.7rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.2px; }
+    .role-badge.admin { background: rgba(139,92,246,0.15); color: #6d28d9; border: 1px solid rgba(139,92,246,0.35); }
+    .role-badge.user { background: rgba(30,64,175,0.1); color: var(--primary); border: 1px solid rgba(30,64,175,0.3); }
+    .kv { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    .kv th, .kv td { padding: 0.5rem 0.25rem; border-bottom: 1px solid var(--border); font-size: 0.82rem; text-align: left; vertical-align: top; }
+    .kv th { color: var(--text-muted); font-weight: 600; width: 42%; }
+    .kv td { color: var(--text-primary); word-break: break-word; }
+    .alert { padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.84rem; margin-bottom: 1rem; border: 1px solid; }
+    .alert.warn { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); color: #92400e; }
+    .alert.bad { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); color: #991b1b; }
+    .alert.info { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.35); color: #155e75; }
+    .field-hint { font-size: 0.74rem; color: var(--text-muted); margin-top: 0.25rem; display: block; }
+    .btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.9rem; }
+    .toast-host { position: fixed; right: 1rem; bottom: 1rem; z-index: 999; display: flex; flex-direction: column; gap: 0.5rem; }
+    .tm-toast { background: var(--bg-dark); color: #fff; padding: 0.65rem 1rem; border-radius: var(--radius-sm); font-size: 0.82rem; max-width: 340px; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; box-shadow: var(--shadow-lg); }
+    .tm-toast.show { opacity: 1; transform: translateY(0); }
+    .tm-toast.ok { border-left: 3px solid var(--success); }
+    .tm-toast.bad { border-left: 3px solid var(--danger); }
+    .tm-toast.warn { border-left: 3px solid var(--warning); }
+    .tm-toast.info { border-left: 3px solid var(--info); }
+    .step-list { counter-reset: step; list-style: none; margin-left: 0 !important; }
+    .step-list li { counter-increment: step; position: relative; padding-left: 1.9rem; margin-bottom: 0.6rem; }
+    .step-list li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--primary); color: #fff; font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    code { background: var(--bg-secondary); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.8rem; word-break: break-all; }
+    .nav-right { gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-row .btn-secondary-solid, .btn-row .btn-primary-solid { min-height: 44px; }
+    @media (max-width: 720px) {
+      .card-block { padding: 1rem; }
+      .acct-grid { gap: 1rem; }
+      .kv th, .kv td { padding: 0.45rem 0.2rem; }
+      .step-list li { padding-left: 1.7rem; }
+      .btn-row { flex-direction: column; align-items: stretch; }
+      .btn-row > * { width: 100%; text-align: center; }
+      .role-badge { font-size: 0.7rem; }
+      input[type="text"], input[type="password"] { font-size: 16px; } /* stop iOS zoom-on-focus */
+    }
+    @media (max-width: 480px) {
+      .profile-head img { width: 52px; height: 52px; }
+      .profile-head { flex-direction: column; align-items: flex-start; }
+      .user-code { font-size: 1.15rem; letter-spacing: 0.12rem; }
+      .toast-host { left: 0.75rem; right: 0.75rem; bottom: 0.75rem; }
+      .tm-toast { max-width: none; }
+    }
+    @media (max-width: 640px) {
+      .acct-grid { grid-template-columns: 1fr; }
+      .user-code { font-size: 1.3rem; letter-spacing: 0.18rem; }
+      .profile-head { gap: 0.75rem; }
+      .kv th { width: 46%; font-size: 0.78rem; }
+      .kv td { font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle">🌙</button>
+        <a href="billing.html" class="btn-nav-login">Billing</a>
+        <a href="../index.html" class="btn-nav-ai"><i class="fa fa-home"></i> Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Account</span></div>
+      <h1>🔐 Account &amp; GitHub sign-in</h1>
+      <p>Sign in with your GitHub account. Real OAuth, no password stored, and your books stay separate from anyone else using this browser.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="appError" class="alert bad" style="display:none"></div>
+
+    <!-- ============ SIGNED OUT ============ -->
+    <div id="signedOutView" hidden>
+      <div class="alert info">
+        <strong>Not signed in.</strong> Everything on TaxMitra works without an account — signing in only adds your GitHub identity,
+        a role, and a separate data profile so two people sharing a browser never mix their invoices.
+      </div>
+
+      <div id="clientIdNotice" class="alert warn" hidden>
+        <strong>One setup step is needed.</strong> This site has no OAuth App client ID saved in this browser yet, so device-flow sign-in is
+        unavailable. Anyone with a GitHub account can create one in two minutes — see <a href="#setup">Setup</a> below. You can also sign in
+        right now with a personal access token.
+      </div>
+
+      <div class="acct-grid">
+        <div class="card-block">
+          <h3><i class="fab fa-github"></i> Sign in with GitHub</h3>
+          <p>Uses GitHub’s <strong>device flow</strong>: a short code is shown, you approve it on github.com, and GitHub returns a token straight to this
+            browser. No client secret exists anywhere in this site, and no password is ever entered here.</p>
+          <button class="gh-btn" id="deviceFlowCard" type="button">
+            <i class="fab fa-github"></i> Continue with GitHub
+          </button>
+          <div id="deviceBox" hidden>
+            <p style="font-size:0.8rem;margin-top:0.9rem">Enter this code on GitHub:</p>
+            <div class="user-code" id="userCode">••••••</div>
+            <p style="text-align:center;font-size:0.85rem"><a id="verificationLink" href="#" target="_blank" rel="noopener noreferrer">github.com/login/device</a></p>
+            <div class="device-status" id="deviceStatus"></div>
+            <div class="btn-row"><button class="btn-secondary-solid" id="cancelDevice" type="button">Cancel</button></div>
+          </div>
+          <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;margin-top:1rem;color:var(--text-secondary)">
+            <input type="checkbox" id="rememberMe" checked/> Keep me signed in on this browser
+          </label>
+        </div>
+
+        <div class="card-block">
+          <h3><i class="fa fa-key"></i> Or use a personal access token</h3>
+          <p>Works immediately, no OAuth App needed. Create a token at
+            <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer">github.com/settings/tokens</a>.
+            A <strong>classic</strong> token needs only the <code>read:user</code> scope; a fine-grained token needs no permissions at all.
+            Add <code>repo</code> scope only if you want your admin rights on the repository detected automatically.</p>
+          <div class="form-group">
+            <label for="patInput">Personal access token</label>
+            <input type="password" id="patInput" placeholder="ghp_… or github_pat_…" autocomplete="off" spellcheck="false"/>
+            <span class="field-hint">Stored in this browser only. Never sent anywhere except api.github.com.</span>
+          </div>
+          <div class="btn-row"><button class="btn-primary-solid" id="patSignIn" type="button">Verify &amp; sign in</button></div>
+          <div class="device-status" id="patStatus"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SIGNED IN ============ -->
+    <div id="signedInView" hidden>
+      <div class="card-block">
+        <div class="profile-head">
+          <img id="avatar" src="" alt="GitHub avatar" width="64" height="64" referrerpolicy="no-referrer"/>
+          <div>
+            <h2 id="profileName">—</h2>
+            <div class="login" id="profileLogin">—</div>
+          </div>
+          <span class="role-badge user" id="roleBadge">👤 User</span>
+        </div>
+        <table class="kv">
+          <thead><tr><th scope="col">Detail</th><th scope="col">Value</th></tr></thead>
+          <tr><th scope="row">Why this role</th><td id="roleReason">—</td></tr>
+          <tr><th scope="row">Repository access</th><td id="repoPermission">—</td></tr>
+          <tr><th scope="row">Token scope</th><td id="profileScope">—</td></tr>
+          <tr><th scope="row">Storage</th><td id="profileStorage">—</td></tr>
+          <tr><th scope="row">Signed in</th><td id="profileSince">—</td></tr>
+        </table>
+        <div class="btn-row">
+          <button class="btn-secondary-solid" id="refreshProfile" type="button">↻ Refresh from GitHub</button>
+          <button class="btn-secondary-solid" id="signOutBtn" type="button" style="border-color:var(--danger);color:var(--danger)">Sign out</button>
+          <a class="btn-secondary-solid" id="adminLink" href="admin.html" hidden>🗄 Open admin console</a>
+        </div>
+      </div>
+
+      <div class="acct-grid">
+        <div class="card-block">
+          <h3>📚 Your data profile</h3>
+          <p>Invoices, customers and drafts are stored under this account’s own namespace, so nothing is shared with anyone else who uses this browser.</p>
+          <table class="kv">
+            <thead><tr><th scope="col">Detail</th><th scope="col">Value</th></tr></thead>
+            <tr><th scope="row">Namespace</th><td><code id="dataNamespace">—</code></td></tr>
+            <tr><th scope="row">Stored here</th><td id="dataCounts">—</td></tr>
+          </table>
+          <div class="btn-row">
+            <a class="btn-secondary-solid" href="billing.html">Open billing</a>
+            <a class="btn-secondary-solid" href="admin.html">Storage &amp; backup</a>
+          </div>
+        </div>
+        <div class="card-block" id="claimLocalCard">
+          <h3>📥 Books kept while signed out</h3>
+          <p>There are <strong id="claimLocalCount">0</strong> records saved under the signed-out profile on this browser. You can copy them into this
+            account once; existing data in the account is never overwritten.</p>
+          <div class="btn-row"><button class="btn-secondary-solid" id="claimLocal" type="button">Copy into my account</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SETUP ============ -->
+    <div class="card-block" id="setup" style="margin-top:1.5rem">
+      <h3>⚙️ Setup, roles and security</h3>
+      <div class="acct-grid" style="margin:0">
+        <div>
+          <h4 style="font-size:0.9rem;font-weight:800;margin-bottom:0.4rem">Enable device-flow sign-in</h4>
+          <ol class="step-list" style="font-size:0.82rem;color:var(--text-secondary)">
+            <li>GitHub → Settings → Developer settings → <a href="https://github.com/settings/applications/new" target="_blank" rel="noopener noreferrer">OAuth Apps → New OAuth App</a>.</li>
+            <li>Homepage URL: <code id="siteUrl">this site</code>. Callback URL can be anything (device flow does not use it).</li>
+            <li>In the app settings, tick <strong>Enable Device Flow</strong>.</li>
+            <li>Copy the <strong>Client ID</strong> (not the secret) and save it below.</li>
+          </ol>
+          <div class="form-group" style="margin-top:0.75rem">
+            <label for="clientIdInput">OAuth App client ID</label>
+            <input type="text" id="clientIdInput" placeholder="Iv1.0123456789abcdef" autocomplete="off" spellcheck="false"/>
+            <span class="field-hint">Public value. It is saved in this browser and is safe to share.</span>
+          </div>
+          <div class="btn-row"><button class="btn-primary-solid" id="saveClientId" type="button">Save client ID</button></div>
+        </div>
+        <div>
+          <h4 style="font-size:0.9rem;font-weight:800;margin-bottom:0.4rem">Roles</h4>
+          <ul>
+            <li><strong>Administrator</strong> — a GitHub login listed in the admin list, or a token that reports admin permission on the repository.</li>
+            <li><strong>User</strong> — any other authenticated GitHub account.</li>
+            <li>Admins unlocked: the storage console’s destructive actions (restore a backup over everything, wipe the profile).</li>
+          </ul>
+          <table class="kv">
+            <thead><tr><th scope="col">Detail</th><th scope="col">Value</th></tr></thead>
+            <tr><th scope="row">Admin logins</th><td id="adminLogins">—</td></tr>
+            <tr><th scope="row">Repository</th><td><a id="repoLink" href="#" target="_blank" rel="noopener noreferrer"><span id="repoSlug">—</span></a></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="alert warn" style="margin-top:1.2rem">
+        <strong>Honest security notes.</strong>
+        <ul>
+          <li>The token is held in this browser (localStorage when “keep me signed in”, otherwise sessionStorage). Any script running on this
+            origin could read it, so treat XSS as a real risk and do not paste tokens you cannot rotate.</li>
+          <li>Revoking access happens on GitHub: <a href="https://github.com/settings/applications" target="_blank" rel="noopener noreferrer">Settings → Applications</a>.
+            A static site cannot revoke a token because that requires the client secret, which must never be shipped to a browser.</li>
+          <li>Roles here are a UI convenience, not server-side security. This site has no server; local data is local. Do not store secrets you
+            would not keep in a browser profile.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-host" id="toastHost" aria-live="polite"></div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/github-auth.js"></script>
+  <script src="../js/tm-store.js"></script>
+  <script src="../js/session-boot.js"></script>
+  <script src="../js/account-app.js"></script>
+</body>
+</html>

@@ -61,7 +61,7 @@ async function apiRequest(endpoint, options = {}) {
         return handleResponse(retryRes);
       } else {
         Auth.clear();
-        window.location.href = '/login.html';
+        window.location.href = '/pages/account.html';
         return null;
       }
     }
@@ -209,7 +209,7 @@ const FirebaseAuth = {
     if (typeof firebase !== 'undefined') await firebase.auth().signOut();
     await AuthAPI.logout().catch(() => {});
     Auth.clear();
-    window.location.href = '/login.html';
+    window.location.href = '/pages/account.html';
   },
 };
 
@@ -224,7 +224,7 @@ window.addEventListener('unhandledrejection', (e) => {
   if (e.reason?.status === 401) {
     Auth.clear();
     apiToast('Session expired. Please login again.', 'error');
-    setTimeout(() => window.location.href = '/login.html', 1500);
+    setTimeout(() => window.location.href = '/pages/account.html', 1500);
   }
 });
 

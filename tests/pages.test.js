@@ -8,7 +8,7 @@ var suite = t.suite;
 var test = t.test;
 var ROOT = path.join(__dirname, '..');
 
-var NEW_PAGES = ['billing.html', 'itr-form.html', 'github-tools.html', 'admin.html'];
+var NEW_PAGES = ['billing.html', 'itr-form.html', 'github-tools.html', 'admin.html', 'account.html'];
 
 function read(relative) {
   return fs.readFileSync(path.join(ROOT, relative), 'utf8');
@@ -68,7 +68,8 @@ suite('Pages · the four new modules exist', function () {
 
   test('supporting scripts exist', function () {
     ['js/gst-billing.js', 'js/income-tax.js', 'js/tm-store.js', 'js/billing-app.js',
-      'js/itr-form.js', 'js/github-tools.js', 'js/admin.js'].forEach(function (file) {
+      'js/itr-form.js', 'js/github-tools.js', 'js/admin.js', 'js/github-auth.js',
+      'js/session-boot.js', 'js/account-app.js'].forEach(function (file) {
       t.ok(exists(file), file + ' is missing');
     });
   });
@@ -168,7 +169,7 @@ suite('Pages · script dependencies', function () {
 suite('Pages · navigation', function () {
   test('the homepage links to every new module', function () {
     var html = read('index.html');
-    ['pages/billing.html', 'pages/itr-form.html', 'pages/github-tools.html', 'pages/admin.html'].forEach(function (href) {
+    ['pages/billing.html', 'pages/itr-form.html', 'pages/github-tools.html', 'pages/admin.html', 'pages/account.html'].forEach(function (href) {
       t.includes(html, href, 'index.html should link to ' + href);
     });
   });
@@ -269,5 +270,68 @@ suite('Pages · print support', function () {
     var html = read('pages/itr-form.html');
     t.includes(html, '@media print');
     t.includes(html, 'id="printComputation"');
+  });
+});
+
+/* ------------------------------------------------------------------
+   The shipped site must never contain demo, seeded or invented records.
+   A visitor's first look is always an empty state built from real input.
+   ------------------------------------------------------------------ */
+suite('No fabricated data ships', function () {
+  function read(rel) {
+    return fs.readFileSync(path.join(ROOT, rel), 'utf8');
+  }
+
+  test('the admin console has no demo-data seeder', function () {
+    var html = read('pages/admin.html');
+    var js = read('js/admin.js');
+    t.ok(html.indexOf('seedBtn') === -1, 'admin.html must not offer a demo seeder');
+    t.ok(/load demo data/i.test(html) === false, 'no "Load demo data" copy');
+    t.ok(js.indexOf('seedDemo') === -1, 'admin.js must not define seedDemo');
+  });
+
+  test('the ITR centre does not fake portal fetches or OCR results', function () {
+    var html = read('pages/itr-center.html');
+    ['show26ASDemo', 'simulateAISAnalysis', 'analyzeForm16', 'form26asDemo'].forEach(function (fn) {
+      t.ok(html.indexOf(fn) === -1, 'itr-center.html must not contain ' + fn);
+    });
+    t.ok(html.indexOf('ABC Technologies Pvt Ltd') === -1, 'no invented employer may be hardcoded');
+    t.ok(html.indexOf('Extracted Data (AI OCR)') === -1, 'no fake OCR output');
+    t.ok(/is site se AIS download nahi ho sakta|fetch nahi kar sakti/i.test(html), 'the page must say the portal data cannot be fetched here');
+  });
+
+  test('the login pages do not ship a credential form', function () {
+    ['login.html', 'signup.html'].forEach(function (page) {
+      var html = read(page);
+      t.ok(!/type="password"/i.test(html), page + ' must not ask for a password');
+      t.ok(html.indexOf('firebase') === -1, page + ' must not load Firebase auth');
+      t.ok(html.indexOf('pages/account.html') !== -1, page + ' must point at the GitHub account page');
+    });
+  });
+
+  test('no token or client secret is baked into any page or script', function () {
+    var files = ['index.html', 'login.html', 'signup.html']
+      .concat(fs.readdirSync(path.join(ROOT, 'pages')).map(function (f) { return 'pages/' + f; }))
+      .concat(fs.readdirSync(path.join(ROOT, 'js')).map(function (f) { return 'js/' + f; }))
+      .filter(function (f) { return /\.(html|js)$/.test(f); });
+    var secrets = [
+      /ghp_[A-Za-z0-9]{30,}/,
+      /github_pat_[A-Za-z0-9_]{30,}/,
+      /gho_[A-Za-z0-9]{30,}/,
+      /client_secret\s*[:=]\s*['"][^'"]{5,}/i
+    ];
+    files.forEach(function (file) {
+      var text = read(file);
+      secrets.forEach(function (re) {
+        t.ok(!re.test(text), file + ' appears to contain a credential: ' + re);
+      });
+    });
+  });
+
+  test('the demo seeder is gone from the store-facing code paths', function () {
+    ['js/admin.js', 'js/billing-app.js', 'js/itr-form.js'].forEach(function (file) {
+      var text = read(file);
+      t.ok(!/seed[A-Z]\w*\(/.test(text), file + ' must not seed sample records');
+    });
   });
 });

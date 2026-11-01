@@ -24,6 +24,75 @@
   // Fallback used when localStorage is unavailable (private mode, tests).
   var memory = {};
 
+  /* -------------------------------------------------
+     Namespacing
+     Signed-out visitors use the bare tm-* keys (unchanged, so existing
+     books keep working). A signed-in GitHub account gets its own prefix,
+     tm-gh-<login>-*, so two people on one browser never see each other's
+     invoices. Switching accounts switches datasets; nothing is merged.
+     ------------------------------------------------- */
+  var namespace = '';
+
+  function setNamespace(ns) {
+    namespace = String(ns || '').replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
+    return namespace;
+  }
+
+  function getNamespace() {
+    return namespace;
+  }
+
+  /** Translate a logical storage key into the active namespace. */
+  function nsKey(key) {
+    var base = String(key);
+    if (!namespace) return base;
+    if (base.indexOf(PREFIX) === 0) return PREFIX + namespace + '-' + base.slice(PREFIX.length);
+    return namespace + '-' + base;
+  }
+
+  /** Known local profiles (e.g. gh-abhishekagrahari307-max) with their size. */
+  function listNamespaces() {
+    var found = {};
+    var backend = backendNow();
+    if (!backend) return [];
+    // Match against the known store suffixes so "gh-a-b" is not mistaken for
+    // namespace "a" with a store called "b-<something>".
+    var suffixes = Object.keys(KEYS).map(function (name) { return KEYS[name].slice(PREFIX.length); });
+    for (var i = 0; i < backend.length; i++) {
+      var key = backend.key(i);
+      if (!key || key.indexOf(PREFIX) !== 0) continue;
+      var rest = key.slice(PREFIX.length);
+      for (var j = 0; j < suffixes.length; j++) {
+        var suffix = suffixes[j];
+        if (rest.length > suffix.length + 1 && rest.slice(-(suffix.length + 1)) === '-' + suffix) {
+          var ns = rest.slice(0, rest.length - suffix.length - 1);
+          if (ns) found[ns] = (found[ns] || 0) + key.length * 2;
+          break;
+        }
+      }
+    }
+    return Object.keys(found).sort().map(function (name) {
+      return { namespace: name, bytes: found[name] };
+    });
+  }
+
+  /** Copy every known store from one namespace into another (legacy migration). */
+  function migrateNamespace(from, to) {
+    var previous = namespace;
+    var copied = [];
+    Object.keys(KEYS).forEach(function (name) {
+      setNamespace(from);
+      var value = read(KEYS[name], null);
+      if (value === null || value === undefined) return;
+      setNamespace(to);
+      var existing = read(KEYS[name], null);
+      if (existing !== null && existing !== undefined) return; // never overwrite
+      if (write(KEYS[name], value)) copied.push(name);
+    });
+    setNamespace(previous);
+    return copied;
+  }
+
   function getBackend() {
     try {
       if (typeof localStorage !== 'undefined' && localStorage) {
@@ -36,38 +105,67 @@
     return null;
   }
 
-  var backend = getBackend();
+  /* Resolved on demand so a browser that swaps localStorage (or a test that
+     installs a mock) is always honoured, and so switching accounts never
+     operates on a stale backend. */
+  var backendCache = getBackend();
+  var lastSeen = null;
+
+  function backendNow() {
+    var current = null;
+    try {
+      if (typeof localStorage !== 'undefined') current = localStorage || null;
+    } catch (e) { current = null; }
+
+    // Only re-probe when the storage object itself has been swapped, so a
+    // single failing write (quota) is still reported to the caller.
+    if (current !== lastSeen) {
+      lastSeen = current;
+      var probed = getBackend();
+      if (probed !== backendCache) {
+        backendCache = probed;
+        if (!probed) memory = {};
+      }
+    }
+    return backendCache;
+  }
 
   function isPersistent() {
-    return !!backend;
+    return !!backendNow();
   }
 
   function readRaw(key) {
+    var k = nsKey(key);
+    var backend = backendNow();
     if (backend) {
-      try { return backend.getItem(key); } catch (e) { return null; }
+      try { return backend.getItem(k); } catch (e) { return null; }
     }
-    return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : null;
+    return Object.prototype.hasOwnProperty.call(memory, k) ? memory[k] : null;
   }
 
   function writeRaw(key, value) {
+    var k = nsKey(key);
+    var backend = backendNow();
     if (backend) {
       try {
-        backend.setItem(key, value);
+        backend.setItem(k, value);
         return true;
       } catch (e) {
         // QuotaExceededError – report it rather than silently losing data.
         return false;
       }
     }
-    memory[key] = value;
+    memory[k] = value;
     return true;
   }
 
   function removeRaw(key) {
+    var k = nsKey(key);
+    var backend = backendNow();
     if (backend) {
-      try { backend.removeItem(key); return true; } catch (e) { return false; }
+      try { backend.removeItem(k); return true; } catch (e) { return false; }
     }
-    delete memory[key];
+    delete memory[k];
     return true;
   }
 
@@ -217,6 +315,11 @@
   return {
     KEYS: KEYS,
     DEFAULT_SETTINGS: DEFAULT_SETTINGS,
+    setNamespace: setNamespace,
+    getNamespace: getNamespace,
+    nsKey: nsKey,
+    listNamespaces: listNamespaces,
+    migrateNamespace: migrateNamespace,
     isPersistent: isPersistent,
     read: read,
     write: write,
