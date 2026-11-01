@@ -623,6 +623,26 @@ async function homeTests() {
     equal(host.querySelectorAll('img').length, 0, 'user input must not become markup');
   });
 
+
+  await check('a home answer with a wrong tax figure is flagged, not trusted', function () {
+    assert(window.TMVerify, 'ai-verify.js should be loaded on the homepage');
+    var bad = window.TMVerifyLine('20 lakh income par total tax kitna hai?', 'Aapka total tax ₹1,50,000 hoga.');
+    assert(bad.indexOf('tm-verify-line') !== -1, 'a verification line should be produced');
+    assert(bad.indexOf('Engine disagrees') !== -1, 'a wrong figure must be flagged');
+    assert(bad.indexOf('2,08,000') !== -1, 'the engine figure must be shown next to the claim');
+  });
+
+  await check('a correct answer is marked engine-verified', function () {
+    var correct = window.TMVerify.computeOnIncome(2000000, { fy: '2025-26' }).totalTax;
+    var line = window.TMVerifyLine('20 lakh income par total tax?', 'Total tax ₹' + correct.toLocaleString('en-IN') + ' hoga.');
+    assert(line.indexOf('Engine-verified') !== -1, line);
+    assert(line.indexOf('tm-verify-line ok') !== -1, 'the positive state should carry its own class');
+  });
+
+  await check('an answer with no checkable figure gets no badge at all', function () {
+    equal(window.TMVerifyLine('80C kya hai?', '80C me ₹1,50,000 tak deduction milta hai.'), '');
+  });
+
   dom.window.close();
 }
 

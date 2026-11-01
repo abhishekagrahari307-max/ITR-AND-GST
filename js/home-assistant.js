@@ -55,6 +55,25 @@
     return html.replace(/\n/g, '<br>');
   }
 
+  /**
+   * Machine-check the answer's rupee figures against the deterministic engine.
+   * A fluent-but-wrong answer is shown with the engine's number next to it.
+   */
+  function verifyLine(question, answer) {
+    var V = window.TMVerify;
+    if (!V || typeof V.verify !== 'function') return '';
+    var result;
+    try {
+      result = V.verify({ question: question, answer: answer });
+    } catch (e) {
+      return '';
+    }
+    if (!result || result.status === 'unchecked') return '';
+    var cls = result.status === 'verified' ? 'ok' : 'bad';
+    return '<div class="tm-verify-line ' + cls + '">' + V.badge(result) +
+      ' <span>' + esc(result.message) + '</span></div>';
+  }
+
   function appendBubble(host, role, html) {
     if (!host) return null;
     var div = document.createElement('div');
@@ -91,7 +110,7 @@
       var note = reply && reply.provider === 'rule-based'
         ? '<div style="font-size:.7rem;opacity:.65;margin-top:.35rem">Rule-based answer · add an API key in <a href="pages/setup.html">Setup</a> for live AI</div>'
         : '';
-      if (thinking) thinking.innerHTML = format(answer) + note;
+      if (thinking) thinking.innerHTML = format(answer) + note + verifyLine(text, answer);
       history.push({ role: 'model', text: answer });
     } catch (error) {
       if (thinking) {
@@ -124,6 +143,8 @@
     var input = $('afwInput');
     return ask(input && input.value, $('afwMessages'), input);
   };
+
+  window.TMVerifyLine = verifyLine;
 
   window.askQuick = function (question) {
     var win = $('aiFloatWindow');
