@@ -1,0 +1,54 @@
+name: CI
+
+# Runs the unit suites and both browser audits on every push and pull request.
+# The deploy workflow only builds and publishes; this one is the gate.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Unit suites
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Guard against committed credentials or generated config
+        run: |
+          set -e
+          if git ls-files | grep -E '(^|/)(\.env|id_rsa|credentials\.json)$'; then
+            echo "::error::Secret-looking file is tracked in git"; exit 1
+          fi
+          echo "No credential files tracked."
+
+  browser:
+    name: Browser audits (jsdom)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install jsdom
+        run: npm install --no-save jsdom
+
+      - name: Every page must start clean
+        run: node tests/pages-load.js
+
+      - name: Smoke test the real pages
+        run: node tests/smoke.js
