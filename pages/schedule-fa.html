@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Schedule FA – Foreign Assets Disclosure (ITR-2 / ITR-3) – TaxMitra</title>
+  <meta name="description" content="Prepare Schedule FA for foreign bank accounts, equity, RSU and ESPP holdings: rupee conversion at the rule 115 rate, peak and closing values, disclosure checklist and a working paper export."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .fa-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.35rem; margin-bottom: 1.25rem; }
+    .fa-card h2 { font-size: 1.05rem; font-weight: 800; margin-bottom: 0.35rem; }
+    .fa-card > p.lead { font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 1rem; }
+    .alert { padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.84rem; margin-bottom: 1rem; border: 1px solid; }
+    .alert.warn { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); color: #92400e; }
+    .alert.bad { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); color: #991b1b; }
+    .alert.info { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.35); color: #155e75; }
+    .alert.ok { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.35); color: #065f46; }
+    .alert ul { margin: 0.4rem 0 0 1.1rem; }
+    .tm-table { width: 100%; border-collapse: collapse; }
+    .tm-table th, .tm-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); font-size: 0.8rem; text-align: left; }
+    .tm-table th { background: var(--bg-secondary); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .tm-table td.num, .tm-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .tm-table .strong-row td { font-weight: 800; background: rgba(30,64,175,0.05); }
+    .tm-table input, .tm-table select, .tm-table textarea { width: 100%; padding: 0.4rem 0.45rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.78rem; background: var(--bg-card); color: var(--text-primary); }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .entry-editor { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; }
+    .entry-editor .form-group label { font-size: 0.76rem; font-weight: 600; }
+    .entry-editor .full { grid-column: 1 / -1; }
+    .actions { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-top: 1rem; }
+    .actions .spacer { flex: 1; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.85rem; margin: 1rem 0 0.5rem; }
+    .kpi { background: var(--bg-card); border: 1px solid var(--border); border-top: 3px solid var(--primary); border-radius: var(--radius); padding: 0.9rem 1rem; }
+    .kpi-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .kpi-value { font-size: 1.3rem; font-weight: 800; margin-top: 0.25rem; font-variant-numeric: tabular-nums; }
+    .kpi-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem; }
+    .checklist { list-style: none; margin: 0; padding: 0; }
+    .checklist li { display: flex; gap: 0.5rem; align-items: flex-start; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist .mark { flex-shrink: 0; }
+    .checklist .done { color: var(--success); }
+    .checklist .todo { color: var(--warning); }
+    .empty-state { text-align: center; padding: 2.2rem 1rem; color: var(--text-muted); }
+    .empty-state .big { font-size: 2.4rem; display: block; margin-bottom: 0.5rem; }
+    .muted-note { font-size: 0.78rem; color: var(--text-muted); }
+    .disclaimer { font-size: 0.78rem; color: var(--text-muted); border-left: 3px solid var(--secondary); padding: 0.6rem 0.9rem; background: rgba(245,158,11,0.06); border-radius: var(--radius-sm); margin-bottom: 1.5rem; }
+    @media (max-width: 640px) {
+      .fa-card { padding: 1rem; }
+      .actions { flex-direction: column; align-items: stretch; }
+      .actions > button { width: 100%; }
+      .actions .spacer { display: none; }
+      .kpi-value { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle">🌙</button>
+        <a href="itr-form.html" class="btn-nav-login">ITR Wizard</a>
+        <a href="account.html" class="btn-nav-login">Account</a>
+        <a href="../index.html" class="btn-nav-ai"><i class="fa fa-home"></i> Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Schedule FA</span></div>
+      <h1>🌍 Schedule FA – foreign assets</h1>
+      <p>Bank accounts, brokerage holdings, RSUs and ESPPs. Enter the foreign-currency amounts and the rule 115 rate — the rupee figures, peak values and the disclosure checklist are computed for you.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="appError" class="alert bad" style="display:none"></div>
+
+    <p class="disclaimer">
+      Schedule FA is a <strong>disclosure</strong> schedule in ITR-2 / ITR-3. This page prepares the working paper and the rupee
+      conversion; it does not file anything. Non-disclosure of a foreign asset can attract a penalty under the Black Money Act,
+      so verify every entry against your broker and bank statements before you file.
+    </p>
+
+    <!-- ================= ADD ENTRY ================= -->
+    <section class="fa-card">
+      <h2>1 · Add a foreign asset</h2>
+      <p class="lead">Amounts are entered in the foreign currency. The rate must be the <strong>SBI TT buying rate on 31 March</strong>
+        of the previous year (rule 115) — this site cannot fetch a live quote, and it will never invent one.</p>
+      <div class="entry-editor">
+        <div class="form-group">
+          <label for="faType">Asset type</label>
+          <select id="faType"></select>
+        </div>
+        <div class="form-group">
+          <label for="faCountry">Country</label>
+          <input type="text" id="faCountry" placeholder="United States" maxlength="60"/>
+        </div>
+        <div class="form-group">
+          <label for="faCountryCode">Country code</label>
+          <input type="text" id="faCountryCode" placeholder="US" maxlength="2" style="text-transform:uppercase"/>
+        </div>
+        <div class="form-group">
+          <label for="faEntity">Bank / broker / entity</label>
+          <input type="text" id="faEntity" placeholder="Broker Inc" maxlength="80"/>
+        </div>
+        <div class="form-group">
+          <label for="faAccount">Account number (optional)</label>
+          <input type="text" id="faAccount" placeholder="XXXXXXXX1234" maxlength="40"/>
+        </div>
+        <div class="form-group">
+          <label for="faCurrency">Currency</label>
+          <select id="faCurrency"></select>
+        </div>
+        <div class="form-group">
+          <label for="faRate">Rule 115 rate (₹ per unit)</label>
+          <input type="number" id="faRate" min="0" step="0.0001" placeholder="83.5000"/>
+        </div>
+        <div class="form-group">
+          <label for="faAcquired">Acquired on (optional)</label>
+          <input type="date" id="faAcquired"/>
+        </div>
+        <div class="form-group">
+          <label for="faInitial">Initial value (foreign)</label>
+          <input type="number" id="faInitial" min="0" step="0.01" placeholder="0.00"/>
+        </div>
+        <div class="form-group">
+          <label for="faPeak">Peak value during the year (foreign)</label>
+          <input type="number" id="faPeak" min="0" step="0.01" placeholder="0.00"/>
+        </div>
+        <div class="form-group">
+          <label for="faClosing">Closing value (foreign)</label>
+          <input type="number" id="faClosing" min="0" step="0.01" placeholder="0.00"/>
+        </div>
+        <div class="form-group full">
+          <label for="faNotes">Notes (income treatment, vesting details)</label>
+          <input type="text" id="faNotes" placeholder="Interest offered under other income; RSUs vested 15 Jun 2025" maxlength="160"/>
+        </div>
+        <div class="form-group full">
+          <label style="display:flex;align-items:center;gap:0.5rem;font-weight:500">
+            <input type="checkbox" id="faIncomeIncluded" style="width:auto"/>
+            Income from this asset is included in my total income
+          </label>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn-primary-solid" id="addEntryBtn" type="button">➕ Add entry</button>
+        <button class="btn-secondary-solid" id="resetFormBtn" type="button">Clear form</button>
+      </div>
+      <div id="addMsg" class="alert info" style="margin-top:1rem;margin-bottom:0">No entries yet — Schedule FA stays empty until you add real holdings.</div>
+    </section>
+
+    <!-- ================= ENTRIES ================= -->
+    <section class="fa-card">
+      <h2>2 · Your entries</h2>
+      <div id="totalsGrid" class="kpi-grid"></div>
+      <div id="entriesHost"></div>
+      <div class="actions">
+        <button class="btn-secondary-solid" id="exportCsvBtn" type="button" disabled>⬇ Export CSV</button>
+        <button class="btn-secondary-solid" id="saveBtn" type="button" disabled>💾 Save on this browser</button>
+        <div class="spacer"></div>
+        <button class="btn-secondary-solid" id="sendToWizardBtn" type="button" disabled>📋 Send to ITR wizard</button>
+      </div>
+    </section>
+
+    <!-- ================= CHECKLIST ================= -->
+    <section class="fa-card">
+      <h2>3 · Disclosure checklist</h2>
+      <p class="lead">Common reasons a Schedule FA gets questioned at processing.</p>
+      <ul class="checklist" id="checklistHost"></ul>
+      <div id="validationHost" style="margin-top:1rem"></div>
+    </section>
+
+    <p class="muted-note" style="margin:2rem 0 2.5rem">
+      TaxMitra is not affiliated with the Income Tax Department. Rule 115 rates are published by the SBI / CBDT each year —
+      enter the notified figure yourself and keep the source with your records.
+    </p>
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/income-tax.js"></script>
+  <script src="../js/itr-schema.js"></script>
+  <script src="../js/github-auth.js"></script>
+  <script src="../js/tm-store.js"></script>
+  <script src="../js/session-boot.js"></script>
+  <script src="../js/schedule-fa.js"></script>
+  <script src="../js/schedule-fa-app.js"></script>
+</body>
+</html>

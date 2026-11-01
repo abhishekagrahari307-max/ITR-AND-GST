@@ -1036,6 +1036,97 @@ async function itcReconTests() {
   dom.window.close();
 }
 
+
+async function scheduleFaTests() {
+  console.log('\nSchedule FA page');
+  var dom = await loadPage('pages/schedule-fa.html');
+  var window = dom.window;
+  var document = window.document;
+
+  await check('scripts load without a page error', function () {
+    equal((window.__errors || []).length, 0, 'page errors: ' + (window.__errors || []).join(' | '));
+    assert(window.TMScheduleFA, 'schedule-fa.js should be loaded');
+    assert(window.TMScheduleFAApp, 'schedule-fa-app.js should be loaded');
+  });
+
+  await check('the form is empty and the schedule is empty', function () {
+    equal(document.getElementById('faCountry').value, '');
+    equal(document.getElementById('faEntity').value, '');
+    equal(document.getElementById('entriesHost').innerHTML, '');
+    equal(window.TMScheduleFAApp.entries().length, 0);
+    equal(document.getElementById('exportCsvBtn').disabled, true);
+    assert(document.getElementById('addMsg').textContent.indexOf('No entries yet') !== -1);
+  });
+
+  await check('an entry without a country is refused', function () {
+    setValue(window, 'faEntity', 'Broker Inc');
+    click(window, '#addEntryBtn');
+    equal(window.TMScheduleFAApp.entries().length, 0);
+    assert(document.getElementById('addMsg').textContent.indexOf('Country is required') !== -1);
+  });
+
+  await check('a foreign amount without a rate is refused instead of guessed', function () {
+    setValue(window, 'faCountry', 'United States');
+    setValue(window, 'faEntity', 'Broker Inc');
+    setValue(window, 'faPeak', '6200');
+    click(window, '#addEntryBtn');
+    equal(window.TMScheduleFAApp.entries().length, 0);
+    assert(document.getElementById('addMsg').textContent.indexOf('rule 115 rate') !== -1);
+  });
+
+  await check('a real RSU entry is converted and added', function () {
+    setValue(window, 'faType', 'rsu');
+    setValue(window, 'faCountryCode', 'US');
+    setValue(window, 'faCurrency', 'USD');
+    setValue(window, 'faRate', '83.5');
+    setValue(window, 'faInitial', '4000');
+    setValue(window, 'faClosing', '5800');
+    document.getElementById('faIncomeIncluded').checked = true;
+    click(window, '#addEntryBtn');
+    equal(window.TMScheduleFAApp.entries().length, 1);
+    var entry = window.TMScheduleFAApp.entries()[0];
+    equal(entry.closingValue, 484300, 'USD 5,800 at 83.5 must be ₹4,84,300');
+
+    var kpis = document.getElementById('totalsGrid').textContent;
+    assert(kpis.indexOf('4,84,300.00') !== -1, 'the rupee total must be shown: ' + kpis.slice(0, 200));
+    equal(document.getElementById('exportCsvBtn').disabled, false);
+  });
+
+  await check('the checklist reflects what has been declared', function () {
+    var checklist = document.getElementById('checklistHost').textContent;
+    assert(checklist.indexOf('1 of 6') !== -1 || checklist.indexOf('2 of 6') !== -1 ||
+      checklist.indexOf('of 6') !== -1, checklist.slice(0, 200));
+    assert(checklist.indexOf('Country') !== -1 || checklist.indexOf('country') !== -1);
+  });
+
+  await check('the entry can be saved on this browser', function () {
+    click(window, '#saveBtn');
+    var saved = window.TMStore.read('tm-schedule-fa', null);
+    assert(saved, 'expected the schedule to be stored');
+    equal(saved.entries.length, 1);
+    equal(saved.entries[0].closingValue, 484300);
+  });
+
+  await check('sending to the wizard writes a real prefill', function () {
+    click(window, '#sendToWizardBtn');
+    var draft = window.TMStore.read(window.TMStore.KEYS.itrDraft, null);
+    assert(draft && draft.state, 'expected an ITR draft');
+    equal(draft.state.profile.foreignAssets, true);
+    equal(draft.state.fa.entries.length, 1);
+    equal(draft.state.fa.entries[0].peakValue, 517700);
+  });
+
+  await check('removing an entry empties the schedule again', function () {
+    var btn = document.querySelector('#entriesHost [data-remove]');
+    assert(btn, 'a remove button should exist');
+    btn.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+    equal(window.TMScheduleFAApp.entries().length, 0);
+    equal(document.getElementById('exportCsvBtn').disabled, true);
+  });
+
+  dom.window.close();
+}
+
 (async function main() {
   console.log('TaxMitra browser smoke test (jsdom)');
   console.log('─'.repeat(64));
@@ -1048,6 +1139,7 @@ async function itcReconTests() {
     await accountTests();
     await itrCentreTests();
     await itcReconTests();
+    await scheduleFaTests();
   } catch (error) {
     results.failed += 1;
     results.failures.push({ name: 'harness', error: error });
