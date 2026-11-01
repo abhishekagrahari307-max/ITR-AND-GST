@@ -150,13 +150,21 @@ by the pages *and* by the test suite. Full rules, data model and limitations are
 ### Tests
 
 ```bash
-npm test                    # 327 tests · 2,420 assertions · zero dependencies
+npm test                    # 372 tests · 2,893 assertions · zero dependencies
 npm run serve               # local preview on http://localhost:8080
 
 npm install --no-save jsdom # optional, for the browser-level audits
-node tests/smoke.js         # 42 checks driving the real pages
-node tests/pages-load.js    # loads all 62 pages, fails if any throws on startup
+node tests/smoke.js         # 65 checks driving the real pages (incl. GitHub sign-in)
+node tests/pages-load.js    # loads all 63 pages, fails if any throws on startup
 ```
+
+### Sign-in
+
+Authentication is real GitHub — either the OAuth **device flow** (needs a public OAuth App
+client ID pasted once on the Account page; no client secret exists anywhere) or a **personal
+access token** (works with zero setup). Roles: the repository owner is an administrator, everyone
+else is a user, guests can use everything except the admin console's destructive actions. Each
+signed-in account gets its own local data profile. Setup and caveats: `IMPLEMENTATION.md` §11.
 
 ### Live site
 

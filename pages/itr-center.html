@@ -225,32 +225,36 @@
     </div>
 
     <!-- TAB: AIS -->
-    <div class="tab-panel" id="tab-ais" id="ais">
+    <div class="tab-panel" id="tab-ais">
       <div class="form-card">
-        <h3>🔍 Annual Information Statement (AIS) Analysis</h3>
-        <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem">AIS mein IT Department ke paas aapke sabhi financial transactions ki information hoti hai. Isko verify karna zaroori hai.</p>
+        <h3>🔍 Annual Information Statement (AIS)</h3>
+        <p style="color:var(--text-secondary);margin-bottom:1rem;font-size:0.9rem">
+          AIS woh information hai jo Income Tax Department ko aapke financial transactions ke baare mein
+          milti hai — isse match karna zaroori hai. <strong>Is site se AIS download nahi ho sakta</strong>:
+          wo aapke portal login se hi milta hai. AIS download karke totals yahan bhar dijiye — comparison
+          aur mismatch check sab real hoga.
+        </p>
+        <div style="padding:0.85rem 1rem;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.35);border-radius:var(--radius-sm);font-size:0.84rem;margin-bottom:1.25rem">
+          📥 AIS / TIS download: <a href="https://www.incometax.gov.in/iec/foportal/" target="_blank" rel="noopener noreferrer">incometax.gov.in</a>
+          → login → e-File → Income Tax Return → <em>Annual Information Statement (AIS)</em>.
+          PDF ke totals section se neeche diye figures copy kijiye.
+        </div>
         <div class="form-grid">
-          <div class="form-group"><label>Upload AIS PDF</label>
-            <div class="upload-zone" style="border:2px dashed var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;cursor:pointer" onclick="document.getElementById('aisFile').click()">
-              <i class="fa fa-file-pdf" style="font-size:2rem;color:var(--danger);display:block;margin-bottom:0.5rem"></i>
-              <p style="font-size:0.82rem">Click to upload AIS PDF<br><small style="color:var(--text-muted)">Or drag and drop here</small></p>
-              <input type="file" id="aisFile" hidden accept=".pdf" onchange="simulateAISAnalysis()"/>
-            </div>
-          </div>
+          <div class="form-group"><label for="aisSalary">Salary income reported (₹)</label><input type="number" id="aisSalary" min="0" placeholder="0"/></div>
+          <div class="form-group"><label for="aisInterest">Interest income (₹)</label><input type="number" id="aisInterest" min="0" placeholder="0"/></div>
+          <div class="form-group"><label for="aisDividend">Dividend income (₹)</label><input type="number" id="aisDividend" min="0" placeholder="0"/></div>
+          <div class="form-group"><label for="aisTds">Total TDS deducted (₹)</label><input type="number" id="aisTds" min="0" placeholder="0"/></div>
+          <div class="form-group"><label for="aisTcs">TCS collected (₹)</label><input type="number" id="aisTcs" min="0" placeholder="0"/></div>
+          <div class="form-group"><label for="aisSelfTax">Self-assessment / advance tax paid (₹)</label><input type="number" id="aisSelfTax" min="0" placeholder="0"/></div>
+        </div>
+        <div class="form-actions" style="display:flex;gap:0.75rem;flex-wrap:wrap">
+          <button class="btn-primary-solid" onclick="saveAisFigures()" type="button">💾 Save these figures</button>
+          <button class="btn-secondary-solid" onclick="compareAisWithDraft()" type="button">🔎 Compare with my ITR draft</button>
         </div>
         <div id="aisAnalysisResult" style="display:none;margin-top:1.5rem">
           <div class="result-card">
-            <h4>🤖 AI AIS Analysis Result</h4>
-            <div class="result-breakdown">
-              <div class="result-item"><span>Salary Income (TDS)</span><strong>₹8,40,000</strong></div>
-              <div class="result-item"><span>Bank Interest</span><strong>₹18,500</strong></div>
-              <div class="result-item"><span>Dividend Income</span><strong>₹5,200</strong></div>
-              <div class="result-item"><span>TDS Deducted</span><strong>₹72,500</strong></div>
-              <div class="result-item"><span>SFT Transactions</span><strong>3 transactions</strong></div>
-            </div>
-            <div style="margin-top:1rem;padding:0.75rem;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius-sm)">
-              <strong style="color:var(--success)">✅ No major discrepancies found!</strong> – Aapki AIS information ITR ke saath match karti hai.
-            </div>
+            <h4>🔎 AIS vs your ITR draft</h4>
+            <div id="aisCompareBody"></div>
           </div>
         </div>
       </div>
@@ -260,26 +264,31 @@
     <div class="tab-panel" id="tab-form26as">
       <div class="form-card">
         <h3>📄 Form 26AS – Tax Credit Statement</h3>
-        <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem">Form 26AS mein aapke TDS, TCS, advance tax, self-assessment tax ki details hoti hain.</p>
+        <p style="color:var(--text-secondary);margin-bottom:1rem;font-size:0.9rem">
+          Form 26AS mein aapke TDS, TCS, advance tax aur self-assessment tax ki entries hoti hain.
+          <strong>Ye site 26AS ko fetch nahi kar sakti</strong> — wo TRACES/portal login maangta hai aur
+          browser se direct access possible nahi hai. 26AS se totals yahan bhar dijiye; total credit
+          ka calculation real hoga.
+        </p>
+        <div style="padding:0.85rem 1rem;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.35);border-radius:var(--radius-sm);font-size:0.84rem;margin-bottom:1.25rem">
+          📥 26AS view/download: <a href="https://www.incometax.gov.in/iec/foportal/" target="_blank" rel="noopener noreferrer">incometax.gov.in</a> →
+          login → e-File → Income Tax Return → <em>View Form 26AS</em>. Salary TDS ke liye Form 16 Part A bhi dekh sakte hain.
+        </div>
         <div class="form-grid">
-          <div class="form-group"><label>PAN Number</label><input type="text" placeholder="AAAAA0000A" maxlength="10" style="text-transform:uppercase"/></div>
-          <div class="form-group"><label>Assessment Year</label><select><option>2025-26</option><option>2024-25</option><option>2023-24</option></select></div>
-          <div class="form-group"><label>Password</label><input type="password" placeholder="Enter password (DOB: DDMMYYYY)"/></div>
+          <div class="form-group"><label for="t26SalaryTds">Part A – TDS on salary (₹)</label><input type="number" id="t26SalaryTds" min="0" placeholder="0"/></div>
+          <div class="form-group"><label for="t26OtherTds">Part A/B – TDS on other income (₹)</label><input type="number" id="t26OtherTds" min="0" placeholder="0"/></div>
+          <div class="form-group"><label for="t26Tcs">Part A – TCS collected (₹)</label><input type="number" id="t26Tcs" min="0" placeholder="0"/></div>
+          <div class="form-group"><label for="t26Advance">Part C – Advance tax paid (₹)</label><input type="number" id="t26Advance" min="0" placeholder="0"/></div>
+          <div class="form-group"><label for="t26Self">Part C – Self-assessment tax paid (₹)</label><input type="number" id="t26Self" min="0" placeholder="0"/></div>
         </div>
         <div class="form-actions">
-          <button class="btn-primary-solid" onclick="show26ASDemo()">📄 Fetch Form 26AS</button>
+          <button class="btn-primary-solid" onclick="save26ASFigures()" type="button">🧮 Calculate &amp; save tax credit</button>
         </div>
-        <div id="form26asDemo" style="display:none;margin-top:1.5rem">
-          <h4 style="margin-bottom:1rem">Form 26AS Summary (Demo)</h4>
-          <table style="width:100%;border-collapse:collapse;font-size:0.875rem">
-            <thead><tr style="background:var(--bg-secondary)"><th style="padding:0.75rem;text-align:left;border-bottom:1px solid var(--border)">Part</th><th style="padding:0.75rem;text-align:left;border-bottom:1px solid var(--border)">Details</th><th style="padding:0.75rem;text-align:right;border-bottom:1px solid var(--border)">Amount (₹)</th><th style="padding:0.75rem;text-align:right;border-bottom:1px solid var(--border)">TDS/Tax (₹)</th></tr></thead>
-            <tbody>
-              <tr><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Part A – TDS on Salary</td><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Employer: ABC Pvt Ltd</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">8,40,000</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">72,500</td></tr>
-              <tr><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Part B – TDS on Interest</td><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Bank: SBI FD Interest</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">18,500</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">1,850</td></tr>
-              <tr><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Part C – Advance Tax</td><td style="padding:0.75rem;border-bottom:1px solid var(--border)">Challan 280</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">–</td><td style="padding:0.75rem;border-bottom:1px solid var(--border);text-align:right">15,000</td></tr>
-              <tr style="font-weight:700;background:rgba(30,64,175,0.05)"><td style="padding:0.75rem">Total Tax Credit</td><td style="padding:0.75rem"></td><td style="padding:0.75rem;text-align:right">8,58,500</td><td style="padding:0.75rem;text-align:right;color:var(--primary)">89,350</td></tr>
-            </tbody>
-          </table>
+        <div id="form26asResult" style="display:none;margin-top:1.5rem">
+          <div class="result-card">
+            <h4>🧾 Your tax credit summary</h4>
+            <div class="result-breakdown" id="t26Body"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -287,30 +296,31 @@
     <!-- TAB: FORM 16 -->
     <div class="tab-panel" id="tab-form16">
       <div class="form-card">
-        <h3>📋 Form 16 Analysis</h3>
-        <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem">Form 16 aapki salary TDS certificate hai. AI isko read karke ITR-1 ke liye data extract kar dega.</p>
-        <div class="upload-zone" style="border:2px dashed var(--border);border-radius:var(--radius-lg);padding:3rem;text-align:center;cursor:pointer" onclick="document.getElementById('form16File').click()">
-          <div style="font-size:3rem;margin-bottom:1rem">📋</div>
-          <h4>Upload Form 16 (Part A & Part B)</h4>
-          <p style="color:var(--text-secondary);font-size:0.875rem;margin-top:0.5rem">PDF ya image upload karo – AI automatically data extract karega</p>
-          <input type="file" id="form16File" hidden accept=".pdf,.jpg,.png" onchange="analyzeForm16()"/>
+        <h3>📋 Form 16 – salary TDS certificate</h3>
+        <p style="color:var(--text-secondary);margin-bottom:1rem;font-size:0.9rem">
+          Form 16 aapka salary TDS certificate hai. <strong>PDF auto-reading (OCR) is site par nahi hai</strong> —
+          wo server-side processing maangta hai. Part A/Part B se figures yahan bhar dijiye: ye save hote hain
+          aur ek click mein ITR wizard ke salary schedule mein chale jaate hain.
+        </p>
+        <div class="form-grid">
+          <div class="form-group"><label for="f16Employer">Employer name</label><input type="text" id="f16Employer" placeholder="e.g. Your employer's name" maxlength="80"/></div>
+          <div class="form-group"><label for="f16Tan">Employer TAN <span style="color:var(--text-muted);font-size:0.78rem">(optional)</span></label><input type="text" id="f16Tan" placeholder="ABCD12345E" maxlength="10" style="text-transform:uppercase"/></div>
+          <div class="form-group"><label for="f16Gross">Gross salary (₹)</label><input type="number" id="f16Gross" min="0" placeholder="0"/></div>
+          <div class="form-group"><label for="f16StdDed">Standard deduction (₹)</label><input type="number" id="f16StdDed" min="0" placeholder="75000"/></div>
+          <div class="form-group"><label for="f16ProfTax">Professional tax (₹)</label><input type="number" id="f16ProfTax" min="0" placeholder="0"/></div>
+          <div class="form-group"><label for="f16Tds">TDS deducted on salary (₹)</label><input type="number" id="f16Tds" min="0" placeholder="0"/></div>
+        </div>
+        <div class="form-actions" style="display:flex;gap:0.75rem;flex-wrap:wrap">
+          <button class="btn-primary-solid" onclick="saveForm16()" type="button">💾 Save Form 16 figures</button>
+          <button class="btn-secondary-solid" onclick="realCopyToITR()" type="button">📋 Send to ITR wizard</button>
         </div>
         <div id="form16Result" style="display:none;margin-top:1.5rem">
           <div class="result-card">
-            <h4>📊 Form 16 Extracted Data (AI OCR)</h4>
-            <div class="result-breakdown">
-              <div class="result-item"><span>Employer Name</span><strong>ABC Technologies Pvt Ltd</strong></div>
-              <div class="result-item"><span>TAN of Employer</span><strong></strong></div>
-              <div class="result-item"><span>Gross Salary</span><strong>₹9,20,000</strong></div>
-              <div class="result-item"><span>Standard Deduction</span><strong>₹50,000</strong></div>
-              <div class="result-item"><span>Professional Tax</span><strong>₹2,400</strong></div>
-              <div class="result-item"><span>Net Taxable Salary</span><strong>₹8,67,600</strong></div>
-              <div class="result-item"><span>TDS Deducted</span><strong>₹78,250</strong></div>
-              <div class="result-item"><span>PAN</span><strong>ABCDE1234F</strong></div>
-            </div>
-            <div style="margin-top:1rem;display:flex;gap:0.75rem">
-              <button class="btn-primary-solid" onclick="realCopyToITR()">📋 Copy to ITR-1</button>
-              <button class="btn-secondary-solid">📥 Download Report</button>
+            <h4>📊 Saved Form 16 figures</h4>
+            <div class="result-breakdown" id="form16Body"></div>
+            <div style="margin-top:1rem;padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--text-secondary)">
+              Ye figures sirf aapke browser mein save hote hain. Salary schedule aur tax computation
+              ITR wizard mein hota hai — wahan 80C/80D, HRA jaise deductions bhi add kijiye.
             </div>
           </div>
         </div>
@@ -360,6 +370,9 @@
   <script src="../js/config-generated.js"></script>
 <script src="../js/ai-proxy-config.js"></script>
 <script src="../js/config-generated.js"></script>
+<script src="../js/github-auth.js"></script>
+<script src="../js/tm-store.js"></script>
+<script src="../js/session-boot.js"></script>
 <script src="../js/firebase-config.js"></script>
 <script src="../js/ai-real.js"></script>
 <script src="../js/pdf-real.js"></script>
@@ -406,41 +419,182 @@
       `;
     }
 
-    function simulateAISAnalysis() {
-      document.getElementById('aisAnalysisResult').style.display = 'block';
-      document.getElementById('aisAnalysisResult').scrollIntoView({ behavior: 'smooth' });
+    /* ---------- AIS / 26AS / Form 16: real, saved manual entry ----------
+       Nothing here fabricates data. Figures come from the taxpayer, are stored in
+       this browser through TMStore (per-account when signed in) and every total is
+       computed from what was typed. */
+
+    function money(id) {
+      var el = document.getElementById(id);
+      var n = el ? Number(el.value) : 0;
+      return isFinite(n) && n > 0 ? n : 0;
+    }
+    function inrTxt(n) {
+      try { return '₹' + Number(n || 0).toLocaleString('en-IN'); }
+      catch (e) { return '₹' + Number(n || 0); }
+    }
+    function storeRead(key, fallback) {
+      if (!window.TMStore) return fallback;
+      return window.TMStore.read(key, fallback);
+    }
+    function storeWrite(key, value) {
+      if (!window.TMStore) { toast('Storage is unavailable in this browser.', 'error'); return false; }
+      return window.TMStore.write(key, value);
+    }
+    function toast(msg, type) {
+      if (typeof showToast === 'function') { showToast(msg, type === 'error' ? 'error' : 'success'); return; }
+      var d = document.createElement('div');
+      d.textContent = msg;
+      d.style.cssText = 'position:fixed;bottom:1.25rem;right:1.25rem;padding:.7rem 1.1rem;border-radius:8px;z-index:9999;font-size:.85rem;color:#fff;background:' + (type === 'error' ? '#dc2626' : '#1e40af');
+      document.body.appendChild(d);
+      setTimeout(function () { d.remove(); }, 3200);
+    }
+    function scrollToEl(el) {
+      if (el && typeof el.scrollIntoView === 'function') el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function fill(id, value) {
+      var el = document.getElementById(id);
+      if (el && value !== undefined && value !== null && value !== '') el.value = value;
     }
 
-    function show26ASDemo() { document.getElementById('form26asDemo').style.display = 'block'; }
+    var AIS_KEY = 'tm-ais-figures';
+    var AS26_KEY = 'tm-26as-figures';
+    var F16_KEY = 'tm-form16-figures';
 
-    function analyzeForm16() {
-      const fileInput = document.getElementById('form16File');
-      if (!fileInput?.files?.[0]) return;
-      if (typeof showToast === 'function') showToast('Analyzing Form 16 with AI OCR...', 'success');
-      setTimeout(() => {
-        document.getElementById('form16Result').style.display = 'block';
-        document.getElementById('form16Result').scrollIntoView({ behavior: 'smooth' });
-        if (typeof showToast === 'function') showToast('Form 16 analyzed! Review extracted data.', 'success');
-      }, 1800);
+    function saveAisFigures() {
+      var data = {
+        salary: money('aisSalary'), interest: money('aisInterest'), dividend: money('aisDividend'),
+        tds: money('aisTds'), tcs: money('aisTcs'), selfTax: money('aisSelfTax'),
+        savedAt: new Date().toISOString()
+      };
+      var total = data.salary + data.interest + data.dividend;
+      if (total === 0 && data.tds === 0) { toast('Enter at least one figure from your AIS first.', 'error'); return; }
+      storeWrite(AIS_KEY, data);
+      toast('AIS figures saved (' + inrTxt(total) + ' income reported).', 'success');
+    }
+
+    function compareAisWithDraft() {
+      var ais = storeRead(AIS_KEY, null);
+      var box = document.getElementById('aisAnalysisResult');
+      var body = document.getElementById('aisCompareBody');
+      if (!ais) { toast('Save your AIS figures first.', 'error'); return; }
+      var draft = storeRead((window.TMStore ? window.TMStore.KEYS.itrDraft : 'tm-itr-draft'), null);
+      var itr = draft && draft.state ? draft.state : null;
+      var rows = [];
+      function row(label, aisVal, itrVal, hasItr) {
+        var diff = (itrVal || 0) - (aisVal || 0);
+        var status = !hasItr ? '⚠️ No ITR draft yet' : (diff === 0 ? '✅ Matches' : '❌ Difference ' + inrTxt(Math.abs(diff)));
+        rows.push('<div class="result-item"><span>' + label + ' — AIS ' + inrTxt(aisVal) +
+          (hasItr ? ', ITR ' + inrTxt(itrVal) : '') + '</span><strong>' + status + '</strong></div>');
+      }
+      row('Salary income', ais.salary, itr ? itr.income.grossSalary : 0, !!itr);
+      row('Other income', ais.interest + ais.dividend, itr ? itr.income.otherIncome : 0, !!itr);
+      row('TDS deducted', ais.tds, itr ? itr.taxes.tdsPaid : 0, !!itr);
+      row('Advance / self-assessment tax', ais.selfTax, itr ? itr.taxes.advanceTaxPaid : 0, !!itr);
+      body.innerHTML = rows.join('') +
+        '<div style="margin-top:0.9rem;padding:0.75rem;background:var(--bg-secondary);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--text-secondary)">' +
+        (itr ? 'Comparison is against the draft currently saved in the ITR wizard on this browser.'
+             : 'No ITR draft found. Fill the <a href="itr-form.html">ITR wizard</a> first, then compare again.') +
+        '</div>';
+      box.style.display = 'block';
+      scrollToEl(box);
+    }
+
+    function save26ASFigures() {
+      var data = {
+        salaryTds: money('t26SalaryTds'), otherTds: money('t26OtherTds'), tcs: money('t26Tcs'),
+        advance: money('t26Advance'), self: money('t26Self'), savedAt: new Date().toISOString()
+      };
+      var total = data.salaryTds + data.otherTds + data.tcs + data.advance + data.self;
+      if (total === 0) { toast('Enter at least one tax credit from Form 26AS.', 'error'); return; }
+      storeWrite(AS26_KEY, data);
+      document.getElementById('t26Body').innerHTML =
+        '<div class="result-item"><span>TDS on salary</span><strong>' + inrTxt(data.salaryTds) + '</strong></div>' +
+        '<div class="result-item"><span>TDS on other income</span><strong>' + inrTxt(data.otherTds) + '</strong></div>' +
+        '<div class="result-item"><span>TCS collected</span><strong>' + inrTxt(data.tcs) + '</strong></div>' +
+        '<div class="result-item"><span>Advance tax paid</span><strong>' + inrTxt(data.advance) + '</strong></div>' +
+        '<div class="result-item"><span>Self-assessment tax paid</span><strong>' + inrTxt(data.self) + '</strong></div>' +
+        '<div class="result-item" style="border-top:2px solid var(--border)"><span><strong>Total tax credit</strong></span><strong style="color:var(--primary)">' + inrTxt(total) + '</strong></div>';
+      var r26 = document.getElementById('form26asResult');
+      r26.style.display = 'block';
+      scrollToEl(r26);
+      toast('Tax credit saved: ' + inrTxt(total), 'success');
+    }
+
+    function saveForm16() {
+      var tan = (document.getElementById('f16Tan').value || '').trim().toUpperCase();
+      if (tan && !/^[A-Z]{4}[0-9]{5}[A-Z]$/.test(tan)) {
+        toast('TAN should look like ABCD12345E (4 letters, 5 digits, 1 letter).', 'error');
+        return;
+      }
+      var data = {
+        employer: (document.getElementById('f16Employer').value || '').trim().slice(0, 80),
+        tan: tan,
+        gross: money('f16Gross'),
+        stdDeduction: money('f16StdDed'),
+        profTax: money('f16ProfTax'),
+        tds: money('f16Tds'),
+        savedAt: new Date().toISOString()
+      };
+      if (!data.gross) { toast('Gross salary is required.', 'error'); return; }
+      if (data.stdDeduction > data.gross) { toast('Standard deduction cannot exceed gross salary.', 'error'); return; }
+      storeWrite(F16_KEY, data);
+      var taxable = Math.max(0, data.gross - data.stdDeduction - data.profTax);
+      document.getElementById('form16Body').innerHTML =
+        '<div class="result-item"><span>Employer</span><strong>' + (data.employer || '—') + '</strong></div>' +
+        '<div class="result-item"><span>TAN</span><strong>' + (data.tan || '—') + '</strong></div>' +
+        '<div class="result-item"><span>Gross salary</span><strong>' + inrTxt(data.gross) + '</strong></div>' +
+        '<div class="result-item"><span>Standard deduction</span><strong>' + inrTxt(data.stdDeduction) + '</strong></div>' +
+        '<div class="result-item"><span>Professional tax</span><strong>' + inrTxt(data.profTax) + '</strong></div>' +
+        '<div class="result-item"><span>Income chargeable under salaries</span><strong>' + inrTxt(taxable) + '</strong></div>' +
+        '<div class="result-item"><span>TDS deducted</span><strong>' + inrTxt(data.tds) + '</strong></div>';
+      var r16 = document.getElementById('form16Result');
+      r16.style.display = 'block';
+      scrollToEl(r16);
+      toast('Form 16 figures saved.', 'success');
     }
 
     function realCopyToITR() {
-      // Store form 16 data in localStorage for ITR-1 form to pick up
-      const form16Data = {
-        grossSalary: 920000,
-        stdDeduction: 75000,
-        profTax: 2400,
-        tdsSalary: 78250,
-      };
-      localStorage.setItem('itr_draft_1', JSON.stringify({
-        grossSalary: form16Data.grossSalary,
-        stdDeduction: form16Data.stdDeduction,
-        profTax: form16Data.profTax,
-        tdsSalary: form16Data.tdsSalary
-      }));
-      if (typeof showToast === 'function') showToast('Form 16 data copied! ITR-1 form mein auto-fill ho gaya.', 'success');
-      setTimeout(() => { window.location.href = 'itr-form.html?form=1'; }, 1200);
+      var f16 = storeRead(F16_KEY, null);
+      if (!f16 || !f16.gross) { toast('Save your Form 16 figures first.', 'error'); return; }
+      if (!window.TMStore) { toast('Storage is unavailable in this browser.', 'error'); return; }
+      var S = window.TMStore;
+      var draft = S.read(S.KEYS.itrDraft, null) || { state: {} };
+      var state = draft.state || {};
+      var income = Object.assign({
+        grossSalary: 0, basicDa: 0, hraReceived: 0, rentPaid: 0, metro: false,
+        otherSalaryExemptions: 0, selfOccupiedInterest: 0, businessIncome: 0,
+        otherIncome: 0, letOut: []
+      }, state.income || {});
+      var taxes = Object.assign({ tdsPaid: 0, advanceTaxPaid: 0 }, state.taxes || {});
+      income.grossSalary = f16.gross;
+      income.otherSalaryExemptions = f16.profTax || 0;
+      taxes.tdsPaid = f16.tds || 0;
+      state.income = income;
+      state.taxes = taxes;
+      S.write(S.KEYS.itrDraft, { savedAt: new Date().toISOString(), state: state });
+      toast('Form 16 figures sent to the ITR wizard. Opening it now…', 'success');
+      setTimeout(function () { window.location.href = 'itr-form.html?form=1'; }, 900);
     }
+
+    /* Restore anything already saved on this browser. */
+    (function restoreTaxCentre() {
+      var ais = storeRead(AIS_KEY, null);
+      if (ais) {
+        fill('aisSalary', ais.salary); fill('aisInterest', ais.interest); fill('aisDividend', ais.dividend);
+        fill('aisTds', ais.tds); fill('aisTcs', ais.tcs); fill('aisSelfTax', ais.selfTax);
+      }
+      var as26 = storeRead(AS26_KEY, null);
+      if (as26) {
+        fill('t26SalaryTds', as26.salaryTds); fill('t26OtherTds', as26.otherTds); fill('t26Tcs', as26.tcs);
+        fill('t26Advance', as26.advance); fill('t26Self', as26.self);
+      }
+      var f16 = storeRead(F16_KEY, null);
+      if (f16) {
+        fill('f16Employer', f16.employer); fill('f16Tan', f16.tan); fill('f16Gross', f16.gross);
+        fill('f16StdDed', f16.stdDeduction); fill('f16ProfTax', f16.profTax); fill('f16Tds', f16.tds);
+      }
+    })();
 
     // Guide button functionality
     document.querySelectorAll('.btn-guide').forEach((btn, idx) => {

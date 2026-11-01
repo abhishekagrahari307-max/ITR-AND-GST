@@ -461,18 +461,41 @@ async function adminTests() {
     assert(document.getElementById('integrityBody').textContent.length > 0, 'integrity check should run on load');
   });
 
-  await check('seeding demo data fills the console', function () {
-    click(window, '#seedBtn');
-    equal(document.getElementById('invoiceCount').textContent, '3');
-    equal(document.getElementById('customerCount').textContent, '2');
-    equal(document.getElementById('itemCount').textContent, '2');
-    assert(document.getElementById('invoicedTotal').textContent.indexOf('₹') !== -1);
+  await check('the console starts empty – no demo or fake data', function () {
+    equal(document.querySelectorAll('#seedBtn').length, 0, 'the demo seeder must not exist any more');
+    equal(document.getElementById('invoiceCount').textContent, '0');
+    equal(document.getElementById('customerCount').textContent, '0');
+    equal(document.getElementById('invoicedTotal').textContent, '₹0.00');
   });
 
-  await check('the seeded data passes the integrity check', function () {
+  await check('data written through the store shows up in the console', function () {
+    // Real records, created the same way the billing page creates them.
+    window.TMStore.saveList('customers', [{ id: 'c1', name: 'Real Customer', gstin: '', state: '27' }]);
+    window.TMStore.saveList('invoices', [{
+      id: 'i1', invoiceNumber: 'INV/2026-27/0001', invoiceDate: '2026-04-05', buyerName: 'Real Customer',
+      buyerState: '27', status: 'unpaid',
+      lines: [{ description: 'Consulting', quantity: 1, rate: 1000, gstRate: 18 }]
+    }]);
+    window.TMAdmin.renderOverview();
+    equal(document.getElementById('invoiceCount').textContent, '1');
+    equal(document.getElementById('customerCount').textContent, '1');
+    assert(document.getElementById('invoicedTotal').textContent.indexOf('1,180') !== -1, 'total should be ₹1,180.00');
+  });
+
+  await check('real data passes the integrity check', function () {
+    window.TMAdmin.runIntegrityCheck();
     var text = document.getElementById('integrityBody').textContent;
-    assert(text.indexOf('error') === -1 || text.indexOf('0 error') !== -1, 'unexpected errors: ' + text.slice(0, 200));
-    assert(/ok|warning/i.test(text), 'expected an ok/warning verdict');
+    assert(!/\d+ errors?\b(?! 0)/.test(text) || text.indexOf('0 error') !== -1, 'unexpected errors: ' + text.slice(0, 200));
+    assert(/ok|warn/i.test(text), 'expected an ok/warn verdict, got: ' + text.slice(0, 200));
+  });
+
+  await check('a guest cannot reach the destructive actions', function () {
+    var clear = document.getElementById('clearBtn');
+    var restore = document.getElementById('importBackupBtn');
+    equal(clear.disabled, true, 'wipe must need an administrator');
+    equal(restore.disabled, true, 'restore must need an administrator');
+    assert(document.getElementById('roleBanner').textContent.indexOf('guest') !== -1);
+    assert(document.getElementById('adminOnlyNote').hidden === false);
   });
 
   await check('a backup can be produced', function () {
@@ -481,7 +504,17 @@ async function adminTests() {
     assert(true);
   });
 
-  await check('clearing wipes everything', function () {
+  await check('an administrator can wipe, a guest cannot', function () {
+    // Guest click does nothing.
+    click(window, '#clearBtn');
+    equal(document.getElementById('invoiceCount').textContent, '1', 'guest must not wipe data');
+
+    // Simulate the admin session exactly as the account page stores it.
+    window.localStorage.setItem('tm-gh-session', JSON.stringify({
+      token: 't0k3n', login: 'abhishekagrahari307-max', role: 'admin', signedInAt: new Date().toISOString()
+    }));
+    window.TMAdmin.applyRole();
+    equal(document.getElementById('clearBtn').disabled, false, 'admin should unlock wipe');
     click(window, '#clearBtn');
     equal(document.getElementById('invoiceCount').textContent, '0');
     equal(window.localStorage.getItem('tm-billing-invoices'), null);
@@ -555,6 +588,272 @@ async function homeTests() {
   dom.window.close();
 }
 
+
+async function accountTests() {
+  console.log('\nAccount page (GitHub sign-in)');
+  var dom = await loadPage('pages/account.html');
+  var window = dom.window;
+  var document = window.document;
+
+  function respond(body, status) {
+    return {
+      ok: (status || 200) < 300,
+      status: status || 200,
+      headers: { get: function () { return null; } },
+      text: function () { return Promise.resolve(JSON.stringify(body)); },
+      json: function () { return Promise.resolve(body); }
+    };
+  }
+
+  await check('scripts load without a page error', function () {
+    var errors = window.__errors || [];
+    equal(errors.length, 0, 'page errors: ' + errors.join(' | '));
+    assert(window.TMGitHubAuth, 'github-auth.js should expose TMGitHubAuth');
+    assert(window.TMSession, 'session-boot.js should expose TMSession');
+  });
+
+  await check('signed out shows the sign-in options, not a profile', function () {
+    equal(document.getElementById('signedOutView').hidden, false);
+    equal(document.getElementById('signedInView').hidden, true);
+    equal(window.TMSession.isSignedIn, false);
+    equal(window.TMSession.role, 'guest');
+  });
+
+  await check('without a client id the device button is disabled and explained', function () {
+    equal(document.getElementById('deviceFlowCard').disabled, true);
+    equal(document.getElementById('clientIdNotice').hidden, false);
+  });
+
+  await check('saving a client id enables the button', function () {
+    setValue(window, 'clientIdInput', 'Iv1.0123456789abcdef');
+    click(window, '#saveClientId');
+    equal(document.getElementById('deviceFlowCard').disabled, false);
+    equal(document.getElementById('clientIdNotice').hidden, true);
+    equal(window.localStorage.getItem('tm-gh-client-id'), 'Iv1.0123456789abcdef');
+  });
+
+  await check('a malformed client id is refused', function () {
+    setValue(window, 'clientIdInput', 'nope!');
+    click(window, '#saveClientId');
+    equal(window.TMGitHubAuth.getConfig().clientId, 'Iv1.0123456789abcdef', 'the bad value must not be saved');
+  });
+
+  await check('device flow shows a code and then signs the user in', async function () {
+    var calls = [];
+    window.fetch = function (url, options) {
+      calls.push(String(url));
+      if (String(url).indexOf('/login/device/code') !== -1) {
+        return Promise.resolve(respond({ device_code: 'dev1', user_code: 'WDJB-MJHT', verification_uri: 'https://github.com/login/device', expires_in: 900, interval: 1 }));
+      }
+      if (String(url).indexOf('/login/oauth/access_token') !== -1) {
+        if (calls.filter(function (u) { return u.indexOf('access_token') !== -1; }).length < 2) {
+          return Promise.resolve(respond({ error: 'authorization_pending' }));
+        }
+        return Promise.resolve(respond({ access_token: 'gho_live_token_value', token_type: 'bearer', scope: 'read:user' }));
+      }
+      if (/api\.github\.com\/user$/.test(String(url))) {
+        return Promise.resolve(respond({ login: 'visitor-user', id: 42, name: 'Visitor', avatar_url: 'https://avatars.example/v.png', html_url: 'https://github.com/visitor-user' }));
+      }
+      return Promise.resolve(respond({ message: 'Not Found' }, 404));
+    };
+    window.TMGitHubAuth.setFetch(window.fetch);
+    // Speed the poll up so the test does not wait GitHub's 1s minimum twice.
+    window.TMGitHubAuth.pollForToken = (function (original) {
+      return function (flow, options) {
+        var opts = Object.assign({}, options, { wait: function () { return Promise.resolve(); } });
+        return original.call(window.TMGitHubAuth, flow, opts);
+      };
+    })(window.TMGitHubAuth.pollForToken);
+
+    window.TMAccount.startDevice();
+    // GitHub's device flow enforces a 1s minimum between polls, so allow time.
+    for (var waited = 0; waited < 4000 && !window.TMGitHubAuth.getSession(); waited += 100) {
+      await new Promise(function (resolve) { setTimeout(resolve, 100); });
+    }
+    var session = window.TMGitHubAuth.getSession();
+    assert(session, 'expected a session after approval; status was: ' + document.getElementById('deviceStatus').textContent);
+    equal(session.login, 'visitor-user');
+    equal(session.role, 'user');
+    assert(window.localStorage.getItem('tm-gh-session'), 'remembered session should live in localStorage');
+  });
+
+  await check('the profile view renders the account and its role', function () {
+    window.TMAccount.render();
+    equal(document.getElementById('signedInView').hidden, false);
+    equal(document.getElementById('profileLogin').textContent, '@visitor-user');
+    equal(document.getElementById('profileName').textContent, 'Visitor');
+    equal(document.getElementById('roleBadge').textContent.indexOf('User') !== -1, true);
+    equal(document.getElementById('adminLink').hidden, true, 'a normal user must not see the admin console link');
+  });
+
+  await check('the repository owner is shown as an administrator', function () {
+    window.localStorage.setItem('tm-gh-session', JSON.stringify({
+      token: 't', login: 'abhishekagrahari307-max', role: 'admin', scope: 'read:user',
+      signedInAt: new Date().toISOString(), storage: 'local'
+    }));
+    window.TMAccount.render();
+    equal(document.getElementById('roleBadge').textContent.indexOf('Administrator') !== -1, true);
+    equal(document.getElementById('adminLink').hidden, false);
+  });
+
+  await check('signing out clears the session and the data namespace', function () {
+    click(window, '#signOutBtn');
+    equal(window.TMGitHubAuth.getSession(), null);
+    equal(window.localStorage.getItem('tm-gh-session'), null);
+    equal(window.TMStore.getNamespace(), '');
+  });
+
+  await check('a personal access token signs in when the device flow is unavailable', async function () {
+    window.TMGitHubAuth.setFetch(function (url) {
+      if (/api\.github\.com\/user$/.test(String(url))) {
+        return Promise.resolve(respond({ login: 'pat-user', id: 7, name: 'PAT User', avatar_url: 'a.png', html_url: 'h' }));
+      }
+      return Promise.resolve(respond({ message: 'Not Found' }, 404));
+    });
+    setValue(window, 'patInput', 'ghp_abcdefghijklmnopqrstuvwx');
+    click(window, '#patSignIn');
+    await new Promise(function (resolve) { setTimeout(resolve, 150); });
+    var session = window.TMGitHubAuth.getSession();
+    assert(session, 'expected a PAT session; status: ' + document.getElementById('patStatus').textContent);
+    equal(session.login, 'pat-user');
+    equal(document.getElementById('patInput').value, '', 'the token must be cleared from the field');
+  });
+
+  await check('a rejected token leaves the user signed out with a readable error', async function () {
+    window.TMGitHubAuth.signOut();
+    window.TMGitHubAuth.setFetch(function () {
+      return Promise.resolve(respond({ message: 'Bad credentials' }, 401));
+    });
+    setValue(window, 'patInput', 'ghp_thisOneIsInvalidxxxxxxxx');
+    click(window, '#patSignIn');
+    await new Promise(function (resolve) { setTimeout(resolve, 150); });
+    equal(window.TMGitHubAuth.getSession(), null);
+    assert(document.getElementById('patStatus').textContent.indexOf('revoked') !== -1 ||
+      document.getElementById('patStatus').textContent.indexOf('401') !== -1,
+      'expected an explanation, got: ' + document.getElementById('patStatus').textContent);
+  });
+
+  await check('no client secret is present anywhere on the page', function () {
+    var html = fs.readFileSync(path.join(ROOT, 'pages/account.html'), 'utf8');
+    assert(!/client_secret\s*[:=]\s*['"][^'"]+/.test(html), 'the page must not carry a client secret');
+    assert(!/github_pat_[A-Za-z0-9]{20,}/.test(html), 'no token may be baked into the page');
+  });
+
+  dom.window.close();
+}
+
+
+async function itrCentreTests() {
+  console.log('\nITR centre (AIS / 26AS / Form 16)');
+  var dom = await loadPage('pages/itr-center.html');
+  var window = dom.window;
+  var document = window.document;
+
+  await check('scripts load without a page error', function () {
+    equal((window.__errors || []).length, 0, 'page errors: ' + (window.__errors || []).join(' | '));
+    assert(window.TMStore, 'tm-store.js should be loaded');
+  });
+
+  await check('nothing is pre-filled with fabricated figures', function () {
+    ['aisSalary', 'aisInterest', 'aisDividend', 'aisTds', 'aisTcs', 'aisSelfTax',
+      't26SalaryTds', 't26OtherTds', 't26Tcs', 't26Advance', 't26Self',
+      'f16Employer', 'f16Gross', 'f16StdDed', 'f16ProfTax', 'f16Tds'].forEach(function (id) {
+      var el = document.getElementById(id);
+      assert(el, 'missing #' + id);
+      equal(el.value, '', '#' + id + ' must start empty');
+    });
+    equal(document.getElementById('aisAnalysisResult').style.display, 'none');
+    equal(document.getElementById('form26asResult').style.display, 'none');
+    equal(document.getElementById('form16Result').style.display, 'none');
+  });
+
+  await check('26AS total is computed from what the taxpayer enters', function () {
+    setValue(window, 't26SalaryTds', '72500');
+    setValue(window, 't26OtherTds', '1850');
+    setValue(window, 't26Tcs', '0');
+    setValue(window, 't26Advance', '15000');
+    setValue(window, 't26Self', '0');
+    click(window, '[onclick="save26ASFigures()"]');
+    var body = document.getElementById('t26Body').textContent;
+    assert(body.indexOf('89,350') !== -1, 'expected a total of ₹89,350, got: ' + body.slice(0, 200));
+    var saved = window.TMStore.read('tm-26as-figures', null);
+    equal(saved.salaryTds, 72500);
+    equal(saved.advance, 15000);
+  });
+
+  await check('an empty 26AS save is refused instead of inventing numbers', function () {
+    window.TMStore.remove('tm-26as-figures');
+    ['t26SalaryTds', 't26OtherTds', 't26Tcs', 't26Advance', 't26Self'].forEach(function (id) { setValue(window, id, ''); });
+    document.getElementById('form26asResult').style.display = 'none';
+    click(window, '[onclick="save26ASFigures()"]');
+    equal(document.getElementById('form26asResult').style.display, 'none');
+    equal(window.TMStore.read('tm-26as-figures', null), null);
+  });
+
+  await check('Form 16 rejects a bad TAN and a deduction larger than salary', function () {
+    setValue(window, 'f16Gross', '920000');
+    setValue(window, 'f16Tan', 'BADTAN');
+    click(window, '[onclick="saveForm16()"]');
+    equal(window.TMStore.read('tm-form16-figures', null), null, 'a bad TAN must not be saved');
+
+    setValue(window, 'f16Tan', 'ABCD12345E');
+    setValue(window, 'f16StdDed', '9999999');
+    click(window, '[onclick="saveForm16()"]');
+    equal(window.TMStore.read('tm-form16-figures', null), null, 'std deduction above gross must not be saved');
+  });
+
+  await check('Form 16 saves the real figures and computes taxable salary', function () {
+    setValue(window, 'f16Employer', 'My Employer Pvt Ltd');
+    setValue(window, 'f16StdDed', '75000');
+    setValue(window, 'f16ProfTax', '2400');
+    setValue(window, 'f16Tds', '78250');
+    click(window, '[onclick="saveForm16()"]');
+    var saved = window.TMStore.read('tm-form16-figures', null);
+    assert(saved, 'expected the figures to be stored');
+    equal(saved.gross, 920000);
+    equal(saved.tds, 78250);
+    var body = document.getElementById('form16Body').textContent;
+    assert(body.indexOf('8,42,600') !== -1, 'taxable salary should be ₹8,42,600, got: ' + body.slice(0, 300));
+  });
+
+  await check('sending Form 16 to the wizard writes a real prefill into the draft', function () {
+    click(window, '[onclick="realCopyToITR()"]');
+    var draft = window.TMStore.read(window.TMStore.KEYS.itrDraft, null);
+    assert(draft && draft.state, 'expected an ITR draft to be written');
+    equal(draft.state.income.grossSalary, 920000);
+    equal(draft.state.taxes.tdsPaid, 78250);
+    equal(draft.state.income.businessIncome, 0, 'other income fields must keep their defaults');
+    equal(draft.state.step, undefined, 'the prefill must not fake a wizard step');
+  });
+
+  await check('AIS comparison reports honestly when there is no draft', function () {
+    window.TMStore.remove(window.TMStore.KEYS.itrDraft);
+    setValue(window, 'aisSalary', '840000');
+    setValue(window, 'aisTds', '72500');
+    click(window, '[onclick="saveAisFigures()"]');
+    click(window, '[onclick="compareAisWithDraft()"]');
+    equal(document.getElementById('aisAnalysisResult').style.display, 'block');
+    var body = document.getElementById('aisCompareBody').textContent;
+    assert(body.indexOf('No ITR draft') !== -1 || body.indexOf('not found') !== -1, 'expected an honest no-draft message, got: ' + body.slice(0, 200));
+  });
+
+  await check('AIS comparison flags a real difference against a saved draft', function () {
+    window.TMStore.write(window.TMStore.KEYS.itrDraft, {
+      savedAt: new Date().toISOString(),
+      state: {
+        income: { grossSalary: 900000, otherIncome: 0 },
+        taxes: { tdsPaid: 72500, advanceTaxPaid: 0 }
+      }
+    });
+    click(window, '[onclick="compareAisWithDraft()"]');
+    var body = document.getElementById('aisCompareBody').textContent;
+    assert(body.indexOf('Difference') !== -1, 'expected a difference row, got: ' + body.slice(0, 250));
+    assert(body.indexOf('Matches') !== -1, 'the matching TDS row should say Matches');
+  });
+
+  dom.window.close();
+}
+
 (async function main() {
   console.log('TaxMitra browser smoke test (jsdom)');
   console.log('─'.repeat(64));
@@ -564,6 +863,8 @@ async function homeTests() {
     await itrTests();
     await directoryTests();
     await adminTests();
+    await accountTests();
+    await itrCentreTests();
   } catch (error) {
     results.failed += 1;
     results.failures.push({ name: 'harness', error: error });

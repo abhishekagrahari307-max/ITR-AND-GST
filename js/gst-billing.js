@@ -186,7 +186,7 @@
     return validateGSTIN(input).valid;
   }
 
-  /** Build a GSTIN from PAN + state code (useful for tests/demo data). */
+  /** Build a GSTIN from PAN + state code (used by the tests and by the demo GSTIN helper). */
   function makeGSTIN(stateCode, pan, entityNumber) {
     var first14 = String(stateCode) + String(pan) + String(entityNumber || 1) + 'Z';
     if (first14.length !== 14) return null;
