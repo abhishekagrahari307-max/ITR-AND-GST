@@ -487,8 +487,50 @@
         : '';
     }
 
+    var validationHost = $('reviewValidation');
+    if (validationHost) validationHost.innerHTML = renderValidation();
+
     setText('reviewForm', rec.form);
     setText('reviewFormName', meta.name || '');
+  }
+
+  /* ------------------------- schema validation ------------------------- */
+  function schemaDoc(options) {
+    var X = window.TMITRSchema;
+    if (!X) return null;
+    try {
+      return X.build(state, options);
+    } catch (e) {
+      return { error: e.message };
+    }
+  }
+
+  function validationResult() {
+    var X = window.TMITRSchema;
+    if (!X) return null;
+    try {
+      return X.validate(state);
+    } catch (e) {
+      return { ok: false, errors: [{ field: 'computation', section: 'Computation', message: e.message }], warnings: [] };
+    }
+  }
+
+  function renderValidation() {
+    var v = validationResult();
+    if (!v) return '';
+    var items = v.errors.map(function (item) {
+      return '<li><strong>' + esc(item.section) + '</strong> — ' + esc(item.message) + '</li>';
+    }).concat(v.warnings.map(function (item) {
+      return '<li>⚠️ <strong>' + esc(item.section) + '</strong> — ' + esc(item.message) + '</li>';
+    }));
+    if (!items.length) {
+      return '<div class="alert ok" style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.35);color:#065f46">' +
+        '✅ No validation issues found in this draft.</div>';
+    }
+    return '<div class="alert ' + (v.errors.length ? 'bad' : 'warn') + '">' +
+      '<strong>' + (v.errors.length ? v.errors.length + ' error(s) to fix' : 'No errors') +
+      (v.warnings.length ? ' · ' + v.warnings.length + ' warning(s)' : '') + '</strong>' +
+      '<ul>' + items.join('') + '</ul></div>';
   }
 
   function card(title, rows) {
@@ -566,6 +608,36 @@
 
   function exportJSON() {
     download('itr-working-paper-' + (state.profile.fy || 'FY') + '.json', JSON.stringify(buildExport(), null, 2), 'application/json');
+  }
+
+  /** Schema-shaped export, gated on validation errors. */
+  function exportItrJson() {
+    var X = window.TMITRSchema;
+    if (!X) { window.alert('The ITR schema module did not load, so the schema export is unavailable.'); return; }
+    var v = X.validate(state);
+    if (v.errors.length) {
+      var proceed = window.confirm('This draft has ' + v.errors.length + ' validation error(s):\n\n' +
+        v.errors.map(function (e) { return '• ' + e.section + ': ' + e.message; }).join('\n') +
+        '\n\nExport anyway as a working paper?');
+      if (!proceed) return;
+    }
+    var doc = X.build(state, { form: currentForm() });
+    download('itr-' + doc.form.toLowerCase().replace('-', '') + '-' + (state.profile.fy || 'FY') + '-working-paper.json',
+      JSON.stringify(doc, null, 2), 'application/json');
+  }
+
+  function currentForm() {
+    var c = compare();
+    var result = activeResult(c);
+    var p = state.profile;
+    var rec = T.recommendITRForm({
+      entityType: p.entityType, totalIncome: result.totalIncome, presumptive: p.presumptive,
+      hasBusinessIncome: p.hasBusinessIncome, hasCapitalGains: p.hasCapitalGains || result.specialIncome > 0,
+      foreignAssets: p.foreignAssets, houseProperties: p.houseProperties,
+      residentialStatus: p.residentialStatus, directorInCompany: p.directorInCompany,
+      unlistedShares: p.unlistedShares
+    });
+    return rec.form;
   }
 
   function renderLetOut() {
@@ -655,6 +727,15 @@
     var exportBtn = $('exportBtn');
     if (exportBtn) exportBtn.addEventListener('click', exportJSON);
 
+    var itrJsonBtn = $('exportItrJsonBtn');
+    if (itrJsonBtn) itrJsonBtn.addEventListener('click', exportItrJson);
+
+    var revalidateBtn = $('revalidateBtn');
+    if (revalidateBtn) revalidateBtn.addEventListener('click', function () {
+      var host = $('reviewValidation');
+      if (host) host.innerHTML = renderValidation();
+    });
+
     var printBtn = $('printComputation');
     if (printBtn) printBtn.addEventListener('click', function () { if (typeof window.print === 'function') window.print(); });
 
@@ -687,6 +768,9 @@
     state: state,
     compare: compare,
     buildExport: buildExport,
+    exportItrJson: exportItrJson,
+    renderValidation: renderValidation,
+    validationResult: validationResult,
     validateStep: validateStep,
     warnings: warnings
   };

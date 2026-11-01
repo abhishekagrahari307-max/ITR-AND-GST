@@ -273,13 +273,17 @@
     <!-- ============ STEP 7 : REVIEW ============ -->
     <section id="step7" class="wizard-card" hidden>
       <h2>Step 7 · Review, recommendation and export</h2>
-      <p class="lead">File <strong id="reviewForm">—</strong> <span id="reviewFormName"></span>. Download the working paper and use it while filling the utility.</p>
+      <p class="lead">File <strong id="reviewForm">—</strong> <span id="reviewFormName"></span>. Download the working paper and use it while filling the official utility.
+        The <em>ITR JSON</em> export is shaped like the department's schema so the figures can be mapped field by field — it is <strong>not</strong> an e-filing payload and is never submitted.</p>
       <div id="reviewWarnings"></div>
+      <div id="reviewValidation"></div>
       <div id="reviewBody"></div>
       <div class="wizard-actions print-hide">
         <button class="btn-secondary-solid" data-prev>← Back</button>
         <button class="btn-secondary-solid" id="printComputation">🖨 Print computation</button>
         <button class="btn-secondary-solid" id="exportBtn">⬇ Download working paper (JSON)</button>
+        <button class="btn-secondary-solid" id="exportItrJsonBtn">📄 Export ITR JSON (schema-shaped)</button>
+        <button class="btn-secondary-solid" id="revalidateBtn">✓ Re-run validation</button>
         <span class="spacer"></span>
         <button class="btn-primary-solid" id="finishBtn">Download &amp; finish</button>
       </div>
@@ -296,6 +300,7 @@
   <script src="../js/github-auth.js"></script>
   <script src="../js/tm-store.js"></script>
   <script src="../js/session-boot.js"></script>
+  <script src="../js/itr-schema.js"></script>
   <script src="../js/itr-form.js"></script>
   <script>
     // Render the static ITR-1..7 reference cards from the engine metadata.

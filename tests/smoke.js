@@ -387,6 +387,44 @@ async function itrTests() {
     equal(draft.state.profile.name, 'Asha Kulkarni');
   });
 
+
+  await check('step 7 shows the schema validation panel', function () {
+    // Walk to the review step through the wizard API rather than the buttons.
+    var wiz = window.TMITRWizard;
+    assert(wiz, 'the wizard should expose its API');
+    wiz.state.profile.pan = 'BADPAN';
+    var html = wiz.renderValidation();
+    assert(html.indexOf('PAN') !== -1, 'the PAN error must be listed');
+    assert(html.indexOf('error') !== -1 || html.indexOf('⚠️') !== -1);
+    wiz.state.profile.pan = 'ABCDE1234F';
+    assert(wiz.renderValidation().indexOf('No validation issues') !== -1, 'a clean draft should say so');
+  });
+
+  await check('the ITR JSON export produces a real schema-shaped file', function () {
+    assert(window.TMITRSchema, 'itr-schema.js should be loaded on the wizard page');
+    var doc = window.TMITRSchema.build(window.TMITRWizard.state, { form: 'ITR-1' });
+    equal(doc.submitted, false);
+    var itr = doc.ITR.ITR1;
+    assert(itr.PersonalInfo.PAN === 'ABCDE1234F', 'PAN must come from the wizard state');
+    var comparison = window.TMITRWizard.compare();
+    var expected = itr.TaxComputation.Regime === 'Old' ? comparison.oldRegime.totalTax : comparison.newRegime.totalTax;
+    equal(itr.TaxComputation.TotalTaxPayable, expected, 'the exported tax must equal the engine result for that regime');
+  });
+
+  await check('exporting with errors asks for confirmation before writing', function () {
+    var wiz = window.TMITRWizard;
+    var originalPan = wiz.state.profile.pan;
+    wiz.state.profile.pan = 'XX';
+    var calls = 0;
+    window.confirm = function () { calls += 1; return false; }; // decline
+    window.URL.createObjectURL = function () { window.__downloaded = true; return 'blob:mock'; };
+    window.__downloaded = false;
+    wiz.exportItrJson();
+    equal(calls, 1, 'the user must be asked');
+    equal(window.__downloaded, false, 'declining must not download anything');
+    wiz.state.profile.pan = originalPan;
+  });
+
   dom.window.close();
 }
 
