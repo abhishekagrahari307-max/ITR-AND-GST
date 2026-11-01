@@ -155,11 +155,11 @@ Restore validates the shape, refuses files over 5 MB, and asks before replacing 
 ## 6. Testing
 
 ```bash
-npm test              # 372 unit tests · 2,893 assertions (no dependencies)
+npm test              # 496 unit tests · 3,277 assertions (no dependencies)
 npm test -- gst       # only gst-billing.test.js
 npm install --no-save jsdom
-node tests/smoke.js   # 65 browser checks driving the real pages
-node tests/pages-load.js  # all 63 pages must start without throwing
+node tests/smoke.js   # 91 browser checks driving the real pages
+node tests/pages-load.js  # all 65 pages must start without throwing
 ```
 
 | File | Focus |
@@ -172,7 +172,11 @@ node tests/pages-load.js  # all 63 pages must start without throwing
 | `tests/github-auth.test.js` | Device flow polling (`pending`, `slow_down`, `expired_token`, `access_denied`, `device_flow_disabled`), PAT verification and 401/403 handling, role resolution, session save/restore/refresh/sign-out, per-account data isolation |
 | `tests/handlers.test.js` | Every one of the 559 inline handlers across 59 pages resolves to a real definition; no shipped page hardcodes `localhost`; no dead `href="#"` in the primary pages |
 | `tests/smoke.js` | Homepage chat answers and escapes input, create/save/reject an invoice, mark paid, print, add customer, walk the ITR wizard end to end, search the directory, admin role gating, GitHub sign-in (device flow + PAT) on the account page, AIS/26AS/Form 16 real entry and validation |
-| `tests/pages-load.js` | Loads all 63 pages with their local scripts and fails if any page throws while starting up |
+| `tests/gst-recon.test.js` | CSV/TSV parsing, invoice + GSTIN + date normalisation, matching buckets, tolerance and date window, Rule 88A order, CSV export |
+| `tests/itr-schema.test.js` | Validation rules (formats, caps, regime disallowances, Schedule FA), FY↔AY mapping, engine parity, "never claims to be filed" |
+| `tests/ai-verify.test.js` | Number extraction from prose, income parsing (lakh/crore/₹), verdicts (`verified` / `differs` / `unchecked`), tolerance, badge safety |
+| `tests/schedule-fa.test.js` | Rule 115 conversion, peak/closing sanity, per-country totals, checklist, CSV, wizard fragment, ITR-JSON integration |
+| `tests/pages-load.js` | Loads all 65 pages with their local scripts and fails if any page throws while starting up |
 
 The suite caught four genuine defects during development: float rounding in `toPaise`,
 the 15-March instalment landing in the wrong year, the editor aliasing the stored invoice,
@@ -362,3 +366,95 @@ revoked tokens, rate limiting, malformed tokens, admin-by-login, admin-by-reposi
 session save/restore/refresh/sign-out and namespace isolation. `tests/smoke.js` additionally drives
 `pages/account.html` in jsdom: the client-ID gate, a full device-flow sign-in, PAT sign-in, the
 role badges, sign-out, and a check that no client secret or baked-in token exists in the page.
+
+## 12. ITC reconciliation — GSTR-2B ↔ purchase register
+
+`pages/itc-recon.html` · engine `js/gst-recon.js` (`TMGSTRecon`) · controller `js/itc-recon.js`
+
+Paste the purchase register and the GSTR-2B export (CSV or tab-separated, any of the usual header
+spellings), press **Reconcile**, and each line lands in exactly one bucket:
+
+| Bucket | Meaning | Effect on the claim |
+|---|---|---|
+| Matched | GSTIN, invoice number and every tax head agree | Confirmed ITC |
+| Value mismatch | Same invoice, different taxable value | Under review |
+| Tax mismatch | Taxable value agrees, IGST/CGST/SGST do not | Under review |
+| Only in books | The supplier has not filed it | At risk — cannot be claimed yet |
+| Only in 2B | Not recorded in the books | Not in books — investigate |
+
+- Invoice numbers are compared after stripping punctuation, case and leading zeros
+  (`INV/2026-27/001` matches `INV-2026-27-001`); dates accept `DD/MM/YYYY`, `DD-MM-YY` and ISO.
+- Tolerances default to ₹1 per head (`options.valueTolerance` / `taxTolerance`) with an optional
+  date window (`options.dateWindow`, 0 = ignore dates).
+- When the invoice number differs, likely counterparts are suggested (same GSTIN, total within
+  ₹2) instead of silently declaring a mismatch.
+- **Rule 88A set-off**: IGST credit → IGST, then CGST, then SGST; CGST credit → CGST, then IGST;
+  SGST/UTGST credit → SGST, then IGST; cess only against cess. The calculator deliberately uses
+  **confirmed** credit only, so a disputed or at-risk invoice can never reduce the cash figure.
+- Output: KPI cards, 2B-vs-books head comparison, per-bucket tables, CSV export titled as a
+  working paper. `Fill from my saved invoices` builds the register from the real invoices stored
+  by the billing page (only those that carry a supplier GSTIN).
+
+## 13. ITR JSON export and validation
+
+`js/itr-schema.js` (`TMITRSchema`) · wired into wizard step 7
+
+- `validate(state)` returns `{ ok, errors[], warnings[] }`; every finding carries its section
+  (`PersonalInfo`, `Income`, `Deductions`, `TaxesPaid`, `ScheduleFA`, `Filing`). Errors block
+  meaningful filing, warnings are advisory — over-claiming a deduction cap, for example, is a
+  warning because the engine caps it anyway.
+- Checks include PAN/Aadhaar/IFSC formats, supported financial year, FY↔AY mapping, negative
+  figures, HRA versus salary, deduction caps by section and age, Chapter VI-A inside the new
+  regime, 80TTA/80TTB age eligibility, the ₹12,00,000–₹12,75,000 marginal-relief band, taxes paid
+  versus computed liability, and Schedule FA completeness.
+- `build(state)` returns a **department-shaped** document keyed by the recommended form
+  (`ITR.ITR1…ITR7`) with `PersonalInfo`, `FilingStatus`, `IncomeDeductions`, `TaxComputation`,
+  `ScheduleFA` and `Verification`. It always carries `submitted: false`, a disclaimer, the
+  validation findings and `"Note": "Not verified — this working paper is not filed."`.
+- Step 7 shows the panel, a **Re-run validation** button and **Export ITR JSON**, which asks for
+  confirmation before writing a draft that has errors.
+
+## 14. AI answer verification
+
+`js/ai-verify.js` (`TMVerify`) · used by the homepage chat (`js/home-assistant.js`)
+
+An LLM answer can be fluent and wrong. Every homepage answer that states a tax figure is now
+machine-checked:
+
+1. The income the question is about is parsed from the question (`12 lakh`, `1.5 crore`,
+   `₹12,00,000`, `1200000`). A figure inside the answer is never treated as income.
+2. The engine re-computes that income (`TMIT.computeTax`, total income = other income, so no
+   standard deduction is invented) under the applicable regime.
+3. The answer's own figure is compared with a ₹100 tolerance (rounded answers are not lies).
+
+Verdicts: **✅ Engine-verified**, **⚠️ Engine disagrees** (both numbers are shown), or no badge at
+all when there is nothing checkable. No API key is involved — the check is deterministic, offline
+and testable.
+
+## 15. Schedule FA (foreign assets)
+
+`pages/schedule-fa.html` · engine `js/schedule-fa.js` (`TMScheduleFA`) · controller `js/schedule-fa-app.js`
+
+- Asset types map to their schedule references: bank / custodial → A1, equity / RSU / ESPP → A2,
+  anything else → A3.
+- Amounts are entered in the **foreign currency**, with the **rule 115 rate** (SBI TT buying rate
+  on 31 March of the previous year). The rupee value is `amount × rate`; a rate is never fetched
+  or invented — a foreign amount without a rate is rejected with an explanation.
+- Reports initial, **peak** and **closing** values (peak is never allowed below closing) and totals
+  by country, because Schedule FA is a country-wise disclosure.
+- A disclosure checklist covers the usual reasons a schedule gets questioned: missing country,
+  missing entity, peak not filled, no rate recorded, income treatment unexplained.
+- Export: CSV working paper, `Save on this browser`, and **Send to ITR wizard**, which writes
+  `state.fa` and flips `profile.foreignAssets` so the ITR JSON export carries the schedule.
+
+## 16. Contribution gate
+
+`AGENTS.md` documents the project rules (no fabricated data, no fake submission, no secrets,
+paise-only money, one tax engine) plus four review checklists: tax-domain, no-fabricated-data,
+accessibility/responsive and security.
+
+`ci/github-actions-ci.yml` is the gate: it runs `npm test`, refuses tracked credential files and
+then runs both jsdom audits on every push and pull request (the deploy workflow only builds and
+publishes). It is kept outside `.github/workflows/` because automated agents may lack the GitHub
+App `workflows` permission — enabling it is one copy command, documented in `AGENTS.md` §7.
+Until it is enabled, the same three commands are the merge gate.

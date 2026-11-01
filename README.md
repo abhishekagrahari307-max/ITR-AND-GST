@@ -150,12 +150,12 @@ by the pages *and* by the test suite. Full rules, data model and limitations are
 ### Tests
 
 ```bash
-npm test                    # 372 tests · 2,893 assertions · zero dependencies
+npm test                    # 496 tests · 3,277 assertions · zero dependencies
 npm run serve               # local preview on http://localhost:8080
 
 npm install --no-save jsdom # optional, for the browser-level audits
-node tests/smoke.js         # 65 checks driving the real pages (incl. GitHub sign-in)
-node tests/pages-load.js    # loads all 63 pages, fails if any throws on startup
+node tests/smoke.js         # 91 checks driving the real pages (incl. GitHub sign-in)
+node tests/pages-load.js    # loads all 65 pages, fails if any throws on startup
 ```
 
 ### Sign-in
@@ -165,6 +165,21 @@ client ID pasted once on the Account page; no client secret exists anywhere) or 
 access token** (works with zero setup). Roles: the repository owner is an administrator, everyone
 else is a user, guests can use everything except the admin console's destructive actions. Each
 signed-in account gets its own local data profile. Setup and caveats: `IMPLEMENTATION.md` §11.
+
+### What is new in this build
+
+- **ITC reconciliation** (`pages/itc-recon.html`) — GSTR-2B vs your purchase register, matched /
+  mismatched / at-risk credit, and the Rule 88A set-off order. Working paper only.
+- **ITR JSON export + validation** — step 7 of the wizard validates every field (caps, formats,
+  regime rules, Schedule FA) and exports a department-shaped working paper, never a filing.
+- **AI answer verification** — every homepage answer that states a tax figure is re-computed by
+  the engine and marked *Engine-verified* or *Engine disagrees*.
+- **Schedule FA** (`pages/schedule-fa.html`) — foreign assets with rule 115 conversion, peak and
+  closing values, a disclosure checklist and a hand-off into the ITR wizard.
+- **CI gate** — `ci/github-actions-ci.yml` (copy to `.github/workflows/ci.yml` to enable) runs the
+  unit suites and both jsdom audits on every PR.
+
+Contributor rules and review checklists live in [`AGENTS.md`](AGENTS.md).
 
 ### Live site
 

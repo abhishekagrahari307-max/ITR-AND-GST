@@ -2325,3 +2325,27 @@ select, textarea {
 @media (max-width: 768px) {
   .container { padding-bottom: 5rem; }
 }
+
+
+/* ===================================================
+   AI answer verification badge (js/ai-verify.js)
+   =================================================== */
+.tm-verify-line {
+  display: flex;
+  align-items: flex-start;
+  gap: .4rem;
+  flex-wrap: wrap;
+  margin-top: .5rem;
+  padding: .4rem .55rem;
+  border-radius: var(--radius-sm);
+  font-size: .72rem;
+  line-height: 1.45;
+}
+.tm-verify-line.ok { background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.32); color: #065f46; }
+.tm-verify-line.bad { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.32); color: #991b1b; }
+.tm-verify { font-weight: 700; white-space: nowrap; }
+.tm-verify.ok { color: #047857; }
+.tm-verify.bad { color: #b91c1c; }
+.tm-verify.neutral { color: var(--text-muted); font-weight: 600; }
+body.dark-mode .tm-verify-line.ok { background: rgba(16,185,129,.14); color: #a7f3d0; }
+body.dark-mode .tm-verify-line.bad { background: rgba(239,68,68,.14); color: #fecaca; }

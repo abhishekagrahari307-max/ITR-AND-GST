@@ -387,6 +387,44 @@ async function itrTests() {
     equal(draft.state.profile.name, 'Asha Kulkarni');
   });
 
+
+  await check('step 7 shows the schema validation panel', function () {
+    // Walk to the review step through the wizard API rather than the buttons.
+    var wiz = window.TMITRWizard;
+    assert(wiz, 'the wizard should expose its API');
+    wiz.state.profile.pan = 'BADPAN';
+    var html = wiz.renderValidation();
+    assert(html.indexOf('PAN') !== -1, 'the PAN error must be listed');
+    assert(html.indexOf('error') !== -1 || html.indexOf('⚠️') !== -1);
+    wiz.state.profile.pan = 'ABCDE1234F';
+    assert(wiz.renderValidation().indexOf('No validation issues') !== -1, 'a clean draft should say so');
+  });
+
+  await check('the ITR JSON export produces a real schema-shaped file', function () {
+    assert(window.TMITRSchema, 'itr-schema.js should be loaded on the wizard page');
+    var doc = window.TMITRSchema.build(window.TMITRWizard.state, { form: 'ITR-1' });
+    equal(doc.submitted, false);
+    var itr = doc.ITR.ITR1;
+    assert(itr.PersonalInfo.PAN === 'ABCDE1234F', 'PAN must come from the wizard state');
+    var comparison = window.TMITRWizard.compare();
+    var expected = itr.TaxComputation.Regime === 'Old' ? comparison.oldRegime.totalTax : comparison.newRegime.totalTax;
+    equal(itr.TaxComputation.TotalTaxPayable, expected, 'the exported tax must equal the engine result for that regime');
+  });
+
+  await check('exporting with errors asks for confirmation before writing', function () {
+    var wiz = window.TMITRWizard;
+    var originalPan = wiz.state.profile.pan;
+    wiz.state.profile.pan = 'XX';
+    var calls = 0;
+    window.confirm = function () { calls += 1; return false; }; // decline
+    window.URL.createObjectURL = function () { window.__downloaded = true; return 'blob:mock'; };
+    window.__downloaded = false;
+    wiz.exportItrJson();
+    equal(calls, 1, 'the user must be asked');
+    equal(window.__downloaded, false, 'declining must not download anything');
+    wiz.state.profile.pan = originalPan;
+  });
+
   dom.window.close();
 }
 
@@ -583,6 +621,26 @@ async function homeTests() {
     await window.sendDemoMsg();
     var host = document.getElementById('aiDemoMessages');
     equal(host.querySelectorAll('img').length, 0, 'user input must not become markup');
+  });
+
+
+  await check('a home answer with a wrong tax figure is flagged, not trusted', function () {
+    assert(window.TMVerify, 'ai-verify.js should be loaded on the homepage');
+    var bad = window.TMVerifyLine('20 lakh income par total tax kitna hai?', 'Aapka total tax ₹1,50,000 hoga.');
+    assert(bad.indexOf('tm-verify-line') !== -1, 'a verification line should be produced');
+    assert(bad.indexOf('Engine disagrees') !== -1, 'a wrong figure must be flagged');
+    assert(bad.indexOf('2,08,000') !== -1, 'the engine figure must be shown next to the claim');
+  });
+
+  await check('a correct answer is marked engine-verified', function () {
+    var correct = window.TMVerify.computeOnIncome(2000000, { fy: '2025-26' }).totalTax;
+    var line = window.TMVerifyLine('20 lakh income par total tax?', 'Total tax ₹' + correct.toLocaleString('en-IN') + ' hoga.');
+    assert(line.indexOf('Engine-verified') !== -1, line);
+    assert(line.indexOf('tm-verify-line ok') !== -1, 'the positive state should carry its own class');
+  });
+
+  await check('an answer with no checkable figure gets no badge at all', function () {
+    equal(window.TMVerifyLine('80C kya hai?', '80C me ₹1,50,000 tak deduction milta hai.'), '');
   });
 
   dom.window.close();
@@ -854,6 +912,221 @@ async function itrCentreTests() {
   dom.window.close();
 }
 
+
+async function itcReconTests() {
+  console.log('\nITC reconciliation page');
+  var dom = await loadPage('pages/itc-recon.html');
+  var window = dom.window;
+  var document = window.document;
+
+  await check('scripts load without a page error', function () {
+    equal((window.__errors || []).length, 0, 'page errors: ' + (window.__errors || []).join(' | '));
+    assert(window.TMGSTRecon, 'gst-recon.js should be loaded');
+    assert(window.TMITCRecon, 'itc-recon.js should be loaded');
+  });
+
+  await check('the page starts empty with no result shown', function () {
+    equal(document.getElementById('booksInput').value, '');
+    equal(document.getElementById('portalInput').value, '');
+    equal(document.getElementById('resultSection').hidden, true);
+    equal(document.getElementById('csvBtn').disabled, true);
+    equal(document.getElementById('inputMsg').textContent.indexOf('Nothing pasted yet') !== -1, true);
+  });
+
+  await check('reconciling nothing is refused instead of inventing a result', function () {
+    click(window, '#reconcileBtn');
+    equal(document.getElementById('resultSection').hidden, true);
+    assert(document.getElementById('inputMsg').textContent.indexOf('Paste at least one document') !== -1);
+  });
+
+  await check('unusable paste gives a readable error', function () {
+    setValue(window, 'booksInput', 'foo,bar\n1,2');
+    click(window, '#reconcileBtn');
+    equal(document.getElementById('resultSection').hidden, true);
+    assert(document.getElementById('inputMsg').textContent.indexOf('Could not read') !== -1);
+  });
+
+  await check('a real reconciliation renders every bucket', function () {
+    setValue(window, 'booksInput', [
+      'GSTIN,Supplier Name,Invoice Number,Invoice Date,Taxable Value,IGST,CGST,SGST',
+      '27AAPFU0939F1ZV,Sharma Traders,INV/001,01/04/2026,100000,0,9000,9000',
+      '29ABCDE1234F1Z5,Karnataka Supplies,INV-002,05/04/2026,50000,9000,0,0',
+      '27AABCU9603R1ZM,Unreported Vendor,INV/003,10/04/2026,20000,0,1800,1800'
+    ].join('\n'));
+    setValue(window, 'portalInput', [
+      'GSTIN,Invoice Number,Invoice Date,Taxable Value,IGST,CGST,SGST',
+      '27AAPFU0939F1ZV,INV001,01-04-2026,100000,0,9000,9000',
+      '29ABCDE1234F1Z5,INV002,05-04-2026,50000,9000,0,0',
+      '33AAGCB1234M1ZP,INV-777,15/04/2026,40000,0,3600,3600'
+    ].join('\n'));
+    click(window, '#reconcileBtn');
+    equal(document.getElementById('resultSection').hidden, false);
+    equal(document.getElementById('csvBtn').disabled, false);
+
+    var kpis = document.getElementById('kpiGrid').textContent;
+    assert(kpis.indexOf('Confirmed ITC') !== -1, 'expected the confirmed KPI');
+    assert(kpis.indexOf('27,000.00') !== -1, 'confirmed credit should be ₹27,000, got: ' + kpis.slice(0, 200));
+    assert(kpis.indexOf('3,600.00') !== -1, 'at-risk credit should be ₹3,600');
+
+    var buckets = document.getElementById('buckets').textContent;
+    ['Matched', 'Only in your books', 'Only in 2B'].forEach(function (label) {
+      assert(buckets.indexOf(label) !== -1, 'missing bucket: ' + label);
+    });
+    assert(buckets.indexOf('Possible risk') === -1 && buckets.indexOf('Unreported Vendor') !== -1, 'the unfiled invoice must be named');
+  });
+
+  await check('the 2B vs books totals are compared head by head', function () {
+    var totals = document.getElementById('totalsBody').textContent;
+    assert(totals.indexOf('IGST') !== -1 && totals.indexOf('Cess') !== -1);
+    assert(totals.indexOf('34,200.00') !== -1, '2B total should be ₹34,200.00, got: ' + totals.slice(0, 260));
+    assert(totals.indexOf('30,600.00') !== -1, 'books total should be ₹30,600.00');
+    assert(totals.indexOf('3,600.00') !== -1, 'the difference should be shown');
+  });
+
+  await check('Rule 88A set-off uses only confirmed credit', function () {
+    setValue(window, 'liabIgst', '5000');
+    setValue(window, 'liabCgst', '4000');
+    setValue(window, 'liabSgst', '4000');
+    click(window, '#setoffBtn');
+    equal(document.getElementById('setoffResult').hidden, false);
+    var text = document.getElementById('setoffBody').textContent;
+    assert(text.indexOf('IGST credit') !== -1, 'expected the IGST credit row');
+    var summary = document.getElementById('setoffSummary').textContent;
+    assert(summary.indexOf('paid in cash') !== -1, 'expected a cash figure');
+    assert(summary.indexOf('excluded on purpose') !== -1, 'the page must state that disputed credit is excluded');
+  });
+
+  await check('the working can be saved and restored', function () {
+    click(window, '#saveBtn');
+    var saved = window.TMStore.read('tm-itc-recon', null);
+    assert(saved, 'expected the working to be stored');
+    assert(saved.books.indexOf('Sharma Traders') !== -1);
+    equal(saved.liability.igst, '5000');
+  });
+
+  await check('clearing removes the paste, the result and the saved copy', function () {
+    click(window, '#clearBtn');
+    equal(document.getElementById('booksInput').value, '');
+    equal(document.getElementById('resultSection').hidden, true);
+    equal(document.getElementById('csvBtn').disabled, true);
+    equal(window.TMStore.read('tm-itc-recon', null), null);
+  });
+
+  await check('"fill from invoices" refuses when there are no saved invoices', function () {
+    window.TMStore.saveList('invoices', []);
+    click(window, '#loadInvoicesBtn');
+    equal(document.getElementById('booksInput').value, '');
+    assert(document.getElementById('inputMsg').textContent.indexOf('no saved invoices') !== -1);
+  });
+
+  await check('"fill from invoices" builds a register from real saved invoices', function () {
+    window.TMStore.saveList('invoices', [{
+      id: 'i1', invoiceNumber: 'PUR/001', invoiceDate: '2026-04-01',
+      buyerName: 'Sharma Traders', supplierGstin: '27AAPFU0939F1ZV',
+      sellerState: '27', buyerState: '27', status: 'unpaid',
+      lines: [{ description: 'Goods', quantity: 1, rate: 1000, gstRate: 18 }]
+    }]);
+    click(window, '#loadInvoicesBtn');
+    var value = document.getElementById('booksInput').value;
+    assert(value.indexOf('27AAPFU0939F1ZV') !== -1, 'the GSTIN should be carried over');
+    assert(value.indexOf('90.00') !== -1, 'CGST should be ₹90.00 for ₹1,000 at 18%', value);
+    assert(value.indexOf('GSTIN,Supplier Name') === 0, 'a header row must be generated');
+  });
+
+  dom.window.close();
+}
+
+
+async function scheduleFaTests() {
+  console.log('\nSchedule FA page');
+  var dom = await loadPage('pages/schedule-fa.html');
+  var window = dom.window;
+  var document = window.document;
+
+  await check('scripts load without a page error', function () {
+    equal((window.__errors || []).length, 0, 'page errors: ' + (window.__errors || []).join(' | '));
+    assert(window.TMScheduleFA, 'schedule-fa.js should be loaded');
+    assert(window.TMScheduleFAApp, 'schedule-fa-app.js should be loaded');
+  });
+
+  await check('the form is empty and the schedule is empty', function () {
+    equal(document.getElementById('faCountry').value, '');
+    equal(document.getElementById('faEntity').value, '');
+    equal(document.getElementById('entriesHost').innerHTML, '');
+    equal(window.TMScheduleFAApp.entries().length, 0);
+    equal(document.getElementById('exportCsvBtn').disabled, true);
+    assert(document.getElementById('addMsg').textContent.indexOf('No entries yet') !== -1);
+  });
+
+  await check('an entry without a country is refused', function () {
+    setValue(window, 'faEntity', 'Broker Inc');
+    click(window, '#addEntryBtn');
+    equal(window.TMScheduleFAApp.entries().length, 0);
+    assert(document.getElementById('addMsg').textContent.indexOf('Country is required') !== -1);
+  });
+
+  await check('a foreign amount without a rate is refused instead of guessed', function () {
+    setValue(window, 'faCountry', 'United States');
+    setValue(window, 'faEntity', 'Broker Inc');
+    setValue(window, 'faPeak', '6200');
+    click(window, '#addEntryBtn');
+    equal(window.TMScheduleFAApp.entries().length, 0);
+    assert(document.getElementById('addMsg').textContent.indexOf('rule 115 rate') !== -1);
+  });
+
+  await check('a real RSU entry is converted and added', function () {
+    setValue(window, 'faType', 'rsu');
+    setValue(window, 'faCountryCode', 'US');
+    setValue(window, 'faCurrency', 'USD');
+    setValue(window, 'faRate', '83.5');
+    setValue(window, 'faInitial', '4000');
+    setValue(window, 'faClosing', '5800');
+    document.getElementById('faIncomeIncluded').checked = true;
+    click(window, '#addEntryBtn');
+    equal(window.TMScheduleFAApp.entries().length, 1);
+    var entry = window.TMScheduleFAApp.entries()[0];
+    equal(entry.closingValue, 484300, 'USD 5,800 at 83.5 must be ₹4,84,300');
+
+    var kpis = document.getElementById('totalsGrid').textContent;
+    assert(kpis.indexOf('4,84,300.00') !== -1, 'the rupee total must be shown: ' + kpis.slice(0, 200));
+    equal(document.getElementById('exportCsvBtn').disabled, false);
+  });
+
+  await check('the checklist reflects what has been declared', function () {
+    var checklist = document.getElementById('checklistHost').textContent;
+    assert(checklist.indexOf('1 of 6') !== -1 || checklist.indexOf('2 of 6') !== -1 ||
+      checklist.indexOf('of 6') !== -1, checklist.slice(0, 200));
+    assert(checklist.indexOf('Country') !== -1 || checklist.indexOf('country') !== -1);
+  });
+
+  await check('the entry can be saved on this browser', function () {
+    click(window, '#saveBtn');
+    var saved = window.TMStore.read('tm-schedule-fa', null);
+    assert(saved, 'expected the schedule to be stored');
+    equal(saved.entries.length, 1);
+    equal(saved.entries[0].closingValue, 484300);
+  });
+
+  await check('sending to the wizard writes a real prefill', function () {
+    click(window, '#sendToWizardBtn');
+    var draft = window.TMStore.read(window.TMStore.KEYS.itrDraft, null);
+    assert(draft && draft.state, 'expected an ITR draft');
+    equal(draft.state.profile.foreignAssets, true);
+    equal(draft.state.fa.entries.length, 1);
+    equal(draft.state.fa.entries[0].peakValue, 517700);
+  });
+
+  await check('removing an entry empties the schedule again', function () {
+    var btn = document.querySelector('#entriesHost [data-remove]');
+    assert(btn, 'a remove button should exist');
+    btn.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+    equal(window.TMScheduleFAApp.entries().length, 0);
+    equal(document.getElementById('exportCsvBtn').disabled, true);
+  });
+
+  dom.window.close();
+}
+
 (async function main() {
   console.log('TaxMitra browser smoke test (jsdom)');
   console.log('─'.repeat(64));
@@ -865,6 +1138,8 @@ async function itrCentreTests() {
     await adminTests();
     await accountTests();
     await itrCentreTests();
+    await itcReconTests();
+    await scheduleFaTests();
   } catch (error) {
     results.failed += 1;
     results.failures.push({ name: 'harness', error: error });
