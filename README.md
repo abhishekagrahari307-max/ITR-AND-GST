@@ -176,7 +176,8 @@ signed-in account gets its own local data profile. Setup and caveats: `IMPLEMENT
   the engine and marked *Engine-verified* or *Engine disagrees*.
 - **Schedule FA** (`pages/schedule-fa.html`) — foreign assets with rule 115 conversion, peak and
   closing values, a disclosure checklist and a hand-off into the ITR wizard.
-- **CI gate** — `.github/workflows/ci.yml` runs the unit suites and both jsdom audits on every PR.
+- **CI gate** — `ci/github-actions-ci.yml` (copy to `.github/workflows/ci.yml` to enable) runs the
+  unit suites and both jsdom audits on every PR.
 
 Contributor rules and review checklists live in [`AGENTS.md`](AGENTS.md).
 

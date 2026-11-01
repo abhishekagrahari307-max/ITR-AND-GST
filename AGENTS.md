@@ -116,3 +116,17 @@ before.
 4. Link it from `index.html` (nav + module card + footer free-tools column).
 5. Document it in `IMPLEMENTATION.md` and update the counts in `README.md`.
 6. `npm test`, `node tests/smoke.js`, `node tests/pages-load.js` — all green before the PR.
+
+## 7. CI
+
+`ci/github-actions-ci.yml` holds the workflow that runs the unit suites and both browser audits on
+every push and pull request. It is stored outside `.github/workflows/` because automated agents do
+not always hold the GitHub App `workflows` permission. To enable it:
+
+```bash
+cp ci/github-actions-ci.yml .github/workflows/ci.yml
+git add .github/workflows/ci.yml && git commit -m "ci: run tests on every PR" && git push
+```
+
+Until it is enabled, run the three commands from §4 locally before every merge — that is exactly
+what the workflow runs.

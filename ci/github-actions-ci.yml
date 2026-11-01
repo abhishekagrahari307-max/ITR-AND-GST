@@ -1,3 +1,15 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# TaxMitra CI — copy this file to .github/workflows/ci.yml to enable it.
+#
+#   cp ci/github-actions-ci.yml .github/workflows/ci.yml
+#   git add .github/workflows/ci.yml && git commit -m "ci: run tests on every PR" && git push
+#
+# It lives here rather than in .github/workflows/ because automated agents may
+# not hold the GitHub App 'workflows' permission needed to create workflow
+# files. Any maintainer can copy it in one command; the deploy workflow is
+# already in place and untouched.
+# ─────────────────────────────────────────────────────────────────────────────
+
 name: CI
 
 # Runs the unit suites and both browser audits on every push and pull request.

@@ -451,6 +451,10 @@ and testable.
 
 `AGENTS.md` documents the project rules (no fabricated data, no fake submission, no secrets,
 paise-only money, one tax engine) plus four review checklists: tax-domain, no-fabricated-data,
-accessibility/responsive and security. `.github/workflows/ci.yml` runs `npm test`, scans for
-tracked credential files and then runs both jsdom audits on every push and pull request — the
-deploy workflow only builds and publishes.
+accessibility/responsive and security.
+
+`ci/github-actions-ci.yml` is the gate: it runs `npm test`, refuses tracked credential files and
+then runs both jsdom audits on every push and pull request (the deploy workflow only builds and
+publishes). It is kept outside `.github/workflows/` because automated agents may lack the GitHub
+App `workflows` permission — enabling it is one copy command, documented in `AGENTS.md` §7.
+Until it is enabled, the same three commands are the merge gate.
