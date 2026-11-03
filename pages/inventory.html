@@ -130,7 +130,6 @@
       </div>
 
       <div style="display:flex;gap:.5rem">
-        <button class="btn btn-primary" style="flex:1" onclick="loadSampleInventory()"><i class="fa fa-magic"></i> Sample Data</button>
         <button class="btn" style="flex:1;background:var(--success);color:#fff" onclick="exportCSV()"><i class="fa fa-download"></i> Export</button>
       </div>
     </div>
@@ -167,7 +166,7 @@
               </tr>
             </thead>
             <tbody id="stockBody">
-              <tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--text-muted)">Add items or load sample data</td></tr>
+              <tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--text-muted)">Add inventory items to see them here</td></tr>
             </tbody>
           </table>
         </div>
@@ -362,28 +361,6 @@ function exportCSV() {
   a.download = 'inventory_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
   showToast('✅ Exported!', 'success');
-}
-
-function loadSampleInventory() {
-  items = [
-    {id:1,name:'Office Paper A4 (Box)',sku:'SKU-001',category:'Consumables',unit:'Box',hsn:'4802',gst:12,qty:15,avgRate:450,reorderQty:5,createdAt:'2025-04-01T00:00:00Z'},
-    {id:2,name:'Printer Ink Cartridge',sku:'SKU-002',category:'Consumables',unit:'Nos',hsn:'8443',gst:18,qty:3,avgRate:850,reorderQty:2,createdAt:'2025-04-01T00:00:00Z'},
-    {id:3,name:'Computer (Core i5)',sku:'SKU-003',category:'Finished Goods',unit:'Nos',hsn:'8471',gst:18,qty:8,avgRate:45000,reorderQty:2,createdAt:'2025-04-01T00:00:00Z'},
-    {id:4,name:'Steel Rack',sku:'SKU-004',category:'Trading Goods',unit:'Nos',hsn:'9403',gst:18,qty:0,avgRate:12000,reorderQty:3,createdAt:'2025-04-01T00:00:00Z'},
-    {id:5,name:'Packaging Box (Large)',sku:'SKU-005',category:'Packing Material',unit:'Nos',hsn:'4819',gst:12,qty:50,avgRate:35,reorderQty:100,createdAt:'2025-04-01T00:00:00Z'},
-  ];
-  movements = [
-    {id:1,itemId:1,itemName:'Office Paper A4 (Box)',type:'IN',qty:20,rate:450,narration:'Purchase from ABC Stationery',date:'2025-07-01',balance:20},
-    {id:2,itemId:1,itemName:'Office Paper A4 (Box)',type:'OUT',qty:5,rate:450,narration:'Used in office',date:'2025-07-15',balance:15},
-    {id:3,itemId:3,itemName:'Computer (Core i5)',type:'IN',qty:10,rate:45000,narration:'Purchase from vendor',date:'2025-06-01',balance:10},
-    {id:4,itemId:3,itemName:'Computer (Core i5)',type:'OUT',qty:2,rate:45000,narration:'Sold to XYZ Corp',date:'2025-07-20',balance:8},
-  ];
-  save();
-  updateMovItem();
-  renderStock();
-  renderMovements();
-  updateStats();
-  showToast('✅ Sample inventory loaded!', 'success');
 }
 
 function fmtN(n) { return Math.round(n).toLocaleString('en-IN'); }

@@ -107,9 +107,6 @@
         </div>
       </div>
 
-      <button class="btn btn-primary" style="width:100%;margin-bottom:.5rem" onclick="loadSampleInvoices()">
-        <i class="fa fa-magic"></i> Load Sample Invoices
-      </button>
       <button class="btn" style="width:100%;background:var(--success);color:#fff" onclick="exportAllCSV()">
         <i class="fa fa-download"></i> Export All CSV
       </button>
@@ -120,15 +117,21 @@
       <div class="card" style="margin-bottom:1rem">
         <div class="card-header"><i class="fa fa-plus-circle"></i> Create New Invoice</div>
         <div class="card-body">
+          <p style="font-size:.76rem;color:var(--text-muted);margin:0 0 .6rem">Enter your own seller details. This tool does not verify business or GST registration information.</p>
           <div class="grid2">
-            <div class="fg"><label>Invoice Number</label><input type="text" id="newInvNo" placeholder="INV-2025-001"/></div>
-            <div class="fg"><label>Invoice Date</label><input type="date" id="newInvDate" value="2026-08-02"/></div>
+            <div class="fg"><label>Your Business / Seller Name</label><input type="text" id="sellerName" placeholder="Business or seller name" oninput="updatePreview()"/></div>
+            <div class="fg"><label>Your GSTIN (if registered)</label><input type="text" id="sellerGSTIN" placeholder="Enter your GSTIN" oninput="this.value=this.value.toUpperCase();updatePreview()"/></div>
+          </div>
+          <div class="fg"><label>Business Address</label><input type="text" id="sellerAddr" placeholder="Your business address" oninput="updatePreview()"/></div>
+          <div class="grid2">
+            <div class="fg"><label>Invoice Number</label><input type="text" id="newInvNo" placeholder="INV-2026-001"/></div>
+            <div class="fg"><label>Invoice Date</label><input type="date" id="newInvDate"/></div>
           </div>
           <div class="grid2">
-            <div class="fg"><label>Client Name</label><input type="text" id="clientName" placeholder="Ravi Kumar"/></div>
-            <div class="fg"><label>Client PAN</label><input type="text" id="clientPAN" placeholder="ABCDE1234F" oninput="this.value=this.value.toUpperCase()"/></div>
+            <div class="fg"><label>Client Name</label><input type="text" id="clientName" placeholder="Client name" oninput="updatePreview()"/></div>
+            <div class="fg"><label>Client PAN (optional)</label><input type="text" id="clientPAN" placeholder="Client PAN" oninput="this.value=this.value.toUpperCase();updatePreview()"/></div>
           </div>
-          <div class="fg"><label>Client Address</label><input type="text" id="clientAddr" placeholder="Client address"/></div>
+          <div class="fg"><label>Client Address</label><input type="text" id="clientAddr" placeholder="Client address" oninput="updatePreview()"/></div>
           <div class="fg"><label>Due Date</label><input type="date" id="dueDate"/></div>
 
           <!-- Services -->
@@ -138,9 +141,9 @@
           </div>
           <div id="serviceRows">
             <div class="service-row">
-              <input type="text" placeholder="ITR Filing - AY 2026-27" value="ITR Filing - AY 2026-27" oninput="updatePreview()"/>
-              <input type="number" placeholder="1" value="1" oninput="updatePreview()"/>
-              <input type="number" placeholder="2500" value="2500" oninput="updatePreview()"/>
+              <input type="text" placeholder="Service or product description" oninput="updatePreview()"/>
+              <input type="number" placeholder="1" value="1" min="0" oninput="updatePreview()"/>
+              <input type="number" placeholder="Rate (₹)" min="0" oninput="updatePreview()"/>
               <button onclick="removeRow(this)" style="background:rgba(239,68,68,.1);color:var(--danger);border:none;border-radius:4px;cursor:pointer;font-size:.85rem;padding:.2rem .4rem">×</button>
             </div>
           </div>
@@ -151,16 +154,19 @@
           <div class="grid2">
             <div class="fg"><label>GST Rate (%)</label>
               <select id="gstRate" onchange="updatePreview()">
-                <option value="18" selected>18%</option>
+                <option value="" selected>Select applicable rate</option>
+                <option value="0">0% (exempt / nil-rated)</option>
+                <option value="5">5%</option>
                 <option value="12">12%</option>
-                <option value="0">0% (Exempt)</option>
+                <option value="18">18%</option>
+                <option value="28">28%</option>
               </select>
             </div>
             <div class="fg"><label>Discount (₹)</label><input type="number" id="discount" placeholder="0" value="0" oninput="updatePreview()"/></div>
           </div>
 
           <div class="fg"><label>Notes / Terms</label>
-            <textarea id="invNotes" rows="2" style="width:100%;padding:.4rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.78rem;resize:vertical;font-family:inherit" placeholder="Payment due within 15 days. NEFT/UPI accepted.">Payment due within 15 days. NEFT/UPI accepted. GST applicable as per rates.</textarea>
+            <textarea id="invNotes" rows="2" style="width:100%;padding:.4rem .65rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text-primary);font-size:.78rem;resize:vertical;font-family:inherit" placeholder="Add your payment terms, if any"></textarea>
           </div>
 
           <div style="display:flex;gap:.5rem">
@@ -208,18 +214,28 @@ function getServices() {
 }
 
 function calcTotals(services) {
-  var gstRate = parseFloat(document.getElementById('gstRate')?.value) || 18;
+  var selectedRate = document.getElementById('gstRate')?.value ?? '';
+  var gstRate = selectedRate === '' ? null : parseFloat(selectedRate);
   var discount = parseFloat(document.getElementById('discount')?.value) || 0;
   var subtotal = services.reduce((s,i) => s+i.total, 0);
   var taxable = Math.max(0, subtotal - discount);
-  var gst = Math.round(taxable * gstRate / 100);
+  var gst = Math.round(taxable * (gstRate || 0) / 100);
   var total = taxable + gst;
   return { subtotal, discount, taxable, gstRate, gst, total };
 }
 
+function escapeInvoiceHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, function (ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+  });
+}
+
 function updatePreview() {
-  var invNo = document.getElementById('newInvNo').value || 'INV-001';
-  var invDate = document.getElementById('newInvDate').value || '2026-08-02';
+  var invNo = document.getElementById('newInvNo').value || 'INV-' + new Date().getFullYear() + '-001';
+  var invDate = document.getElementById('newInvDate').value || new Date().toISOString().slice(0,10);
+  var sellerName = document.getElementById('sellerName').value || '';
+  var sellerGSTIN = document.getElementById('sellerGSTIN').value || '';
+  var sellerAddr = document.getElementById('sellerAddr').value || '';
   var clientName = document.getElementById('clientName').value || 'Client Name';
   var clientPAN = document.getElementById('clientPAN').value || '';
   var clientAddr = document.getElementById('clientAddr').value || '';
@@ -230,21 +246,21 @@ function updatePreview() {
   document.getElementById('invPreview').innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1e40af;padding-bottom:1rem;margin-bottom:1rem">
       <div>
-        <div style="font-size:1.1rem;font-weight:900;color:#1e40af">⚡ TaxMitra CA Firm</div>
-        <div style="font-size:.7rem;color:#64748b;margin-top:.2rem">Abhishek Agrahari | Kanpur, UP</div>
-        <div style="font-size:.7rem;color:#64748b">GSTIN: 09ABCDE1234F1Z5</div>
+        <div style="font-size:1.1rem;font-weight:900;color:#1e40af">${escapeInvoiceHtml(sellerName || 'Your business name')}</div>
+        ${sellerAddr ? `<div style="font-size:.7rem;color:#64748b;margin-top:.2rem">${escapeInvoiceHtml(sellerAddr)}</div>` : '<div style="font-size:.7rem;color:#64748b;margin-top:.2rem">Add your business address above</div>'}
+        ${sellerGSTIN ? `<div style="font-size:.7rem;color:#64748b">GSTIN: ${escapeInvoiceHtml(sellerGSTIN)}</div>` : ''}
       </div>
       <div style="text-align:right">
         <div style="background:#1e40af;color:#fff;padding:.2rem .6rem;border-radius:4px;font-size:.72rem;font-weight:700;margin-bottom:.3rem">TAX INVOICE</div>
-        <div style="font-weight:700">${invNo}</div>
-        <div style="font-size:.7rem;color:#64748b">Date: ${invDate}</div>
+        <div style="font-weight:700">${escapeInvoiceHtml(invNo)}</div>
+        <div style="font-size:.7rem;color:#64748b">Date: ${escapeInvoiceHtml(invDate)}</div>
       </div>
     </div>
     <div style="margin-bottom:1rem">
       <div style="font-size:.65rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:.2rem">Bill To</div>
-      <div style="font-weight:700">${clientName}</div>
-      ${clientPAN ? `<div style="font-size:.7rem;color:#64748b">PAN: ${clientPAN}</div>` : ''}
-      ${clientAddr ? `<div style="font-size:.7rem;color:#64748b">${clientAddr}</div>` : ''}
+      <div style="font-weight:700">${escapeInvoiceHtml(clientName)}</div>
+      ${clientPAN ? `<div style="font-size:.7rem;color:#64748b">PAN: ${escapeInvoiceHtml(clientPAN)}</div>` : ''}
+      ${clientAddr ? `<div style="font-size:.7rem;color:#64748b">${escapeInvoiceHtml(clientAddr)}</div>` : ''}
     </div>
     <table style="width:100%;border-collapse:collapse;font-size:.75rem;margin-bottom:1rem">
       <thead><tr style="background:#f1f5f9">
@@ -257,7 +273,7 @@ function updatePreview() {
       <tbody>
         ${services.map((s,i) => `<tr>
           <td style="padding:.3rem .5rem;border-bottom:1px solid #f1f5f9">${i+1}</td>
-          <td style="padding:.3rem .5rem;border-bottom:1px solid #f1f5f9">${s.desc}</td>
+          <td style="padding:.3rem .5rem;border-bottom:1px solid #f1f5f9">${escapeInvoiceHtml(s.desc)}</td>
           <td style="padding:.3rem .5rem;border-bottom:1px solid #f1f5f9;text-align:center">${s.qty}</td>
           <td style="padding:.3rem .5rem;border-bottom:1px solid #f1f5f9;text-align:right">₹${fmtN(s.rate)}</td>
           <td style="padding:.3rem .5rem;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:700">₹${fmtN(s.total)}</td>
@@ -268,28 +284,34 @@ function updatePreview() {
       <div style="min-width:200px">
         ${totals.subtotal > 0 ? `<div style="display:flex;justify-content:space-between;padding:.25rem 0;font-size:.75rem;border-bottom:1px solid #f1f5f9"><span>Subtotal</span><span>₹${fmtN(totals.subtotal)}</span></div>` : ''}
         ${totals.discount > 0 ? `<div style="display:flex;justify-content:space-between;padding:.25rem 0;font-size:.75rem;color:#059669;border-bottom:1px solid #f1f5f9"><span>Discount</span><span>–₹${fmtN(totals.discount)}</span></div>` : ''}
-        <div style="display:flex;justify-content:space-between;padding:.25rem 0;font-size:.75rem;border-bottom:1px solid #f1f5f9"><span>GST @${totals.gstRate}%</span><span>₹${fmtN(totals.gst)}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:.25rem 0;font-size:.75rem;border-bottom:1px solid #f1f5f9"><span>GST @${totals.gstRate === null ? 'select rate' : totals.gstRate + '%'}</span><span>₹${fmtN(totals.gst)}</span></div>
         <div style="display:flex;justify-content:space-between;padding:.4rem .5rem;background:#1e40af;color:#fff;border-radius:4px;font-weight:800;margin-top:.25rem"><span>TOTAL</span><span>₹${fmtN(totals.total)}</span></div>
       </div>
     </div>
-    ${notes ? `<div style="margin-top:1rem;padding:.6rem .75rem;background:#f8fafc;border-radius:4px;font-size:.7rem;color:#64748b"><strong>Terms:</strong> ${notes}</div>` : ''}
-    <div style="margin-top:1rem;text-align:center;font-size:.65rem;color:#94a3b8">Generated by TaxMitra AI Enterprise | Developer: Abhishek Agrahari</div>
+    ${notes ? `<div style="margin-top:1rem;padding:.6rem .75rem;background:#f8fafc;border-radius:4px;font-size:.7rem;color:#64748b"><strong>Terms:</strong> ${escapeInvoiceHtml(notes)}</div>` : ''}
+    <div style="margin-top:1rem;text-align:center;font-size:.65rem;color:#92400e">Draft preview only. Check required details, tax treatment, and invoice rules before issuing.</div>
   `;
 }
 
 function saveInvoice(status) {
   var invNo = document.getElementById('newInvNo').value;
   if (!invNo) { showToast('Invoice number required', 'warning'); return; }
+  if (!document.getElementById('sellerName').value.trim()) { showToast('Enter your business or seller name', 'warning'); return; }
+  if (!document.getElementById('clientName').value.trim()) { showToast('Enter the client name', 'warning'); return; }
   var services = getServices();
-  if (!services.length) { showToast('Add at least one service', 'warning'); return; }
+  if (!services.length) { showToast('Add at least one service with a positive rate', 'warning'); return; }
   var totals = calcTotals(services);
+  if (totals.gstRate === null || !Number.isFinite(totals.gstRate)) { showToast('Select the applicable GST rate, including 0% if applicable', 'warning'); return; }
   
   var inv = {
     id: Date.now(),
     invNo: invNo,
     date: document.getElementById('newInvDate').value,
     dueDate: document.getElementById('dueDate').value,
-    clientName: document.getElementById('clientName').value,
+    sellerName: document.getElementById('sellerName').value.trim(),
+    sellerAddr: document.getElementById('sellerAddr').value.trim(),
+    sellerGSTIN: document.getElementById('sellerGSTIN').value.trim(),
+    clientName: document.getElementById('clientName').value.trim(),
     clientPAN: document.getElementById('clientPAN').value,
     clientAddr: document.getElementById('clientAddr').value,
     services,
@@ -370,24 +392,46 @@ function loadInvoice(id) {
   if (!inv) return;
   document.getElementById('newInvNo').value = inv.invNo;
   document.getElementById('newInvDate').value = inv.date;
+  document.getElementById('sellerName').value = inv.sellerName || '';
+  document.getElementById('sellerAddr').value = inv.sellerAddr || '';
+  document.getElementById('sellerGSTIN').value = inv.sellerGSTIN || '';
   document.getElementById('clientName').value = inv.clientName;
   document.getElementById('clientPAN').value = inv.clientPAN || '';
   document.getElementById('clientAddr').value = inv.clientAddr || '';
   document.getElementById('gstRate').value = String(inv.gstRate);
   document.getElementById('discount').value = String(inv.discount || 0);
   document.getElementById('invNotes').value = inv.notes || '';
+  var serviceRows = document.getElementById('serviceRows');
+  serviceRows.replaceChildren();
+  (Array.isArray(inv.services) && inv.services.length ? inv.services : [{}]).forEach(function (service) {
+    serviceRows.appendChild(createServiceRow(service));
+  });
   updatePreview();
   showToast('Invoice loaded: ' + inv.invNo, 'info');
 }
 
-function addServiceRow() {
+function createServiceRow(service) {
+  service = service || {};
   var div = document.createElement('div');
   div.className = 'service-row';
-  div.innerHTML = `<input type="text" placeholder="Service description" oninput="updatePreview()"/>
-    <input type="number" placeholder="1" value="1" oninput="updatePreview()"/>
-    <input type="number" placeholder="0" oninput="updatePreview()"/>
-    <button onclick="removeRow(this)" style="background:rgba(239,68,68,.1);color:var(--danger);border:none;border-radius:4px;cursor:pointer;font-size:.85rem;padding:.2rem .4rem">×</button>`;
-  document.getElementById('serviceRows').appendChild(div);
+  var desc = document.createElement('input');
+  desc.type = 'text'; desc.placeholder = 'Service description'; desc.value = service.desc || '';
+  var qty = document.createElement('input');
+  qty.type = 'number'; qty.placeholder = '1'; qty.min = '0'; qty.value = service.qty ?? 1;
+  var rate = document.createElement('input');
+  rate.type = 'number'; rate.placeholder = 'Rate (₹)'; rate.min = '0'; rate.value = service.rate ?? '';
+  [desc, qty, rate].forEach(function (input) { input.addEventListener('input', updatePreview); div.appendChild(input); });
+  var remove = document.createElement('button');
+  remove.type = 'button'; remove.textContent = '×'; remove.setAttribute('aria-label', 'Remove line item');
+  remove.style.cssText = 'background:rgba(239,68,68,.1);color:var(--danger);border:none;border-radius:4px;cursor:pointer;font-size:.85rem;padding:.2rem .4rem';
+  remove.addEventListener('click', function () { removeRow(remove); });
+  div.appendChild(remove);
+  return div;
+}
+
+function addServiceRow() {
+  document.getElementById('serviceRows').appendChild(createServiceRow({ qty: 1 }));
+  updatePreview();
 }
 
 function removeRow(btn) {
@@ -400,28 +444,37 @@ function downloadPDF() {
     showToast('PDF library loading... Try again in 2 seconds', 'info');
     return;
   }
-  var { jsPDF } = window.jspdf;
-  var doc = new jsPDF();
-  var invNo = document.getElementById('newInvNo').value || 'INV-001';
-  var clientName = document.getElementById('clientName').value || 'Client';
   var services = getServices();
   var totals = calcTotals(services);
+  if (!document.getElementById('sellerName').value.trim() || !document.getElementById('clientName').value.trim() || !services.length || totals.gstRate === null) {
+    showToast('Enter seller and client details, add a priced line, and select the applicable GST rate first', 'warning');
+    return;
+  }
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF();
+  var invNo = document.getElementById('newInvNo').value || 'INV-' + new Date().getFullYear() + '-001';
+  var sellerName = document.getElementById('sellerName').value.trim();
+  var sellerAddr = document.getElementById('sellerAddr').value.trim();
+  var sellerGSTIN = document.getElementById('sellerGSTIN').value.trim();
+  var clientName = document.getElementById('clientName').value.trim();
   
   doc.setFillColor(30, 64, 175);
-  doc.rect(0, 0, 210, 35, 'F');
+  doc.rect(0, 0, 210, 42, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16); doc.setFont('helvetica','bold');
-  doc.text('TAX INVOICE', 15, 15);
+  doc.text('TAX INVOICE', 15, 13);
   doc.setFontSize(10); doc.setFont('helvetica','normal');
-  doc.text('TaxMitra CA Firm | Abhishek Agrahari, Kanpur', 15, 23);
-  doc.text(invNo, 150, 15); doc.text(document.getElementById('newInvDate').value, 150, 23);
+  doc.text(sellerName, 15, 22);
+  if (sellerAddr) doc.text(sellerAddr.slice(0, 80), 15, 29);
+  if (sellerGSTIN) doc.text('GSTIN: ' + sellerGSTIN, 15, 36);
+  doc.text(invNo, 150, 15); doc.text(document.getElementById('newInvDate').value || new Date().toISOString().slice(0,10), 150, 23);
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(10); doc.setFont('helvetica','bold');
-  doc.text('Bill To:', 15, 45); doc.setFont('helvetica','normal');
-  doc.text(clientName, 15, 52);
+  doc.text('Bill To:', 15, 52); doc.setFont('helvetica','normal');
+  doc.text(clientName, 15, 59);
   
   doc.autoTable({
-    startY: 65,
+    startY: 72,
     head: [['#', 'Description', 'Qty', 'Rate', 'Amount']],
     body: services.map((s,i) => [i+1, s.desc, s.qty, '₹'+fmtN(s.rate), '₹'+fmtN(s.total)]),
     foot: [['', '', '', 'GST @'+totals.gstRate+'%', '₹'+fmtN(totals.gst)], ['', '', '', 'TOTAL', '₹'+fmtN(totals.total)]],
@@ -432,18 +485,6 @@ function downloadPDF() {
   
   doc.save('Invoice_' + invNo + '.pdf');
   showToast('✅ PDF downloaded!', 'success');
-}
-
-function loadSampleInvoices() {
-  invoices = [
-    { id:1, invNo:'INV-2025-001', date:'2025-07-01', dueDate:'2025-07-15', clientName:'Ravi Kumar', clientPAN:'ABCDE1234F', clientAddr:'Kanpur, UP', services:[{desc:'ITR-1 Filing AY 2026-27',qty:1,rate:2500,total:2500}], subtotal:2500, discount:0, taxable:2500, gstRate:18, gst:450, total:2950, status:'PAID', paidAmount:2950, createdAt:'2025-07-01T00:00:00Z' },
-    { id:2, invNo:'INV-2025-002', date:'2025-07-05', dueDate:'2025-07-20', clientName:'Meera Enterprises', clientPAN:'PQRST5678Y', clientAddr:'Lucknow, UP', services:[{desc:'GSTR-3B Filing (3 months)',qty:3,rate:1500,total:4500},{desc:'GSTR-1 Filing',qty:3,rate:800,total:2400}], subtotal:6900, discount:0, taxable:6900, gstRate:18, gst:1242, total:8142, status:'UNPAID', paidAmount:0, createdAt:'2025-07-05T00:00:00Z' },
-    { id:3, invNo:'INV-2025-003', date:'2025-07-10', dueDate:'2025-07-25', clientName:'ABC Tech Pvt Ltd', clientPAN:'LMNOP3456Z', clientAddr:'Noida, UP', services:[{desc:'TDS Return Q1 24Q',qty:1,rate:3000,total:3000},{desc:'Tax Audit Sec 44AB',qty:1,rate:15000,total:15000}], subtotal:18000, discount:1000, taxable:17000, gstRate:18, gst:3060, total:20060, status:'UNPAID', paidAmount:0, createdAt:'2025-07-10T00:00:00Z' },
-  ];
-  saveInvoicesToStorage();
-  renderInvoiceList();
-  updateStats();
-  showToast('✅ 3 sample invoices loaded!', 'success');
 }
 
 function exportAllCSV() {
@@ -463,11 +504,13 @@ window.addEventListener('DOMContentLoaded', function() {
   invoices = loadInvoicesFromStorage();
   renderInvoiceList();
   updateStats();
-  updatePreview();
-  // Set default due date (+15 days)
-  var due = new Date(); due.setDate(due.getDate() + 15);
+  // Set current local date and a 15-day default due date for new invoices.
+  var today = new Date();
+  document.getElementById('newInvDate').value = today.toISOString().slice(0,10);
+  var due = new Date(today); due.setDate(due.getDate() + 15);
   document.getElementById('dueDate').value = due.toISOString().slice(0,10);
   document.getElementById('newInvNo').value = 'INV-' + new Date().getFullYear() + '-' + String(invoices.length + 1).padStart(3,'0');
+  updatePreview();
 });
 </script>
 </body>

@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="author" content="Abhishek Agrahari"/>
-<meta name="description" content="Income Tax Computation Sheet V2 — Auto Calculator, AI Analysis, Chart, What-If Simulator — TaxMitra AI Enterprise AY 2026-27"/>
+<meta name="description" content="Income tax computation worksheet with estimates based on figures entered by the user. No tax-return submission is performed."/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Tax Computation V2 – Auto + AI – TaxMitra AI Enterprise</title>
+<title>Tax Computation Worksheet – TaxMitra</title>
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://abhishekagrahari307-max.github.io/ITR-AND-GST/pages/computation.html"/>
-  <meta property="og:title" content="Professional Tax Computation Sheet V2 | TaxMitra AI Enterprise"/>
-  <meta property="og:description" content="Computax se bhi zyada powerful — Auto Tax Computation, AI Analysis, What-If Simulator, Chart, Voice Input, IT Portal JSON Export. AY 2026-27."/>
+  <meta property="og:title" content="Tax Computation Worksheet | TaxMitra"/>
+  <meta property="og:description" content="Income tax calculation worksheet. Outputs are estimates and are not submitted to a government portal."/>
   <meta property="og:image" content="https://abhishekagrahari307-max.github.io/ITR-AND-GST/og-image.png"/>
   <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Professional Tax Computation Sheet V2 | TaxMitra AI Enterprise"/>
-  <meta name="twitter:description" content="Computax se bhi zyada powerful — Auto Tax Computation, AI Analysis, What-If Simulator, Chart, Voice Input, IT Portal JSON Export. AY 2026-27."/>
-  <meta name="description" content="Computax se bhi zyada powerful — Auto Tax Computation, AI Analysis, What-If Simulator, Chart, Voice Input, IT Portal JSON Export. AY 2026-27."/>
+  <meta name="twitter:title" content="Tax Computation Worksheet | TaxMitra"/>
+  <meta name="twitter:description" content="Income tax calculation worksheet. Outputs are estimates and are not submitted to a government portal."/>
+  <meta name="description" content="Income tax calculation worksheet. Outputs are estimates and are not submitted to a government portal."/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <link rel="stylesheet" href="../css/taxmitra.css"/>
@@ -135,6 +135,33 @@
 @media(max-width:640px){.guide-grid,.guide-grid.cols-2{grid-template-columns:1fr}.gtab{font-size:.72rem;padding:.38rem .7rem}}
 /* ITR recommender tag */
 .itr-recommend{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .6rem;border-radius:99px;font-size:.72rem;font-weight:800;background:var(--primary);color:#fff;margin-left:.5rem}
+
+/* Keep the worksheet and its nested cards from shrinking into narrow columns. */
+html, body { width: 100%; max-width: 100%; overflow-x: clip; }
+@supports not (overflow-x: clip) { html, body { overflow-x: hidden; } }
+.container, .comp-wrap, .comp-wrap > *, .sheet-area, .sheet-area > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.comp-wrap {
+  width: 100%;
+  grid-template-columns: minmax(0, 310px) minmax(0, 1fr);
+}
+.sheet-area { width: 100%; }
+.chart-wrap, #printSheet, #printSheet canvas { min-width: 0; max-width: 100%; }
+@media (max-width: 900px) {
+  .comp-wrap { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .comp-wrap { gap: .75rem; padding: .75rem 0 2rem; }
+  .inp-sidebar, .sheet-area { width: 100%; min-width: 0; }
+  .sheet-toolbar h3 { flex-basis: 100%; min-width: 0; }
+  .ps-header { flex-wrap: wrap; gap: .5rem; padding: .85rem 1rem; }
+  .ps-meta { text-align: left; }
+  .ps-row { min-width: 0; gap: .5rem; }
+  .ps-row .lbl { min-width: 0; overflow-wrap: anywhere; }
+  .ps-row .amt { min-width: 0; max-width: 52%; overflow-wrap: anywhere; }
+}
 </style>
 </head>
 <body>
@@ -176,7 +203,7 @@
       <span class="auto-badge">⚡ AUTO ON</span>
       <span id="itrRecommendTag" class="itr-recommend" style="display:none">ITR-1</span>
     </h1>
-    <p style="font-size:.82rem;opacity:.85">AY 2026-27 | Budget 2025 Updated | Auto-Calculator + AI Analysis + Chart + What-If | Developed by <strong>Abhishek Agrahari</strong></p>
+    <p style="font-size:.82rem;opacity:.85">Assessment year and applicable rules must be confirmed before use. Outputs are estimates only.</p>
   </div>
 </div>
 
@@ -508,7 +535,6 @@
       <button class="ai-check-btn" onclick="aiCheck()"><i class="fa fa-robot"></i> 🤖 AI Analysis + Tips</button>
       <div class="grid2" style="gap:.4rem">
         <button class="tbtn reset" style="justify-content:center" onclick="clearAll()"><i class="fa fa-trash"></i> Clear</button>
-        <button class="tbtn" style="background:#6366f1;color:#fff;justify-content:center" onclick="loadSample()"><i class="fa fa-user"></i> Sample</button>
         <button class="tbtn" style="background:#0891b2;color:#fff;justify-content:center" onclick="saveDraft()"><i class="fa fa-save"></i> Save Draft</button>
         <button class="tbtn reset" style="justify-content:center" onclick="loadDraft()"><i class="fa fa-folder-open"></i> Load Draft</button>
       </div>
@@ -607,8 +633,8 @@
   <!-- Section Header -->
   <div style="text-align:center;margin-bottom:2rem">
     <div style="display:inline-block;background:var(--primary-100);color:var(--primary);padding:.28rem .85rem;border-radius:99px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.65rem">📚 Complete Guide</div>
-    <h2 style="font-size:clamp(1.5rem,3vw,2rem);font-weight:800;margin-bottom:.4rem">ITR Filing + Computation Guide 2026-27</h2>
-    <p style="color:var(--text-secondary);font-size:.875rem">Developed by <strong>Abhishek Agrahari</strong> | Budget 2025 Updated | AY 2026-27</p>
+    <h2 style="font-size:clamp(1.5rem,3vw,2rem);font-weight:800;margin-bottom:.4rem">ITR Preparation and Computation Reference</h2>
+    <p style="color:var(--text-secondary);font-size:.875rem">Reference information only. Confirm current rules and dates with official sources.</p>
   </div>
 
   <!-- Guide Tab Nav -->
@@ -673,35 +699,11 @@
         </div>
       </div>
 
-      <!-- Competition Guide: TaxMitra vs Others -->
-      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-top:1.5rem">
-        <h3 style="font-size:1rem;font-weight:800;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem">🏆 TaxMitra AI vs Competitors — Feature Comparison</h3>
-        <div style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse;font-size:.8rem">
-            <thead>
-              <tr style="background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff">
-                <th style="padding:.65rem .85rem;text-align:left;border-radius:8px 0 0 0">Feature</th>
-                <th style="padding:.65rem .85rem;text-align:center">TaxMitra AI ⚡</th>
-                <th style="padding:.65rem .85rem;text-align:center">Computax</th>
-                <th style="padding:.65rem .85rem;text-align:center">ClearTax</th>
-                <th style="padding:.65rem .85rem;text-align:center;border-radius:0 8px 0 0">Tax2Win</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="background:rgba(16,185,129,.04)"><td style="padding:.55rem .85rem;font-weight:600;border-bottom:1px solid var(--border)">Price</td><td style="text-align:center;border-bottom:1px solid var(--border);color:#16a34a;font-weight:700">🆓 100% Free</td><td style="text-align:center;border-bottom:1px solid var(--border)">₹3,000–15,000/yr</td><td style="text-align:center;border-bottom:1px solid var(--border)">₹799–2,999</td><td style="text-align:center;border-bottom:1px solid var(--border)">₹999–4,999</td></tr>
-              <tr><td style="padding:.55rem .85rem;font-weight:600;border-bottom:1px solid var(--border)">AI Tax Assistant</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅ Gemini + Llama</td><td style="text-align:center;border-bottom:1px solid var(--border)">❌</td><td style="text-align:center;border-bottom:1px solid var(--border)">⚠️ Basic</td><td style="text-align:center;border-bottom:1px solid var(--border)">⚠️ Basic</td></tr>
-              <tr style="background:rgba(16,185,129,.04)"><td style="padding:.55rem .85rem;font-weight:600;border-bottom:1px solid var(--border)">Auto Computation</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅ Real-time</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td></tr>
-              <tr><td style="padding:.55rem .85rem;font-weight:600;border-bottom:1px solid var(--border)">Gemini Vision OCR</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">❌</td><td style="text-align:center;border-bottom:1px solid var(--border)">❌</td><td style="text-align:center;border-bottom:1px solid var(--border)">❌</td></tr>
-              <tr style="background:rgba(16,185,129,.04)"><td style="padding:.55rem .85rem;font-weight:600;border-bottom:1px solid var(--border)">GST Suite</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅ Full GSTR-1/3B/9</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅ (paid)</td><td style="text-align:center;border-bottom:1px solid var(--border)">⚠️ Limited</td></tr>
-              <tr><td style="padding:.55rem .85rem;font-weight:600;border-bottom:1px solid var(--border)">Payroll + Form 16</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅ (paid)</td><td style="text-align:center;border-bottom:1px solid var(--border)">❌</td></tr>
-              <tr style="background:rgba(16,185,129,.04)"><td style="padding:.55rem .85rem;font-weight:600;border-bottom:1px solid var(--border)">What-If Simulator</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">❌</td><td style="text-align:center;border-bottom:1px solid var(--border)">⚠️</td><td style="text-align:center;border-bottom:1px solid var(--border)">❌</td></tr>
-              <tr><td style="padding:.55rem .85rem;font-weight:600;border-bottom:1px solid var(--border)">IT Notice Explainer</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅ AI Powered</td><td style="text-align:center;border-bottom:1px solid var(--border)">❌</td><td style="text-align:center;border-bottom:1px solid var(--border)">❌</td><td style="text-align:center;border-bottom:1px solid var(--border)">❌</td></tr>
-              <tr style="background:rgba(16,185,129,.04)"><td style="padding:.55rem .85rem;font-weight:600;border-bottom:1px solid var(--border)">Budget 2025 Updated</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅ Instant</td><td style="text-align:center;border-bottom:1px solid var(--border)">⚠️ Delayed</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td><td style="text-align:center;border-bottom:1px solid var(--border)">✅</td></tr>
-              <tr><td style="padding:.55rem .85rem;font-weight:600">Mobile Responsive</td><td style="text-align:center">✅ PWA</td><td style="text-align:center">⚠️</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <section class="card" aria-labelledby="comparison-note-title" style="margin-top:1.5rem;padding:1.25rem">
+        <h3 id="comparison-note-title" style="font-size:1rem;font-weight:800;margin-bottom:.5rem">Product scope</h3>
+        <p style="font-size:.85rem;color:var(--text-secondary);margin:0">We removed the earlier competitor comparison because its prices, ratings and feature claims were not supported by dated, verifiable sources. Product plans change; check each provider’s own current information before comparing.</p>
+        <p style="font-size:.85rem;color:var(--text-secondary);margin:.65rem 0 0">This page calculates estimates from the figures you enter. It does not connect to a tax portal, submit a return or replace verification against current law and official records.</p>
+      </section>
     </div>
 
     <!-- ── ITR FORMS ──────────────────────────────────────── -->
@@ -1933,7 +1935,7 @@ function renderSheet(r) {
     </div>
 
     <div style="padding:.6rem 1rem .8rem;font-size:.65rem;color:#94a3b8;border-top:1px solid #e2e8f0">
-      Generated by TaxMitra AI Enterprise V2 | Developed by Abhishek Agrahari | AY ${r.ay} | Budget 2025 Updated | This is a computer-generated computation for reference only. Verify with a qualified CA before final filing.
+      TaxMitra working paper | AY ${r.ay} | Reference estimate only. Confirm applicable rules and figures before filing.
     </div>
   `;
 
@@ -2225,21 +2227,6 @@ function loadDraft() {
   } catch(e) { showToast('Draft load failed', 'error'); }
 }
 
-// ── SAMPLE DATA ───────────────────────────────────────────────────────
-function loadSample() {
-  const sample = {
-    txName:'Abhishek Agrahari', txPAN:'ABCDE1234F', regime:'new', age:'below60', ay:'2026-27',
-    grossSal:1200000, basicSal:480000, hraRcvd:240000, rentPaid:180000, city:'nonmetro',
-    profTax:2400, fdInt:15000, savInt:8000, d80ccd2:48000, tdsSal:0
-  };
-  Object.entries(sample).forEach(([id, val]) => {
-    const el = document.getElementById(id);
-    if (el) el.value = val;
-  });
-  showToast('Sample data loaded — Abhishek Agrahari (New Regime, ₹12L salary)', 'success');
-  computeAll();
-}
-
 // ── CLEAR ─────────────────────────────────────────────────────────────
 function clearAll() {
   document.querySelectorAll('aside input[type="number"]').forEach(el => el.value = '');
@@ -2379,7 +2366,7 @@ function downloadPDF() {
 
   const h = doc.internal.pageSize.height;
   doc.setFontSize(7); doc.setTextColor(150);
-  doc.text('Generated by TaxMitra AI Enterprise V2 | Developed by Abhishek Agrahari | Budget 2025 Updated | For reference only. Verify with CA.', 105, h-8, {align:'center'});
+  doc.text('TaxMitra working paper — estimate for reference only. Confirm applicable rules and figures before filing.', 105, h-8, {align:'center'});
 
   doc.save(`TaxComputation_${name.replace(/\s+/g,'_')}_AY${r.ay}.pdf`);
   showToast('PDF downloaded!', 'success');

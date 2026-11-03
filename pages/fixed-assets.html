@@ -435,16 +435,10 @@ function clearAll() {
   showToast('Cleared', 'info');
 }
 
-// Load sample data
 window.addEventListener('DOMContentLoaded', function() {
-  // Add a couple sample assets
-  assets = [
-    {id:1, name:'Office Computers (5 units)', cat:'Computer/Software', rate:40, cost:250000, additions:0, disposal:0, dep:100000, closingWDV:150000, halfYear:false, date:'2025-04-01'},
-    {id:2, name:'Delivery Vehicle', cat:'Motor Vehicles', rate:15, cost:800000, additions:0, disposal:0, dep:120000, closingWDV:680000, halfYear:false, date:'2025-04-01'},
-    {id:3, name:'Office Furniture', cat:'Furniture', rate:10, cost:150000, additions:50000, disposal:0, dep:20000, closingWDV:180000, halfYear:false, date:'2025-04-01'}
-  ];
   renderAssets();
 });
+
 </script>
 </body>
 </html>

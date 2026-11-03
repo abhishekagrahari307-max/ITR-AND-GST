@@ -55,7 +55,8 @@ function equal(actual, expected, message) {
    External CDN scripts are dropped: they only affect styling/icons, and
    blocking the network keeps this test deterministic. */
 async function loadPage(relative) {
-  var html = fs.readFileSync(path.join(ROOT, relative), 'utf8');
+  var fileRelative = relative.split(/[?#]/)[0];
+  var html = fs.readFileSync(path.join(ROOT, fileRelative), 'utf8');
   var scripts = [];
   var scriptRegex = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
   var match;
@@ -102,7 +103,7 @@ async function loadPage(relative) {
   });
 
   var window = dom.window;
-  var base = path.dirname(relative);
+  var base = path.dirname(fileRelative);
 
   scripts.forEach(function (script) {
     if (script.inline) {
@@ -853,6 +854,14 @@ async function itrCentreTests() {
   var window = dom.window;
   var document = window.document;
 
+  await check('AIS directory deep link opens the matching tab', async function () {
+    var deepLink = await loadPage('pages/itr-center.html#tab-ais');
+    var deepWindow = deepLink.window;
+    equal(deepWindow.document.getElementById('tab-ais').classList.contains('active'), true);
+    equal(deepWindow.document.querySelectorAll('.tab-btn.active').length, 1);
+    deepLink.window.close();
+  });
+
   await check('scripts load without a page error', function () {
     equal((window.__errors || []).length, 0, 'page errors: ' + (window.__errors || []).join(' | '));
     assert(window.TMStore, 'tm-store.js should be loaded');
@@ -1083,6 +1092,92 @@ async function itcReconTests() {
 }
 
 
+async function eInvoiceTests() {
+  console.log('\nE-invoice draft tool');
+  var dom = await loadPage('pages/einvoice.html');
+  var window = dom.window;
+  var document = window.document;
+  window.showToast = function (message) { (window.__toasts || (window.__toasts = [])).push(String(message)); };
+
+  await check('tool labels itself as a draft and does not start with a fabricated invoice', function () {
+    assert(document.body.textContent.indexOf('no IRN has been generated') !== -1);
+    equal(typeof window.generateIRN, 'undefined');
+    equal(document.querySelector('#itemsContainer .item-row input[type="text"]').value, '');
+  });
+
+  await check('JSON draft uses entered locations and never invents an IRN or acknowledgement', function () {
+    var values = {
+      supGSTIN:'09ABCDE1234F1Z5', supName:'Example Seller', supAddr:'1 Example Road', supLoc:'Lucknow', supPin:'226001', supState:'09',
+      buyGSTIN:'09BCDEF2345G1Z6', buyName:'Example Buyer', buyAddr:'2 Sample Lane', buyLoc:'Lucknow', buyPin:'226002', buyState:'09', posState:'09', supplyType:'B2B',
+      invNo:'TEST-001', invDate:'2026-11-03'
+    };
+    Object.keys(values).forEach(function (id) { setValue(window, id, values[id]); });
+    var line = document.querySelector('#itemsContainer .item-row');
+    var fields = line.querySelectorAll('input,select');
+    fields[0].value = 'Consulting service';
+    fields[1].value = '9983';
+    fields[2].value = '1';
+    fields[3].value = '1000';
+    fields[4].value = 'OTH';
+    fields[5].value = '18';
+    window.generateDraftJSON();
+    var payload = JSON.parse(document.getElementById('jsonPreview').textContent);
+    equal(payload.SellerDtls.Loc, 'Lucknow');
+    equal(payload.SellerDtls.Pin, 226001);
+    equal(payload.BuyerDtls.Addr1, '2 Sample Lane');
+    assert(!Object.prototype.hasOwnProperty.call(payload, 'Irn'));
+    assert(!Object.prototype.hasOwnProperty.call(payload, 'AckNo'));
+  });
+
+  dom.window.close();
+}
+
+async function reportTests() {
+  console.log('\nReports and analytics');
+  var dom = await loadPage('pages/reports.html');
+  var window = dom.window;
+  var document = window.document;
+
+  await check('health worksheet starts with blank user figures and no canned report', function () {
+    ['fhIncome', 'fhSavings', 'fhTax', 'fhInvest', 'fhEmergency'].forEach(function (id) {
+      equal(document.getElementById(id).value, '', '#' + id + ' should start blank');
+    });
+    equal(document.getElementById('reportPreview').style.display, 'none');
+  });
+
+  await check('missing records do not generate an invented tax report', function () {
+    window.localStorage.clear();
+    window.generateReport('tax');
+    equal(document.getElementById('reportPreview').style.display, 'none');
+  });
+
+  dom.window.close();
+}
+
+async function bankStatementTests() {
+  console.log('\nBank statement CSV import');
+  var dom = await loadPage('pages/bank-statement.html');
+  var window = dom.window;
+  window.showToast = function (message) { (window.__toasts || (window.__toasts = [])).push(String(message)); };
+
+  await check('CSV parser preserves quoted descriptions and comma-formatted amounts', function () {
+    window.parseCSV('Date,Description,Debit,Credit,Balance\r\n2026-04-01,"NEFT, CLIENT PAYMENT",,"85,000","1,85,000"');
+    equal(window.allTransactions.length, 1);
+    equal(window.allTransactions[0].desc, 'NEFT, CLIENT PAYMENT');
+    equal(window.allTransactions[0].credit, 85000);
+    equal(window.allTransactions[0].balance, 185000);
+  });
+
+  await check('invalid headers do not create replacement sample transactions', function () {
+    window.allTransactions = [];
+    window.parseCSV('Date,Description\r\n2026-04-01,Some row');
+    equal(window.allTransactions.length, 0);
+    equal(typeof window.loadSampleData, 'undefined');
+  });
+
+  dom.window.close();
+}
+
 async function scheduleFaTests() {
   console.log('\nSchedule FA page');
   var dom = await loadPage('pages/schedule-fa.html');
@@ -1186,6 +1281,9 @@ async function scheduleFaTests() {
     await accountTests();
     await itrCentreTests();
     await itcReconTests();
+    await eInvoiceTests();
+    await reportTests();
+    await bankStatementTests();
     await scheduleFaTests();
   } catch (error) {
     results.failed += 1;

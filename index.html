@@ -81,17 +81,6 @@
 </head>
 <body>
 
-<!-- Announcement Bar -->
-<div class="announcement-bar" id="announcementBar">
-  <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
-    <span class="pulse-dot"></span>
-    <span>🧾 <strong>TaxMitra</strong> | Browser-based tax preparation, GST and calculator tools</span>
-    <span style="opacity:.4">|</span>
-    <span>Working papers only — no government filing or submission</span>
-  </div>
-  <button class="ann-close" onclick="this.parentElement.style.display='none'">✕</button>
-</div>
-
 <!-- Navbar -->
 <nav class="navbar-main" id="mainNav">
   <div class="nav-container">
@@ -104,19 +93,12 @@
     </a>
     <div class="nav-links-wrapper" id="navLinksWrapper">
       <ul class="nav-links">
-        <li class="nav-item"><a href="index.html" class="nav-link active">🏠 Home</a></li>
-        <li class="nav-item"><a href="pages/itr-form.html" class="nav-link">📋 ITR Preparation</a></li>
-        <li class="nav-item"><a href="pages/gst.html" class="nav-link">🧾 GST</a></li>
-        <li class="nav-item"><a href="pages/calculators.html" class="nav-link">🔢 Calculators</a></li>
-        <li class="nav-item"><a href="pages/computation.html" class="nav-link">🧮 Computation</a></li>
-        <li class="nav-item"><a href="pages/ai-assistant.html" class="nav-link">🤖 AI</a></li>
-        <li class="nav-item"><a href="pages/dashboard.html" class="nav-link">📊 Dashboard</a></li>
-        <li class="nav-item"><a href="pages/import-data.html" class="nav-link">📥 Import</a></li>
-        <li class="nav-item"><a href="pages/billing.html" class="nav-link">🧾 Billing</a></li>
-        <li class="nav-item"><a href="pages/itr-form.html" class="nav-link">🧠 ITR Wizard</a></li>
-        <li class="nav-item"><a href="pages/itc-recon.html" class="nav-link">🔁 ITC Recon</a></li>
-        <li class="nav-item"><a href="pages/schedule-fa.html" class="nav-link">🌍 Schedule FA</a></li>
-        <li class="nav-item"><a href="pages/account.html" class="nav-link">🔐 Account</a></li>
+        <li class="nav-item"><a href="index.html" class="nav-link active">Home</a></li>
+        <li class="nav-item"><a href="pages/itr-form.html" class="nav-link">ITR preparation</a></li>
+        <li class="nav-item"><a href="pages/gst.html" class="nav-link">GST tools</a></li>
+        <li class="nav-item"><a href="pages/calculators.html" class="nav-link">Calculators</a></li>
+        <li class="nav-item"><a href="pages/index.html" class="nav-link">All tools</a></li>
+        <li class="nav-item"><a href="pages/ai-assistant.html" class="nav-link">AI assistant</a></li>
       </ul>
     </div>
     <div class="nav-right">
@@ -176,7 +158,7 @@
           <button onclick="window.TaxMitraLang?.setLang('mr')" style="padding:.18rem .55rem;border-radius:99px;font-size:.72rem;font-weight:700;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;cursor:pointer">म</button>
         </div>
         <div class="hero-trust">
-        <span>✅ Browser-based tools</span><span>✅ Local-first data for supported tools</span><span>✅ Working-paper exports</span><span>✅ No filing or submission</span>
+        <span>✅ Browser-based tools</span><span>✅ Local-first data for supported tools</span><span>✅ Working-paper exports</span><span>✅ No government filing or submission</span>
       </div>
     </div>
     <div class="hero-visual">
@@ -218,17 +200,8 @@
       <a href="pages/ai-assistant.html" class="qt-item"><div class="qt-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">🤖</div><span>AI Assistant</span></a>
       <a href="pages/accounting.html" class="qt-item"><div class="qt-icon" style="background:linear-gradient(135deg,#84cc16,#65a30d)">📒</div><span>Accounting</span></a>
       <a href="pages/reports.html" class="qt-item"><div class="qt-icon" style="background:linear-gradient(135deg,#ec4899,#db2777)">📊</div><span>Reports</span></a>
+      <a href="pages/dashboard.html" class="qt-item" aria-label="Open Dashboard" title="Dashboard"><div class="qt-icon" style="background:linear-gradient(135deg,#0ea5e9,#2563eb)"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i></div><span>Dashboard</span></a>
 
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)"><div class="module-icon">🔄</div><span class="module-tag">Sec 139(8A)</span></div><div class="module-body"><h3>ITR-U Updated Return</h3><p>Review ITR-U eligibility conditions, additional-tax estimates and preparation steps; confirm the applicable time limits before proceeding.</p><ul class="module-features"><li>✅ Additional tax 25%/50%</li><li>✅ AY deadline tracker</li><li>✅ Eligibility checker</li><li>✅ Filing guide</li><li>✅ Challan payment guide</li></ul><a href="pages/itr-u.html" class="module-btn">Review ITR-U options →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#0f766e,#0d9488)"><div class="module-icon">🧾</div><span class="module-tag">E-Invoice IRP</span></div><div class="module-body"><h3>E-Invoice Generator</h3><p>Prepare an e-invoice JSON working paper. IRN generation is simulated here; generate live IRNs only through the authorised IRP.</p><ul class="module-features"><li>✅ IRN generation (simulated)</li><li>✅ JSON IRP schema</li><li>✅ PDF invoice download</li><li>✅ Multi-line items</li><li>✅ B2B/Export/SEZ types</li></ul><a href="pages/einvoice.html" class="module-btn">E-Invoice →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#0284c7,#0369a1)"><div class="module-icon">🔍</div><span class="module-tag">8 Validators</span></div><div class="module-body"><h3>Verification Center</h3><p>PAN, GSTIN, TAN, CIN, IFSC, Aadhaar, PIN Code, Bank Account format validation + portal links.</p><ul class="module-features"><li>✅ PAN type detection</li><li>✅ GSTIN state decode</li><li>✅ Bulk GSTIN verify</li><li>✅ Aadhaar Verhoeff check</li><li>✅ IFSC bank lookup</li></ul><a href="pages/verification.html" class="module-btn">Verify Now →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#374151,#1f2937)"><div class="module-icon">📒</div><span class="module-tag">Double-Entry</span></div><div class="module-body"><h3>Digital Ledger Book</h3><p>Full double-entry accounting, account-wise ledger, trial balance, journal entries, CSV export.</p><ul class="module-features"><li>✅ Chart of Accounts</li><li>✅ Journal entries</li><li>✅ Account-wise ledger</li><li>✅ Trial Balance</li><li>✅ Export CSV</li></ul><a href="pages/ledger-book.html" class="module-btn">Open Ledger →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#6366f1,#4338ca)"><div class="module-icon">📊</div><span class="module-tag">Analytics</span></div><div class="module-body"><h3>GST Analytics Dashboard</h3><p>Monthly GST trends, ITC utilization ratio, supplier compliance score, payment tracker, charts.</p><ul class="module-features"><li>✅ Monthly liability vs ITC</li><li>✅ Supplier compliance score</li><li>✅ ITC risk analysis</li><li>✅ Payment tracker</li><li>✅ Filing status</li></ul><a href="pages/gst-analytics.html" class="module-btn">GST Analytics →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#d97706,#b45309)"><div class="module-icon">💰</div><span class="module-tag">CA Practice</span></div><div class="module-body"><h3>Billing & Invoicing</h3><p>Professional invoices for CA practice, payment tracking, receipt generation, subscription management.</p><ul class="module-features"><li>✅ Invoice PDF download</li><li>✅ Payment tracking</li><li>✅ GST invoice</li><li>✅ Client-wise invoices</li><li>✅ Export all CSV</li></ul><a href="pages/billing-invoicing.html" class="module-btn">Create Invoice →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#059669,#047857)"><div class="module-icon">📦</div><span class="module-tag">Stock Register</span></div><div class="module-body"><h3>Inventory Management</h3><p>Stock register, FIFO/WAC valuation, low stock alerts, stock movements, GST-ready inventory.</p><ul class="module-features"><li>✅ Stock register</li><li>✅ WAC valuation</li><li>✅ Low stock alerts</li><li>✅ Movement tracking</li><li>✅ Export CSV</li></ul><a href="pages/inventory.html" class="module-btn">Inventory →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)"><div class="module-icon">🎯</div><span class="module-tag">AI Planning</span></div><div class="module-body"><h3>Tax Planning Tool</h3><p>AI-powered personalized tax-saving plan, deduction tracker, regime optimizer, advance tax calendar.</p><ul class="module-features"><li>✅ 80C/80D/NPS tracker</li><li>✅ Old vs New regime</li><li>✅ Advance tax calendar</li><li>✅ HRA optimization</li><li>✅ AI recommendations</li></ul><a href="pages/tax-planning.html" class="module-btn">Plan Taxes →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#0891b2,#0e7490)"><div class="module-icon">🔢</div><span class="module-tag">Payroll Calc</span></div><div class="module-body"><h3>PF / ESI / PT Calculator</h3><p>EPF 12%, ESI 3.25%/0.75%, state-wise Professional Tax, Gratuity, Statutory Bonus calculators.</p><ul class="module-features"><li>✅ EPF employee+employer</li><li>✅ ESI applicability</li><li>✅ PT all states</li><li>✅ Gratuity formula</li><li>✅ Statutory bonus</li></ul><a href="pages/pf-esi-calculator.html" class="module-btn">Calculate →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#1e293b,#0f172a)"><div class="module-icon">⚙️</div><span class="module-tag">Enterprise</span></div><div class="module-body"><h3>Super Admin Panel</h3><p>Multi-tenant management, RBAC, audit logs, system health monitor, white-label config, subscriptions.</p><ul class="module-features"><li>✅ User management (RBAC)</li><li>✅ Tenant/Branch management</li><li>✅ Audit trail</li><li>✅ System health</li><li>✅ White-label config</li></ul><a href="pages/super-admin.html" class="module-btn">Admin Panel →</a></div></div>
     </div>
   </div>
 </section>
@@ -247,43 +220,23 @@
   </div>
 </section>
 
-<!-- Modules -->
-<section class="features-section">
+<!-- Start with a practical tool -->
+<section class="features-section" id="tools">
   <div class="container">
     <div class="section-header">
-      <span class="section-tag">Complete Platform</span>
-      <h2>Tools for <span class="gradient-text">tax preparation and GST</span></h2>
-      <p>Browse the available calculators, working-paper tools and reference pages. Features differ by page; open a tool to see its scope and limitations.</p>
+      <span class="section-tag">Tools</span>
+      <h2>Choose what you need to do</h2>
+      <p>Each tool explains its own inputs and limits. Your figures are not prefilled with a sample taxpayer.</p>
     </div>
-    <div class="modules-grid" id="modulesGrid">
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)"><div class="module-icon">🤖</div><span class="module-tag">Optional AI</span></div><div class="module-body"><h3>AI Tax Assistant</h3><p>Rule-based tax Q&amp;A with optional provider-backed AI when you configure your own key.</p><ul class="module-features"><li>✅ Hindi and English questions</li><li>✅ Rule-based fallback</li><li>✅ Optional provider key</li><li>✅ Verify important answers</li><li>✅ No portal access</li></ul><a href="pages/ai-assistant.html" class="module-btn">Open AI →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#dc2626,#b91c1c)"><div class="module-icon">🧮</div><span class="module-tag">Tax computation</span></div><div class="module-body"><h3>Tax Computation Sheet</h3><p>Professional computation — Salary, Business, Capital Gains, All heads.</p><ul class="module-features"><li>✅ All income heads</li><li>✅ Old & New Regime</li><li>✅ PDF + XLSX + JSON</li><li>✅ Tax computation JSON working paper</li><li>✅ 234A/B/C, AMT, Surcharge</li></ul><a href="pages/computation.html" class="module-btn">Compute Tax →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><div class="module-icon">🔢</div><span class="module-tag">Calculators</span></div><div class="module-body"><h3>Tax Calculators</h3><p>Browse tax and finance calculators, including income tax, HRA, SIP, EMI, PPF and capital gains tools.</p><ul class="module-features"><li>✅ Income Tax (Old+New)</li><li>✅ HRA, Gratuity, EPF</li><li>✅ SIP, EMI, FD, PPF</li><li>✅ Capital Gain LTCG/STCG</li><li>✅ GST Calculator</li></ul><a href="pages/calculators.html" class="module-btn">All Calculators →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#10b981,#059669)"><div class="module-icon">📋</div><span class="module-tag">ITR-1 to ITR-7</span></div><div class="module-body"><h3>ITR Preparation Center</h3><p>ITR form references, a preparation wizard, working-paper export and a checklist.</p><ul class="module-features"><li>✅ ITR-1 to ITR-7 references</li><li>✅ Form recommendation rules</li><li>✅ Manual AIS / 26AS reconciliation</li><li>✅ User-entered income details</li><li>✅ Preparation checklist</li></ul><a href="pages/itr-form.html" class="module-btn">Prepare ITR working paper →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#06b6d4,#0e7490)"><div class="module-icon">🧾</div><span class="module-tag">Professional</span></div><div class="module-body"><h3>GST Professional Suite</h3><p>GSTR-1/3B/9, Invoice PDF, ITC Calculator, HSN/SAC Search.</p><ul class="module-features"><li>✅ GSTR-1, 3B, 9 Filing</li><li>✅ GST Invoice PDF</li><li>✅ ITC Calculator</li><li>✅ HSN/SAC Search</li><li>✅ E-Way Bill Guide</li></ul><a href="pages/gst.html" class="module-btn">GST Suite →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#ef4444,#b91c1c)"><div class="module-icon">💼</div><span class="module-tag">HR & Finance</span></div><div class="module-body"><h3>TDS & Payroll</h3><p>Salary TDS, Payslip PDF, Form 16 generator, TDS return.</p><ul class="module-features"><li>✅ Salary TDS Calculator</li><li>✅ Payslip PDF Generator</li><li>✅ Form 16 PDF</li><li>✅ 24Q/26Q/27Q Guide</li><li>✅ TDS Rate Chart</li></ul><a href="pages/tds-payroll.html" class="module-btn">TDS & Payroll →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#84cc16,#4d7c0f)"><div class="module-icon">📒</div><span class="module-tag">Business ERP</span></div><div class="module-body"><h3>Business & Accounting</h3><p>Invoice generator, P&L, Ledger, BRS, Expense tracker.</p><ul class="module-features"><li>✅ Invoice Generator PDF</li><li>✅ P&L Statement</li><li>✅ General Ledger</li><li>✅ Bank Reconciliation</li><li>✅ Expense Tracker</li></ul><a href="pages/accounting.html" class="module-btn">Accounting →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#14b8a6,#0f766e)"><div class="module-icon">📅</div><span class="module-tag">AI Reminders</span></div><div class="module-body"><h3>Compliance Hub</h3><p>IT/GST/TDS due dates, AI reminders, penalty calculator.</p><ul class="module-features"><li>✅ Compliance Calendar</li><li>✅ AI Due Date Alerts</li><li>✅ Penalty Calculator</li><li>✅ ROC/MSME Dates</li><li>✅ PDF Export</li></ul><a href="pages/compliance.html" class="module-btn">Compliance →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#a855f7,#7c3aed)"><div class="module-icon">📁</div><span class="module-tag">AI OCR</span></div><div class="module-body"><h3>AI Document Center</h3><p>Upload PAN, Aadhaar, Form 16, 26AS — AI reads & summarizes.</p><ul class="module-features"><li>✅ Gemini Vision OCR</li><li>✅ PDF Text Extraction</li><li>✅ AI Data Analysis</li><li>✅ Missing Data Detection</li><li>✅ Document Vault</li></ul><a href="pages/documents.html" class="module-btn">Documents →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#f97316,#c2410c)"><div class="module-icon">📈</div><span class="module-tag">AI Advisor</span></div><div class="module-body"><h3>Investment Planner</h3><p>80C tracker, goal planning, SIP, PPF, NPS comparison.</p><ul class="module-features"><li>✅ 80C/D/G Planner</li><li>✅ Goal-Based Planning</li><li>✅ SIP/PPF/NPS Calc</li><li>✅ AI Investment Tips</li><li>✅ Portfolio Analysis</li></ul><a href="pages/investment.html" class="module-btn">Plan Investments →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#0ea5e9,#0284c7)"><div class="module-icon">📊</div><span class="module-tag">PDF & Excel</span></div><div class="module-body"><h3>Reports & Analytics</h3><p>Tax computation report, health score, PDF & Excel export.</p><ul class="module-features"><li>✅ Tax Liability Report</li><li>✅ Financial Health Score</li><li>✅ AI Analysis</li><li>✅ PDF Download</li><li>✅ Excel Export</li></ul><a href="pages/reports.html" class="module-btn">View Reports →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#10b981,#059669)"><div class="module-icon">🏠</div><span class="module-tag">HRA</span></div><div class="module-body"><h3>Rent Receipt Generator</h3><p>Monthly rent receipts PDF for HRA tax exemption. Landlord PAN, stamp, auto-fill.</p><ul class="module-features"><li>✅ Monthly/Annual Batch PDF</li><li>✅ HRA Exemption Calculator</li><li>✅ Landlord PAN Reminder</li><li>✅ Gemini Vision OCR</li><li>✅ Salary Slip → ITR</li></ul><a href="pages/rent-receipt.html" class="module-btn">Generate Receipts →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#6366f1,#4338ca)"><div class="module-icon">🏠</div><span class="module-tag">Personal</span></div><div class="module-body"><h3>User Dashboard</h3><p>Filing status, AI recommendations, activity, quick actions.</p><ul class="module-features"><li>✅ Tax Summary</li><li>✅ Filing Status</li><li>✅ AI Recommendations</li><li>✅ Quick Actions</li><li>✅ Notifications</li></ul><a href="pages/dashboard.html" class="module-btn">My Dashboard →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#0f766e,#115e59)"><div class="module-icon">🏦</div><span class="module-tag">AI Parser</span></div><div class="module-body"><h3>Bank Statement Parser</h3><p>CSV upload → AI categorize → 26AS reconciliation → Tax-relevant detection.</p><ul class="module-features"><li>✅ SBI/HDFC/ICICI/Axis/PNB</li><li>✅ Auto-categorize transactions</li><li>✅ 26AS Reconciliation</li><li>✅ Tax-relevant flags</li><li>✅ Export CSV/PDF</li></ul><a href="pages/bank-statement.html" class="module-btn">Parse Statement →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#b45309,#92400e)"><div class="module-icon">🏗️</div><span class="module-tag">WDV/SLM</span></div><div class="module-body"><h3>Fixed Assets & Depreciation</h3><p>Block of assets register, IT Act rates, WDV/SLM method, auto schedule.</p><ul class="module-features"><li>✅ IT Act Sec 32 Rates</li><li>✅ WDV & SLM Method</li><li>✅ Half-Year Rule Auto</li><li>✅ Block of Assets Register</li><li>✅ 10-Year Schedule</li></ul><a href="pages/fixed-assets.html" class="module-btn">Fixed Assets →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)"><div class="module-icon">💰</div><span class="module-tag">RFD-01</span></div><div class="module-body"><h3>GST Refund Module</h3><p>Export refund, inverted duty, excess cash ledger, RFD-01, status tracking.</p><ul class="module-features"><li>✅ Export (Zero Rated)</li><li>✅ Inverted Duty Refund</li><li>✅ Excess Cash Ledger</li><li>✅ RFD-01 Draft Generator</li><li>✅ Status Tracker</li></ul><a href="pages/gst-refund.html" class="module-btn">GST Refund →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#1e3a8a,#1d4ed8)"><div class="module-icon">⚖️</div><span class="module-tag">Sec 154/246A</span></div><div class="module-body"><h3>Appeals & Rectification</h3><p>Sec 154 rectification, CIT(A) appeal, ITAT, penalty waiver, stay of demand.</p><ul class="module-features"><li>✅ Section 154 Rectification</li><li>✅ CIT(A) Form 35 Guide</li><li>✅ ITAT Form 36 Guide</li><li>✅ Penalty Calculator</li><li>✅ Faceless Appeals</li></ul><a href="pages/appeals.html" class="module-btn">Appeals Guide →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#0369a1,#0284c7)"><div class="module-icon">🪪</div><span class="module-tag">PAN Services</span></div><div class="module-body"><h3>PAN Services Center</h3><p>New PAN, correction, Aadhaar link, verify, e-PAN download, status check.</p><ul class="module-features"><li>✅ PAN Format Validator</li><li>✅ Aadhaar-PAN Link Check</li><li>✅ e-PAN Download Guide</li><li>✅ New PAN Application</li><li>✅ PAN Correction</li></ul><a href="pages/pan-services.html" class="module-btn">PAN Services →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#dc2626,#991b1b)"><div class="module-icon">🎯</div><span class="module-tag">AI Risk</span></div><div class="module-body"><h3>AI Tax Risk Score</h3><p>Scrutiny probability analysis, AIS mismatch, high-value flags, prevention tips.</p><ul class="module-features"><li>✅ 0-100 Risk Score Meter</li><li>✅ AIS Mismatch Detection</li><li>✅ Scrutiny Probability</li><li>✅ AI Recommendations</li><li>✅ Historical Rate Data</li></ul><a href="pages/ai-risk-score.html" class="module-btn">Check Risk →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#064e3b,#065f46)"><div class="module-icon">🔐</div><span class="module-tag">Browser storage</span></div><div class="module-body"><h3>Document Vault</h3><p>Organize documents in browser storage. Storage is not encrypted by this tool; secure your device and keep backups.</p><ul class="module-features"><li>✅ Browser-stored records</li><li>✅ Category-wise Organization</li><li>✅ Expiry Date Alerts</li><li>✅ Search & Filter</li><li>✅ Download & Preview</li></ul><a href="pages/document-vault.html" class="module-btn">Open Vault →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#0f766e,#115e59)"><div class="module-icon">🧾</div><span class="module-tag">Local-first</span></div><div class="module-body"><h3>GST Billing &amp; Invoices</h3><p>Tax invoices with CGST/SGST/IGST split, round-off, amount in words, customers, item master and receivables ageing.</p><ul class="module-features"><li>✅ GSTIN check-digit validation</li><li>✅ Print / PDF invoice</li><li>✅ GSTR-1 working-paper CSV</li><li>✅ Ageing &amp; outstanding report</li><li>✅ JSON backup</li></ul><a href="pages/billing.html" class="module-btn">Open Billing →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#1e40af,#1e3a8a)"><div class="module-icon">📋</div><span class="module-tag">FY 24-25 → 26-27</span></div><div class="module-body"><h3>ITR Preparation Wizard</h3><p>Seven steps from profile to review: schedule-wise income, 87A rebate with marginal relief, both regimes compared, ITR-1…ITR-7 recommendation.</p><ul class="module-features"><li>✅ Old vs new regime comparison</li><li>✅ HRA, 80C–80U caps</li><li>✅ Capital gains 111A/112A/112</li><li>✅ Advance tax + 234B/234C</li><li>✅ JSON working paper</li></ul><a href="pages/itr-form.html" class="module-btn">Start Wizard →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#4338ca,#3730a3)"><div class="module-icon">🔍</div><span class="module-tag">25 verified</span></div><div class="module-body"><h3>Open-Source Directory</h3><p>Twenty-five GitHub projects for Indian tax, GST, accounting, payroll and OCR — each verified through the GitHub API with licence caveats.</p><ul class="module-features"><li>✅ Licence safety tags</li><li>✅ Instant search &amp; filters</li><li>✅ Maintenance dates</li><li>✅ "No licence file" warnings</li><li>✅ Verified 2026-10-31</li></ul><a href="pages/github-tools.html" class="module-btn">Browse Directory →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#334155,#1e293b)"><div class="module-icon">🗄</div><span class="module-tag">Your data</span></div><div class="module-body"><h3>Storage &amp; Backup Console</h3><p>See exactly what is stored in your browser, download a JSON backup, restore it, and run an integrity check over every invoice.</p><ul class="module-features"><li>✅ Storage size breakdown</li><li>✅ Backup / restore</li><li>✅ Invoice integrity check</li><li>✅ Duplicate-number detection</li><li>✅ Wipe with confirmation</li></ul><a href="pages/admin.html" class="module-btn">Open Console →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#065f46,#064e3b)"><div class="module-icon">🔁</div><span class="module-tag">GSTR-2B · Rule 88A</span></div><div class="module-body"><h3>ITC Reconciliation</h3><p>Match your purchase register against GSTR-2B, see confirmed, disputed and at-risk credit, and compute the Rule 88A set-off order.</p><ul class="module-features"><li>✅ Invoice-level matching</li><li>✅ Value &amp; tax mismatches</li><li>✅ Rule 88A set-off</li><li>✅ CSV working paper</li><li>✅ Runs offline</li></ul><a href="pages/itc-recon.html" class="module-btn">Reconcile →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#1d4ed8,#1e3a8a)"><div class="module-icon">🌍</div><span class="module-tag">Rule 115 · ITR-2/3</span></div><div class="module-body"><h3>Schedule FA – Foreign Assets</h3><p>Bank accounts, brokerage holdings, RSUs and ESPPs converted at the rule 115 rate, with peak and closing values and a disclosure checklist.</p><ul class="module-features"><li>✅ Rupee conversion</li><li>✅ Peak &amp; closing values</li><li>✅ Disclosure checklist</li><li>✅ Sends to the ITR wizard</li><li>✅ CSV export</li></ul><a href="pages/schedule-fa.html" class="module-btn">Open Schedule FA →</a></div></div>
-      <div class="module-card"><div class="module-header" style="background:linear-gradient(135deg,#24292f,#111827)"><div class="module-icon">🔐</div><span class="module-tag">OAuth · no secret</span></div><div class="module-body"><h3>GitHub Sign-in &amp; Roles</h3><p>Real GitHub device-flow login or a personal access token. Admin and user roles, and a separate data profile per account so books never mix.</p><ul class="module-features"><li>✅ OAuth device flow</li><li>✅ Personal access token</li><li>✅ Admin / user roles</li><li>✅ Per-account local data</li><li>✅ No password stored</li></ul><a href="pages/account.html" class="module-btn">Sign in →</a></div></div>
+    <div class="modules-grid">
+      <article class="module-card"><div class="module-header"><div class="module-icon">📋</div><span class="module-tag">Working paper</span></div><div class="module-body"><h3>ITR preparation wizard</h3><p>Enter your own details, review calculations and export a draft working paper. It does not file your return.</p><a href="pages/itr-form.html" class="module-btn">Open ITR preparation →</a></div></article>
+      <article class="module-card"><div class="module-header"><div class="module-icon">🧾</div><span class="module-tag">Local records</span></div><div class="module-body"><h3>GST billing</h3><p>Create and save invoices in this browser, then print or export the working data. No GST return is submitted.</p><a href="pages/billing.html" class="module-btn">Open billing →</a></div></article>
+      <article class="module-card"><div class="module-header"><div class="module-icon">🔁</div><span class="module-tag">Reconciliation</span></div><div class="module-body"><h3>ITC reconciliation</h3><p>Compare purchase data you provide with your GSTR-2B data and review the resulting working paper.</p><a href="pages/itc-recon.html" class="module-btn">Open reconciliation →</a></div></article>
+      <article class="module-card"><div class="module-header"><div class="module-icon">🏦</div><span class="module-tag">CSV input</span></div><div class="module-body"><h3>Bank statement parser</h3><p>Import a supported CSV and review parsed transactions. Unsupported files are reported; no sample transactions are inserted.</p><a href="pages/bank-statement.html" class="module-btn">Open parser →</a></div></article>
+      <article class="module-card"><div class="module-header"><div class="module-icon">🗄️</div><span class="module-tag">Browser storage</span></div><div class="module-body"><h3>Document vault</h3><p>Organize files in this browser. Records are not encrypted by this tool; protect your device and keep backups.</p><a href="pages/document-vault.html" class="module-btn">Open vault →</a></div></article>
+      <article class="module-card"><div class="module-header"><div class="module-icon">🧾</div><span class="module-tag">Draft only</span></div><div class="module-body"><h3>E-invoice draft builder</h3><p>Prepare a limited domestic B2B JSON draft for review. It does not generate an IRN, validate registration or file an invoice.</p><a href="pages/einvoice.html" class="module-btn">Open draft builder →</a></div></article>
     </div>
+    <p style="text-align:center;margin-top:1.5rem"><a href="pages/index.html" class="btn-hero-secondary">Browse the full tool directory →</a></p>
   </div>
 </section>
 
@@ -377,31 +330,14 @@
 <section class="audience-section">
   <div class="container">
     <div class="section-header">
-      <span class="section-tag">For Everyone</span>
-      <h2>Yeh Platform Kiske Liye Hai?</h2>
+      <span class="section-tag">Choose a workflow</span>
+      <h2>Start with the records you have</h2>
     </div>
     <div class="audience-grid">
-      <div class="audience-card">
-        <div class="aud-icon">👤</div><h3>Individual Taxpayers</h3>
-        <p>Salary, business ya professional income — koi bhi apna computation bana sakta hai</p>
-        <ul><li>ITR-1 to ITR-7</li><li>Tax saving suggestions</li><li>Refund tracking</li></ul>
-      </div>
-      <div class="audience-card featured">
-        <div class="aud-badge">Most Popular</div>
-        <div class="aud-icon">👔</div><h3>CA & Tax Consultants</h3>
-        <p>Use the available computation and reconciliation tools to prepare figures for your own review.</p>
-        <ul><li>All entity types</li><li>Bulk computation</li><li>Report generation</li></ul>
-      </div>
-      <div class="audience-card">
-        <div class="aud-icon">🏢</div><h3>Businesses & SMEs</h3>
-        <p>GST, TDS, payroll, accounting — sab ek jagah</p>
-        <ul><li>GST compliance</li><li>Payroll & TDS</li><li>Accounting ERP</li></ul>
-      </div>
-      <div class="audience-card">
-        <div class="aud-icon">🎓</div><h3>Students & Freelancers</h3>
-        <p>Simple interface mein complex tax calculations</p>
-        <ul><li>Presumptive income</li><li>44ADA profession</li><li>Capital gains</li></ul>
-      </div>
+      <article class="audience-card"><div class="aud-icon">👤</div><h3>Individual tax</h3><p>Enter income and deduction details to prepare a calculation or working paper. Review it against your official records.</p><a href="pages/itr-form.html">Open ITR preparation →</a></article>
+      <article class="audience-card"><div class="aud-icon">🧾</div><h3>GST records</h3><p>Create local invoice drafts, work with return data and reconcile purchase records. No portal filing is performed here.</p><a href="pages/gst.html">Browse GST tools →</a></article>
+      <article class="audience-card"><div class="aud-icon">🧮</div><h3>Calculations</h3><p>Use calculators with your own assumptions. Outputs are estimates and may need review for the applicable year.</p><a href="pages/calculators.html">Browse calculators →</a></article>
+      <article class="audience-card"><div class="aud-icon">📚</div><h3>Learning and review</h3><p>Read guides and use reference tools. Check changing rules and deadlines on official sources before acting.</p><a href="pages/knowledge.html">Open reference guides →</a></article>
     </div>
   </div>
 </section>
@@ -410,11 +346,10 @@
 <section class="due-dates-section">
   <div class="container">
     <div class="section-header">
-      <span class="section-tag">Compliance Calendar</span>
-      <h2>Upcoming <span class="gradient-text">Tax Due Dates</span></h2>
+      <span class="section-tag">Official links</span>
+      <h2>Check current <span class="gradient-text">tax deadlines</span></h2>
     </div>
     <div class="due-dates-grid" id="dueDatesGrid"></div>
-    <div style="text-align:center"><a href="pages/compliance.html" class="btn-compliance">View Full Compliance Calendar →</a></div>
   </div>
 </section>
 
@@ -468,7 +403,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="footer-logo">⚡ TaxMitra</div>
-          <p>Independent browser-based tax preparation and GST working tools. No government filing or portal submission. Developed by Abhishek Agrahari.</p>
+          <p>Independent browser-based tax preparation and GST working tools. no government filing or submission. Developed by Abhishek Agrahari.</p>
           <div class="footer-social">
             <a href="https://github.com/abhishekagrahari307-max/ITR-AND-GST" target="_blank" rel="noopener noreferrer" title="GitHub repository"><i class="fab fa-github"></i></a>
             <a href="pages/github-tools.html" title="Verified open-source directory"><i class="fa fa-search"></i></a>
@@ -476,7 +411,7 @@
           </div>
         </div>
         <div class="footer-col">
-          <h4>Free local tools</h4>
+          <h4>Browser-based tools</h4>
           <ul>
             <li><a href="pages/billing.html">GST Billing</a></li>
             <li><a href="pages/itr-form.html">ITR Wizard</a></li>
@@ -494,7 +429,7 @@
             <li><a href="pages/itr-center.html#itr2">ITR-2</a></li>
             <li><a href="pages/itr-center.html#itr3">ITR-3</a></li>
             <li><a href="pages/itr-center.html#itr4">ITR-4 (Sugam)</a></li>
-            <li><a href="pages/itr-center.html#ais">AIS Analysis</a></li>
+            <li><a href="pages/itr-center.html#tab-ais">AIS Analysis</a></li>
             <li><a href="pages/itr-center.html#form16">Form 16 OCR</a></li>
           </ul>
         </div>
@@ -550,7 +485,7 @@
     <div class="container">
       <div class="footer-bottom-content">
         <p>© 2026 TaxMitra AI Enterprise | Developed by <strong>Abhishek Agrahari</strong></p>
-        <p style="font-size:.7rem;color:var(--text-muted);margin-bottom:.5rem">⚠️ TaxMitra is not an ERI (e-Return Intermediary). AI features require your own Gemini API key. Tax calculations are for reference only — verify with a CA before filing.</p>
+        <p style="font-size:.7rem;color:var(--text-muted);margin-bottom:.5rem">TaxMitra is not an e-Return Intermediary. Optional provider-backed AI may send selected prompts to an external provider; tax calculations are estimates and should be checked against current official records.</p>
         <p><a href="pages/privacy.html">Privacy Policy</a> | <a href="pages/terms.html">Terms of Service</a> | <a href="pages/disclaimer.html">Disclaimer</a> | <a href="pages/about.html">About Us</a> | <a href="pages/contact.html">Contact</a></p>
         <p class="footer-disclaimer">⚠️ TaxMitra AI is for educational purposes. Consult a qualified CA for final tax decisions.</p>
       </div>

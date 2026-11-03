@@ -54,19 +54,19 @@
         <div id="s80cItems">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border)">
             <div><strong style="font-size:0.875rem">📊 ELSS Mutual Fund</strong><span style="display:block;font-size:0.72rem;color:var(--text-muted)">3yr lock-in | Best returns potential | 10-15% avg</span></div>
-            <input type="number" class="s80c-input" value="50000" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
+            <input type="number" class="s80c-input" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border)">
             <div><strong style="font-size:0.875rem">🏛️ PPF</strong><span style="display:block;font-size:0.72rem;color:var(--text-muted)">15yr lock-in | 7.1% | EEE | Govt backed</span></div>
-            <input type="number" class="s80c-input" value="50000" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
+            <input type="number" class="s80c-input" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border)">
             <div><strong style="font-size:0.875rem">🏦 EPF (Auto)</strong><span style="display:block;font-size:0.72rem;color:var(--text-muted)">Auto from salary | 8.25% | EEE</span></div>
-            <input type="number" class="s80c-input" value="30000" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
+            <input type="number" class="s80c-input" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border)">
             <div><strong style="font-size:0.875rem">🔒 LIC Premium</strong><span style="display:block;font-size:0.72rem;color:var(--text-muted)">Life insurance premium</span></div>
-            <input type="number" class="s80c-input" value="20000" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
+            <input type="number" class="s80c-input" min="0" max="150000" style="width:90px;padding:0.4rem;border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;background:var(--bg-secondary);color:var(--text-primary)" oninput="update80C()"/>
           </div>
         </div>
         <div style="margin-top:1rem;padding:1rem;background:rgba(30,64,175,0.06);border-radius:var(--radius);border:1px solid rgba(30,64,175,0.15)">
@@ -120,11 +120,11 @@
       <p style="color:var(--text-secondary);font-size:0.875rem;margin-bottom:1.5rem">Apna financial goal set karo – AI batayega kitna invest karna hai</p>
       <div class="form-grid">
         <div class="form-group"><label>Financial Goal</label><select id="goalType"><option>Retirement Planning</option><option>Child Education</option><option>House Purchase</option><option>Emergency Fund</option><option>Wealth Creation</option></select></div>
-        <div class="form-group"><label>Target Amount (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="goalTarget" value="10000000" placeholder="e.g. 10000000"/></div></div>
-        <div class="form-group"><label>Time Horizon (Years)</label><input type="number" id="goalYears" value="20" min="1"/></div>
-        <div class="form-group"><label>Current Savings (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="goalCurrent" value="500000" placeholder="Current savings"/></div></div>
-        <div class="form-group"><label>Expected Return (%)</label><input type="number" id="goalReturn" value="12" step="0.5"/></div>
-        <div class="form-group"><label>Inflation (%)</label><input type="number" id="goalInflation" value="6" step="0.5"/></div>
+        <div class="form-group"><label>Target Amount (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="goalTarget" placeholder="e.g. 10000000"/></div></div>
+        <div class="form-group"><label>Time Horizon (Years)</label><input type="number" id="goalYears" min="1"/></div>
+        <div class="form-group"><label>Current Savings (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="goalCurrent" placeholder="Current savings"/></div></div>
+        <div class="form-group"><label>Expected Return (%)</label><input type="number" id="goalReturn" step="0.5"/></div>
+        <div class="form-group"><label>Inflation (%)</label><input type="number" id="goalInflation" step="0.5"/></div>
       </div>
       <div class="form-actions"><button class="btn-primary-solid" onclick="calculateGoal()">🎯 Calculate Goal Plan</button></div>
       <div class="result-card" id="goalResult" style="display:none;margin-top:1.5rem">

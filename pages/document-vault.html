@@ -189,9 +189,6 @@
           <i class="fa fa-vault"></i>
           <h3>Document Vault Empty</h3>
           <p>Koi bhi tax document upload karein ya note add karein<br>Sab kuch sirf aapke browser mein stored hota hai</p>
-          <button class="btn btn-primary" style="margin-top:1rem" onclick="addSampleDocs()">
-            <i class="fa fa-magic"></i> Demo Documents Add Karein
-          </button>
         </div>
       </div>
     </div>
@@ -384,7 +381,7 @@ function renderDocs() {
   
   if (filtered.length === 0) {
     grid.innerHTML = docs.length === 0 ? 
-      '<div class="empty-vault"><i class="fa fa-vault"></i><h3>Vault is Empty</h3><p>Documents upload karein ya demo data add karein</p><button class="btn btn-primary" style="margin-top:1rem" onclick="addSampleDocs()"><i class="fa fa-magic"></i> Demo Docs Add Karein</button></div>' :
+      '<div class="empty-vault"><i class="fa fa-vault"></i><h3>Vault is Empty</h3><p>Upload a document or add a note to start your private browser-based vault.</p></div>' :
       '<div class="empty-vault"><i class="fa fa-search"></i><h3>No Results</h3><p>Search ya filter adjust karein</p></div>';
     return;
   }
@@ -519,21 +516,6 @@ function clearVault() {
   localStorage.removeItem(VAULT_KEY);
   renderDocs();
   showToast('Vault cleared', 'info');
-}
-
-function addSampleDocs() {
-  var samples = [
-    {id:Date.now()+1, name:'Form 16 FY 2025-26.pdf', type:'application/pdf', size:245760, cat:'form16', fy:'2025-26', tags:['Form 16','Infosys','TDS'], expiry:'2026-07-31', notes:'Employer TDS certificate', added:new Date().toISOString(), data:null},
-    {id:Date.now()+2, name:'ITR-1 AY 2026-27 Filed.pdf', type:'application/pdf', size:102400, cat:'itr', fy:'2025-26', tags:['ITR-1','Filed','AY2026-27'], expiry:'', notes:'Filed ITR copy', added:new Date().toISOString(), data:null},
-    {id:Date.now()+3, name:'LIC Premium Receipt 2026.pdf', type:'application/pdf', size:51200, cat:'investment', fy:'2025-26', tags:['LIC','80C','₹50000'], expiry:'2027-03-31', notes:'80C deduction proof', added:new Date().toISOString(), data:null},
-    {id:Date.now()+4, name:'26AS AY 2026-27.pdf', type:'application/pdf', size:153600, cat:'itr', fy:'2025-26', tags:['26AS','TDS','Credit'], expiry:'', notes:'Annual tax credit statement', added:new Date().toISOString(), data:null},
-    {id:Date.now()+5, name:'Rent Receipt April 2025.jpg', type:'image/jpeg', size:30720, cat:'property', fy:'2025-26', tags:['Rent','HRA','₹25000'], expiry:'', notes:'April rent receipt', added:new Date().toISOString(), data:null}
-  ];
-  
-  var docs = loadVault();
-  saveVault([...docs, ...samples]);
-  renderDocs();
-  showToast('✅ 5 sample documents added!', 'success');
 }
 
 // Close modal on backdrop click

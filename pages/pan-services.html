@@ -383,12 +383,12 @@ function verifyPAN() {
 }
 
 function updateCardVisual() {
-  var pan = document.getElementById('panInput').value.trim().toUpperCase() || 'ABCDE1234F';
-  var name = document.getElementById('panName').value.trim().toUpperCase() || 'YOUR NAME';
+  var pan = document.getElementById('panInput').value.trim().toUpperCase();
+  var name = document.getElementById('panName').value.trim().toUpperCase();
   var dob = document.getElementById('panDOB').value;
   
-  document.getElementById('displayPAN').textContent = pan.slice(0,5) + ' ' + pan.slice(5,9) + ' ' + pan.slice(9);
-  document.getElementById('displayPanName').textContent = name;
+  document.getElementById('displayPAN').textContent = pan ? pan.slice(0,5) + ' ' + pan.slice(5,9) + ' ' + pan.slice(9) : '—';
+  document.getElementById('displayPanName').textContent = name || 'YOUR NAME';
   if (dob) {
     var d = new Date(dob);
     document.getElementById('displayPanDOB').textContent = 'DOB: ' + d.toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
