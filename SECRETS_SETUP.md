@@ -1,84 +1,22 @@
-# 🔑 TaxMitra AI — API Keys Setup Guide
-> Developer: Abhishek Agrahari | TaxMitra AI Enterprise
+# AI provider keys and deployment safety
 
-## How API Keys Work in This Project
+TaxMitra is published as a static site on GitHub Pages. **A key placed in frontend code, HTML, build output, or browser storage is visible to that browser's user.** GitHub Actions secrets do not make a key safe once a workflow publishes it as a public JavaScript asset.
 
-```
-User sets GitHub Secret
-        ↓
-GitHub Actions runs on push
-        ↓
-Workflow injects key into js/config-generated.js
-        ↓
-config-generated.js auto-loads key into localStorage
-        ↓
-AI functions read from localStorage → API calls work
-```
+## Recommended setup
 
-## Step 1: Get Free API Keys
+- For local/personal use, add your own provider key in the app's AI setup page. The key stays in your browser storage, but the browser sends it directly to the selected provider when you use that AI feature. Treat it as exposed to your browser and review the provider's current pricing and privacy terms.
+- Never put provider keys into GitHub repository secrets for this static frontend. The current build script ignores such variables; an older workflow may still pass them to the build environment, so maintainers should remove those environment bindings and unused secrets when updating repository workflow permissions.
+- For a shared production service, use a separately hosted server-side proxy with authentication, rate limits, abuse monitoring, and provider keys stored only on that server. GitHub Pages alone cannot keep a shared key secret.
 
-### Gemini API Key (Required for AI)
-1. Go to: https://aistudio.google.com/app/apikey
-2. Click "Create API Key"
-3. Key format: `AIzaSy...` (39 characters)
-4. **Free tier: 1,500 requests/day**
+Provider documentation:
 
-### OpenRouter API Key (Optional — for DeepSeek + Llama)
-1. Go to: https://openrouter.ai/keys
-2. Create account → Generate API Key
-3. Key format: `sk-or-...`
-4. **Free tier: 50-1,000 requests/day**
+- Gemini: <https://aistudio.google.com/app/apikey>
+- OpenRouter: <https://openrouter.ai/keys>
 
-## Step 2: Set GitHub Secrets
+## GitHub Pages deployment
 
-1. Go to your repo: https://github.com/abhishekagrahari307-max/ITR-AND-GST
-2. Click **Settings** → **Secrets and variables** → **Actions**
-3. Click **"New repository secret"**
-4. Add these two secrets:
+1. In repository **Settings → Pages**, set the source to **GitHub Actions**.
+2. Changes merged into `main` trigger `.github/workflows/deploy.yml`; you can also run it with **Actions → Deploy TaxMitra to GitHub Pages → Run workflow**.
+3. The workflow creates public build metadata only, uploads the static site, and deploys it. It does not inject or publish AI provider keys.
 
-| Secret Name | Value |
-|-------------|-------|
-| `GEMINI_API_KEY` | `AIzaSy...` (your Gemini key) |
-| `OPENROUTER_API_KEY` | `sk-or-...` (your OpenRouter key) |
-
-## Step 3: Enable GitHub Actions for Pages
-
-1. Go to: Settings → Pages
-2. Set **Source** to: `GitHub Actions`
-3. The workflow at `.github/workflows/deploy.yml` will now run automatically
-
-## Step 4: Trigger Deployment
-
-Push any commit to trigger the workflow:
-```bash
-git commit --allow-empty -m "trigger: deploy with API keys"
-git push origin arena/019fabf8-itr-and-gst
-```
-
-## How It Works Internally
-
-The workflow at `.github/workflows/deploy.yml`:
-1. Checks out the code
-2. Creates `js/config-generated.js` with real keys from GitHub Secrets
-3. Injects `<script src="...config-generated.js">` into all HTML pages
-4. Uploads to GitHub Pages
-
-**Security: Keys are NEVER stored in git history. They only exist in:**
-- GitHub Secrets (encrypted, not visible even to you in plain text)
-- The deployed `config-generated.js` (not in git, regenerated each deploy)
-- Browser `localStorage` (set by config-generated.js at page load)
-
-## For Local Development
-
-Set keys temporarily in browser console:
-```javascript
-TaxMitra.setKeys({
-  geminiApiKey: 'AIzaSy...',
-  openrouterApiKey: 'sk-or-...'
-})
-```
-
-Then reload the page. Keys persist in localStorage until you clear browser data.
-
----
-*Last updated: July 2026 | Developer: Abhishek Agrahari*
+No Income Tax or GST government portal credentials are used. TaxMitra does not file returns, submit forms, or fetch portal records.

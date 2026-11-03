@@ -87,6 +87,39 @@ suite('Pages · the four new modules exist', function () {
   });
 });
 
+suite('Pages · truthful homepage', function () {
+  test('the homepage links to the catalog and avoids fake filing outcomes', function () {
+    var html = read('index.html');
+    t.includes(html, 'href="pages/index.html"');
+    t.includes(html, 'does not connect to government portals or file returns');
+    t.includes(html, 'no government filing or submission');
+    ['₹1,24,500', '₹18,250', '₹32,000', '₹45,000', 'ITR Filed ✓', 'Rahul Singh', 'Priya Gupta', 'Gemini Powered'].forEach(function (claim) {
+      t.notOk(html.indexOf(claim) !== -1, 'remove invented outcome or unsupported claim: ' + claim);
+    });
+  });
+});
+
+suite('Pages · directory landing page', function () {
+  test('the /pages/ route is a searchable catalog of every tool page', function () {
+    var html = read('pages/index.html');
+    t.includes(html, '<!doctype html>');
+    t.includes(html, 'id="toolSearch"');
+    t.includes(html, 'aria-live="polite"');
+    t.includes(html, 'cannot file, submit, verify or fetch government records');
+    var match = /<script type="application\/json" id="catalog">([\s\S]*?)<\/script>/i.exec(html);
+    t.ok(match, 'directory must include its machine-readable catalog');
+    var catalog = JSON.parse(match[1]);
+    var listed = catalog.map(function (item) { return item.file; }).sort();
+    var actual = fs.readdirSync(path.join(ROOT, 'pages')).filter(function (file) {
+      return file.endsWith('.html') && file !== 'index.html';
+    }).sort();
+    t.deepEqual(listed, actual, 'every page must be linked exactly once');
+    catalog.forEach(function (item) {
+      t.ok(item.title && item.category && item.description, item.file + ' needs useful directory metadata');
+    });
+  });
+});
+
 suite('Pages · no duplicate element ids', function () {
   NEW_PAGES.forEach(function (page) {
     test(page + ' has unique ids', function () {
