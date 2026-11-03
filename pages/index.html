@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Browse TaxMitra's ITR preparation, GST, accounting and tax-planning tools. Free browser-based working papers; no government filing or submission.">
+  <meta name="theme-color" content="#0b1220">
+  <title>Tax &amp; GST Tools Directory – TaxMitra</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1220;--panel:#111b2d;--panel2:#162238;--line:#263650;--text:#edf3fc;--muted:#aab8cc;--blue:#7db4ff;--green:#8be0bd;--radius:18px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% -15%,#1b3762 0,transparent 38%),var(--bg);color:var(--text);line-height:1.55}a{color:inherit}.wrap{width:min(1120px,calc(100% - 36px));margin:auto}.topbar{height:72px;border-bottom:1px solid #ffffff14;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:800;text-decoration:none;letter-spacing:-.03em}.brand b{color:var(--blue)}.home{color:var(--muted);font-size:.92rem;text-decoration:none}.home:hover,.brand:hover{color:var(--blue)}header{padding:68px 0 40px}.eyebrow{display:inline-flex;gap:8px;align-items:center;color:var(--green);border:1px solid #8be0bd4c;background:#8be0bd0e;border-radius:99px;padding:6px 12px;font-size:.78rem;font-weight:700}.dot{width:7px;height:7px;border-radius:50%;background:var(--green)}h1{font-size:clamp(2.15rem,6vw,4rem);line-height:1.08;letter-spacing:-.055em;margin:18px 0 14px}header p{color:var(--muted);max-width:700px;font-size:1.05rem;margin:0}.count{color:var(--blue);font-weight:700}.controls{display:flex;gap:12px;align-items:center;margin:26px 0 16px;flex-wrap:wrap}.search{flex:1 1 280px;position:relative}.search label{position:absolute;left:14px;top:11px;color:var(--muted)}input{width:100%;padding:13px 14px 13px 42px;border:1px solid var(--line);border-radius:12px;background:#0d1728;color:var(--text);font:inherit;font-size:16px}input:focus{outline:2px solid #7db4ff80;border-color:var(--blue)}.filters{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px}.filter{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:9px 13px;border-radius:99px;font:inherit;font-size:.84rem;white-space:nowrap;cursor:pointer}.filter[aria-pressed=true]{background:#1d3a63;border-color:#5489cf;color:#fff}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0 36px}.card{min-width:0;border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(145deg,#131f33,#101a2b);padding:18px;transition:transform .18s,border-color .18s}.card:hover{transform:translateY(-3px);border-color:#5576a3}.card a{text-decoration:none;display:block;height:100%}.card a:focus-visible{outline:2px solid var(--blue);outline-offset:4px;border-radius:10px}.category{color:var(--green);text-transform:uppercase;letter-spacing:.09em;font-size:.68rem;font-weight:800}.card h2{font-size:1.05rem;line-height:1.35;margin:9px 0 6px;letter-spacing:-.015em}.card p{font-size:.86rem;color:var(--muted);margin:0}.arrow{display:block;color:var(--blue);font-size:.82rem;font-weight:700;margin-top:15px}.empty{display:none;text-align:center;padding:46px 16px;color:var(--muted);border:1px dashed var(--line);border-radius:var(--radius);margin:16px 0 36px}.notice{border:1px solid #e3b45b55;background:#e3b45b0c;color:#d9c9a5;padding:16px 18px;border-radius:14px;font-size:.88rem}.notice strong{color:#ffe0a2}.notice a{color:#fff}.foot{padding:26px 0 42px;margin-top:22px;border-top:1px solid #ffffff14;color:var(--muted);font-size:.82rem}.footlinks{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}.footlinks a{color:var(--muted)}
+    @media(max-width:850px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.wrap{width:min(100% - 26px,1120px)}header{padding:48px 0 26px}.grid{grid-template-columns:1fr;gap:10px}.card{padding:16px}.topbar{height:62px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="topbar" aria-label="Main navigation">
+      <a class="brand" href="../index.html" aria-label="TaxMitra home">⚡ Tax<b>Mitra</b></a>
+      <a class="home" href="../index.html">← Back to home</a>
+    </nav>
+    <header>
+      <span class="eyebrow"><span class="dot" aria-hidden="true"></span> OPEN TOOL DIRECTORY</span>
+      <h1>Tax and GST tools,<br>all in one place.</h1>
+      <p>Find a preparation tool, calculator or reference page. These browser-based tools can help organize and check your figures; this site is <strong>not</strong> an Income Tax or GST portal and cannot file, submit, verify or fetch government records.</p>
+      <div class="controls">
+        <div class="search"><label for="toolSearch" aria-hidden="true">⌕</label><input id="toolSearch" type="search" placeholder="Search tools… e.g. ITR, GST, payroll" autocomplete="off"></div>
+        <span class="count" id="resultCount" aria-live="polite"></span>
+      </div>
+      <div class="filters" id="filters" aria-label="Filter tools by category"></div>
+    </header>
+    <main>
+      <section class="grid" id="toolGrid" aria-label="Available TaxMitra pages"></section>
+      <p class="empty" id="emptyState">No matching pages. Try a different search or category.</p>
+      <aside class="notice"><strong>Important:</strong> Tax rules and eligibility can change. Review calculations with current official guidance or a qualified tax professional before relying on them. Data entered into local-first tools stays in this browser unless a page clearly tells you otherwise; clearing browser storage can erase saved records. <a href="disclaimer.html">Read the disclaimer</a>.</aside>
+    </main>
+    <footer class="foot">
+      <div>TaxMitra is an independent preparation toolkit, not affiliated with or endorsed by the Government of India.</div>
+      <div class="footlinks"><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="contact.html">Contact</a><a href="../index.html">Home</a></div>
+    </footer>
+  </div>
+  <script type="application/json" id="catalog">
+    [{"file":"about.html","title":"About Us","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"about"},{"file":"account.html","title":"Account & GitHub Sign-in","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"account"},{"file":"accounting.html","title":"Business Accounting","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"accounting"},{"file":"admin.html","title":"Storage & Backup Console","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"admin"},{"file":"ai-assistant.html","title":"AI Tax Assistant","category":"AI & Documents","description":"Review documents or explore optional assistance; verify all extracted content.","keywords":"ai assistant"},{"file":"ai-deductions.html","title":"AI Deduction Finder","category":"AI & Documents","description":"Review documents or explore optional assistance; verify all extracted content.","keywords":"ai deductions"},{"file":"ai-notice.html","title":"AI Notice Analyzer & Response Generator","category":"AI & Documents","description":"Review documents or explore optional assistance; verify all extracted content.","keywords":"ai notice"},{"file":"ai-risk-score.html","title":"AI Risk Score","category":"AI & Documents","description":"Review documents or explore optional assistance; verify all extracted content.","keywords":"ai risk score"},{"file":"appeals.html","title":"Appeals & Rectification","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"appeals"},{"file":"bank-statement.html","title":"Bank Statement Parser","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"bank statement"},{"file":"billing-invoicing.html","title":"Billing & Invoicing","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"billing invoicing"},{"file":"billing.html","title":"GST Billing & Invoicing","category":"GST & Invoicing","description":"Organize GST billing or return working papers; not a GSTN submission.","keywords":"billing"},{"file":"budget-2025.html","title":"Budget 2025: ₹12.75L tak Zero Tax kaise?","category":"Calculators & Learning","description":"Estimate, compare or learn; check assumptions against current rules.","keywords":"budget 2025"},{"file":"calculators.html","title":"50+ Tax Calculators","category":"Calculators & Learning","description":"Estimate, compare or learn; check assumptions against current rules.","keywords":"calculators"},{"file":"capital-gains.html","title":"Capital Gains Tax — Advanced","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"capital gains"},{"file":"challan.html","title":"Tax Challan Management","category":"GST & Invoicing","description":"Organize GST billing or return working papers; not a GSTN submission.","keywords":"challan"},{"file":"client-crm.html","title":"Client CRM — CA Practice Management","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"client crm"},{"file":"compliance.html","title":"Compliance Hub","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"compliance"},{"file":"computation.html","title":"Tax Computation V2 – Auto + AI","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"computation"},{"file":"contact.html","title":"Contact Us","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"contact"},{"file":"crypto-tax.html","title":"Crypto & VDA Tax Calculator","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"crypto tax"},{"file":"dashboard.html","title":"Dashboard","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"dashboard"},{"file":"disclaimer.html","title":"Disclaimer","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"disclaimer"},{"file":"document-vault.html","title":"Document Vault","category":"AI & Documents","description":"Review documents or explore optional assistance; verify all extracted content.","keywords":"document vault"},{"file":"documents.html","title":"AI Document Center","category":"AI & Documents","description":"Review documents or explore optional assistance; verify all extracted content.","keywords":"documents"},{"file":"einvoice.html","title":"E-Invoice Generator","category":"GST & Invoicing","description":"Organize GST billing or return working papers; not a GSTN submission.","keywords":"einvoice"},{"file":"eway-bill.html","title":"E-Way Bill Generator","category":"GST & Invoicing","description":"Organize GST billing or return working papers; not a GSTN submission.","keywords":"eway bill"},{"file":"fixed-assets.html","title":"Fixed Assets & Depreciation","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"fixed assets"},{"file":"fno-trading.html","title":"F&O Tax Calculator","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"fno trading"},{"file":"foreign-income.html","title":"Foreign Income & DTAA Relief","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"foreign income"},{"file":"github-tools.html","title":"Verified Open-Source Tax & Accounting Tools","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"github tools"},{"file":"gst-analytics.html","title":"GST Analytics","category":"GST & Invoicing","description":"Organize GST billing or return working papers; not a GSTN submission.","keywords":"gst analytics"},{"file":"gst-reconciliation.html","title":"GST Reconciliation Tool","category":"GST & Invoicing","description":"Organize GST billing or return working papers; not a GSTN submission.","keywords":"gst reconciliation"},{"file":"gst-refund.html","title":"GST Refund","category":"GST & Invoicing","description":"Organize GST billing or return working papers; not a GSTN submission.","keywords":"gst refund"},{"file":"gst.html","title":"GST Professional Suite","category":"GST & Invoicing","description":"Organize GST billing or return working papers; not a GSTN submission.","keywords":"gst"},{"file":"gstr9.html","title":"GSTR-9 Annual Return","category":"GST & Invoicing","description":"Organize GST billing or return working papers; not a GSTN submission.","keywords":"gstr9"},{"file":"import-data.html","title":"Data Import Center","category":"AI & Documents","description":"Review documents or explore optional assistance; verify all extracted content.","keywords":"import data"},{"file":"inventory.html","title":"Inventory Management","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"inventory"},{"file":"investment.html","title":"Investment Planner","category":"Calculators & Learning","description":"Estimate, compare or learn; check assumptions against current rules.","keywords":"investment"},{"file":"itc-recon.html","title":"GSTR-2B ↔ Purchase Register Reconciliation (ITC)","category":"GST & Invoicing","description":"Organize GST billing or return working papers; not a GSTN submission.","keywords":"itc recon"},{"file":"itr-center.html","title":"ITR Center","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"itr center"},{"file":"itr-form-classic.html","title":"ITR Filing Form","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"itr form classic"},{"file":"itr-form.html","title":"ITR Preparation Wizard (ITR-1 to ITR-7)","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"itr form"},{"file":"itr-u.html","title":"ITR-U Updated Return","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"itr u"},{"file":"knowledge.html","title":"Knowledge Center","category":"Calculators & Learning","description":"Estimate, compare or learn; check assumptions against current rules.","keywords":"knowledge"},{"file":"ledger-book.html","title":"Ledger Book","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"ledger book"},{"file":"notices.html","title":"IT Notice Handler & Analyzer","category":"AI & Documents","description":"Review documents or explore optional assistance; verify all extracted content.","keywords":"notices"},{"file":"pan-services.html","title":"PAN Services","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"pan services"},{"file":"payroll.html","title":"Payroll Management System","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"payroll"},{"file":"pf-esi-calculator.html","title":"PF/ESI/PT Calculator","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"pf esi calculator"},{"file":"privacy.html","title":"Privacy Policy","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"privacy"},{"file":"refund.html","title":"Income Tax Refund Tracker","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"refund"},{"file":"rent-receipt.html","title":"🏠 Rent Receipt Generator","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"rent receipt"},{"file":"reports.html","title":"Reports","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"reports"},{"file":"schedule-fa.html","title":"Schedule FA – Foreign Assets Disclosure (ITR-2 / ITR-3)","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"schedule fa"},{"file":"setup.html","title":"AI Setup","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"setup"},{"file":"super-admin.html","title":"Super Admin","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"super admin"},{"file":"tax-planning.html","title":"Tax Planning","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"tax planning"},{"file":"tds-payroll.html","title":"TDS & Payroll","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"tds payroll"},{"file":"tds-returns.html","title":"TDS Returns — 24Q, 26Q, 27Q, 27EQ","category":"Business & Compliance","description":"Manage business records and compliance planning in this browser.","keywords":"tds returns"},{"file":"terms.html","title":"Terms of Service","category":"Account & Information","description":"Account controls, legal information and project reference pages.","keywords":"terms"},{"file":"verification.html","title":"Verification Center","category":"ITR & Income Tax","description":"Prepare, review or estimate income-tax information in your browser.","keywords":"verification"}]
+  </script>
+  <script>
+    (function () {
+      'use strict';
+      var catalog = JSON.parse(document.getElementById('catalog').textContent);
+      var grid = document.getElementById('toolGrid');
+      var filters = document.getElementById('filters');
+      var search = document.getElementById('toolSearch');
+      var count = document.getElementById('resultCount');
+      var empty = document.getElementById('emptyState');
+      var active = 'All';
+      var categories = ['All'].concat(Array.from(new Set(catalog.map(function (item) { return item.category; }))));
+
+      categories.forEach(function (category) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'filter';
+        button.textContent = category;
+        button.setAttribute('aria-pressed', category === active ? 'true' : 'false');
+        button.addEventListener('click', function () {
+          active = category;
+          Array.prototype.forEach.call(filters.children, function (filter) {
+            filter.setAttribute('aria-pressed', filter.textContent === active ? 'true' : 'false');
+          });
+          render();
+        });
+        filters.appendChild(button);
+      });
+
+      function render() {
+        var query = search.value.trim().toLocaleLowerCase();
+        var shown = catalog.filter(function (item) {
+          return (active === 'All' || item.category === active) &&
+            (item.title + ' ' + item.category + ' ' + item.keywords).toLocaleLowerCase().indexOf(query) !== -1;
+        });
+        grid.textContent = '';
+        shown.forEach(function (item) {
+          var article = document.createElement('article');
+          article.className = 'card';
+          var link = document.createElement('a');
+          link.href = item.file;
+          var category = document.createElement('span');
+          category.className = 'category';
+          category.textContent = item.category;
+          var title = document.createElement('h2');
+          title.textContent = item.title;
+          var description = document.createElement('p');
+          description.textContent = item.description;
+          var arrow = document.createElement('span');
+          arrow.className = 'arrow';
+          arrow.textContent = 'Open page →';
+          link.appendChild(category);
+          link.appendChild(title);
+          link.appendChild(description);
+          link.appendChild(arrow);
+          article.appendChild(link);
+          grid.appendChild(article);
+        });
+        count.textContent = 'Showing ' + shown.length + ' of ' + catalog.length + ' pages';
+        empty.style.display = shown.length ? 'none' : 'block';
+      }
+      search.addEventListener('input', render);
+      render();
+    }());
+  </script>
+</body>
+</html>

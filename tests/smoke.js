@@ -63,10 +63,14 @@ async function loadPage(relative) {
     var attrs = match[1] || '';
     var body = match[2] || '';
     var srcMatch = /\ssrc="([^"]+)"/i.exec(attrs);
+    var typeMatch = /\stype="([^"]+)"/i.exec(attrs);
+    var type = typeMatch ? typeMatch[1].toLowerCase() : '';
     if (srcMatch) scripts.push({ src: srcMatch[1] });
-    else if (body.trim()) scripts.push({ inline: body });
+    else if (type !== 'application/json' && body.trim()) scripts.push({ inline: body });
   }
-  var stripped = html.replace(scriptRegex, '<!-- script removed for testing -->');
+  var stripped = html.replace(scriptRegex, function (tag, attrs) {
+    return /\stype="application\/json"/i.test(attrs || '') ? tag : '<!-- script removed for testing -->';
+  });
 
   var dom = new JSDOM(stripped, {
     runScripts: 'dangerously',
@@ -423,6 +427,48 @@ async function itrTests() {
     equal(calls, 1, 'the user must be asked');
     equal(window.__downloaded, false, 'declining must not download anything');
     wiz.state.profile.pan = originalPan;
+  });
+
+  dom.window.close();
+}
+
+async function toolDirectoryTests() {
+  console.log('\nAll-pages directory');
+  var dom = await loadPage('pages/index.html');
+  var window = dom.window;
+  var document = window.document;
+  var catalog = JSON.parse(document.getElementById('catalog').textContent);
+
+  await check('all published pages render as working links', function () {
+    var cards = document.querySelectorAll('#toolGrid .card');
+    equal(cards.length, catalog.length, 'every catalog entry should render');
+    assert(Array.prototype.every.call(cards, function (card) {
+      var link = card.querySelector('a');
+      return link && link.href.indexOf(ORIGIN + '/pages/') === 0;
+    }), 'every card should link to a page under /pages/');
+  });
+
+  await check('search narrows results and announces the count', function () {
+    setValue(window, 'toolSearch', 'gstr9');
+    equal(document.querySelectorAll('#toolGrid .card').length, 1);
+    assert(document.querySelector('#toolGrid .card h2').textContent.toLowerCase().indexOf('gstr-9') !== -1);
+    assert(document.getElementById('resultCount').textContent.indexOf('1 of ' + catalog.length) !== -1);
+  });
+
+  await check('category filter and empty search state work', function () {
+    setValue(window, 'toolSearch', '');
+    var category = Array.prototype.find.call(document.querySelectorAll('#filters button'), function (button) {
+      return button.textContent === 'GST & Invoicing';
+    });
+    assert(category, 'GST category filter should exist');
+    click(window, '#filters button:nth-child(' + (Array.prototype.indexOf.call(document.querySelectorAll('#filters button'), category) + 1) + ')');
+    assert(document.querySelectorAll('#toolGrid .card').length > 0);
+    assert(Array.prototype.every.call(document.querySelectorAll('#toolGrid .category'), function (label) {
+      return label.textContent === 'GST & Invoicing';
+    }), 'only GST entries should remain');
+    setValue(window, 'toolSearch', 'no-such-tool-xyz');
+    equal(document.querySelectorAll('#toolGrid .card').length, 0);
+    equal(document.getElementById('emptyState').style.display, 'block');
   });
 
   dom.window.close();
@@ -1134,6 +1180,7 @@ async function scheduleFaTests() {
     await homeTests();
     await billingTests();
     await itrTests();
+    await toolDirectoryTests();
     await directoryTests();
     await adminTests();
     await accountTests();

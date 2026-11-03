@@ -155,11 +155,11 @@ Restore validates the shape, refuses files over 5 MB, and asks before replacing 
 ## 6. Testing
 
 ```bash
-npm test              # 496 unit tests · 3,277 assertions (no dependencies)
+npm test              # 501 unit tests · 3,371 assertions (no dependencies)
 npm test -- gst       # only gst-billing.test.js
 npm install --no-save jsdom
-node tests/smoke.js   # 91 browser checks driving the real pages
-node tests/pages-load.js  # all 65 pages must start without throwing
+node tests/smoke.js   # 94 browser checks driving the real pages and directory
+node tests/pages-load.js  # all 66 pages must start without throwing
 ```
 
 | File | Focus |
@@ -176,7 +176,7 @@ node tests/pages-load.js  # all 65 pages must start without throwing
 | `tests/itr-schema.test.js` | Validation rules (formats, caps, regime disallowances, Schedule FA), FY↔AY mapping, engine parity, "never claims to be filed" |
 | `tests/ai-verify.test.js` | Number extraction from prose, income parsing (lakh/crore/₹), verdicts (`verified` / `differs` / `unchecked`), tolerance, badge safety |
 | `tests/schedule-fa.test.js` | Rule 115 conversion, peak/closing sanity, per-country totals, checklist, CSV, wizard fragment, ITR-JSON integration |
-| `tests/pages-load.js` | Loads all 65 pages with their local scripts and fails if any page throws while starting up |
+| `tests/pages-load.js` | Loads all 66 pages with their local scripts and fails if any page throws while starting up |
 
 The suite caught four genuine defects during development: float rounding in `toPaise`,
 the 15-March instalment landing in the wrong year, the editor aliasing the stored invoice,
@@ -249,23 +249,14 @@ checks script references, duplicate ids and load order automatically.
 
 ### How a deploy happens
 
-1. A pull request from `arena/3f484b82-itr-and-gst` is merged into `main`.
-2. The push to `main` triggers `.github/workflows/deploy.yml` ("Inject Keys + Deploy").
-3. The workflow runs `node build.js`, which reads `GEMINI_API_KEY` and
-   `OPENROUTER_API_KEY` from repository secrets and regenerates `js/config-generated.js`.
-4. `actions/upload-pages-artifact` packages the repo and `actions/deploy-pages` publishes it.
+1. A pull request is merged into `main`.
+2. The push to `main` triggers `.github/workflows/deploy.yml`; maintainers can also run it manually.
+3. The workflow runs `node build.js`, which generates public build metadata and ignores provider-key environment variables so they can never enter published JavaScript.
+4. `actions/upload-pages-artifact` packages the static site and `actions/deploy-pages` publishes it.
 
-Because the keys are injected at build time, **`js/config-generated.js` must never be
-edited by hand** — the next deploy overwrites it. To change the AI keys, update the
-repository secrets and re-run the workflow.
+**No API key is injected into the frontend.** A secret embedded in browser JavaScript would be public to every visitor. For personal use, keys can be configured in the browser with the understanding that the browser sends them directly to the selected provider. Shared use requires a secured server-side proxy. See `SECRETS_SETUP.md`.
 
-### Watch out for this
-
-The Pages *source* field still reads `arena/019fabf8-itr-and-gst` (a leftover from the
-previous setup). Deploys are driven by the workflow, not that field — but the old branch is
-also listed in the workflow's `push` trigger, so **a push to `arena/019fabf8-itr-and-gst`
-would republish the older content and temporarily hide this work**. Retire that branch (or
-remove it from the workflow trigger) to prevent it.
+The deploy workflow only publishes from `main`; feature branches do not overwrite the live site.
 
 ### Local preview
 

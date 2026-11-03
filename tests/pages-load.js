@@ -41,10 +41,16 @@ function scriptsOf(html) {
     var attrs = match[1] || '';
     var body = match[2] || '';
     var srcMatch = /\ssrc="([^"]+)"/i.exec(attrs);
+    var typeMatch = /\stype="([^"]+)"/i.exec(attrs);
+    var type = typeMatch ? typeMatch[1].toLowerCase() : '';
     if (srcMatch) out.push({ src: srcMatch[1] });
+    else if (type === 'application/json') continue;
     else if (body.trim()) out.push({ inline: body });
   }
-  return { scripts: out, stripped: html.replace(regex, '') };
+  var stripped = html.replace(regex, function (tag, attrs) {
+    return /\stype="application\/json"/i.test(attrs || '') ? tag : '';
+  });
+  return { scripts: out, stripped: stripped };
 }
 
 async function loadPage(relative) {

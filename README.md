@@ -150,12 +150,12 @@ by the pages *and* by the test suite. Full rules, data model and limitations are
 ### Tests
 
 ```bash
-npm test                    # 496 tests · 3,277 assertions · zero dependencies
+npm test                    # 501 tests · 3,371 assertions · zero dependencies
 npm run serve               # local preview on http://localhost:8080
 
 npm install --no-save jsdom # optional, for the browser-level audits
-node tests/smoke.js         # 91 checks driving the real pages (incl. GitHub sign-in)
-node tests/pages-load.js    # loads all 65 pages, fails if any throws on startup
+node tests/smoke.js         # browser checks drive the real pages (incl. directory and GitHub sign-in)
+node tests/pages-load.js    # loads all 66 pages, fails if any throws on startup
 ```
 
 ### Sign-in
@@ -185,10 +185,15 @@ Contributor rules and review checklists live in [`AGENTS.md`](AGENTS.md).
 
 <https://abhishekagrahari307-max.github.io/ITR-AND-GST/>
 
-Merging into `main` triggers `.github/workflows/deploy.yml`, which injects the AI keys and
-publishes to GitHub Pages. Do not hand-edit `js/config-generated.js` — the build regenerates
-it. See section 10 of [`IMPLEMENTATION.md`](IMPLEMENTATION.md) for the deployment details and
-the one branch caveat to watch.
+Browse the searchable directory of every published tool and information page at
+[`/pages/`](https://abhishekagrahari307-max.github.io/ITR-AND-GST/pages/). The directory is a
+static GitHub Pages landing page, not a raw folder listing. The tools are for browser-based
+preparation and working papers; they do not file returns or connect to government portals.
+
+Merging into `main` triggers `.github/workflows/deploy.yml` and publishes the static site to
+GitHub Pages. The build ignores provider keys and never embeds them: keys in frontend assets are public.
+`js/config-generated.js` contains public build metadata only. See [`SECRETS_SETUP.md`](SECRETS_SETUP.md)
+for safe AI-key setup and [`IMPLEMENTATION.md`](IMPLEMENTATION.md) for deployment details.
 
 ---
 
