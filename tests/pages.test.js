@@ -52,6 +52,15 @@ function idsIn(html) {
   return ids;
 }
 
+function localReferences(html) {
+  var source = html.replace(/<script\b[\s\S]*?<\/script>/gi, '');
+  var refs = [];
+  var regex = /\b(?:href|action)="([^"]+)"/gi;
+  var match;
+  while ((match = regex.exec(source)) !== null) refs.push(match[1]);
+  return refs;
+}
+
 suite('Pages · the four new modules exist', function () {
   NEW_PAGES.forEach(function (page) {
     test(page + ' exists and is a full document', function () {
@@ -99,6 +108,90 @@ suite('Pages · truthful homepage', function () {
   });
 });
 
+suite('Pages · mobile layout and cached content', function () {
+  test('all pages declare a viewport and no ad network is embedded', function () {
+    allHtmlFiles().forEach(function (file) {
+      var html = read(file);
+      t.matches(html, /<meta\s+[^>]*name=["']viewport["']/i, file + ' must declare a viewport');
+      t.notOk(/googlesyndication|adsbygoogle|ca-pub-[\w-]+|google_ads/i.test(html), file + ' must not embed ad network code');
+      t.notOk(/<ins\b[^>]*class=["'][^"']*adsbygoogle/i.test(html), file + ' must not include AdSense ad units');
+    });
+  });
+
+  test('home tool cards stay stacked and fit mobile/device-width viewports', function () {
+    var css = read('css/responsive.css');
+    t.includes(css, '@media (max-width: 768px), (max-device-width: 768px)');
+    t.includes(css, '.features-section .modules-grid');
+    t.includes(css, 'grid-template-columns: minmax(0, 1fr) !important');
+    t.includes(css, 'html, body { max-width: 100%; overflow-x: hidden; }');
+    t.includes(css, '#tools .module-card');
+    t.includes(css, 'grid-template-columns: repeat(4, minmax(0, 1fr))');
+    t.includes(css, 'overflow-wrap: anywhere;');
+    t.includes(css, '.quick-tools-grid {\n    display: flex;\n    flex-wrap: nowrap;');
+    t.includes(css, '.quick-tools-grid .qt-item { flex: 0 0 56px;');
+    t.notOk(read('index.html').includes('class="module-header" style="background:var(--grad-'));
+    var computation = read('pages/computation.html');
+    t.includes(computation, '<meta name="viewport" content="width=device-width,initial-scale=1"');
+    t.includes(computation, 'grid-template-columns: minmax(0, 310px) minmax(0, 1fr)');
+    t.includes(computation, '.comp-wrap > *, .sheet-area, .sheet-area > *');
+    t.includes(read('sw.js'), "const CACHE = 'taxmitra-v6';");
+    var home = read('index.html');
+    t.includes(home, 'href="pages/dashboard.html" class="qt-item" aria-label="Open Dashboard"');
+    t.includes(home, 'fa-gauge-high');
+    t.includes(home, '<span>Dashboard</span>');
+  });
+
+  test('e-invoice page is clearly a draft tool, not a generator or IRP validator', function () {
+    var html = read('pages/einvoice.html');
+    t.includes(html, '<title>E-Invoice Draft Builder');
+    t.includes(html, 'E-Invoice draft builder</h1>');
+    t.includes(html, 'Draft only');
+    t.includes(html, 'does not determine whether e-invoicing applies');
+    t.notOk(html.includes('E-Invoice Mandatory'));
+    t.notOk(html.includes('This tool generates the JSON schema and preview'));
+  });
+});
+
+suite('Pages · GST working-paper integrity', function () {
+  test('GST exports require period and entered records, and never claim portal validation', function () {
+    var html = read('pages/gst.html');
+    t.notOk(/072026|2025-26|2026-27/.test(html), 'remove hard-coded GST periods');
+    t.includes(html, 'function gstMonthPeriod');
+    t.includes(html, 'function gstr1ExportReady');
+    t.includes(html, 'Complete or remove every outward-supply row');
+    t.includes(html, "recordType:'GSTR-1 local working paper'");
+    t.includes(html, "recordType:'GSTR-3B local working paper'");
+    t.includes(html, 'Not portal-validated or filed');
+    t.includes(html, "function annualDraftReady");
+    t.includes(html, "if(!annualDraftReady('g9GSTIN','g9FY','#modal-gstr9'))return;");
+    t.includes(html, "if(!annualDraftReady('g4GSTIN','g4FY','#modal-gstr4'))return;");
+  });
+
+  test('invoice outputs wait for complete user-entered details', function () {
+    var html = read('pages/gst.html');
+    t.includes(html, 'function invoiceDraftProblem()');
+    t.includes(html, 'const problem=invoiceDraftProblem();if(problem){showToast(problem,\'warning\');return;}');
+    t.includes(html, 'function generateInvoiceJSON(){showToast(\'This tool does not create IRP payloads, IRNs or signed e-invoices.');
+    t.includes(html, 'Draft only. Not filed, registered or validated by a government portal.');
+    t.notOk(/onclick="downloadGSTR9JSON\(\)"/.test(html), 'no dead GSTR-9 JSON export control');
+  });
+
+  test('admin and tax references do not show invented operational figures or stale rates', function () {
+    var admin = read('pages/super-admin.html');
+    ['847','12,450','₹8.4L','99.97%','₹999','₹2,499','Priya Sharma','10.0.0.45'].forEach(function (value) {
+      t.notOk(admin.includes(value), 'admin page must not show invented value: ' + value);
+    });
+    var tds = read('pages/tds-returns.html');
+    ['AY 2026-27','194A — FD Interest','194C — Contractor','206C(1H)','20% TCS'].forEach(function (claim) {
+      t.notOk(tds.includes(claim), 'remove unverified TDS claim: ' + claim);
+    });
+    var catalog = read('pages/index.html');
+    ['50+ Tax Calculators','Verified Open-Source Tax & Accounting Tools','₹12.75L tak Zero Tax'].forEach(function (claim) {
+      t.notOk(catalog.includes(claim), 'remove unsupported directory claim: ' + claim);
+    });
+  });
+});
+
 suite('Pages · directory landing page', function () {
   test('the /pages/ route is a searchable catalog of every tool page', function () {
     var html = read('pages/index.html');
@@ -117,6 +210,66 @@ suite('Pages · directory landing page', function () {
     catalog.forEach(function (item) {
       t.ok(item.title && item.category && item.description, item.file + ' needs useful directory metadata');
     });
+  });
+});
+
+suite('Pages · local navigation integrity', function () {
+  test('local files and HTML fragments resolve throughout the site', function () {
+    var broken = [];
+    allHtmlFiles().forEach(function (file) {
+      var source = read(file);
+      var ids = new Set(idsIn(source));
+      localReferences(source).forEach(function (ref) {
+        if (/^(?:https?:)?\/\//i.test(ref) || /^(?:mailto:|tel:|javascript:|data:)/i.test(ref)) return;
+        var hashAt = ref.indexOf('#');
+        var queryAt = ref.indexOf('?');
+        var cut = [hashAt, queryAt].filter(function (n) { return n >= 0; });
+        var pathPart = ref.slice(0, cut.length ? Math.min.apply(Math, cut) : ref.length);
+        var fragment = hashAt >= 0 ? ref.slice(hashAt + 1).split('?')[0] : '';
+        if (!pathPart && !fragment) return;
+        var target = pathPart ? path.normalize(path.join(path.dirname(file), decodeURIComponent(pathPart.replace(/^\//, '')))) : file;
+        if (!exists(target)) { broken.push(file + ' -> ' + ref + ' (missing file ' + target + ')'); return; }
+        if (fragment) {
+          var targetIds = new Set(idsIn(read(target)));
+          if (!targetIds.has(decodeURIComponent(fragment))) broken.push(file + ' -> ' + ref + ' (missing #' + fragment + ' in ' + target + ')');
+        }
+      });
+    });
+    t.deepEqual(broken, [], broken.slice(0, 20).join('\\n'));
+  });
+});
+
+suite('Pages · truthful local-data tools', function () {
+  test('sample financial data is never silently substituted for an uploaded statement', function () {
+    var bank = read('pages/bank-statement.html');
+    t.notOk(bank.includes('loadSampleData'), 'bank statement must not have a sample-data fallback');
+    t.includes(bank, 'parseCSVRow');
+    t.includes(bank, 'Unsupported file type');
+  });
+
+  test('bookkeeping modules start empty and have no demo-data seeder', function () {
+    [['pages/billing-invoicing.html','loadSampleInvoices'], ['pages/document-vault.html','addSampleDocs'],
+      ['pages/inventory.html','loadSampleInventory'], ['pages/ledger-book.html','loadSampleData']].forEach(function (entry) {
+      var html = read(entry[0]);
+      t.notOk(html.includes(entry[1]), entry[0] + ' still contains a sample seeder');
+    });
+    t.notOk(read('pages/fixed-assets.html').includes('Delivery Vehicle'), 'fixed asset register must not auto-populate fabricated assets');
+    t.notOk(read('pages/import-data.html').includes('loadSampleProfile'), 'import center must not inject fictitious taxpayer data');
+  });
+
+  test('invoice draft uses seller-entered identity rather than fabricated business details', function () {
+    var html = read('pages/billing-invoicing.html');
+    t.includes(html, 'id="sellerName"');
+    t.includes(html, 'id="sellerGSTIN"');
+    t.notOk(html.includes('09ABCDE1234F1Z5'));
+    t.notOk(html.includes('TaxMitra CA Firm'));
+  });
+
+  test('reports do not ship a fabricated taxpayer report or example figures', function () {
+    var html = read('pages/reports.html');
+    t.notOk(html.includes('ABCDE1234F'));
+    t.notOk(html.includes('₹12,00,000'));
+    t.includes(html, 'No government data was fetched');
   });
 });
 

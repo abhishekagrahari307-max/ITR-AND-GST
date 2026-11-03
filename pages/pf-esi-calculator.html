@@ -82,7 +82,7 @@
       <div class="card">
         <div class="card-header"><i class="fa fa-calculator"></i> EPF Calculation</div>
         <div class="card-body">
-          <div class="fg"><label>Basic Salary + DA (₹/month)</label><input type="number" id="basicEPF" placeholder="25000" value="25000" oninput="calcEPF()"/></div>
+          <div class="fg"><label>Basic Salary + DA (₹/month)</label><input type="number" id="basicEPF" placeholder="25000" oninput="calcEPF()"/></div>
           <div class="fg"><label>Employee EPF Rate</label>
             <select id="empEPFRate" onchange="calcEPF()">
               <option value="12" selected>12% (Standard)</option>
@@ -96,7 +96,7 @@
             </select>
           </div>
           <div class="fg"><label>Number of Months</label><input type="number" id="epfMonths" placeholder="12" value="12" min="1" max="12" oninput="calcEPF()"/></div>
-          <div class="fg"><label>Opening PF Balance (₹)</label><input type="number" id="pfOpening" placeholder="0" value="0" oninput="calcEPF()"/></div>
+          <div class="fg"><label>Opening PF Balance (₹)</label><input type="number" id="pfOpening" placeholder="0" oninput="calcEPF()"/></div>
           <button class="btn btn-primary" style="width:100%" onclick="calcEPF()"><i class="fa fa-calculator"></i> Calculate EPF</button>
           <div class="info-box">
             <strong>EPF Rules:</strong><br>
@@ -123,8 +123,8 @@
       <div class="card">
         <div class="card-header"><i class="fa fa-calculator"></i> ESI Calculation</div>
         <div class="card-body">
-          <div class="fg"><label>Gross Salary (₹/month)</label><input type="number" id="grossESI" placeholder="18000" value="18000" oninput="calcESI()"/></div>
-          <div class="fg"><label>Number of Employees</label><input type="number" id="empCount" placeholder="1" value="1" oninput="calcESI()"/></div>
+          <div class="fg"><label>Gross Salary (₹/month)</label><input type="number" id="grossESI" placeholder="18000" oninput="calcESI()"/></div>
+          <div class="fg"><label>Number of Employees</label><input type="number" id="empCount" placeholder="1" oninput="calcESI()"/></div>
           <div class="fg"><label>State</label>
             <select id="esiState" onchange="calcESI()">
               <option value="normal" selected>Standard (UP/MH/DL etc.)</option>
@@ -171,7 +171,7 @@
               <option value="HR">Haryana (No PT)</option>
             </select>
           </div>
-          <div class="fg"><label>Monthly Salary (₹)</label><input type="number" id="salaryPT" placeholder="25000" value="25000" oninput="calcPT()"/></div>
+          <div class="fg"><label>Monthly Salary (₹)</label><input type="number" id="salaryPT" placeholder="25000" oninput="calcPT()"/></div>
           <button class="btn btn-primary" style="width:100%" onclick="calcPT()"><i class="fa fa-calculator"></i> Calculate PT</button>
         </div>
       </div>
@@ -190,8 +190,8 @@
       <div class="card">
         <div class="card-header"><i class="fa fa-calculator"></i> Gratuity Calculation</div>
         <div class="card-body">
-          <div class="fg"><label>Basic Salary + DA (last drawn ₹/month)</label><input type="number" id="basicGrat" placeholder="35000" value="35000" oninput="calcGratuity()"/></div>
-          <div class="fg"><label>Years of Service</label><input type="number" id="yearsGrat" placeholder="5" value="5" min="1" oninput="calcGratuity()"/></div>
+          <div class="fg"><label>Basic Salary + DA (last drawn ₹/month)</label><input type="number" id="basicGrat" placeholder="35000" oninput="calcGratuity()"/></div>
+          <div class="fg"><label>Years of Service</label><input type="number" id="yearsGrat" placeholder="5" min="1" oninput="calcGratuity()"/></div>
           <div class="fg"><label>Months of Extra Service (beyond years)</label><input type="number" id="monthsGrat" placeholder="0" value="0" min="0" max="11" oninput="calcGratuity()"/></div>
           <div class="fg"><label>Employer Type</label>
             <select id="gratEmpType" onchange="calcGratuity()">
@@ -225,7 +225,7 @@
       <div class="card">
         <div class="card-header"><i class="fa fa-calculator"></i> Statutory Bonus</div>
         <div class="card-body">
-          <div class="fg"><label>Basic Salary + DA (₹/month)</label><input type="number" id="basicBonus" placeholder="21000" value="21000" oninput="calcBonus()"/></div>
+          <div class="fg"><label>Basic Salary + DA (₹/month)</label><input type="number" id="basicBonus" placeholder="21000" oninput="calcBonus()"/></div>
           <div class="fg"><label>Bonus Rate (%)</label>
             <select id="bonusRate" onchange="calcBonus()">
               <option value="8.33">8.33% (Minimum — Payment of Bonus Act)</option>

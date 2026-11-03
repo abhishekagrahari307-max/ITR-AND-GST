@@ -74,13 +74,13 @@
             <div style="display:grid;grid-template-columns:3fr 1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;align-items:center">
               <input type="text" placeholder="Item description" value="Web Development Services"/>
               <input type="number" placeholder="1" value="1" id="bQty1" oninput="updateBizTotal()"/>
-              <input type="number" placeholder="50000" value="50000" id="bRate1" oninput="updateBizTotal()"/>
+              <input type="number" placeholder="50000" id="bRate1" oninput="updateBizTotal()"/>
               <div id="bAmt1" style="font-weight:600">₹50,000</div>
             </div>
             <div style="display:grid;grid-template-columns:3fr 1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;align-items:center">
               <input type="text" placeholder="Item description" value="Monthly Maintenance"/>
-              <input type="number" placeholder="1" value="3" id="bQty2" oninput="updateBizTotal()"/>
-              <input type="number" placeholder="10000" value="10000" id="bRate2" oninput="updateBizTotal()"/>
+              <input type="number" placeholder="1" id="bQty2" oninput="updateBizTotal()"/>
+              <input type="number" placeholder="10000" id="bRate2" oninput="updateBizTotal()"/>
               <div id="bAmt2" style="font-weight:600">₹30,000</div>
             </div>
           </div>
@@ -140,17 +140,17 @@
           <div>
             <h4 style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;color:var(--success)">📈 INCOME</h4>
             <div style="display:flex;flex-direction:column;gap:0.5rem">
-              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Sales Revenue</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" value="500000" id="p1" oninput="calcPNL()"/></div>
-              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Service Income</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" value="150000" id="p2" oninput="calcPNL()"/></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Sales Revenue</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" id="p1" oninput="calcPNL()"/></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Service Income</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" id="p2" oninput="calcPNL()"/></div>
               <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:2px solid var(--border);font-weight:700"><span>Total Income</span><strong id="totalIncome" style="color:var(--success)">₹6,50,000</strong></div>
             </div>
           </div>
           <div>
             <h4 style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;color:var(--danger)">📉 EXPENSES</h4>
             <div style="display:flex;flex-direction:column;gap:0.5rem">
-              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Salaries</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" value="200000" id="e1" oninput="calcPNL()"/></div>
-              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Rent & Utilities</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" value="75000" id="e2" oninput="calcPNL()"/></div>
-              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Marketing</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" value="50000" id="e3" oninput="calcPNL()"/></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Salaries</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" id="e1" oninput="calcPNL()"/></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Rent & Utilities</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" id="e2" oninput="calcPNL()"/></div>
+              <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:1px solid var(--border)"><span>Marketing</span><input type="number" style="width:120px;padding:0.3rem;border:1px solid var(--border);border-radius:4px;text-align:right;background:var(--bg-secondary);color:var(--text-primary)" id="e3" oninput="calcPNL()"/></div>
               <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding:0.4rem 0;border-bottom:2px solid var(--border);font-weight:700"><span>Total Expenses</span><strong id="totalExpenses" style="color:var(--danger)">₹3,25,000</strong></div>
             </div>
           </div>
@@ -191,10 +191,10 @@
         <div class="form-grid" style="margin-bottom:1.5rem">
           <div class="form-group"><label>Bank Account</label><input type="text" value="SBI Current A/c – XXXX5678"/></div>
           <div class="form-group"><label>Date</label><input type="date"/></div>
-          <div class="form-group"><label>Balance as per Bank Statement (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsBank" value="245000" oninput="calcBRS()"/></div></div>
-          <div class="form-group"><label>Balance as per Books (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsBooks" value="218000" oninput="calcBRS()"/></div></div>
-          <div class="form-group"><label>Outstanding Cheques (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsCheques" value="35000" oninput="calcBRS()"/></div></div>
-          <div class="form-group"><label>Deposits in Transit (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsDeposits" value="8000" oninput="calcBRS()"/></div></div>
+          <div class="form-group"><label>Balance as per Bank Statement (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsBank" oninput="calcBRS()"/></div></div>
+          <div class="form-group"><label>Balance as per Books (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsBooks" oninput="calcBRS()"/></div></div>
+          <div class="form-group"><label>Outstanding Cheques (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsCheques" oninput="calcBRS()"/></div></div>
+          <div class="form-group"><label>Deposits in Transit (₹)</label><div class="input-with-prefix"><span class="input-prefix">₹</span><input type="number" id="brsDeposits" oninput="calcBRS()"/></div></div>
         </div>
         <div class="result-card" id="brsResult">
           <h4>BRS Reconciliation</h4>

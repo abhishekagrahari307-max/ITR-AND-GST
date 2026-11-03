@@ -342,7 +342,7 @@
       <div class="mc-header" onclick="toggleCard('mc4')">
         <div class="mc-icon orange">📊</div>
         <div class="mc-title">
-          <h3>CSV / Excel Data Import</h3>
+          <h3>CSV Data Import</h3>
           <p>Transactions, salary data CSV se import karo</p>
         </div>
         <span class="mc-badge" style="background:rgba(217,119,6,.1);color:#92400e">Bulk Import</span>
@@ -360,13 +360,13 @@
           <div class="file-drop" onclick="document.getElementById('csvFileInput').click()"
                ondragover="fileDragOver(event,'fd-csv')" ondragleave="fileDragLeave('fd-csv')" ondrop="fileDrop(event,'fd-csv','csv-transactions')">
             <div style="font-size:2rem;margin-bottom:.4rem">📊</div>
-            <strong>CSV / Excel Upload</strong>
-            <p style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem">.csv, .xlsx — Transactions data</p>
-            <input type="file" id="csvFileInput" accept=".csv,.xlsx,.xls" onchange="importCSV(this,'transactions')"/>
+            <strong>CSV Upload</strong>
+            <p style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem">.csv only — export spreadsheet files as CSV first</p>
+            <input type="file" id="csvFileInput" accept=".csv" onchange="importCSV(this,'transactions')"/>
           </div>
           <div style="margin-top:.65rem">
-            <p style="font-size:.75rem;color:var(--text-secondary);margin-bottom:.4rem">Ya sample CSV format ke saath try karo:</p>
-            <button class="import-btn secondary" onclick="loadSampleCSV()"><i class="fa fa-table"></i> Load Sample CSV Data</button>
+            <p style="font-size:.75rem;color:var(--text-secondary);margin-bottom:.4rem">Need a starting point? Download a blank CSV header template:</p>
+            <button class="import-btn secondary" onclick="downloadCSVTemplate()"><i class="fa fa-download"></i> Download CSV Template</button>
           </div>
           <div id="csv-preview" style="overflow-x:auto;display:none;margin-top:.75rem">
             <table class="preview-table" id="csv-preview-table"></table>
@@ -521,29 +521,6 @@
       </div>
     </div>
 
-    <!-- METHOD 9: Sample / Demo Data -->
-    <div class="method-card" id="mc9">
-      <div class="mc-header" onclick="toggleCard('mc9')">
-        <div class="mc-icon blue" style="background:rgba(99,102,241,.1);color:#4f46e5">🎯</div>
-        <div class="mc-title">
-          <h3>Sample Data Load</h3>
-          <p>Demo data load karo — testing ke liye</p>
-        </div>
-        <span class="mc-badge" style="background:rgba(99,102,241,.1);color:#4f46e5">Demo</span>
-        <button class="mc-toggle"><i class="fa fa-chevron-down"></i></button>
-      </div>
-      <div class="mc-body">
-        <p style="font-size:.8rem;color:var(--text-secondary);margin-bottom:.85rem">Ek realistic taxpayer ka sample data load karo — sab modules mein explore karne ke liye:</p>
-        <div style="display:flex;flex-direction:column;gap:.5rem">
-          <button class="import-btn" onclick="loadSampleProfile('salaried')">💼 Salaried Employee (₹12L salary, Old Regime)</button>
-          <button class="import-btn secondary" onclick="loadSampleProfile('business')">🏪 Small Business (44AD Presumptive)</button>
-          <button class="import-btn secondary" onclick="loadSampleProfile('freelancer')">💻 Freelancer / Professional (44ADA)</button>
-          <button class="import-btn secondary" onclick="loadSampleProfile('investor')">📈 Investor (Capital Gains)</button>
-          <button class="import-btn secondary" onclick="loadSampleProfile('senior')">🧓 Senior Citizen (Pension + FD)</button>
-        </div>
-        <div class="import-status" id="status-sample"></div>
-      </div>
-    </div>
 
   </div><!-- .methods-grid -->
 
@@ -633,7 +610,7 @@ function renderHistory() {
     list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.85rem">No imports yet</div>';
     return;
   }
-  const icons = { json:'💾', form16:'📋', ais:'🔍', csv:'📊', slip:'💵', clipboard:'📋', itrjson:'🌐', comp:'🧮', sample:'🎯' };
+  const icons = { json:'💾', form16:'📋', ais:'🔍', csv:'📊', slip:'💵', clipboard:'📋', itrjson:'🌐', comp:'🧮' };
   list.innerHTML = hist.map(h => {
     const ago = Math.round((Date.now()-h.time)/60000);
     const timeStr = ago < 60 ? ago+'m ago' : ago < 1440 ? Math.round(ago/60)+'h ago' : new Date(h.time).toLocaleDateString('en-IN');
@@ -907,15 +884,31 @@ function importAISPaste() {
 // METHOD 4: CSV IMPORT
 // ══════════════════════════════════════════════════════
 let _csvParsed = [];
+function parseImportCSVRow(line) {
+  const values = [];
+  let value = '', quoted = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"' && quoted && line[i + 1] === '"') { value += '"'; i++; }
+    else if (ch === '"') quoted = !quoted;
+    else if (ch === ',' && !quoted) { values.push(value.trim()); value = ''; }
+    else value += ch;
+  }
+  values.push(value.trim());
+  return values;
+}
+
 function importCSV(input, mode) {
   const file = input.files?.[0];
   if (!file) return;
   const statusId = mode==='salary'?'status-salcsv':mode==='gst'?'status-gstcsv':'status-csv';
   clearStatus(statusId);
+  if (!file.name.toLowerCase().endsWith('.csv')) { addStatus(statusId,'Please upload a CSV file. Excel workbooks are not supported directly.','error'); return; }
+  if (file.size > 10 * 1024 * 1024) { addStatus(statusId,'File exceeds the 10MB limit.','error'); return; }
   const reader = new FileReader();
   reader.onload = e => {
     const text = e.target.result;
-    const rows = text.split('\n').filter(r=>r.trim()).map(r=>r.split(',').map(c=>c.trim().replace(/"/g,'')));
+    const rows = text.split(/\r?\n/).filter(r=>r.trim()).map(parseImportCSVRow);
     if (!rows.length) { addStatus(statusId,'Empty CSV!','error'); return; }
     const headers = rows[0];
     const data = rows.slice(1).filter(r=>r.length >= headers.length/2);
@@ -930,8 +923,14 @@ function importCSV(input, mode) {
       const table = document.getElementById('csv-preview-table');
       if (preview && table) {
         preview.style.display = 'block';
-        table.innerHTML = `<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
-          <tbody>${data.slice(0,10).map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+        table.replaceChildren();
+        const head = table.createTHead().insertRow();
+        headers.forEach(value => { const cell = document.createElement('th'); cell.textContent = value; head.appendChild(cell); });
+        const body = table.createTBody();
+        data.slice(0,10).forEach(row => {
+          const tr = body.insertRow();
+          row.forEach(value => { const cell = tr.insertCell(); cell.textContent = value; });
+        });
       }
       document.getElementById('csvImportBtn').style.display = 'flex';
       addStatus(statusId, `${data.length} rows parsed, ${headers.length} columns`, 'success');
@@ -974,32 +973,15 @@ function importCSV(input, mode) {
   reader.readAsText(file);
 }
 
-function loadSampleCSV() {
-  const sampleData = `Date,Description,Amount,Category,Type
-2025-04-15,Salary Credit,50000,Salary,Income
-2025-04-20,Electricity Bill,2500,Utilities,Expense
-2025-04-25,Grocery Shopping,3800,Food,Expense
-2025-05-15,Salary Credit,50000,Salary,Income
-2025-05-10,PPF Investment,5000,Investment,Expense
-2025-05-18,Petrol,1500,Transport,Expense
-2025-06-15,Salary Credit,50000,Salary,Income
-2025-06-20,Health Insurance Premium,12000,Insurance,Expense
-2025-07-15,Salary Credit,50000,Salary,Income
-2025-07-01,Rent Payment,15000,Rent,Expense`;
-  const rows = sampleData.split('\n').filter(r=>r.trim()).map(r=>r.split(',').map(c=>c.trim()));
-  const headers = rows[0];
-  const data = rows.slice(1);
-  _csvParsed = data.map(row => {const obj={};headers.forEach((h,i)=>obj[h.toLowerCase()]=row[i]||'');return obj;});
-  const preview = document.getElementById('csv-preview');
-  const table = document.getElementById('csv-preview-table');
-  if (preview && table) {
-    preview.style.display = 'block';
-    table.innerHTML = `<thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
-      <tbody>${data.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
-  }
-  document.getElementById('csvImportBtn').style.display = 'flex';
-  addStatus('status-csv', `Sample data loaded — ${data.length} transactions`, 'success');
-  showToast('Sample CSV loaded!', 'info');
+function downloadCSVTemplate() {
+  const headers = ['Date', 'Description', 'Amount', 'Category', 'Type'];
+  const blob = new Blob([headers.join(',') + '\n'], { type: 'text/csv;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'taxmitra-transactions-template.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+  showToast('Blank CSV template downloaded. Add your own transactions before importing.', 'success');
 }
 
 function confirmCSVImport() {
@@ -1246,70 +1228,6 @@ function importITRtoComp() {
   addStatus('status-comp','Reload Computation page to see changes','warn');
   addHistory('comp','ITR → Computation Sync',Object.keys(comp).slice(0,5));
   showToast('ITR data synced to Computation!','success');
-  updateStorageSize();
-}
-
-// ══════════════════════════════════════════════════════
-// METHOD 9: SAMPLE DATA
-// ══════════════════════════════════════════════════════
-const sampleProfiles = {
-  salaried: {
-    name:'Ravi Kumar', pan:'ABCDE1234F', regime:'old', ay:'2026-27',
-    comp:{ grossSal:1200000, basicSal:600000, hraRcvd:240000, rentPaid:180000, city:'metro',
-           profTax:2400, tdsSal:72000, d80c:150000, d80d:25000 },
-    itr:{ firstName:'Ravi', lastName:'Kumar', grossSalary:1200000, hraExempt:90000, profTax:2400, tdsSalary:72000, deduction80c:150000, deduction80d:25000 },
-    label:'Salaried — ₹12L, Old Regime, HRA, 80C maxed'
-  },
-  business: {
-    name:'Priya Sharma', pan:'FGHIJ5678K', regime:'new', ay:'2026-27',
-    comp:{ bizTODig:2500000, bizScheme:'44AD', tdsSal:0, advTax:25000 },
-    itr:{ firstName:'Priya', lastName:'Sharma', bizTO_Digital:2500000, bizType:'44AD', advanceTax:25000 },
-    label:'Small Business — ₹25L turnover, 44AD, New Regime'
-  },
-  freelancer: {
-    name:'Arjun Mehta', pan:'KLMNO9012P', regime:'new', ay:'2026-27',
-    comp:{ bizTO_ADA:1500000, bizScheme:'44ADA', tdsSal:0, advTax:15000 },
-    itr:{ firstName:'Arjun', lastName:'Mehta', professionalReceipts:1500000, bizType:'44ADA', advanceTax:15000 },
-    label:'Freelancer — ₹15L receipts, 44ADA, New Regime'
-  },
-  investor: {
-    name:'Sunita Patel', pan:'QRSTU3456V', regime:'old', ay:'2026-27',
-    comp:{ grossSal:800000, stcgEqSale:500000, stcgEqCost:400000, ltcgEqSale:1000000, ltcgEqCost:600000, ltcgEqExempt:125000, tdsSal:45000 },
-    itr:{ firstName:'Sunita', lastName:'Patel', grossSalary:800000, stcgEquity:100000, ltcgEquity:275000, tdsSalary:45000 },
-    label:'Investor — Salary + STCG ₹1L + LTCG ₹4L'
-  },
-  senior: {
-    name:'Ram Prasad', pan:'WXYZA7890B', regime:'new', ay:'2026-27',
-    age:'60to80',
-    comp:{ grossSal:600000, d80ttb:50000, tdsInt:8000, tdsSal:0 },
-    itr:{ firstName:'Ram', lastName:'Prasad', pension:600000, fdInterest:200000, deduction80ttb:50000, tdsInterest:8000 },
-    label:'Senior Citizen — Pension + FD interest, New Regime'
-  }
-};
-
-function loadSampleProfile(type) {
-  clearStatus('status-sample');
-  const profile = sampleProfiles[type];
-  if (!profile) return;
-  // Save user
-  localStorage.setItem('tm_user', JSON.stringify({ name:profile.name, pan:profile.pan, regime:profile.regime }));
-  // Save comp draft
-  if (profile.comp) localStorage.setItem('tm_comp_draft', JSON.stringify({...profile.comp, _sample:type}));
-  // Save ITR draft
-  if (profile.itr) localStorage.setItem('itr_draft_1', JSON.stringify({...profile.itr, _sample:type}));
-  if (type==='salaried') {
-    // Add some accounting transactions
-    const txns = [
-      {id:1,date:'2025-04-15',desc:'Salary',amount:100000,category:'Salary',type:'income'},
-      {id:2,date:'2025-04-20',desc:'LIC Premium',amount:12500,category:'Investment',type:'expense'},
-      {id:3,date:'2025-04-25',desc:'PPF',amount:5000,category:'Investment',type:'expense'},
-    ];
-    localStorage.setItem('tm_accounting_txns', JSON.stringify(txns));
-  }
-  addStatus('status-sample',`✅ ${profile.label}`, 'success');
-  addStatus('status-sample','Data saved to all modules — reload pages to see','warn');
-  addHistory('sample',`Sample Profile: ${type}`,[type]);
-  showToast(`${type} sample data loaded!`, 'success');
   updateStorageSize();
 }
 

@@ -132,7 +132,6 @@
         <div class="card-body">
           <button class="btn btn-primary" style="width:100%;margin-bottom:.4rem" onclick="showTrialBalance()"><i class="fa fa-balance-scale"></i> Trial Balance</button>
           <button class="btn" style="width:100%;margin-bottom:.4rem;background:var(--success);color:#fff" onclick="exportCSV()"><i class="fa fa-download"></i> Export CSV</button>
-          <button class="btn" style="width:100%;background:var(--bg-secondary);border:1px solid var(--border)" onclick="loadSampleData()"><i class="fa fa-magic"></i> Load Sample Data</button>
         </div>
       </div>
     </div>
@@ -218,7 +217,7 @@
             </thead>
             <tbody id="ledgerBody">
               <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted)">
-                Post journal entries or load sample data to see ledger
+                Post journal entries to see ledger balances
               </td></tr>
             </tbody>
           </table>
@@ -418,25 +417,6 @@ function exportCSV() {
   a.download = 'ledger_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
   showToast('✅ Exported!', 'success');
-}
-
-function loadSampleData() {
-  var samples = [
-    { id:1, date:'2025-04-01', voucher:'JV-001', narration:'Opening capital introduced', debitAcc:'Cash/Bank', creditAcc:'Capital Account', amount:500000 },
-    { id:2, date:'2025-04-05', voucher:'JV-002', narration:'Computer purchased', debitAcc:'Fixed Assets', creditAcc:'Cash/Bank', amount:80000 },
-    { id:3, date:'2025-04-10', voucher:'JV-003', narration:'Services rendered to XYZ Corp', debitAcc:'Accounts Receivable', creditAcc:'Sales/Revenue', amount:150000 },
-    { id:4, date:'2025-04-15', voucher:'JV-004', narration:'GST on sales (18%)', debitAcc:'Accounts Receivable', creditAcc:'GST Payable', amount:27000 },
-    { id:5, date:'2025-04-20', voucher:'JV-005', narration:'Cash received from XYZ Corp', debitAcc:'Cash/Bank', creditAcc:'Accounts Receivable', amount:177000 },
-    { id:6, date:'2025-04-30', voucher:'JV-006', narration:'Office rent paid April', debitAcc:'Rent Expense', creditAcc:'Cash/Bank', amount:25000 },
-    { id:7, date:'2025-04-30', voucher:'JV-007', narration:'Staff salary paid', debitAcc:'Salary Expense', creditAcc:'Cash/Bank', amount:55000 },
-    { id:8, date:'2025-05-15', voucher:'JV-008', narration:'GST payment to government', debitAcc:'GST Payable', creditAcc:'Cash/Bank', amount:27000 },
-    { id:9, date:'2025-05-20', voucher:'JV-009', narration:'Office supplies purchased', debitAcc:'Other Expense', creditAcc:'Cash/Bank', amount:8500 },
-    { id:10, date:'2025-06-01', voucher:'JV-010', narration:'New project invoice raised', debitAcc:'Accounts Receivable', creditAcc:'Sales/Revenue', amount:200000 },
-  ];
-  saveEntries(samples);
-  voucherCounter = 11;
-  updateAll();
-  showToast('✅ Sample data loaded (10 entries)', 'success');
 }
 
 function fmtN(n) { return Math.round(n).toLocaleString('en-IN'); }

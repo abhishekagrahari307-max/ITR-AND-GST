@@ -29,22 +29,35 @@ window.addEventListener('scroll', () => {
 const hamburger = document.getElementById('hamburger');
 const navWrapper = document.getElementById('navLinksWrapper');
 if (hamburger && navWrapper) {
+  hamburger.setAttribute('aria-controls', navWrapper.id);
+  hamburger.setAttribute('aria-expanded', 'false');
   hamburger.addEventListener('click', () => {
-    navWrapper.classList.toggle('show');
-    hamburger.classList.toggle('open');
+    const isOpen = navWrapper.classList.toggle('show');
+    hamburger.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', String(isOpen));
   });
   // Close nav when a link is clicked
   navWrapper.addEventListener('click', (e) => {
     if (e.target.tagName === 'A' || e.target.closest('a')) {
       navWrapper.classList.remove('show');
       hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
     }
   });
-  // Close on outside click
+  // Close on outside click or Escape
   document.addEventListener('click', (e) => {
     if (!navWrapper.contains(e.target) && !hamburger.contains(e.target)) {
       navWrapper.classList.remove('show');
       hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navWrapper.classList.contains('show')) {
+      navWrapper.classList.remove('show');
+      hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      hamburger.focus();
     }
   });
 }
@@ -191,27 +204,20 @@ document.querySelectorAll('.calc-cat-btn').forEach(btn => {
   });
 });
 
-// ── Due dates ─────────────────────────────────────────────────
+// ── Due-date notice ───────────────────────────────────────────
 function populateDueDates() {
   const grid = document.getElementById('dueDatesGrid');
   if (!grid) return;
-  const dates = [
-    { type:'Income Tax', title:'ITR Filing (Non-Audit)', date:'31 July 2026', urgency:'urgent' },
-    { type:'TDS', title:'Form 24Q/26Q (Q1)', date:'31 July 2026', urgency:'urgent' },
-    { type:'GST', title:'GSTR-1 – July 2025', date:'11 August 2026', urgency:'warning' },
-    { type:'TDS', title:'TDS Payment – July 2025', date:'7 August 2026', urgency:'warning' },
-    { type:'GST', title:'GSTR-3B – July 2025', date:'20 August 2026', urgency:'warning' },
-    { type:'Income Tax', title:'Advance Tax Q2 (45%)', date:'15 September 2026', urgency:'safe' },
-    { type:'GST', title:'GSTR-9 Annual Return', date:'31 December 2026', urgency:'safe' },
-    { type:'Income Tax', title:'ITR – Audit Cases', date:'31 October 2026', urgency:'safe' },
-  ];
-  grid.innerHTML = dates.map(d => `
-    <div class="due-date-card ${d.urgency}">
-      <div class="ddc-type">${d.type}</div>
-      <div class="ddc-title">${d.title}</div>
-      <div class="ddc-date">📅 ${d.date}</div>
-      <span class="ddc-badge ${d.urgency}">${d.urgency==='urgent'?'🔴 Urgent':d.urgency==='warning'?'🟡 Soon':'🟢 Upcoming'}</span>
-    </div>`).join('');
+  grid.innerHTML = `
+    <div class="due-date-notice">
+      <strong>This is not a live compliance calendar.</strong>
+      <p>Deadlines can change through notifications and extensions. Check the relevant government portal for the filing period that applies to you.</p>
+      <div class="due-date-links">
+        <a href="https://www.incometax.gov.in/iec/foportal/" target="_blank" rel="noopener noreferrer">Income Tax portal</a>
+        <a href="https://www.gst.gov.in/" target="_blank" rel="noopener noreferrer">GST portal</a>
+        <a href="https://www.tdscpc.gov.in/" target="_blank" rel="noopener noreferrer">TRACES / TDS</a>
+      </div>
+    </div>`;
 }
 populateDueDates();
 

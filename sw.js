@@ -1,5 +1,5 @@
 /* TaxMitra AI Enterprise — Service Worker | Developer: Abhishek Agrahari */
-const CACHE = 'taxmitra-v4';
+const CACHE = 'taxmitra-v6';
 const ASSETS = ['/', '/ITR-AND-GST/', '/ITR-AND-GST/index.html',
   '/ITR-AND-GST/css/taxmitra.css', '/ITR-AND-GST/js/taxmitra.js',
   '/ITR-AND-GST/pages/computation.html', '/ITR-AND-GST/pages/ai-assistant.html',
