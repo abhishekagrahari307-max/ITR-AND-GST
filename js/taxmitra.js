@@ -305,7 +305,7 @@ document.getElementById('demoInput')?.addEventListener('keypress', e => { if (e.
         <div><strong>TaxMitra AI</strong><span class="afw-status">● AI Powered</span></div>
       </div>
       <div class="afw-actions">
-        <button onclick="window.open('../pages/ai-assistant.html','_self')" title="Full Screen">⛶</button>
+        <button data-full-ai title="Full Screen">⛶</button>
         <button id="afw-close" title="Close">✕</button>
       </div>
     </div>
@@ -322,11 +322,21 @@ document.getElementById('demoInput')?.addEventListener('keypress', e => { if (e.
       <input type="text" id="afwInput" placeholder="Tax question puchein..." autocomplete="off"/>
       <button onclick="sendAfwMsg()" title="Send"><i class="fa fa-paper-plane"></i></button>
     </div>
-    <div class="afw-footer"><a href="pages/ai-assistant.html">Open Full AI Assistant →</a></div>
+    <div class="afw-footer"><a data-full-ai href="#">Open Full AI Assistant →</a></div>
   </div>`;
   const wrapper = document.createElement('div');
   wrapper.innerHTML = floatHTML;
   document.body.appendChild(wrapper);
+
+  // Resolve the "full assistant" targets for the page we are actually on.
+  const fullAi = location.pathname.indexOf('/pages/') !== -1 ? 'ai-assistant.html' : 'pages/ai-assistant.html';
+  wrapper.querySelectorAll('[data-full-ai]').forEach(function (el) {
+    if (el.tagName === 'A') el.setAttribute('href', fullAi);
+    el.addEventListener('click', function (event) {
+      event.preventDefault();
+      window.location.href = fullAi;
+    });
+  });
 })();
 
 // AI Float show/hide
@@ -339,9 +349,9 @@ function _showAFWKeyPrompt() {
     sessionStorage.setItem('tm_afwKeyPromptShown', '1');
     const welcome = document.getElementById('afwWelcome');
     if (welcome) {
-      const base = location.pathname.includes('/pages/') ? '' : 'pages/';
+      const setupHref = location.pathname.indexOf('/pages/') !== -1 ? 'setup.html' : 'pages/setup.html';
       welcome.innerHTML = 'नमस्ते! 🙏 Main TaxMitra AI hoon.<br>ITR, GST, Tax Saving — kuch bhi puchein!<br><br>' +
-        '<a href="' + base + 'pages/setup.html" style="display:inline-block;background:#2563eb;color:#fff;padding:.35rem .85rem;border-radius:99px;font-size:.75rem;font-weight:700;text-decoration:none;margin-top:.3rem">🔑 Gemini AI Activate karo →</a>';
+        '<a href="' + setupHref + '" style="display:inline-block;background:#2563eb;color:#fff;padding:.35rem .85rem;border-radius:99px;font-size:.75rem;font-weight:700;text-decoration:none;margin-top:.3rem">🔑 Gemini AI Activate karo →</a>';
     }
   }
 }
