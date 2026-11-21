@@ -26,9 +26,10 @@ Open <http://localhost:3000>. Every page is served from the same origin, and the
 server up automatically (`js/cloud.js` probes `/api/health`).
 
 ```bash
-npm test          # 521 site + client tests
-npm run test:server   # 18 server tests (real HTTP, real SQLite, fake AI upstream)
-npm run test:all  # both
+npm test              # 521 site + client tests
+npm run test:server   # 37 server tests (real HTTP, real SQLite, fake AI upstream,
+                      # RFC 4226/6238 TOTP vectors, full auth lifecycle)
+npm run test:all      # both
 ```
 
 ## 2. What is genuinely implemented
@@ -49,6 +50,50 @@ npm run test:all  # both
 `DATA_DIR` (default `./data`) holds `taxmitra.db` (SQLite, WAL) or `taxmitra.json` when the
 runtime has no `node:sqlite`. Both are real persistence with atomic writes; SQLite is the
 recommended default.
+
+## 2a. Full account lifecycle (free, no SaaS)
+
+Everything below is implemented in `server/` with only Node built-ins. Nothing is a placeholder.
+
+| Feature | Endpoints | How it works |
+|---|---|---|
+| Email verification | `POST /api/auth/verify`, `GET /api/auth/verify?token=`, `POST /api/auth/verify/resend` | 32-byte token, stored **hashed**, single use, 60 min. The emailed link opens a page and redirects to `cloud.html?verify=ok`. |
+| Password reset | `POST /api/auth/forgot`, `POST /api/auth/reset` | Same answer whether or not the account exists (no enumeration). Token hashed, single use, 30 min. A successful reset **revokes every session**. A password that fails validation does not burn the token. |
+| Two-factor (TOTP) | `POST /api/auth/2fa/setup`, `/enable`, `/disable` | RFC 6238 (SHA-1, 30 s, 6 digits, ±1 step). 10 backup codes, stored hashed, each works once. Disabling requires the password **and** a current code. |
+| OAuth sign-in | `GET /api/auth/oauth/providers`, `/:provider/start`, `/:provider/callback`, `POST /api/auth/oauth/exchange` | GitHub and Google authorisation-code flow. State is single-use and expires in 10 min. Access tokens never reach the browser: the callback issues a 2-minute one-time code that the page exchanges for a session. |
+| Session management | `GET /api/auth/sessions`, `DELETE /api/auth/sessions/:jti` | Every session row is visible with its device string; any of them can be revoked individually. |
+
+### Free email delivery (pick one)
+
+| Driver | Cost | Set |
+|---|---|---|
+| `console` | free | `EMAIL_DRIVER=console` — links print to the server log. **Development only.** |
+| Brevo | free tier | `EMAIL_DRIVER=brevo`, `EMAIL_API_KEY=xkeysib-…` |
+| Resend | free tier | `EMAIL_DRIVER=resend`, `EMAIL_API_KEY=re_…` |
+| Any SMTP relay (including a Gmail app password) | free | `EMAIL_DRIVER=smtp`, `SMTP_HOST`, `SMTP_PORT=587`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM` |
+
+Always set `EMAIL_FROM` to an address or domain your provider has verified, or mail will be
+rejected. With no driver configured the API says `email.sent: false` and the UI says delivery is
+not configured — it never claims an email went out.
+
+### Free OAuth apps (2 minutes each)
+
+1. **GitHub** → Settings → Developer settings → OAuth Apps → New.
+   Homepage `https://your-host`; callback `https://your-host/api/auth/oauth/github/callback`.
+   Copy the client ID and secret into `GITHUB_OAUTH_CLIENT_ID` / `GITHUB_OAUTH_CLIENT_SECRET`.
+2. **Google** → Google Cloud Console → APIs & Services → Credentials → OAuth client ID (Web).
+   Authorised redirect URI: `https://your-host/api/auth/oauth/google/callback`.
+   Copy into `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET`.
+3. Set `OAUTH_BASE_URL=https://your-host` (the public origin — this is what the callback URL is
+   built from). Without it, provider sign-in stays off and the UI says so.
+
+Both providers are optional and independent; the page only shows the buttons that are configured.
+
+### Turning on 2FA for yourself
+
+Open **`pages/cloud.html` → Account security → Set up two-factor**. The page shows the manual key
+and the `otpauth://` link; add it to any authenticator, type the 6-digit code, and save the ten
+backup codes it shows **once**.
 
 ## 3. Accounts and sync, in plain words
 
@@ -160,8 +205,11 @@ all.
 
 ## 8. Limitations you should know before trusting it
 
-- No email verification, no password reset by email, no 2FA. If you need them, add them — the
-  session table is already there.
+- Email verification and password reset depend on an email driver. Without one, links exist in the
+  log (`console`) but no mail is sent, and the UI says so.
+- OAuth sign-in depends on `OAUTH_BASE_URL` plus provider credentials. Accounts created that way
+  have a random password nobody knows until the owner sets one through “forgot password”.
+- No passkeys/WebAuthn yet, and no admin user-management screen. Two-factor is TOTP + backup codes.
 - Sync is last-writer-wins per document with a conflict report, not a CRDT. Two people editing the
   same invoice offline will produce a conflict, and the account page shows which copy won.
 - The AI is a general model with a tax prompt. It is not a computation engine; figures you rely on

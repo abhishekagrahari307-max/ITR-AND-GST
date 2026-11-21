@@ -64,6 +64,43 @@ function load(env) {
       systemPromptFile: env.AI_SYSTEM_PROMPT_FILE || 'server/prompts/tax-system.txt',
     },
 
+    email: {
+      driver: (env.EMAIL_DRIVER || 'console').toLowerCase(),
+      from: env.EMAIL_FROM || 'TaxMitra <no-reply@taxmitra.local>',
+      apiKey: env.EMAIL_API_KEY || '',
+      smtpHost: env.SMTP_HOST || '',
+      smtpPort: int(env.SMTP_PORT, 587),
+      smtpSecure: bool(env.SMTP_SECURE, false),
+      smtpStarttls: bool(env.SMTP_STARTTLS, true),
+      smtpUser: env.SMTP_USER || '',
+      smtpPass: env.SMTP_PASS || '',
+      smtpAuth: (env.SMTP_AUTH || 'LOGIN').toUpperCase(),
+    },
+
+    oauth: {
+      baseUrl: (env.OAUTH_BASE_URL || '').replace(/\/$/, ''),
+      githubClientId: env.GITHUB_OAUTH_CLIENT_ID || '',
+      githubSecret: env.GITHUB_OAUTH_CLIENT_SECRET || '',
+      googleClientId: env.GOOGLE_OAUTH_CLIENT_ID || '',
+      googleSecret: env.GOOGLE_OAUTH_CLIENT_SECRET || '',
+      stateMinutes: int(env.OAUTH_STATE_MINUTES, 10),
+      codeMinutes: int(env.OAUTH_CODE_MINUTES, 2),
+    },
+
+    limits: {
+      registerPerHour: int(env.REGISTER_PER_HOUR, 10),
+      loginPer15Min: int(env.LOGIN_PER_15MIN, 20),
+      forgotPerHour: int(env.FORGOT_PER_HOUR, 10),
+      apiPerMinute: int(env.API_PER_MINUTE, 600),
+    },
+
+    security: {
+      requireVerifiedForSync: bool(env.REQUIRE_VERIFIED_EMAIL, false),
+      verifyTokenMinutes: int(env.VERIFY_TOKEN_MINUTES, 60),
+      resetTokenMinutes: int(env.RESET_TOKEN_MINUTES, 30),
+      totpIssuer: env.TOTP_ISSUER || 'TaxMitra',
+    },
+
     govt: {
       irpEnv: env.IRP_ENV || 'sandbox', // sandbox | production
       irpBase: {
@@ -99,6 +136,12 @@ function warnings(cfg) {
   }
   if (!cfg.ai.geminiKey && !cfg.ai.openrouterKey && !cfg.ai.groqKey && !cfg.ai.openaiKey) {
     out.push('No AI provider key set – /api/ai answers 503 and the site stays on its local rule engine.');
+  }
+  if (cfg.email.driver !== 'console' && !require('./email').isConfigured(cfg)) {
+    out.push('EMAIL_DRIVER=' + cfg.email.driver + ' but its credentials are missing – verification and reset mails cannot be sent.');
+  }
+  if (!cfg.oauth.baseUrl) {
+    out.push('OAUTH_BASE_URL is empty – OAuth callbacks would be built against an unknown origin, so GitHub/Google sign-in stays off until it is set.');
   }
   if (!cfg.govt.gstClientId || !cfg.govt.gstClientSecret) {
     out.push('No GSTN/GSP credentials set – the government endpoints answer 501 instead of pretending to file.');

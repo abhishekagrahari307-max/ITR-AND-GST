@@ -58,6 +58,71 @@
     }
   }
 
+  /* --------------------------------------------------- URL round-trips */
+
+  function resetToken() {
+    try {
+      return new URLSearchParams(window.location.search).get('reset') || '';
+    } catch (e) { return ''; }
+  }
+
+  function clearResetToken() {
+    try {
+      window.history.replaceState({}, '', window.location.pathname);
+    } catch (e) { /* ignore */ }
+  }
+
+  function consumeUrlState() {
+    var params;
+    try { params = new URLSearchParams(window.location.search); } catch (e) { return; }
+
+    if (params.get('reset')) {
+      var panel = $('resetPanel');
+      if (panel) panel.hidden = false;
+      var signedOut = $('signedOutView');
+      if (signedOut) signedOut.hidden = true;
+      var focus = $('resetPassword');
+      if (focus) focus.focus();
+    }
+
+    if (params.get('verify')) {
+      toast(params.get('verify') === 'ok' ? 'Email confirmed.' : 'That confirmation link was invalid or already used.',
+        params.get('verify') === 'ok' ? 'ok' : 'bad');
+      clearResetToken();
+    }
+
+    if (params.get('oauth')) {
+      var result = params.get('oauth');
+      if (result !== 'ok') {
+        var reasons = {
+          cancelled: 'Sign-in was cancelled at the provider.',
+          state_invalid: 'That sign-in attempt expired. Please try again.',
+          exchange_failed: 'The provider did not accept the sign-in. Check the OAuth app settings.',
+          email_missing: 'The provider did not share a verified email address.',
+          email_unverified: 'That email is not verified by the provider, so it cannot be linked automatically.',
+        };
+        toast(reasons[result] || 'Sign-in failed.', 'bad');
+      }
+      clearResetToken();
+    }
+
+    var hash = String(window.location.hash || '').replace(/^#/, '');
+    if (!hash) return;
+    var fragment;
+    try { fragment = new URLSearchParams(hash); } catch (e) { return; }
+    var code = fragment.get('code');
+    if (!code || !C) return;
+    window.history.replaceState({}, '', window.location.pathname);
+    C.oauthExchange(code).then(function (user) {
+      toast('Signed in as ' + user.email, 'ok');
+      C.startAuto(30000);
+      renderAll();
+      return C.syncNow().catch(handleSyncError);
+    }).catch(function (err) {
+      toast(err.message || 'That sign-in code was already used.', 'bad');
+    });
+  }
+
   /* ------------------------------------------------------------ server */
 
   function renderServer() {
@@ -193,6 +258,93 @@
     }).catch(handleSyncError);
   }
 
+  function renderOAuth() {
+    var host = $('oauthButtons');
+    var note = $('oauthNote');
+    if (!host) return;
+    if (!C || !C.available) {
+      host.innerHTML = '<span class="muted-note">No server is answering, so OAuth sign-in is unavailable.</span>';
+      return;
+    }
+    C.oauthProviders().then(function (data) {
+      var providers = data.providers || [];
+      if (!providers.length) {
+        host.innerHTML = '<span class="muted-note">No provider is configured on this server. Set GITHUB_OAUTH_CLIENT_ID/GITHUB_OAUTH_CLIENT_SECRET or the Google pair, plus OAUTH_BASE_URL.</span>';
+        if (note) note.textContent = '';
+        return;
+      }
+      host.innerHTML = providers.map(function (p) {
+        return '<button class="btn-secondary-solid" type="button" data-provider="' + esc(p.id) + '">Continue with ' + esc(p.label) + '</button>';
+      }).join('');
+      if (note) {
+        note.textContent = (data.baseUrl
+          ? 'Callback base: ' + data.baseUrl
+          : 'OAUTH_BASE_URL is not set, so callbacks would be misconfigured.') +
+          ' The provider app must allow this exact callback URL.';
+      }
+    }).catch(function (err) {
+      host.innerHTML = '<span class="muted-note">' + esc(err.message || 'Could not read the provider list.') + '</span>';
+    });
+  }
+
+  function renderSecurity() {
+    if (!C || !C.user) return;
+    C.me().then(function (data) {
+      var security = data.security || {};
+
+      var emailEl = $('emailStatus');
+      if (emailEl) {
+        emailEl.textContent = security.emailVerified
+          ? 'Confirmed ✓'
+          : (security.emailConfigured
+            ? 'Not confirmed yet — check your inbox, or resend below.'
+            : 'Not confirmed. Email delivery is not configured on this server, so no message can be sent.');
+      }
+      var verifyActions = $('verifyActions');
+      if (verifyActions) verifyActions.hidden = !!security.emailVerified || !security.emailConfigured;
+
+      var twoEl = $('twoFactorStatus');
+      if (twoEl) twoEl.textContent = security.twoFactor ? 'On (authenticator app)' : 'Off — password alone is enough to sign in';
+
+      var off = $('twoFactorOff');
+      if (off) off.hidden = !!security.twoFactor;
+      var disable = $('twoFactorDisable');
+      if (disable) disable.hidden = !security.twoFactor;
+
+      var identityEl = $('identityStatus');
+      if (identityEl) {
+        var methods = ['password'].concat((data.identities || []).map(function (i) { return i.provider; }));
+        identityEl.textContent = methods.filter(function (m, i) { return methods.indexOf(m) === i; }).join(', ');
+      }
+
+      var storage = $('profileUsage');
+      if (storage && data.storage) storage.textContent = bytes(data.storage.bytes) + ' used of ' + bytes(data.storage.quota || 0);
+
+      return C.sessions();
+    }).then(function (sessions) {
+      var body = $('sessionBody');
+      if (!body || !sessions) return;
+      if (!sessions.length) {
+        body.innerHTML = '<tr><td colspan="4" class="muted-note">No sessions recorded.</td></tr>';
+        return;
+      }
+      body.innerHTML = sessions.map(function (s) {
+        var expired = Number(s.expiresAt) <= Date.now();
+        var state = s.current ? 'This device' : (s.revoked || expired ? 'Ended' : 'Active');
+        return '<tr>' +
+          '<td>' + esc(when(s.createdAt)) + '</td>' +
+          '<td>' + esc(when(s.expiresAt)) + '</td>' +
+          '<td>' + esc(s.device || '—') + ' · ' + esc(state) + '</td>' +
+          '<td>' + (s.current || s.revoked || expired
+            ? '<span class="muted-note">—</span>'
+            : '<button class="btn-secondary-solid" type="button" data-jti="' + esc(s.id) + '">Sign out</button>') + '</td>' +
+          '</tr>';
+      }).join('');
+    }).catch(function (err) {
+      alertText('sessionError', err.message || 'Could not read the session list.');
+    });
+  }
+
   /* ---------------------------------------------------------------- AI */
 
   function renderAi() {
@@ -290,17 +442,178 @@
         if (!C || !C.available) { alertText('loginError', 'No TaxMitra server is answering, so sign-in is unavailable.'); return; }
         var btn = $('loginBtn');
         if (btn) btn.disabled = true;
-        C.login(($('loginEmail') || {}).value, ($('loginPassword') || {}).value)
+        var second = {};
+        var code = ($('loginTotp') || {}).value || '';
+        if (code.trim()) {
+          if (/^\d{6}$/.test(code.trim())) second.totp = code.trim();
+          else second.backupCode = code.trim();
+        }
+        C.login(($('loginEmail') || {}).value, ($('loginPassword') || {}).value, second)
           .then(function (user) {
             loginForm.reset();
+            var wrap = $('loginTotpWrap');
+            if (wrap) wrap.hidden = true;
             toast('Signed in as ' + user.email, 'ok');
             C.startAuto(30000);
             renderAll();
             return C.syncNow().then(function (result) { renderResult(result); renderCloudUsage(); })
               .catch(handleSyncError);
           })
-          .catch(function (err) { alertText('loginError', err.message || 'Could not sign in.'); })
+          .catch(function (err) {
+            if (err.code === 'TOTP_REQUIRED') {
+              var wrap = $('loginTotpWrap');
+              if (wrap) { wrap.hidden = false; var input = $('loginTotp'); if (input) input.focus(); }
+              alertText('loginError', 'This account has two-factor on. Enter the 6-digit code from your authenticator app.');
+            } else if (err.code === 'TOTP_INVALID') {
+              alertText('loginError', 'That two-factor code is not valid. Try the current code, or one of your backup codes.');
+            } else {
+              alertText('loginError', err.message || 'Could not sign in.');
+            }
+          })
           .then(function () { if (btn) btn.disabled = false; });
+      });
+    }
+
+    /* ---- one-click sign-in ---- */
+    var oauthButtons = $('oauthButtons');
+    if (oauthButtons) {
+      oauthButtons.addEventListener('click', function (event) {
+        var target = event.target.closest('[data-provider]');
+        if (!target || !C) return;
+        target.disabled = true;
+        C.oauthStart(target.getAttribute('data-provider')).catch(function (err) {
+          target.disabled = false;
+          if (oauthButtons.parentNode) {
+            var note = $('oauthNote');
+            if (note) note.textContent = err.message || 'That provider is not configured.';
+          }
+        });
+      });
+    }
+
+    /* ---- forgot password ---- */
+    var forgotForm = $('forgotForm');
+    if (forgotForm) {
+      forgotForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        alertText('forgotError', null);
+        alertText('forgotMessage', null);
+        if (!C || !C.available) { alertText('forgotError', 'No TaxMitra server is answering.'); return; }
+        var btn = $('forgotBtn');
+        if (btn) btn.disabled = true;
+        C.forgotPassword(($('forgotEmail') || {}).value)
+          .then(function (data) { alertText('forgotMessage', data.message || 'Check your email.'); })
+          .catch(function (err) { alertText('forgotError', err.message || 'Could not send the reset link.'); })
+          .then(function () { if (btn) btn.disabled = false; });
+      });
+    }
+
+    /* ---- reset from the emailed link ---- */
+    var resetForm = $('resetForm');
+    if (resetForm) {
+      resetForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        alertText('resetError', null);
+        alertText('resetOk', null);
+        var first = ($('resetPassword') || {}).value || '';
+        var second = ($('resetPassword2') || {}).value || '';
+        if (first !== second) { alertText('resetError', 'The two passwords do not match.'); return; }
+        var token = resetToken();
+        if (!token) { alertText('resetError', 'This reset link is missing its token. Request a new link.'); return; }
+        C.resetPassword(token, first)
+          .then(function (data) {
+            clearResetToken();
+            alertText('resetOk', data.message || 'Password changed.');
+            resetForm.reset();
+            setTimeout(function () { window.location.href = 'cloud.html'; }, 2200);
+          })
+          .catch(function (err) { alertText('resetError', err.message || 'Could not reset the password.'); });
+      });
+    }
+
+    /* ---- two-factor ---- */
+    var totpStart = $('totpStartBtn');
+    if (totpStart) {
+      totpStart.addEventListener('click', function () {
+        alertText('totpError', null);
+        totpStart.disabled = true;
+        C.setupTwoFactor().then(function (data) {
+          var setup = $('twoFactorSetup');
+          if (setup) setup.hidden = false;
+          var secret = $('totpSecret');
+          if (secret) secret.textContent = (data.secret || '').replace(/(.{4})/g, '$1 ').trim();
+          var uri = $('totpUri');
+          if (uri) uri.textContent = data.otpauth || '';
+          var code = $('totpEnableCode');
+          if (code) code.focus();
+        }).catch(function (err) {
+          alertText('totpError', err.message || 'Could not start two-factor setup.');
+        }).then(function () { totpStart.disabled = false; });
+      });
+    }
+
+    var totpCancel = $('totpCancelBtn');
+    if (totpCancel) {
+      totpCancel.addEventListener('click', function () {
+        var setup = $('twoFactorSetup');
+        if (setup) setup.hidden = true;
+      });
+    }
+
+    var totpEnable = $('totpEnableBtn');
+    if (totpEnable) {
+      totpEnable.addEventListener('click', function () {
+        alertText('totpError', null);
+        totpEnable.disabled = true;
+        C.enableTwoFactor(($('totpEnableCode') || {}).value || '')
+          .then(function (data) {
+            alertText('totpBackupCodes', 'Two-factor is on. Backup codes (each works once): ' + data.backupCodes.join('  '));
+            var setup = $('twoFactorSetup');
+            if (setup) setup.hidden = true;
+            renderSecurity();
+            toast('Two-factor enabled. Save the backup codes.', 'ok');
+          })
+          .catch(function (err) { alertText('totpError', err.message || 'Could not enable two-factor.'); })
+          .then(function () { totpEnable.disabled = false; });
+      });
+    }
+
+    var totpDisable = $('totpDisableBtn');
+    if (totpDisable) {
+      totpDisable.addEventListener('click', function () {
+        alertText('totpDisableError', null);
+        totpDisable.disabled = true;
+        C.disableTwoFactor(($('totpDisablePassword') || {}).value || '', ($('totpDisableCode') || {}).value || '')
+          .then(function () {
+            toast('Two-factor is off.', 'info');
+            renderSecurity();
+          })
+          .catch(function (err) { alertText('totpDisableError', err.message || 'Could not disable two-factor.'); })
+          .then(function () { totpDisable.disabled = false; });
+      });
+    }
+
+    var resendVerify = $('resendVerifyBtn');
+    if (resendVerify) {
+      resendVerify.addEventListener('click', function () {
+        alertText('verifyMessage', null);
+        resendVerify.disabled = true;
+        C.resendVerification()
+          .then(function (data) { alertText('verifyMessage', data.message || (data.sent ? 'Email sent.' : 'Email is not configured on this server.')); })
+          .catch(function (err) { alertText('verifyMessage', err.message || 'Could not send the email.'); })
+          .then(function () { resendVerify.disabled = false; });
+      });
+    }
+
+    var sessionBody = $('sessionBody');
+    if (sessionBody) {
+      sessionBody.addEventListener('click', function (event) {
+        var btn = event.target.closest('[data-jti]');
+        if (!btn || !C) return;
+        btn.disabled = true;
+        C.revokeSession(btn.getAttribute('data-jti'))
+          .then(function () { renderSecurity(); })
+          .catch(function (err) { alertText('sessionError', err.message || 'Could not revoke that session.'); });
       });
     }
 
@@ -386,13 +699,14 @@
   function renderAll() {
     renderServer();
     renderViews();
+    renderOAuth();
     if (!C || !C.user) {
       var summary = $('cloudSummary');
       if (summary) summary.textContent = 'Sign in to see the cloud copy.';
     }
     renderAi();
     renderGovt();
-    if (C && C.user) renderCloudUsage();
+    if (C && C.user) { renderCloudUsage(); renderSecurity(); }
   }
 
   function boot() {
@@ -400,6 +714,7 @@
     wire();
     if (!C) return;
     C.boot();
+    consumeUrlState();
     // C.boot() probes asynchronously; re-render when the probe lands.
     var started = Date.now();
     var timer = setInterval(function () {

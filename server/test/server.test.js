@@ -64,6 +64,9 @@ before(async () => {
   process.env.JWT_SECRET = 'test-secret-that-is-long-enough-for-hs256-signing';
   process.env.DATA_DIR = tmpDir;
   process.env.SESSION_DAYS = '1';
+  process.env.REGISTER_PER_HOUR = '200';
+  process.env.EMAIL_DRIVER = 'console';
+  process.env.EMAIL_FROM = 'TaxMitra <test@taxmitra.local>';
   process.env.OPENAI_API_KEY = 'test-key';
   process.env.OPENAI_BASE_URL = 'http://127.0.0.1:' + mockPort + '/v1';
   process.env.OPENAI_MODEL = 'mock-model';
@@ -336,4 +339,213 @@ test('the IRP password encryption matches the documented NIC pattern', async () 
   const plain = Buffer.concat([decipher.update(Buffer.from(out, 'base64')), decipher.final()]).toString('utf8');
   assert.equal(plain, 'mypassword');
   assert.throws(() => govt.encryptPasswordForIrp('x', 'short'), /at least 32/);
+});
+
+/* ------------------------------------------------ account lifecycle */
+
+const emailLib = require('../lib/email');
+const otpLib = require('../lib/otp');
+
+function lastMailTo(address) {
+  const mail = emailLib.readOutbox().filter((m) => m.to === address).pop();
+  if (!mail) throw new Error('no mail was sent to ' + address);
+  return mail;
+}
+
+function tokenFromMail(mail) {
+  const match = /[?&#](?:token|reset)=([A-Za-z0-9_-]{20,})/.exec(mail.text);
+  if (!match) throw new Error('no token found in mail: ' + mail.text);
+  return match[1];
+}
+
+async function registerUser(email, password, name) {
+  const res = await api('/api/auth/register', { method: 'POST', body: { email, password, name } });
+  assert.equal(res.status, 201, JSON.stringify(res.body));
+  return res.body;
+}
+
+test('registration sends a single-use verification link that flips the flag once', async () => {
+  emailLib.clearOutbox();
+  const created = await registerUser('verify-me@example.com', 'verify-pass-1', 'Verify');
+  assert.equal(created.user.email_verified, false);
+  assert.equal(created.email.configured, true);
+  assert.equal(created.email.sent, true);
+
+  const mail = lastMailTo('verify-me@example.com');
+  assert.match(mail.subject, /confirm/i);
+  const token = tokenFromMail(mail);
+
+  const ok = await api('/api/auth/verify', { method: 'POST', body: { token } });
+  assert.equal(ok.status, 200);
+  assert.equal(ok.body.ok, true);
+
+  const me = await api('/api/auth/me', { token: created.token });
+  assert.equal(me.body.user.email_verified, true);
+
+  const reuse = await api('/api/auth/verify', { method: 'POST', body: { token } });
+  assert.equal(reuse.status, 400);
+  assert.equal(reuse.body.code, 'TOKEN_INVALID');
+});
+
+test('the verify link in an email answers with a redirect, not JSON', async () => {
+  emailLib.clearOutbox();
+  await registerUser('link-open@example.com', 'link-pass-1', 'Link');
+  const token = tokenFromMail(lastMailTo('link-open@example.com'));
+  const res = await fetch(baseUrl + '/api/auth/verify?token=' + encodeURIComponent(token), { redirect: 'manual' });
+  assert.equal(res.status, 302);
+  assert.match(res.headers.get('location'), /verify=ok/);
+
+  const bad = await fetch(baseUrl + '/api/auth/verify?token=nope', { redirect: 'manual' });
+  assert.equal(bad.status, 302);
+  assert.match(bad.headers.get('location'), /verify=invalid/);
+});
+
+test('resending a verification mail is rate limited and honest about delivery', async () => {
+  const created = await registerUser('resend@example.com', 'resend-pass-1', 'Resend');
+  const first = await api('/api/auth/verify/resend', { method: 'POST', token: created.token });
+  assert.equal(first.status, 200);
+  assert.equal(first.body.sent, true);
+  const second = await api('/api/auth/verify/resend', { method: 'POST', token: created.token });
+  assert.equal(second.status, 200);
+  const third = await api('/api/auth/verify/resend', { method: 'POST', token: created.token });
+  assert.equal(third.status, 200);
+  const fourth = await api('/api/auth/verify/resend', { method: 'POST', token: created.token });
+  assert.equal(fourth.status, 429);
+});
+
+test('forgot-password never reveals whether an account exists', async () => {
+  emailLib.clearOutbox();
+  const known = await api('/api/auth/forgot', { method: 'POST', body: { email: 'verify-me@example.com' } });
+  const unknown = await api('/api/auth/forgot', { method: 'POST', body: { email: 'nobody-here@example.com' } });
+  const malformed = await api('/api/auth/forgot', { method: 'POST', body: { email: 'not-an-email' } });
+  assert.equal(known.status, 200);
+  assert.equal(unknown.status, 200);
+  assert.equal(malformed.status, 200);
+  assert.equal(known.body.message, unknown.body.message);
+  assert.equal(emailLib.readOutbox().length, 1, 'only the real account gets mail');
+});
+
+test('a reset token changes the password once and kills every old session', async () => {
+  emailLib.clearOutbox();
+  const created = await registerUser('reset-me@example.com', 'old-password-1', 'Reset');
+  const oldSession = created.token;
+
+  await api('/api/auth/forgot', { method: 'POST', body: { email: 'reset-me@example.com' } });
+  const token = tokenFromMail(lastMailTo('reset-me@example.com'));
+
+  const weak = await api('/api/auth/reset', { method: 'POST', body: { token, password: 'short' } });
+  assert.equal(weak.status, 400);
+
+  const ok = await api('/api/auth/reset', { method: 'POST', body: { token, password: 'brand-new-pass-1' } });
+  assert.equal(ok.status, 200);
+
+  const replay = await api('/api/auth/reset', { method: 'POST', body: { token, password: 'another-pass-1' } });
+  assert.equal(replay.status, 400);
+
+  const oldLogin = await api('/api/auth/login', { method: 'POST', body: { email: 'reset-me@example.com', password: 'old-password-1' } });
+  assert.equal(oldLogin.status, 401);
+  const newLogin = await api('/api/auth/login', { method: 'POST', body: { email: 'reset-me@example.com', password: 'brand-new-pass-1' } });
+  assert.equal(newLogin.status, 200);
+
+  const deadSession = await api('/api/auth/me', { token: oldSession });
+  assert.equal(deadSession.status, 401);
+});
+
+test('two-factor: setup, wrong code, enable, backup codes, login and disable', async () => {
+  const created = await registerUser('twofa@example.com', 'twofa-password-1', 'TwoFA');
+  const sessionToken = created.token;
+
+  const setup = await api('/api/auth/2fa/setup', { method: 'POST', token: sessionToken });
+  assert.equal(setup.status, 200);
+  assert.match(setup.body.otpauth, /^otpauth:\/\/totp\//);
+  const secret = setup.body.secret;
+
+  const notYet = await api('/api/auth/login', { method: 'POST', body: { email: 'twofa@example.com', password: 'twofa-password-1' } });
+  assert.equal(notYet.status, 200, '2FA is not on until it is confirmed');
+
+  const wrong = await api('/api/auth/2fa/enable', { method: 'POST', token: sessionToken, body: { code: '000000' } });
+  assert.equal(wrong.status, 400);
+
+  const code = otpLib.totpAt(secret);
+  const enabled = await api('/api/auth/2fa/enable', { method: 'POST', token: sessionToken, body: { code } });
+  assert.equal(enabled.status, 200);
+  assert.equal(enabled.body.backupCodes.length, 10);
+
+  const noCode = await api('/api/auth/login', { method: 'POST', body: { email: 'twofa@example.com', password: 'twofa-password-1' } });
+  assert.equal(noCode.status, 401);
+  assert.equal(noCode.body.code, 'TOTP_REQUIRED');
+
+  const badCode = await api('/api/auth/login', { method: 'POST', body: { email: 'twofa@example.com', password: 'twofa-password-1', totp: '123456' } });
+  assert.equal(badCode.status, 401);
+  assert.equal(badCode.body.code, 'TOTP_INVALID');
+
+  const good = await api('/api/auth/login', { method: 'POST', body: { email: 'twofa@example.com', password: 'twofa-password-1', totp: otpLib.totpAt(secret) } });
+  assert.equal(good.status, 200);
+  assert.equal(good.body.user.two_factor, true);
+
+  const backupCode = enabled.body.backupCodes[0];
+  const viaBackup = await api('/api/auth/login', { method: 'POST', body: { email: 'twofa@example.com', password: 'twofa-password-1', backupCode } });
+  assert.equal(viaBackup.status, 200);
+
+  const backupReuse = await api('/api/auth/login', { method: 'POST', body: { email: 'twofa@example.com', password: 'twofa-password-1', backupCode } });
+  assert.equal(backupReuse.status, 401, 'a backup code works once');
+
+  const me = await api('/api/auth/me', { token: viaBackup.body.token });
+  assert.equal(me.body.security.twoFactor, true);
+  assert.equal(me.body.security.emailConfigured, true);
+
+  const disableWrongPassword = await api('/api/auth/2fa/disable', { method: 'POST', token: viaBackup.body.token, body: { password: 'nope', code: otpLib.totpAt(secret) } });
+  assert.equal(disableWrongPassword.status, 401);
+
+  const disabled = await api('/api/auth/2fa/disable', { method: 'POST', token: viaBackup.body.token, body: { password: 'twofa-password-1', code: otpLib.totpAt(secret) } });
+  assert.equal(disabled.status, 200);
+
+  const simpleLogin = await api('/api/auth/login', { method: 'POST', body: { email: 'twofa@example.com', password: 'twofa-password-1' } });
+  assert.equal(simpleLogin.status, 200);
+});
+
+test('sessions can be listed and individually revoked', async () => {
+  const created = await registerUser('sessions@example.com', 'sessions-pass-1', 'Sessions');
+  const second = await api('/api/auth/login', { method: 'POST', body: { email: 'sessions@example.com', password: 'sessions-pass-1' } });
+  assert.equal(second.status, 200);
+
+  const list = await api('/api/auth/sessions', { token: created.token });
+  assert.equal(list.status, 200);
+  assert.ok(list.body.sessions.length >= 2);
+  const current = list.body.sessions.find((s) => s.current);
+  assert.ok(current, 'the current session must be identifiable');
+
+  const other = list.body.sessions.find((s) => !s.current);
+  const revoked = await api('/api/auth/sessions/' + other.id, { method: 'DELETE', token: created.token });
+  assert.equal(revoked.status, 200);
+
+  const nowDead = await api('/api/auth/me', { token: second.body.token });
+  assert.equal(nowDead.status, 401);
+  const stillAlive = await api('/api/auth/me', { token: created.token });
+  assert.equal(stillAlive.status, 200);
+});
+
+test('OAuth is advertised honestly and refuses to start when unconfigured', async () => {
+  const providers = await api('/api/auth/oauth/providers');
+  assert.equal(providers.status, 200);
+  assert.deepEqual(providers.body.providers, []);
+
+  const start = await api('/api/auth/oauth/github/start');
+  assert.equal(start.status, 501);
+  assert.equal(start.body.code, 'OAUTH_NOT_CONFIGURED');
+
+  const callback = await fetch(baseUrl + '/api/auth/oauth/github/callback?code=x&state=bogus', { redirect: 'manual' });
+  assert.equal(callback.status, 302);
+  assert.match(callback.headers.get('location'), /oauth=state_invalid/);
+
+  const exchange = await api('/api/auth/oauth/exchange', { method: 'POST', body: { code: 'nope' } });
+  assert.equal(exchange.status, 400);
+  assert.equal(exchange.body.code, 'CODE_INVALID');
+});
+
+test('health advertises email, 2FA and OAuth readiness', async () => {
+  const r = await api('/api/health');
+  assert.equal(r.body.capabilities.email, true);
+  assert.equal(r.body.capabilities.twoFactor, true);
+  assert.ok(Array.isArray(r.body.capabilities.oauthProviders));
 });

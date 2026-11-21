@@ -232,8 +232,11 @@
       });
   }
 
-  function login(email, password) {
-    return request('/auth/login', { method: 'POST', body: { email: email, password: password } })
+  function login(email, password, secondFactor) {
+    var body = { email: email, password: password };
+    if (secondFactor && secondFactor.totp) body.totp = secondFactor.totp;
+    if (secondFactor && secondFactor.backupCode) body.backupCode = secondFactor.backupCode;
+    return request('/auth/login', { method: 'POST', body: body })
       .then(function (data) {
         setSession(data.token, data.user);
         return data.user;
@@ -257,6 +260,72 @@
       writeJSON(USER_KEY, data.user);
       return data;
     });
+  }
+
+  /* ---- email verification & password reset ---- */
+
+  function verifyEmail(token) {
+    return request('/auth/verify', { method: 'POST', body: { token: token } });
+  }
+
+  function resendVerification() {
+    return request('/auth/verify/resend', { method: 'POST' });
+  }
+
+  function forgotPassword(email) {
+    return request('/auth/forgot', { method: 'POST', body: { email: email } });
+  }
+
+  function resetPassword(token, password) {
+    return request('/auth/reset', { method: 'POST', body: { token: token, password: password } });
+  }
+
+  /* ---- second factor ---- */
+
+  function setupTwoFactor() {
+    return request('/auth/2fa/setup', { method: 'POST' });
+  }
+
+  function enableTwoFactor(code) {
+    return request('/auth/2fa/enable', { method: 'POST', body: { code: code } });
+  }
+
+  function disableTwoFactor(password, code) {
+    return request('/auth/2fa/disable', { method: 'POST', body: { password: password, code: code } });
+  }
+
+  /* ---- OAuth ---- */
+
+  function oauthProviders() {
+    return request('/auth/oauth/providers').catch(function (err) {
+      if (err.status === 404) return { providers: [] };
+      throw err;
+    });
+  }
+
+  function oauthStart(provider) {
+    return request('/auth/oauth/' + encodeURIComponent(provider) + '/start').then(function (data) {
+      if (data && data.url) window.location.href = data.url;
+      return data;
+    });
+  }
+
+  function oauthExchange(code) {
+    return request('/auth/oauth/exchange', { method: 'POST', body: { code: code } })
+      .then(function (data) {
+        setSession(data.token, data.user);
+        return data.user;
+      });
+  }
+
+  /* ---- sessions ---- */
+
+  function sessions() {
+    return request('/auth/sessions').then(function (data) { return data.sessions || []; });
+  }
+
+  function revokeSession(jti) {
+    return request('/auth/sessions/' + encodeURIComponent(jti), { method: 'DELETE' });
   }
 
   function changePassword(currentPassword, newPassword) {
@@ -570,6 +639,22 @@
     logout: logout,
     me: me,
     changePassword: changePassword,
+    // account lifecycle
+    verifyEmail: verifyEmail,
+    resendVerification: resendVerification,
+    forgotPassword: forgotPassword,
+    resetPassword: resetPassword,
+    // 2FA
+    setupTwoFactor: setupTwoFactor,
+    enableTwoFactor: enableTwoFactor,
+    disableTwoFactor: disableTwoFactor,
+    // OAuth
+    oauthProviders: oauthProviders,
+    oauthStart: oauthStart,
+    oauthExchange: oauthExchange,
+    // sessions
+    sessions: sessions,
+    revokeSession: revokeSession,
     restore: restore,
     // sync
     syncNow: syncNow,

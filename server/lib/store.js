@@ -77,7 +77,48 @@ function createSqliteStore(file) {
       meta TEXT NOT NULL DEFAULT '{}',
       at INTEGER NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS tokens (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      purpose TEXT NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      used_at INTEGER,
+      meta TEXT NOT NULL DEFAULT '{}'
+    );
+    CREATE INDEX IF NOT EXISTS tokens_user ON tokens(user_id, purpose);
+    CREATE TABLE IF NOT EXISTS identities (
+      provider TEXT NOT NULL,
+      subject TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      email TEXT NOT NULL DEFAULT '',
+      created_at INTEGER NOT NULL,
+      PRIMARY KEY (provider, subject)
+    );
+    CREATE TABLE IF NOT EXISTS oauth_states (
+      state TEXT PRIMARY KEY,
+      provider TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      used_at INTEGER
+    );
   `);
+
+  // Forward-only migrations for databases created by an earlier build.
+  (function migrate() {
+    const columns = db.prepare('PRAGMA table_info(users)').all().map((c) => c.name);
+    const wanted = [
+      ['email_verified', 'INTEGER NOT NULL DEFAULT 0'],
+      ['email_verified_at', 'INTEGER'],
+      ['totp_secret', 'TEXT'],
+      ['totp_enabled', 'INTEGER NOT NULL DEFAULT 0'],
+      ['backup_codes', 'TEXT'],
+    ];
+    for (const [name, type] of wanted) {
+      if (!columns.includes(name)) db.exec('ALTER TABLE users ADD COLUMN ' + name + ' ' + type);
+    }
+  })();
 
   const q = {
     insertUser: db.prepare('INSERT INTO users (id,email,name,password_hash,role,created_at) VALUES (?,?,?,?,?,?)'),
@@ -107,6 +148,22 @@ function createSqliteStore(file) {
     aiIp: db.prepare('SELECT count FROM ai_usage WHERE day = ? AND ip = ?'),
     audit: db.prepare('INSERT INTO audit (id,user_id,action,meta,at) VALUES (?,?,?,?,?)'),
     auditList: db.prepare('SELECT id,user_id,action,at FROM audit ORDER BY at DESC LIMIT ?'),
+    setVerified: db.prepare('UPDATE users SET email_verified = 1, email_verified_at = ? WHERE id = ?'),
+    setTotp: db.prepare('UPDATE users SET totp_secret = ?, totp_enabled = ?, backup_codes = ? WHERE id = ?'),
+    insertToken: db.prepare('INSERT INTO tokens (id,user_id,purpose,token_hash,created_at,expires_at,meta) VALUES (?,?,?,?,?,?,?)'),
+    findToken: db.prepare('SELECT * FROM tokens WHERE token_hash = ? AND purpose = ?'),
+    useToken: db.prepare('UPDATE tokens SET used_at = ? WHERE id = ?'),
+    deleteTokens: db.prepare('DELETE FROM tokens WHERE user_id = ? AND purpose = ?'),
+    purgeTokens: db.prepare('DELETE FROM tokens WHERE expires_at < ?'),
+    insertIdentity: db.prepare('INSERT OR REPLACE INTO identities (provider,subject,user_id,email,created_at) VALUES (?,?,?,?,?)'),
+    findIdentity: db.prepare('SELECT * FROM identities WHERE provider = ? AND subject = ?'),
+    identitiesFor: db.prepare('SELECT provider,subject,email,created_at FROM identities WHERE user_id = ?'),
+    insertState: db.prepare('INSERT INTO oauth_states (state,provider,created_at,expires_at) VALUES (?,?,?,?)'),
+    findState: db.prepare('SELECT * FROM oauth_states WHERE state = ?'),
+    useState: db.prepare('UPDATE oauth_states SET used_at = ? WHERE state = ?'),
+    purgeStates: db.prepare('DELETE FROM oauth_states WHERE expires_at < ?'),
+    listSessions: db.prepare('SELECT jti,created_at,expires_at,revoked,user_agent FROM sessions WHERE user_id = ? ORDER BY created_at DESC'),
+    revokeOne: db.prepare('UPDATE sessions SET revoked = 1 WHERE jti = ? AND user_id = ?'),
   };
 
   return {
@@ -177,6 +234,77 @@ function createSqliteStore(file) {
     recentAudit(limit) {
       return q.auditList.all(limit || 50);
     },
+    setEmailVerified(userId, at) {
+      q.setVerified.run(at || nowMs(), userId);
+    },
+    setTotp(userId, data) {
+      // An undefined secret means "keep the one on file"; an explicit null clears it.
+      const existing = q.byId.get(userId);
+      const secret = data.secret === undefined ? (existing ? existing.totp_secret : null) : data.secret;
+      const codes = data.backupCodes === undefined
+        ? (existing && existing.backup_codes ? existing.backup_codes : '[]')
+        : JSON.stringify(data.backupCodes);
+      q.setTotp.run(secret, data.enabled ? 1 : 0, codes, userId);
+    },
+    backupCodes(userId) {
+      const row = q.byId.get(userId);
+      if (!row || !row.backup_codes) return [];
+      try { return JSON.parse(row.backup_codes) || []; } catch (e) { return []; }
+    },
+    writeBackupCodes(userId, codes) {
+      q.setTotp.run(
+        arguments.length > 2 ? arguments[2] : null,
+        1,
+        JSON.stringify(codes || []),
+        userId
+      );
+    },
+    createToken(entry) {
+      q.insertToken.run(entry.id, entry.userId, entry.purpose, entry.tokenHash, entry.createdAt || nowMs(), entry.expiresAt, JSON.stringify(entry.meta || {}));
+      return q.findToken.get(entry.tokenHash, entry.purpose);
+    },
+    findToken(tokenHash, purpose) {
+      const row = q.findToken.get(tokenHash, purpose);
+      if (!row) return null;
+      let meta = {};
+      try { meta = JSON.parse(row.meta) || {}; } catch (e) { meta = {}; }
+      return Object.assign({}, row, { meta });
+    },
+    useToken(id) {
+      q.useToken.run(nowMs(), id);
+    },
+    deleteTokens(userId, purpose) {
+      q.deleteTokens.run(userId, purpose);
+    },
+    purgeExpiredTokens() {
+      const now = nowMs();
+      q.purgeTokens.run(now);
+      q.purgeStates.run(now);
+    },
+    linkIdentity(identity) {
+      q.insertIdentity.run(identity.provider, identity.subject, identity.userId, identity.email || '', nowMs());
+    },
+    findIdentity(provider, subject) {
+      return q.findIdentity.get(provider, subject) || null;
+    },
+    identitiesFor(userId) {
+      return q.identitiesFor.all(userId);
+    },
+    createOAuthState(entry) {
+      q.insertState.run(entry.state, entry.provider, entry.createdAt || nowMs(), entry.expiresAt);
+    },
+    findOAuthState(state) {
+      return q.findState.get(state) || null;
+    },
+    useOAuthState(state) {
+      q.useState.run(nowMs(), state);
+    },
+    listSessions(userId) {
+      return q.listSessions.all(userId);
+    },
+    revokeSessionForUser(jti, userId) {
+      q.revokeOne.run(jti, userId);
+    },
     close() {
       try { db.close(); } catch (e) { /* already closed */ }
     },
@@ -187,7 +315,7 @@ function createSqliteStore(file) {
 
 function createFileStore(file) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  const empty = { users: {}, sessions: {}, docs: {}, aiUsage: {}, audit: [] };
+  const empty = { users: {}, sessions: {}, docs: {}, aiUsage: {}, audit: [], tokens: {}, identities: {}, oauthStates: {} };
   let state;
   try {
     state = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -217,7 +345,16 @@ function createFileStore(file) {
   }
 
   function publicUser(u) {
-    return u ? { id: u.id, email: u.email, name: u.name, role: u.role, created_at: u.created_at, last_login: u.last_login } : null;
+    return u ? {
+      id: u.id,
+      email: u.email,
+      name: u.name,
+      role: u.role,
+      created_at: u.created_at,
+      last_login: u.last_login,
+      email_verified: Number(u.email_verified) === 1,
+      two_factor: Number(u.totp_enabled) === 1,
+    } : null;
   }
 
   return {
@@ -233,6 +370,11 @@ function createFileStore(file) {
         role: user.role || 'user',
         created_at: user.createdAt || nowMs(),
         last_login: null,
+        email_verified: user.emailVerified ? 1 : 0,
+        email_verified_at: null,
+        totp_secret: null,
+        totp_enabled: 0,
+        backup_codes: '[]',
       };
       save();
       return publicUser(state.users[user.id]);
@@ -330,6 +472,106 @@ function createFileStore(file) {
     recentAudit(limit) {
       return state.audit.slice(0, limit || 50);
     },
+    setEmailVerified(userId, at) {
+      if (state.users[userId]) { state.users[userId].email_verified = 1; state.users[userId].email_verified_at = at || nowMs(); save(); }
+    },
+    setTotp(userId, data) {
+      const user = state.users[userId];
+      if (!user) return;
+      if (data.secret !== undefined) user.totp_secret = data.secret;
+      user.totp_enabled = data.enabled ? 1 : 0;
+      if (data.backupCodes) user.backup_codes = JSON.stringify(data.backupCodes);
+      save();
+    },
+    backupCodes(userId) {
+      const user = state.users[userId];
+      if (!user || !user.backup_codes) return [];
+      try { return JSON.parse(user.backup_codes) || []; } catch (e) { return []; }
+    },
+    writeBackupCodes(userId, codes) {
+      const user = state.users[userId];
+      if (!user) return;
+      user.backup_codes = JSON.stringify(codes || []);
+      save();
+    },
+    createToken(entry) {
+      state.tokens[entry.tokenHash] = {
+        id: entry.id,
+        user_id: entry.userId,
+        purpose: entry.purpose,
+        token_hash: entry.tokenHash,
+        created_at: entry.createdAt || nowMs(),
+        expires_at: entry.expiresAt,
+        used_at: null,
+        meta: entry.meta || {},
+      };
+      save();
+      return state.tokens[entry.tokenHash];
+    },
+    findToken(tokenHash, purpose) {
+      const row = state.tokens[tokenHash];
+      if (!row || row.purpose !== purpose) return null;
+      return Object.assign({}, row);
+    },
+    useToken(id) {
+      Object.values(state.tokens).forEach((t) => { if (t.id === id) t.used_at = nowMs(); });
+      save();
+    },
+    deleteTokens(userId, purpose) {
+      Object.keys(state.tokens).forEach((key) => {
+        const t = state.tokens[key];
+        if (t.user_id === userId && t.purpose === purpose) delete state.tokens[key];
+      });
+      save();
+    },
+    purgeExpiredTokens() {
+      const now = nowMs();
+      Object.keys(state.tokens).forEach((k) => { if (state.tokens[k].expires_at < now) delete state.tokens[k]; });
+      Object.keys(state.oauthStates || {}).forEach((k) => { if (state.oauthStates[k].expires_at < now) delete state.oauthStates[k]; });
+      save();
+    },
+    linkIdentity(identity) {
+      state.identities[identity.provider + ':' + identity.subject] = {
+        provider: identity.provider,
+        subject: identity.subject,
+        user_id: identity.userId,
+        email: identity.email || '',
+        created_at: nowMs(),
+      };
+      save();
+    },
+    findIdentity(provider, subject) {
+      return state.identities[provider + ':' + subject] || null;
+    },
+    identitiesFor(userId) {
+      return Object.values(state.identities).filter((i) => i.user_id === userId);
+    },
+    createOAuthState(entry) {
+      state.oauthStates[entry.state] = {
+        state: entry.state,
+        provider: entry.provider,
+        created_at: entry.createdAt || nowMs(),
+        expires_at: entry.expiresAt,
+        used_at: null,
+      };
+      save();
+    },
+    findOAuthState(stateValue) {
+      return state.oauthStates[stateValue] || null;
+    },
+    useOAuthState(stateValue) {
+      if (state.oauthStates[stateValue]) { state.oauthStates[stateValue].used_at = nowMs(); save(); }
+    },
+    listSessions(userId) {
+      return Object.values(state.sessions)
+        .filter((s) => s.user_id === userId)
+        .map((s) => ({ jti: s.jti, created_at: s.created_at, expires_at: s.expires_at, revoked: s.revoked, user_agent: s.user_agent }))
+        .sort((a, b) => b.created_at - a.created_at);
+    },
+    revokeSessionForUser(jti, userId) {
+      const session = state.sessions[jti];
+      if (session && session.user_id === userId) { session.revoked = 1; save(); }
+    },
     close() {
       flush();
     },
@@ -344,4 +586,16 @@ function open(dataDir, opts) {
   return createFileStore(path.join(dataDir, 'taxmitra.json'));
 }
 
-module.exports = { open, publicUser: (u) => (u ? { id: u.id, email: u.email, name: u.name, role: u.role, created_at: u.created_at, last_login: u.last_login } : null) };
+module.exports = {
+  open,
+  publicUser: (u) => (u ? {
+    id: u.id,
+    email: u.email,
+    name: u.name,
+    role: u.role,
+    created_at: u.created_at,
+    last_login: u.last_login,
+    email_verified: Number(u.email_verified) === 1,
+    two_factor: Number(u.totp_enabled) === 1,
+  } : null),
+};

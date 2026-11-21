@@ -20,6 +20,10 @@ const storeLib = require('./lib/store');
 const auth = require('./lib/auth');
 const AI = require('./lib/ai');
 const govt = require('./lib/govt');
+const otp = require('./lib/otp');
+const emailLib = require('./lib/email');
+const oauthLib = require('./lib/oauth');
+const accountLib = require('./lib/account');
 const { HttpError, sendJson, sendNoContent, readJson, applyCors, createLimiter, clientIp } = require('./lib/http');
 
 const cfg = configLib.load(process.env);
@@ -107,6 +111,9 @@ route('GET', '/api/health', async (req, res) => {
       aiProviders: AI.providerStatus(cfg).map((p) => p.id),
       govt: govt.isConfigured(cfg),
       itrFiling: false,
+      email: emailLib.isConfigured(cfg),
+      oauthProviders: oauthLib.enabledProviders(cfg).map((p) => p.id),
+      twoFactor: true,
     },
     limits: {
       aiPerHourPerIp: cfg.ai.perHourPerIp,
@@ -121,7 +128,7 @@ route('GET', '/api/health', async (req, res) => {
 
 route('POST', '/api/auth/register', async (req, res) => {
   const ip = clientIp(req, cfg.trustProxy);
-  limitOrThrow('register:' + ip, 10, 60 * 60 * 1000);
+  limitOrThrow('register:' + ip, cfg.limits.registerPerHour, 60 * 60 * 1000);
   const body = await readJson(req, 64 * 1024);
   const checked = auth.validateRegistration(body);
   if (checked.error) throw new HttpError(400, 'INVALID_INPUT', checked.error);
@@ -142,16 +149,22 @@ route('POST', '/api/auth/register', async (req, res) => {
   const issued = auth.issueToken(user, cfg.jwtSecret, cfg.sessionDays, req.headers['user-agent'], store);
   store.touchLogin(user.id);
   store.audit(user.id, 'auth.register', { ip });
+  const verification = await account.sendVerificationMail(user, req);
   sendJson(res, 201, {
     token: issued.token,
     expiresAt: issued.expiresAt,
-    user: publicUser(user),
+    user: publicUser(store.findUserById(user.id)),
+    email: {
+      configured: emailLib.isConfigured(cfg),
+      sent: verification.sent,
+      reason: verification.reason || null,
+    },
   });
 });
 
 route('POST', '/api/auth/login', async (req, res) => {
   const ip = clientIp(req, cfg.trustProxy);
-  limitOrThrow('login:' + ip, 20, 15 * 60 * 1000, 'LOGIN_RATE_LIMITED');
+  limitOrThrow('login:' + ip, cfg.limits.loginPer15Min, 15 * 60 * 1000, 'LOGIN_RATE_LIMITED');
   const body = await readJson(req, 64 * 1024);
   const email = String(body.email || '').trim().toLowerCase();
   const password = String(body.password || '');
@@ -166,13 +179,24 @@ route('POST', '/api/auth/login', async (req, res) => {
     throw new HttpError(401, 'INVALID_CREDENTIALS', 'Email or password is incorrect.');
   }
 
+  if (Number(user.totp_enabled) === 1) {
+    limitOrThrow('2fa-login:' + user.id, 10, 15 * 60 * 1000, 'TOTP_RATE_LIMITED');
+    if (!body.totp && !body.backupCode) {
+      throw new HttpError(401, 'TOTP_REQUIRED', 'This account has two-factor enabled. Send the 6-digit code in "totp" (or a "backupCode").');
+    }
+    if (!account.checkSecondFactor(user, body)) {
+      store.audit(user.id, 'auth.2fa_failed', { ip });
+      throw new HttpError(401, 'TOTP_INVALID', 'That code is not valid. Try the current code from your authenticator app.');
+    }
+  }
+
   const issued = auth.issueToken(user, cfg.jwtSecret, cfg.sessionDays, req.headers['user-agent'], store);
   store.touchLogin(user.id);
   store.audit(user.id, 'auth.login', { ip });
   sendJson(res, 200, {
     token: issued.token,
     expiresAt: issued.expiresAt,
-    user: publicUser(user),
+    user: publicUser(store.findUserById(user.id)),
   });
 });
 
@@ -187,9 +211,16 @@ route('GET', '/api/auth/me', async (req, res) => {
   const session = requireAuth(req);
   const docs = store.listDocs(session.user.id);
   sendJson(res, 200, {
-    user: publicUser(session.user),
+    user: publicUser(store.findUserById(session.user.id)),
     session: { expiresAt: session.payload.exp * 1000 },
-    storage: { documents: docs.length, bytes: store.userBytes(session.user.id) },
+    storage: { documents: docs.length, bytes: store.userBytes(session.user.id), quota: cfg.maxUserBytes },
+    identities: store.identitiesFor(session.user.id).map((i) => ({ provider: i.provider, email: i.email })),
+    security: {
+      emailVerified: Number(session.user.email_verified) === 1,
+      twoFactor: Number(session.user.totp_enabled) === 1,
+      emailConfigured: emailLib.isConfigured(cfg),
+      oauthProviders: oauthLib.enabledProviders(cfg).map((p) => p.id),
+    },
   });
 });
 
@@ -401,6 +432,29 @@ route('GET', '/api/admin/audit', async (req, res) => {
   sendJson(res, 200, { events: store.recentAudit(100) });
 });
 
+/* ---- account lifecycle: verification, reset, 2FA, OAuth, sessions ---- */
+
+const account = accountLib.install(route, {
+  cfg,
+  store,
+  auth,
+  otp,
+  emailLib,
+  oauthLib,
+  HttpError,
+  sendJson,
+  readJson,
+  limitOrThrow,
+  publicUser,
+  clientIp,
+  requireAuth,
+});
+
+// Housekeeping: expired tokens and OAuth states are useless, so drop them hourly.
+setInterval(() => {
+  try { store.purgeExpiredTokens(); } catch (e) { /* housekeeping must never crash the server */ }
+}, 60 * 60 * 1000).unref();
+
 /* ------------------------------------------------------------- static */
 
 const MIME = {
@@ -502,14 +556,14 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (pathname.startsWith('/api/')) {
-      limitOrThrow('api:' + clientIp(req, cfg.trustProxy), 600, 60 * 1000);
+      limitOrThrow('api:' + clientIp(req, cfg.trustProxy), cfg.limits.apiPerMinute, 60 * 1000);
       for (const r of routes) {
         if (r.method !== req.method) continue;
         const match = r.regex.exec(pathname);
         if (!match) continue;
         const params = {};
         r.keys.forEach((k, i) => { params[k] = decodeURIComponent(match[i + 1]); });
-        await r.handler(req, res, params);
+        await r.handler(req, res, params, url);
         return;
       }
       throw new HttpError(404, 'NO_ROUTE', 'No such API endpoint.');

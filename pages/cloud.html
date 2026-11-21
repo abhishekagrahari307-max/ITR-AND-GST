@@ -126,6 +126,11 @@
               <label for="loginPassword">Password</label>
               <input type="password" id="loginPassword" name="password" autocomplete="current-password" required/>
             </div>
+            <div class="form-group" id="loginTotpWrap" hidden>
+              <label for="loginTotp">Two-factor code</label>
+              <input type="text" id="loginTotp" name="totp" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="123456"/>
+              <span class="hint">6-digit code from your authenticator app, or one of your backup codes.</span>
+            </div>
             <div class="btn-row">
               <button class="btn-primary-solid" id="loginBtn" type="submit">Sign in</button>
             </div>
@@ -133,6 +138,54 @@
           </form>
         </section>
       </div>
+    </div>
+
+    <!-- ───────────── one-click sign-in, forgot, reset ───────────── -->
+    <div id="resetPanel" class="cloud-card" hidden>
+      <h2>Set a new password</h2>
+      <p class="lead">This link works once and expires. Choosing a new password signs out every other session on this account.</p>
+      <form id="resetForm" novalidate>
+        <div class="form-group">
+          <label for="resetPassword">New password</label>
+          <input type="password" id="resetPassword" name="newPassword" autocomplete="new-password" minlength="8" required/>
+          <span class="hint">At least 8 characters.</span>
+        </div>
+        <div class="form-group">
+          <label for="resetPassword2">Repeat the new password</label>
+          <input type="password" id="resetPassword2" name="repeatPassword" autocomplete="new-password" minlength="8" required/>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary-solid" id="resetBtn" type="submit">Save new password</button>
+          <a class="btn-nav-login" href="cloud.html">Cancel</a>
+        </div>
+        <p class="alert bad" id="resetError" style="display:none;margin-top:0.85rem"></p>
+        <p class="alert ok" id="resetOk" style="display:none;margin-top:0.85rem"></p>
+      </form>
+    </div>
+
+    <div id="oauthCard" class="cloud-card">
+      <h2>Sign in with one click</h2>
+      <p class="lead">Google or GitHub sign-in uses OAuth on this server: the provider verifies your email, the server never sees your password, and no access token is exposed to this page.</p>
+      <div class="btn-row" id="oauthButtons">
+        <span class="muted-note">Checking which providers this server has…</span>
+      </div>
+      <p class="muted-note" id="oauthNote" style="margin-top:0.6rem"></p>
+    </div>
+
+    <div id="forgotCard" class="cloud-card">
+      <h2>Forgot your password?</h2>
+      <p class="lead">A reset link is emailed if — and only if — an account exists. The answer is the same either way, so this page never reveals who has an account here.</p>
+      <form id="forgotForm" novalidate>
+        <div class="form-group">
+          <label for="forgotEmail">Email on the account</label>
+          <input type="email" id="forgotEmail" name="email" autocomplete="email" required/>
+        </div>
+        <div class="btn-row">
+          <button class="btn-secondary-solid" id="forgotBtn" type="submit">Email me a reset link</button>
+        </div>
+        <p class="alert info" id="forgotMessage" style="display:none;margin-top:0.85rem"></p>
+        <p class="alert bad" id="forgotError" style="display:none;margin-top:0.85rem"></p>
+      </form>
     </div>
 
     <!-- ───────────── signed in ───────────── -->
@@ -180,7 +233,79 @@
       </section>
 
       <section class="cloud-card">
-        <h2>4 · Change password</h2>
+        <h2>4 · Account security</h2>
+        <p class="lead">Email confirmation, two-factor authentication and the list of devices signed in to this account.</p>
+
+        <table class="kv">
+          <tbody>
+            <tr><th>Email status</th><td id="emailStatus">—</td></tr>
+            <tr><th>Two-factor</th><td id="twoFactorStatus">—</td></tr>
+            <tr><th>Sign-in methods</th><td id="identityStatus">password</td></tr>
+          </tbody>
+        </table>
+
+        <div id="verifyActions" class="btn-row" hidden>
+          <button class="btn-secondary-solid" id="resendVerifyBtn" type="button">Resend confirmation email</button>
+        </div>
+        <p class="alert info" id="verifyMessage" style="display:none;margin-top:0.85rem"></p>
+
+        <div id="twoFactorSetup" hidden style="margin-top:1.1rem">
+          <p class="alert warn">
+            <strong>Save these now.</strong> Add the key below to Google Authenticator, Authy or 1Password, then enter the 6-digit code to turn two-factor on.
+          </p>
+          <table class="kv">
+            <tbody>
+              <tr><th>Manual key</th><td><code id="totpSecret">—</code></td></tr>
+              <tr><th>otpauth link</th><td><code id="totpUri" style="font-size:0.7rem">—</code></td></tr>
+            </tbody>
+          </table>
+          <div class="cloud-grid" style="margin-top:0.85rem">
+            <div class="form-group">
+              <label for="totpEnableCode">6-digit code from the app</label>
+              <input type="text" id="totpEnableCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"/>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn-primary-solid" id="totpEnableBtn" type="button">Turn on two-factor</button>
+            <button class="btn-secondary-solid" id="totpCancelBtn" type="button">Cancel</button>
+          </div>
+          <p class="alert ok" id="totpBackupCodes" style="display:none;margin-top:0.85rem"></p>
+          <p class="alert bad" id="totpError" style="display:none;margin-top:0.85rem"></p>
+        </div>
+
+        <div id="twoFactorOff" class="btn-row" style="margin-top:0.85rem">
+          <button class="btn-secondary-solid" id="totpStartBtn" type="button">Set up two-factor</button>
+        </div>
+
+        <div id="twoFactorDisable" hidden style="margin-top:1.1rem">
+          <div class="cloud-grid">
+            <div class="form-group">
+              <label for="totpDisablePassword">Password</label>
+              <input type="password" id="totpDisablePassword" autocomplete="current-password"/>
+            </div>
+            <div class="form-group">
+              <label for="totpDisableCode">Current 6-digit code (or a backup code)</label>
+              <input type="text" id="totpDisableCode" inputmode="numeric" autocomplete="one-time-code"/>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn-secondary-solid" id="totpDisableBtn" type="button">Turn off two-factor</button>
+          </div>
+          <p class="alert bad" id="totpDisableError" style="display:none;margin-top:0.85rem"></p>
+        </div>
+
+        <h3 style="font-size:0.9rem;margin:1.4rem 0 0.5rem">Devices signed in</h3>
+        <div class="table-wrap">
+          <table class="tm-table">
+            <thead><tr><th scope="col">Signed in</th><th scope="col">Expires</th><th scope="col">Device</th><th scope="col">Action</th></tr></thead>
+            <tbody id="sessionBody"><tr><td colspan="4" class="muted-note">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <p class="alert bad" id="sessionError" style="display:none;margin-top:0.85rem"></p>
+      </section>
+
+      <section class="cloud-card">
+        <h2>5 · Change password</h2>
         <p class="lead">Changing the password signs out every other session. You will need to sign in again here.</p>
         <form id="pwForm" novalidate>
           <div class="cloud-grid">
@@ -204,14 +329,14 @@
 
     <!-- ───────────── AI + government ───────────── -->
     <section class="cloud-card">
-      <h2>5 · AI on this server</h2>
+      <h2>6 · AI on this server</h2>
       <p class="lead">When the server holds a provider key, every visitor gets real AI answers without pasting anything. When it does not, the site stays on its offline rule engine and says so — it does not pretend.</p>
       <div class="status-line"><span class="dot wait" id="aiDot"></span><span id="aiStatus">Checking…</span></div>
       <p class="muted-note" id="aiDetail" style="margin-top:0.5rem"></p>
     </section>
 
     <section class="cloud-card">
-      <h2>6 · Government integrations</h2>
+      <h2>7 · Government integrations</h2>
       <p class="lead">These are the adapters built into the server. Availability is real: a service is only "available" when credentials exist on the server.</p>
       <div class="table-wrap">
         <table class="tm-table">

@@ -1,6 +1,6 @@
 {
   "name": "taxmitra",
-  "version": "11.0.0",
+  "version": "11.1.0",
   "private": true,
   "description": "TaxMitra - GST billing, income-tax and ITR preparation tools, local-first in the browser, with a real Node server for accounts, sync and AI.",
   "license": "SEE LICENSE IN README.md",
@@ -14,8 +14,8 @@
     "test:handlers": "node tests/run.js handlers",
     "start": "node server/index.js",
     "serve:python": "python3 -m http.server 8080",
-    "test:server": "node --test server/test/server.test.js",
-    "test:all": "node tests/run.js && node --test server/test/server.test.js"
+    "test:server": "node --test server/test/otp.test.js server/test/server.test.js",
+    "test:all": "node tests/run.js && node --test server/test/otp.test.js server/test/server.test.js"
   },
   "engines": {
     "node": ">=18"
