@@ -50,8 +50,9 @@
     .tm-toast.warn { border-left: 3px solid var(--warning); } .tm-toast.info { border-left: 3px solid var(--info); }
     @media (max-width: 640px) { .cloud-card { padding: 1rem; } .btn-row > button, .btn-row > a { width: 100%; text-align: center; } .btn-row { flex-direction: column; align-items: stretch; } .btn-row .spacer { display: none; } input[type="email"], input[type="password"], input[type="text"] { font-size: 16px; } }
   </style>
+<link rel="stylesheet" href="../css/ui.css"/>
 </head>
-<body>
+<body class="tm-ui">
   <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
     <div class="nav-container">
       <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
@@ -425,5 +426,6 @@
   <script src="../js/tm-store.js"></script>
   <script src="../js/cloud.js"></script>
   <script src="../js/cloud-app.js"></script>
+<script src="../js/ui.js" defer></script>
 </body>
 </html>

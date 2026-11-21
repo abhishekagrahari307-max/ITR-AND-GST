@@ -167,6 +167,14 @@ JWT_SECRET=$(openssl rand -hex 32) npm start   # → http://localhost:3000
 | ITR filing | always `501 ITD_FILING_API_UNAVAILABLE` — there is no open filing API, and nothing is simulated |
 
 Open **`pages/cloud.html`** for the account, sync, AI-status and integration-readiness screen.
+
+### Interface
+
+Every page loads `css/taxmitra.css` → `css/responsive.css` → **`css/ui.css`**, and `js/ui.js` at the
+end of the body. `ui.css` is a refinement layer: one fluid type scale, two elevation levels, real
+focus rings, a mobile drawer, and a reveal-on-scroll system that only switches on after the script
+adds `html.tm-motion` and that `prefers-reduced-motion` turns off completely. It styles
+`<body class="tm-ui">` — the dark tools directory and the classic print form keep their own themes.
 Full setup, free-hosting trade-offs, security notes and limitations: [`SERVER.md`](SERVER.md).
 The NestJS `backend/` folder remains archived material.
 

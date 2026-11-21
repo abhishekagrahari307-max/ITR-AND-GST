@@ -37,8 +37,9 @@
 .result-big .amount{font-size:2.2rem;font-weight:900;color:var(--danger)}
 .result-big .label{font-size:.78rem;color:var(--text-muted);margin-top:.25rem}
 </style>
+<link rel="stylesheet" href="../css/ui.css"/>
 </head>
-<body>
+<body class="tm-ui">
 <nav class="navbar-main" id="mainNav">
   <div class="nav-container">
     <a href="../index.html" class="nav-logo">
@@ -392,5 +393,6 @@ function fmtN(n) { return Math.round(n).toLocaleString('en-IN'); }
 window.addEventListener('DOMContentLoaded', calcAdditionalTax);
 </script>
   <script src="../js/cloud.js"></script>
+<script src="../js/ui.js" defer></script>
 </body>
 </html>
