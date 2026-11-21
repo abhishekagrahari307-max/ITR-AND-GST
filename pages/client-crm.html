@@ -117,5 +117,6 @@ function genInv(){if(!window.jspdf){showToast('PDF loading...','error');return;}
 function calcStats(){document.getElementById('stCl').textContent=cls.length;document.getElementById('stDn').textContent=tsks.filter(t=>t.status==='done').length;document.getElementById('stPn').textContent=tsks.filter(t=>t.status!=='done').length;document.getElementById('stRev').textContent=fmt(bils.reduce((s,b)=>s+b.fee,0));}
 document.addEventListener('DOMContentLoaded',()=>{renderCl();renderTasks();calcStats();calcBil();});
 </script>
+  <script src="../js/cloud.js"></script>
 </body>
 </html>

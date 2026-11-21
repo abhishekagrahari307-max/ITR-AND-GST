@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TaxMitra Cloud – real accounts, sync and AI status</title>
+  <meta name="description" content="Create a TaxMitra Cloud account, sync your billing and ITR drafts across devices, and see exactly which AI and government integrations this deployment has configured."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .cloud-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.35rem; margin-bottom: 1.25rem; }
+    .cloud-card h2 { font-size: 1.05rem; font-weight: 800; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .cloud-card > p.lead { font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 1rem; }
+    .alert { padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.84rem; margin-bottom: 1rem; border: 1px solid; }
+    .alert.warn { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); color: #92400e; }
+    .alert.bad { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); color: #991b1b; }
+    .alert.info { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.35); color: #155e75; }
+    .alert.ok { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.35); color: #065f46; }
+    .cloud-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+    .cloud-grid .cloud-card { margin-bottom: 0; }
+    .form-group { margin-bottom: 0.85rem; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .form-group input { width: 100%; padding: 0.65rem 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); color: var(--text-primary); font-family: inherit; font-size: 0.9rem; }
+    .form-group input:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+    .form-group .hint { display: block; font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-top: 0.5rem; }
+    .btn-row .spacer { flex: 1; }
+    .status-line { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 700; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--text-muted); display: inline-block; }
+    .dot.on { background: var(--success); } .dot.off { background: var(--danger); } .dot.wait { background: var(--warning); }
+    .kv { width: 100%; border-collapse: collapse; }
+    .kv th, .kv td { padding: 0.5rem 0.25rem; border-bottom: 1px solid var(--border); font-size: 0.82rem; text-align: left; vertical-align: top; }
+    .kv th { color: var(--text-muted); font-weight: 600; width: 45%; }
+    .kv td { color: var(--text-primary); word-break: break-word; }
+    .muted-note { font-size: 0.78rem; color: var(--text-muted); }
+    code { background: var(--bg-secondary); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.78rem; word-break: break-all; }
+    .tm-table { width: 100%; border-collapse: collapse; }
+    .tm-table th, .tm-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); font-size: 0.8rem; text-align: left; vertical-align: top; }
+    .tm-table th { background: var(--bg-secondary); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .table-wrap { overflow-x: auto; }
+    .pill { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 99px; font-size: 0.7rem; font-weight: 800; }
+    .pill.yes { background: rgba(16,185,129,0.12); color: #065f46; }
+    .pill.no { background: rgba(239,68,68,0.1); color: #991b1b; }
+    .pill.partial { background: rgba(245,158,11,0.14); color: #92400e; }
+    .toast-host { position: fixed; right: 1rem; bottom: 1rem; z-index: 999; display: flex; flex-direction: column; gap: 0.5rem; }
+    .tm-toast { background: var(--bg-dark); color: #fff; padding: 0.65rem 1rem; border-radius: var(--radius-sm); font-size: 0.82rem; max-width: 340px; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; }
+    .tm-toast.show { opacity: 1; transform: translateY(0); }
+    .tm-toast.ok { border-left: 3px solid var(--success); } .tm-toast.bad { border-left: 3px solid var(--danger); }
+    .tm-toast.warn { border-left: 3px solid var(--warning); } .tm-toast.info { border-left: 3px solid var(--info); }
+    @media (max-width: 640px) { .cloud-card { padding: 1rem; } .btn-row > button, .btn-row > a { width: 100%; text-align: center; } .btn-row { flex-direction: column; align-items: stretch; } .btn-row .spacer { display: none; } input[type="email"], input[type="password"], input[type="text"] { font-size: 16px; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">AI Enterprise</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle" type="button">🌙</button>
+        <a href="account.html" class="btn-nav-login">GitHub sign-in</a>
+        <a href="../index.html" class="btn-nav-ai"><i class="fa fa-home"></i> Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Cloud account</span></div>
+      <h1>☁️ TaxMitra Cloud</h1>
+      <p>A real account on your own TaxMitra server: your billing books and ITR drafts follow you to another device. Nothing here is simulated — if the server is not reachable, this page says so and your data stays local.</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding-bottom:3rem">
+    <div class="toast-host" id="toastHost" aria-live="polite"></div>
+
+    <!-- ───────────── connection ───────────── -->
+    <section class="cloud-card">
+      <h2>1 · Server connection</h2>
+      <p class="lead">This page talks to the TaxMitra server at <code id="apiBase">/api</code>. The published GitHub Pages build is static — it has no server, so accounts and sync are unavailable there until you deploy one (free options are in the setup guide).</p>
+      <div class="status-line"><span class="dot wait" id="serverDot"></span><span id="serverStatus">Checking the server…</span></div>
+      <p class="muted-note" id="serverDetail" style="margin-top:0.5rem"></p>
+      <div class="btn-row">
+        <button class="btn-secondary-solid" id="recheckBtn" type="button">↻ Check again</button>
+        <a class="btn-nav-login" href="../BACKEND_SETUP.md" target="_blank" rel="noopener">Setup guide</a>
+      </div>
+    </section>
+
+    <!-- ───────────── signed out ───────────── -->
+    <div id="signedOutView" hidden>
+      <div class="cloud-grid">
+        <section class="cloud-card">
+          <h2>2 · Create an account</h2>
+          <p class="lead">Email and password are stored only on your TaxMitra server. Passwords are hashed with scrypt; there is no email verification and no password reset by email — keep the password safe.</p>
+          <form id="registerForm" novalidate>
+            <div class="form-group">
+              <label for="regName">Your name</label>
+              <input type="text" id="regName" name="name" autocomplete="name" placeholder="Abhishek Agrahari" maxlength="80"/>
+            </div>
+            <div class="form-group">
+              <label for="regEmail">Email</label>
+              <input type="email" id="regEmail" name="email" autocomplete="email" placeholder="you@example.com" required/>
+            </div>
+            <div class="form-group">
+              <label for="regPassword">Password</label>
+              <input type="password" id="regPassword" name="password" autocomplete="new-password" minlength="8" required/>
+              <span class="hint">At least 8 characters. Used only for this server.</span>
+            </div>
+            <div class="btn-row">
+              <button class="btn-primary-solid" id="registerBtn" type="submit">Create account</button>
+            </div>
+            <p class="alert bad" id="regError" style="display:none;margin-top:0.85rem"></p>
+          </form>
+        </section>
+
+        <section class="cloud-card">
+          <h2>3 · Sign in</h2>
+          <p class="lead">Already have an account on this server? Sign in to pull your books onto this device.</p>
+          <form id="loginForm" novalidate>
+            <div class="form-group">
+              <label for="loginEmail">Email</label>
+              <input type="email" id="loginEmail" name="email" autocomplete="email" required/>
+            </div>
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" name="password" autocomplete="current-password" required/>
+            </div>
+            <div class="btn-row">
+              <button class="btn-primary-solid" id="loginBtn" type="submit">Sign in</button>
+            </div>
+            <p class="alert bad" id="loginError" style="display:none;margin-top:0.85rem"></p>
+          </form>
+        </section>
+      </div>
+    </div>
+
+    <!-- ───────────── signed in ───────────── -->
+    <div id="signedInView" hidden>
+      <section class="cloud-card">
+        <h2>2 · Your account</h2>
+        <table class="kv">
+          <tbody>
+            <tr><th>Email</th><td id="profileEmail">—</td></tr>
+            <tr><th>Role</th><td id="profileRole">—</td></tr>
+            <tr><th>Cloud storage</th><td id="profileUsage">—</td></tr>
+          </tbody>
+        </table>
+        <div class="btn-row">
+          <button class="btn-secondary-solid" id="signOutBtn" type="button">Sign out</button>
+        </div>
+      </section>
+
+      <section class="cloud-card">
+        <h2>3 · Sync</h2>
+        <p class="lead">Sync copies the <strong>tm*</strong> keys your tools write in this browser (invoices, customers, ITR drafts, ledgers) to your account. API keys you typed for AI are deliberately never uploaded.</p>
+        <table class="kv">
+          <tbody>
+            <tr><th>On this device</th><td id="localSummary">—</td></tr>
+            <tr><th>In your account</th><td id="cloudSummary">—</td></tr>
+            <tr><th>Last sync</th><td id="lastSync">Never on this device</td></tr>
+          </tbody>
+        </table>
+        <div id="decisionPanel" class="alert warn" style="display:none">
+          <strong>Both copies have data.</strong> <span id="decisionText"></span> Choose once, then sync becomes automatic.
+          <div class="btn-row">
+            <button class="btn-primary-solid" id="keepLocalBtn" type="button">Keep this device</button>
+            <button class="btn-secondary-solid" id="keepCloudBtn" type="button">Keep the cloud copy</button>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary-solid" id="syncNowBtn" type="button">⟳ Sync now</button>
+          <button class="btn-secondary-solid" id="pushLocalBtn" type="button">⬆ Push this device</button>
+          <button class="btn-secondary-solid" id="pullCloudBtn" type="button">⬇ Pull from cloud</button>
+          <span class="spacer"></span>
+          <span class="muted-note" id="syncState">Idle</span>
+        </div>
+        <p class="alert ok" id="syncResult" style="display:none;margin-top:0.85rem"></p>
+        <p class="alert bad" id="syncError" style="display:none;margin-top:0.85rem"></p>
+      </section>
+
+      <section class="cloud-card">
+        <h2>4 · Change password</h2>
+        <p class="lead">Changing the password signs out every other session. You will need to sign in again here.</p>
+        <form id="pwForm" novalidate>
+          <div class="cloud-grid">
+            <div class="form-group">
+              <label for="curPassword">Current password</label>
+              <input type="password" id="curPassword" name="currentPassword" autocomplete="current-password" required/>
+            </div>
+            <div class="form-group">
+              <label for="newPassword">New password</label>
+              <input type="password" id="newPassword" name="newPassword" autocomplete="new-password" minlength="8" required/>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn-secondary-solid" id="changePwBtn" type="submit">Change password</button>
+          </div>
+          <p class="alert ok" id="pwResult" style="display:none;margin-top:0.85rem"></p>
+          <p class="alert bad" id="pwError" style="display:none;margin-top:0.85rem"></p>
+        </form>
+      </section>
+    </div>
+
+    <!-- ───────────── AI + government ───────────── -->
+    <section class="cloud-card">
+      <h2>5 · AI on this server</h2>
+      <p class="lead">When the server holds a provider key, every visitor gets real AI answers without pasting anything. When it does not, the site stays on its offline rule engine and says so — it does not pretend.</p>
+      <div class="status-line"><span class="dot wait" id="aiDot"></span><span id="aiStatus">Checking…</span></div>
+      <p class="muted-note" id="aiDetail" style="margin-top:0.5rem"></p>
+    </section>
+
+    <section class="cloud-card">
+      <h2>6 · Government integrations</h2>
+      <p class="lead">These are the adapters built into the server. Availability is real: a service is only "available" when credentials exist on the server.</p>
+      <div class="table-wrap">
+        <table class="tm-table">
+          <thead><tr><th scope="col">Service</th><th scope="col">Available</th><th scope="col">What it needs / why not</th></tr></thead>
+          <tbody id="govtBody">
+            <tr><td colspan="3" class="muted-note">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="alert warn" style="margin-top:1rem">
+        <strong>Nothing on this page files anything.</strong> E-invoice IRN generation and GST return filing require IRP/GSP credentials issued to an
+        empanelled taxpayer or GSP. Income-tax return filing has no open public API at all. This platform produces working papers and refuses to
+        invent an IRN, an acknowledgement number or a "filed" status.
+      </p>
+    </section>
+
+    <p class="muted-note" style="margin:2rem 0 2.5rem">
+      TaxMitra is not affiliated with the Income Tax Department, GSTN or any GSP. Your account lives on the server you (or your host) run —
+      there is no TaxMitra central database.
+    </p>
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/tm-store.js"></script>
+  <script src="../js/cloud.js"></script>
+  <script src="../js/cloud-app.js"></script>
+</body>
+</html>

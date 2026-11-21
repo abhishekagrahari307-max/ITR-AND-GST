@@ -1,3 +1,12 @@
+<!-- Two backends live in this repository. -->
+> **Which backend?** There are two in this repository.
+>
+> * **`server/` — the one that ships.** A single dependency-free Node process that serves the site
+>   and provides real accounts, per-user cloud sync, a server-side AI proxy and the GSTN/GSP
+>   adapters. Start with [`SERVER.md`](SERVER.md); it is what the published pages talk to.
+> * **`backend/` — archived v10 NestJS/Prisma material.** Kept for reference; not required by the
+>   site and not what the frontend calls. Everything below describes that archive.
+
 # 🚀 TaxMitra AI Enterprise – Backend Setup Guide
 
 ## Architecture Overview

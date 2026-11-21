@@ -11,8 +11,12 @@ A **static, browser-only** Indian tax toolkit published on GitHub Pages:
 GST billing, an ITR preparation wizard, ITC reconciliation, Schedule FA, calculators,
 a curated open-source directory, and a GitHub-authenticated account layer.
 
-- No backend, no database, no server-side secrets. Everything a visitor enters is stored in
-  `localStorage` (namespaced per GitHub account when signed in) and never leaves the browser.
+- Every tool works with **no backend**: what a visitor enters is stored in `localStorage`
+  (namespaced per GitHub account when signed in). Nothing leaves the browser unless the visitor
+  signs in to a TaxMitra server and chooses to sync.
+- `server/` is an **optional real backend** (zero dependencies, Node 18+): accounts, per-user cloud
+  sync, a server-side AI proxy and GSTN/GSP adapters. Read [`SERVER.md`](SERVER.md). It is honest by
+  design — unconfigured integrations answer `501` with a code, never a fake success.
 - The `backend/`, `ai/`, `netlify/`, `cloudflare-worker.js` and `database/` directories are
   archived v10 material. **The published site does not use them.**
 
@@ -47,6 +51,11 @@ a curated open-source directory, and a GitHub-authenticated account layer.
 | `js/tm-store.js` | `TMStore` – namespaced localStorage wrapper (per GitHub account) |
 | `js/github-auth.js` | `TMGitHubAuth` – device flow + PAT, roles, sessions |
 | `js/session-boot.js` | `TMSession` – resolves the session and sets the store namespace |
+| `js/cloud.js` | `TMCloud` – server probe, account auth, sync engine, AI proxy, government calls |
+| `js/cloud-app.js` | Controller for `pages/cloud.html` |
+| `server/index.js` | HTTP server: static site + `/api/*` routes |
+| `server/lib/*.js` | config, store (SQLite/JSON), auth (scrypt + HS256), AI proxy, government adapters |
+| `server/test/server.test.js` | End-to-end server tests with a fake AI upstream |
 | `pages/*.html` | One page per tool; each page owns its controller (`js/<tool>-app.js` or `js/<tool>.js`) |
 | `tests/*.test.js` | Node unit suites (no dependencies) |
 | `tests/smoke.js` | jsdom run of the real pages (optional, needs `jsdom`) |
@@ -59,12 +68,15 @@ browser. Pages load `taxmitra.js` → the tool module → `github-auth.js` → `
 ## 4. Commands
 
 ```bash
-npm test                      # all unit suites (fast, zero dependencies)
+npm test                      # all site + client unit suites (fast, zero dependencies)
 npm test -- gst-recon         # one suite
+npm run test:server           # server tests (real HTTP, real store, fake AI upstream)
+npm run test:all              # both
 npm install --no-save jsdom   # needed for the two browser audits
 node tests/smoke.js           # drives the real pages
 node tests/pages-load.js      # every page must start clean
-npm run serve                 # http://localhost:8080
+npm start                     # the site + API on http://localhost:3000
+npm run serve:python          # static-only fallback on :8080
 ```
 
 `js/config-generated.js` is written by CI — never hand-edit it.
@@ -101,7 +113,18 @@ before.
 - [ ] `aria-live` on toast/status regions; errors are text, not colour alone.
 - [ ] Print styles still work on the wizard and the computation.
 
-### 5.4 Security reviewer
+### 5.4 Server reviewer (when touching `server/` or `js/cloud.js`)
+
+- [ ] A new endpoint validates its input and returns `{error, code}` with a real status code.
+- [ ] Auth is required for anything user-specific; admin routes check the role server-side.
+- [ ] Nothing returns a fabricated IRN, acknowledgement number, filing status or "submitted: true".
+      An unconfigured integration answers `501` with a code, and the UI says so.
+- [ ] No secret is read from the repository or sent to the browser; `.env` and `data/` stay ignored.
+- [ ] Sync never uploads `tm_keys`, OAuth tokens or the cloud token, and never overwrites a device
+      or an account without an explicit choice.
+- [ ] `npm run test:server` passes; new behaviour has a test that would fail without the change.
+
+### 5.5 Security reviewer
 
 - [ ] User input is escaped before `innerHTML` (`esc()` in every controller).
 - [ ] No token, key or personal figure is logged to the console.

@@ -119,5 +119,6 @@ function delEmp(i){emps.splice(i,1);localStorage.setItem('tm_emp',JSON.stringify
 function expEmpCSV(){const csv='Name,ID,Basic\n'+emps.map(e=>e.n+','+e.id+','+e.b).join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Employees.csv';a.click();}
 document.addEventListener('DOMContentLoaded',()=>{renderEmps();calcPay();});
 </script>
+  <script src="../js/cloud.js"></script>
 </body>
 </html>
