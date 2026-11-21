@@ -4,7 +4,7 @@
   window.TAXMITRA_BUILD = {
     hasGemini: false,
     hasOpenRouter: false,
-    sha: "9df8e28",
+    sha: "715a50a",
     branch: "main",
     developer: 'Abhishek Agrahari'
   };
