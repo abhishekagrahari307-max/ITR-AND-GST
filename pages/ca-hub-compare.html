@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Compare tools – CA Practice Hub India · TaxMitra</title>
+  <meta name="description" content="Feature-based comparison of curated Indian tax and compliance tools. No unsupported best-tool rankings."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .hub-nav { display:flex; gap:.4rem; flex-wrap:wrap; margin:1rem 0 0; }
+    .hub-nav a { border:1px solid var(--border); background:var(--bg-card); border-radius:var(--radius-full); padding:.4rem .85rem; font-size:.8rem; font-weight:600; color:var(--text-secondary); text-decoration:none; }
+    .hub-nav a.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+    .compare-controls { display:flex; gap:.65rem; align-items:center; flex-wrap:wrap; margin:1.5rem 0; }
+    .compare-controls select { min-width:min(360px,100%); padding:.6rem .75rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-card); color:var(--text-primary); font:inherit; }
+    .btn-mini { border:1px solid var(--border); background:var(--bg-card); border-radius:var(--radius-sm); padding:.4rem .8rem; font-family:inherit; font-size:.8rem; font-weight:600; color:var(--text-primary); cursor:pointer; text-decoration:none; display:inline-block; }
+    .compare-table { width:100%; border-collapse:collapse; background:var(--bg-card); }
+    .compare-table th,.compare-table td { border:1px solid var(--border); padding:.65rem .75rem; text-align:left; vertical-align:top; font-size:.82rem; min-width:150px; }
+    .compare-table thead th { background:var(--bg-secondary); font-size:.78rem; }
+    .compare-table tbody th { min-width:180px; background:var(--bg-secondary); }
+    .compare-note { font-size:.82rem; color:var(--text-secondary); background:var(--bg-card); border-left:4px solid var(--info); padding:.85rem 1rem; margin-top:1rem; }
+    .badge { display:inline-block; padding:.15rem .55rem; border-radius:var(--radius-full); font-size:.68rem; font-weight:700; margin:.3rem 0; }
+    .access-public-open { background:rgba(16,185,129,.15); color:#047857; }
+    .access-key-required { background:rgba(59,130,246,.15); color:#1d4ed8; }
+    .access-approval-consent { background:rgba(245,158,11,.18); color:#b45309; }
+    .access-partner-eri { background:rgba(220,38,38,.12); color:#b91c1c; }
+    .access-self-hosted { background:rgba(124,58,237,.14); color:#6d28d9; }
+    .access-paid-vendor { background:rgba(100,116,139,.18); color:#475569; }
+    .access-sandbox-only { background:rgba(245,158,11,.18); color:#b45309; }
+    .access-no-api { background:var(--bg-secondary); color:var(--text-muted); }
+    .empty-box { padding:2rem; text-align:center; color:var(--text-muted); border:1px dashed var(--border); border-radius:var(--radius); }
+    @media(max-width:700px){ .table-scroll{overflow-x:auto;} }
+    @media print { .navbar-main,.compare-controls,.hub-nav {display:none!important;} }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container"><a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">CA Hub</span></div></a><div style="flex:1"></div><div class="nav-right"><button class="nav-icon-btn" id="themeToggle" aria-label="Toggle theme">🌙</button><a href="ca-hub.html" class="btn-nav-login">Directory</a><a href="ca-workspace.html" class="btn-nav-ai">Practice Reminders</a></div></div>
+  </nav>
+  <div class="page-hero"><div class="container">
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="ca-hub.html">CA Hub</a><span>/</span><span>Compare</span></div>
+    <h1>Compare tools</h1><p>Review features and access requirements side by side. Comparisons do not rank tools as “best”.</p>
+    <nav class="hub-nav" aria-label="CA Hub sections"><a href="ca-hub.html">Directory</a><a href="ca-hub-compare.html" class="active">Compare tools</a><a href="ca-hub-guides.html">Guides</a><a href="ca-hub-updates.html">Updates &amp; due dates</a><a href="ca-workspace.html">Practice reminders</a></nav>
+  </div></div>
+  <main class="container">
+    <div class="compare-controls">
+      <label for="comparePicker"><strong>Add a tool:</strong></label><select id="comparePicker"><option value="">Loading tools…</option></select>
+      <button type="button" class="btn-mini" id="printCompare">Print comparison</button>
+      <button type="button" class="btn-mini" id="clearCompare">Clear all</button>
+      <span id="compareCount" class="sub"></span>
+    </div>
+    <div class="table-scroll" id="compareHost"></div>
+    <div class="empty-box" id="compareEmpty" hidden>No tools selected. Add tools here or choose “+ Compare” in the <a href="ca-hub.html">directory</a>.</div>
+    <p style="font-size:.78rem;color:var(--text-muted);margin:1.5rem 0">Information is curated and may change. Check each provider’s official docs and limitations. The directory is not an official government service or a filing portal.</p>
+  </main>
+  <script src="../js/taxmitra.js"></script><script src="../js/ca-hub.js"></script><script src="../js/ca-hub-compare.js"></script>
+</body>
+</html>
