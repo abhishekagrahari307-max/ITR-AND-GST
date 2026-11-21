@@ -33,8 +33,9 @@
     @media(max-width:700px){ .table-scroll{overflow-x:auto;} }
     @media print { .navbar-main,.compare-controls,.hub-nav {display:none!important;} }
   </style>
+<link rel="stylesheet" href="../css/ui.css"/>
 </head>
-<body>
+<body class="tm-ui">
   <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
     <div class="nav-container"><a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">CA Hub</span></div></a><div style="flex:1"></div><div class="nav-right"><button class="nav-icon-btn" id="themeToggle" aria-label="Toggle theme">🌙</button><a href="ca-hub.html" class="btn-nav-login">Directory</a><a href="ca-workspace.html" class="btn-nav-ai">Practice Reminders</a></div></div>
   </nav>
@@ -55,5 +56,6 @@
     <p style="font-size:.78rem;color:var(--text-muted);margin:1.5rem 0">Information is curated and may change. Check each provider’s official docs and limitations. The directory is not an official government service or a filing portal.</p>
   </main>
   <script src="../js/taxmitra.js"></script><script src="../js/ca-hub.js"></script><script src="../js/ca-hub-compare.js"></script>
+<script src="../js/ui.js" defer></script>
 </body>
 </html>

@@ -15,8 +15,9 @@
     .box p { font-size: 0.88rem; color: var(--text-secondary); }
     .box a.btn-primary-solid { display: inline-block; margin-top: 1.1rem; text-decoration: none; }
   </style>
+<link rel="stylesheet" href="css/ui.css"/>
 </head>
-<body>
+<body class="tm-ui">
   <div class="box">
     <h1>🔐 Sign-in has moved to GitHub</h1>
     <p>TaxMitra no longer uses an email-and-password form. Sign in with your GitHub account on the new Account page —
@@ -25,5 +26,6 @@
     <a class="btn-primary-solid" href="pages/account.html">Go to the Account page →</a>
   </div>
   <script>setTimeout(function () { location.replace('pages/account.html'); }, 2000);</script>
+<script src="js/ui.js" defer></script>
 </body>
 </html>

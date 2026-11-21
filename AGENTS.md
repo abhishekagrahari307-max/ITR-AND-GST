@@ -60,6 +60,8 @@ a curated open-source directory, and a GitHub-authenticated account layer.
 | `tests/*.test.js` | Node unit suites (no dependencies) |
 | `tests/smoke.js` | jsdom run of the real pages (optional, needs `jsdom`) |
 | `tests/pages-load.js` | Loads every page with its local scripts; fails on any startup error |
+| `css/ui.css` | Interface layer loaded last on every page: tokens, components, motion, responsive ladder. Only styles `<body class="tm-ui">`, so the two self-themed pages stay untouched |
+| `js/ui.js` | Progressive enhancement for that layer: reading progress, sticky header, reveal-on-scroll, table overflow wrappers, drawer scrim, KPI count-up. Fails silently, never hides content permanently |
 
 Modules follow the UMD pattern used across `js/`: `module.exports` in Node, `window.TM*` in the
 browser. Pages load `taxmitra.js` → the tool module → `github-auth.js` → `tm-store.js` →

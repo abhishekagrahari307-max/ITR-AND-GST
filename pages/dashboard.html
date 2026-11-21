@@ -48,8 +48,9 @@
     @media(max-width:1024px){ .stats-grid { grid-template-columns: repeat(2,1fr); } .dash-grid { grid-template-columns: 1fr; } }
     @media(max-width:768px){ .dashboard-layout { grid-template-columns: 1fr; } .dash-sidebar { display: none; } .stats-grid { grid-template-columns: 1fr 1fr; } }
   </style>
+<link rel="stylesheet" href="../css/ui.css"/>
 </head>
-<body>
+<body class="tm-ui">
   <nav class="navbar-main" id="mainNav">
   <div class="nav-container">
     <a href="../index.html" class="nav-logo">
@@ -345,5 +346,6 @@ function quickAction(action) {
 </script>
 
   <script src="../js/cloud.js"></script>
+<script src="../js/ui.js" defer></script>
 </body>
 </html>
