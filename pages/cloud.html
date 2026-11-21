@@ -92,7 +92,7 @@
       <div class="cloud-grid">
         <section class="cloud-card">
           <h2>2 · Create an account</h2>
-          <p class="lead">Email and password are stored only on your TaxMitra server. Passwords are hashed with scrypt; there is no email verification and no password reset by email — keep the password safe.</p>
+          <p class="lead">Email and password are stored only on your TaxMitra server, hashed with scrypt. Confirming the address unlocks password reset by email, two-factor, passkeys and recovery — all of it lives on your own server.</p>
           <form id="registerForm" novalidate>
             <div class="form-group">
               <label for="regName">Your name</label>
@@ -232,7 +232,7 @@
     <!-- ───────────── signed in ───────────── -->
     <div id="signedInView" hidden>
       <section class="cloud-card">
-        <h2>2 · Your account</h2>
+        <h2>Your account</h2>
         <table class="kv">
           <tbody>
             <tr><th>Email</th><td id="profileEmail">—</td></tr>
@@ -246,7 +246,7 @@
       </section>
 
       <section class="cloud-card">
-        <h2>3 · Sync</h2>
+        <h2>Sync</h2>
         <p class="lead">Sync copies the <strong>tm*</strong> keys your tools write in this browser (invoices, customers, ITR drafts, ledgers) to your account. API keys you typed for AI are deliberately never uploaded.</p>
         <table class="kv">
           <tbody>
