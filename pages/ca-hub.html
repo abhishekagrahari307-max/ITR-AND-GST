@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CA Practice Hub India – Tax & Compliance Directory · TaxMitra</title>
+  <meta name="description" content="Curated directory of Indian tax and compliance tools, government APIs, datasets and practice workflows — with honest access labels, source links and last-checked dates. A discovery hub, not a filing portal."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .hub-nav { display:flex; gap:.4rem; flex-wrap:wrap; margin:1rem 0 0; }
+    .hub-nav a { border:1px solid var(--border); background:var(--bg-card); border-radius:var(--radius-full); padding:.4rem .85rem; font-size:.8rem; font-weight:600; color:var(--text-secondary); text-decoration:none; }
+    .hub-nav a.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+    .tool-filters { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.15rem; margin:1.5rem 0; }
+    .tool-filters .row { display:grid; grid-template-columns:1fr 200px 200px 170px; gap:.75rem; }
+    .tool-filters input, .tool-filters select { width:100%; padding:.6rem .75rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:.85rem; background:var(--bg-card); color:var(--text-primary); }
+    .chips { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.85rem; }
+    .chips button { border:1px solid var(--border); background:var(--bg-card); border-radius:var(--radius-full); padding:.35rem .75rem; font-family:inherit; font-size:.78rem; font-weight:600; color:var(--text-secondary); cursor:pointer; }
+    .chips button.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+    .fav-toggle { display:flex; align-items:center; gap:.4rem; font-size:.82rem; color:var(--text-secondary); margin-top:.75rem; }
+    .hub-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:1.1rem; }
+    .hub-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.15rem; display:flex; flex-direction:column; gap:.55rem; }
+    .hub-card:hover { box-shadow:var(--shadow); }
+    .hub-card header { display:flex; justify-content:space-between; align-items:flex-start; gap:.5rem; }
+    .hub-card h3 { font-size:.95rem; font-weight:800; }
+    .hub-card h3 a { color:var(--text-primary); text-decoration:none; }
+    .hub-card h3 a:hover { color:var(--primary); }
+    .hub-card p { font-size:.82rem; color:var(--text-secondary); }
+    .hub-sub { font-size:.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; font-weight:700; }
+    .hub-badges { display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; }
+    .badge { display:inline-block; padding:.15rem .55rem; border-radius:var(--radius-full); font-size:.68rem; font-weight:700; }
+    .access-public-open { background:rgba(16,185,129,.15); color:#047857; }
+    .access-key-required { background:rgba(59,130,246,.15); color:#1d4ed8; }
+    .access-approval-consent { background:rgba(245,158,11,.18); color:#b45309; }
+    .access-partner-eri { background:rgba(220,38,38,.12); color:#b91c1c; }
+    .access-self-hosted { background:rgba(124,58,237,.14); color:#6d28d9; }
+    .access-paid-vendor { background:rgba(100,116,139,.18); color:#475569; }
+    .access-sandbox-only { background:rgba(245,158,11,.18); color:#b45309; }
+    .access-no-api { background:var(--bg-secondary); color:var(--text-muted); }
+    .ver-ok { background:rgba(16,185,129,.12); color:#047857; }
+    .ver-official { background:rgba(59,130,246,.12); color:#1d4ed8; }
+    .ver-check { background:rgba(245,158,11,.15); color:#b45309; }
+    .tag { border:1px solid var(--border); border-radius:var(--radius-full); padding:.12rem .5rem; color:var(--text-secondary); font-weight:600; font-size:.72rem; }
+    .tag.stars { border-color:rgba(245,158,11,.5); color:#b45309; background:rgba(245,158,11,.08); }
+    .hub-checked { font-size:.72rem; color:var(--text-muted); }
+    .hub-actions { display:flex; gap:.5rem; margin-top:auto; padding-top:.5rem; }
+    .btn-mini { border:1px solid var(--border); background:var(--bg-card); border-radius:var(--radius-sm); padding:.35rem .7rem; font-family:inherit; font-size:.78rem; font-weight:600; color:var(--text-primary); cursor:pointer; text-decoration:none; display:inline-block; }
+    .btn-mini:hover { border-color:var(--primary); }
+    .btn-mini.primary, .btn-mini.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+    .fav-btn { border:1px solid var(--border); background:var(--bg-card); border-radius:var(--radius-sm); width:34px; height:34px; font-size:1rem; cursor:pointer; color:var(--text-muted); }
+    .fav-btn.active { color:#f59e0b; border-color:#f59e0b; }
+    .hub-links { display:flex; gap:.8rem; flex-wrap:wrap; font-size:.78rem; border-top:1px solid var(--border); padding-top:.5rem; }
+    .hub-links a { color:var(--primary); font-weight:600; text-decoration:none; }
+    .result-count { font-size:.8rem; color:var(--text-muted); margin-bottom:.75rem; }
+    .empty-state { text-align:center; padding:3rem 1rem; color:var(--text-muted); font-size:.9rem; }
+    .method-note { font-size:.8rem; color:var(--text-secondary); background:var(--bg-card); border:1px solid var(--border); border-left:4px solid var(--info); border-radius:var(--radius-sm); padding:.9rem 1.1rem; margin-bottom:1.5rem; }
+    .hub-highlights { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.3rem 0; }
+    .highlight-panel { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem; min-width:0; }
+    .highlight-panel h2 { font-size:.93rem; font-weight:800; margin:0 0 .7rem; }
+    .highlight-panel h2 .sub { font-weight:500; float:right; }
+    .highlight-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.55rem; }
+    .highlight-item { border:1px solid var(--border); border-radius:var(--radius-sm); padding:.65rem; font-size:.8rem; }
+    .highlight-item a { font-weight:700; color:var(--text-primary); text-decoration:none; }
+    .highlight-item a:hover { color:var(--primary); }
+    .highlight-item p { font-size:.73rem; color:var(--text-muted); margin-top:.25rem; }
+    .reminder-item { display:flex; justify-content:space-between; gap:.6rem; border-bottom:1px solid var(--border); padding:.45rem 0; font-size:.77rem; }
+    .reminder-item:last-child { border-bottom:0; }
+    .reminder-item time { white-space:nowrap; color:var(--text-muted); }
+    @media(max-width:720px){ .hub-highlights { grid-template-columns:1fr; } }
+    .compare-bar { position:sticky; bottom:12px; z-index:60; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-lg); padding:.8rem 1rem; margin:1.5rem 0; display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    .tray-chip { border:1px solid var(--border); border-radius:var(--radius-full); padding:.25rem .6rem; font-size:.78rem; font-weight:600; display:inline-flex; gap:.4rem; align-items:center; }
+    .tray-chip button { border:0; background:transparent; cursor:pointer; font-size:.8rem; }
+    .tm-toast { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:.6rem .9rem; font-size:.82rem; margin-top:.5rem; }
+    .tm-toast.info { border-left:3px solid var(--info); }
+    @media(max-width:900px){ .tool-filters .row { grid-template-columns:1fr 1fr; } }
+    @media(max-width:640px){ .tool-filters .row { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">CA Hub</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+        <a href="ca-workspace.html" class="btn-nav-login">Practice Reminders</a>
+        <a href="billing.html" class="btn-nav-login">GST Billing</a>
+        <a href="itr-form.html" class="btn-nav-ai"><i class="fa fa-file-invoice"></i> ITR Wizard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>CA Practice Hub</span></div>
+      <h1>🏢 CA Practice Hub India</h1>
+      <p>A curated directory of Indian tax/compliance software, government APIs, datasets and practice workflows — with honest access labels and last-checked dates. A discovery hub, not a filing portal.</p>
+      <nav class="hub-nav" aria-label="CA Hub sections">
+        <a href="ca-hub.html" class="active">Directory</a>
+        <a href="ca-hub-compare.html">Compare tools</a>
+        <a href="ca-hub-guides.html">Guides</a>
+        <a href="ca-hub-updates.html">Updates &amp; due dates</a>
+        <a href="ca-workspace.html">Practice reminders</a>
+        <a href="github-tools.html">Open-source directory</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="method-note">
+      <strong>How to read this directory.</strong> Every entry carries an access badge — <em>Public/open</em>, <em>Key required</em>,
+      <em>Approval/consent</em>, <em>Partner/GSP/ERI</em>, <em>Self-hosted</em>, <em>Paid/vendor</em>, <em>Sandbox only</em> or <em>No API found</em>.
+      Government integrations are never labelled as public APIs. This hub does not connect to government portals, file returns,
+      or act as an authorised e-filing intermediary. This directory does not collect client data. The optional
+      <a href="ca-workspace.html">practice reminder list</a> stores generic tasks only and is not a secure client workspace.
+    </div>
+
+    <section class="hub-highlights" aria-label="Featured resources and upcoming reminders">
+      <div class="highlight-panel"><h2>Featured entry points <span class="tag">Editorial picks · not ranked</span></h2><div class="highlight-grid" id="featuredTools"></div></div>
+      <div class="highlight-panel"><h2>Upcoming rule-based reminders <a href="ca-hub-updates.html" class="sub">All rules &amp; caveats →</a></h2><div id="reminderList"></div></div>
+      <div class="highlight-panel"><h2>Recently checked <span class="sub">Catalog review dates · not live status</span></h2><div class="highlight-grid" id="recentTools"></div></div>
+    </section>
+
+    <div class="tool-filters">
+      <div class="row">
+        <div class="form-group" style="margin:0">
+          <label for="hubSearch" style="font-size:0.78rem">Search</label>
+          <input type="search" id="hubSearch" placeholder="GSTR, ERI, HSN, audit, ERPNext…" autocomplete="off"/>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label for="accessFilter" style="font-size:0.78rem">Access class</label>
+          <select id="accessFilter"></select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label for="kindFilter" style="font-size:0.78rem">Kind</label>
+          <select id="kindFilter"></select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label for="sortBy" style="font-size:0.78rem">Sort by</label>
+          <select id="sortBy">
+            <option value="name">Name (A–Z)</option>
+            <option value="category">Category</option>
+            <option value="access">Access class</option>
+            <option value="recent">Recently checked</option>
+          </select>
+        </div>
+      </div>
+      <div class="chips" id="categoryChips"></div>
+      <label class="fav-toggle"><input type="checkbox" id="favToggle"/> Show favourites only (★ saved in this browser)</label>
+    </div>
+
+    <p class="result-count" id="resultCount"></p>
+    <div class="hub-grid" id="hubGrid"></div>
+    <div class="empty-state" id="emptyState" hidden>No entry matches those filters. Try clearing the search box.</div>
+
+    <div class="compare-bar" id="compareBar" hidden>
+      <strong style="font-size:.85rem">Compare tray:</strong>
+      <span id="compareTray" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center"></span>
+    </div>
+
+    <div id="toastHost" aria-live="polite"></div>
+
+    <p style="font-size:0.78rem;color:var(--text-muted);margin:2rem 0">
+      Listing a tool is not an endorsement. Verify forms, assessment-year coverage and access rules against official
+      documentation before relying on any entry. Catalog last checked: <strong id="verifiedOn">—</strong> ·
+      <span id="hubTotal">—</span> entries. TaxMitra is not affiliated with any provider listed here.
+    </p>
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/ca-hub.js"></script>
+  <script src="../js/ca-hub-app.js"></script>
+</body>
+</html>
