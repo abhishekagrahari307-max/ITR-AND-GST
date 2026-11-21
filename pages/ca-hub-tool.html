@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tool details – CA Practice Hub India · TaxMitra</title>
+  <meta name="description" content="Full details for one curated CA tool or API entry: access class, auth method, production status, limitations, source links and last-checked date."/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .hub-nav { display:flex; gap:.4rem; flex-wrap:wrap; margin:1rem 0 0; }
+    .hub-nav a { border:1px solid var(--border); background:var(--bg-card); border-radius:var(--radius-full); padding:.4rem .85rem; font-size:.8rem; font-weight:600; color:var(--text-secondary); text-decoration:none; }
+    .hub-nav a.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+    .detail-head h1 { font-size:1.6rem; font-weight:800; margin:.4rem 0; }
+    .hub-sub { font-size:.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; font-weight:700; }
+    .detail-provider { font-size:.85rem; color:var(--text-secondary); }
+    .hub-badges { display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; margin:.6rem 0; }
+    .badge { display:inline-block; padding:.15rem .55rem; border-radius:var(--radius-full); font-size:.68rem; font-weight:700; }
+    .access-public-open { background:rgba(16,185,129,.15); color:#047857; }
+    .access-key-required { background:rgba(59,130,246,.15); color:#1d4ed8; }
+    .access-approval-consent { background:rgba(245,158,11,.18); color:#b45309; }
+    .access-partner-eri { background:rgba(220,38,38,.12); color:#b91c1c; }
+    .access-self-hosted { background:rgba(124,58,237,.14); color:#6d28d9; }
+    .access-paid-vendor { background:rgba(100,116,139,.18); color:#475569; }
+    .access-sandbox-only { background:rgba(245,158,11,.18); color:#b45309; }
+    .access-no-api { background:var(--bg-secondary); color:var(--text-muted); }
+    .ver-ok { background:rgba(16,185,129,.12); color:#047857; }
+    .ver-official { background:rgba(59,130,246,.12); color:#1d4ed8; }
+    .ver-check { background:rgba(245,158,11,.15); color:#b45309; }
+    .tag { border:1px solid var(--border); border-radius:var(--radius-full); padding:.12rem .5rem; color:var(--text-secondary); font-weight:600; font-size:.72rem; }
+    .hub-checked { font-size:.75rem; color:var(--text-muted); }
+    .detail-summary { font-size:1rem; color:var(--text-primary); margin:1rem 0; }
+    .detail-actions { display:flex; gap:.5rem; flex-wrap:wrap; margin:1rem 0; }
+    .btn-mini { border:1px solid var(--border); background:var(--bg-card); border-radius:var(--radius-sm); padding:.4rem .8rem; font-family:inherit; font-size:.8rem; font-weight:600; color:var(--text-primary); cursor:pointer; text-decoration:none; display:inline-block; }
+    .btn-mini:hover { border-color:var(--primary); }
+    .tm-table { width:100%; border-collapse:collapse; background:var(--bg-card); margin:.75rem 0 1.25rem; }
+    .tm-table th, .tm-table td { padding:.6rem .8rem; border-bottom:1px solid var(--border); font-size:.85rem; text-align:left; vertical-align:top; }
+    .tm-table th { background:var(--bg-secondary); font-size:.72rem; text-transform:uppercase; letter-spacing:.4px; color:var(--text-muted); font-weight:700; }
+    .tm-table tbody th { text-transform:none; letter-spacing:0; color:var(--text-primary); font-size:.82rem; width:220px; }
+    .detail-list { margin:.5rem 0 1.25rem; padding-left:1.2rem; font-size:.88rem; color:var(--text-secondary); }
+    .detail-list li { margin:.25rem 0; }
+    .caveat-box { font-size:.85rem; color:#92400e; background:rgba(245,158,11,.1); border-radius:var(--radius-sm); padding:.7rem .9rem; margin:.5rem 0 1.25rem; }
+    .card-block { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem; margin:1.5rem 0; }
+    .card-block h2 { font-size:1rem; font-weight:800; margin-bottom:1rem; }
+    .form-group { margin-bottom:.9rem; }
+    .form-group label { display:block; font-size:.8rem; font-weight:600; margin-bottom:.3rem; }
+    .form-group input, .form-group select, .form-group textarea { width:100%; padding:.6rem .75rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-family:inherit; font-size:.85rem; background:var(--bg-card); color:var(--text-primary); }
+    .btn-primary-solid { background:var(--primary); color:#fff; border:0; border-radius:var(--radius-sm); padding:.6rem 1.1rem; font-family:inherit; font-size:.85rem; font-weight:700; cursor:pointer; }
+    .tm-toast { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:.6rem .9rem; font-size:.82rem; margin-top:.5rem; }
+    .tm-toast.info { border-left:3px solid var(--info); }
+    .not-found { text-align:center; padding:3rem 1rem; color:var(--text-muted); }
+    @media print { .navbar-main, .detail-actions, .card-block, .hub-nav { display:none !important; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">CA Hub</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle" aria-label="Toggle theme">🌙</button>
+        <a href="ca-hub.html" class="btn-nav-login">Directory</a>
+        <a href="ca-workspace.html" class="btn-nav-ai"><i class="fa fa-briefcase"></i> Workspace</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><a href="ca-hub.html">CA Hub</a><span>/</span><span>Tool details</span></div>
+      <nav class="hub-nav" aria-label="CA Hub sections">
+        <a href="ca-hub.html">Directory</a>
+        <a href="ca-hub-compare.html">Compare tools</a>
+        <a href="ca-hub-guides.html">Guides</a>
+        <a href="ca-hub-updates.html">Updates &amp; due dates</a>
+        <a href="ca-workspace.html">Practice reminders</a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="not-found" id="toolNotFound" hidden>
+      <h2>Tool not found</h2>
+      <p>This link may be outdated. <a href="ca-hub.html">Browse the directory →</a></p>
+    </div>
+
+    <article id="toolDetail"></article>
+
+    <section class="card-block" aria-labelledby="reportHeading">
+      <h2 id="reportHeading">Report an issue with this entry</h2>
+      <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:1rem">
+        Dead link, wrong access label, outdated form coverage? Reports are saved in this browser only
+        (there is no server) — please also email the maintainer with the same details so it can be fixed.
+      </p>
+      <form id="reportForm">
+        <div class="form-group">
+          <label for="reportType">Issue type</label>
+          <select id="reportType">
+            <option value="dead-link">Dead or wrong link</option>
+            <option value="wrong-access">Wrong access label</option>
+            <option value="outdated">Outdated information</option>
+            <option value="other">Something else</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="reportMessage">What is wrong?</label>
+          <textarea id="reportMessage" rows="3" placeholder="Describe the issue…"></textarea>
+        </div>
+        <button type="submit" class="btn-primary-solid">Save report locally</button>
+        <p id="reportStatus" style="font-size:.8rem;color:var(--text-muted);margin-top:.6rem" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <div id="toastHost" aria-live="polite"></div>
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/ca-hub.js"></script>
+  <script src="../js/ca-hub-detail.js"></script>
+</body>
+</html>
