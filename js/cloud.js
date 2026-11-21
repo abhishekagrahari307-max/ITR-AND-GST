@@ -243,6 +243,12 @@
       });
   }
 
+  /* Adopt a session token issued by another flow (passkey sign-in, OAuth code). */
+  function adoptSession(token, user) {
+    setSession(token, user);
+    return user;
+  }
+
   function logout() {
     var hadToken = !!state.token;
     return (hadToken ? request('/auth/logout', { method: 'POST' }).catch(function () { return null; }) : Promise.resolve(null))
@@ -317,6 +323,59 @@
         return data.user;
       });
   }
+
+  /* ---- passkeys ---- */
+
+  function passkeyRegisterOptions() {
+    return request('/auth/passkey/register/options', { method: 'POST' });
+  }
+
+  function passkeyRegisterVerify(credential, name) {
+    return request('/auth/passkey/register/verify', { method: 'POST', body: { credential: credential, name: name } });
+  }
+
+  function passkeyLoginOptions(email) {
+    return request('/auth/passkey/login/options', { method: 'POST', body: { email: email } });
+  }
+
+  function passkeyLoginVerify(credential, email) {
+    return request('/auth/passkey/login/verify', { method: 'POST', body: { credential: credential, email: email } })
+      .then(function (data) {
+        setSession(data.token, data.user);
+        return data;
+      });
+  }
+
+  function passkeys() {
+    return request('/auth/passkeys').then(function (data) { return data.passkeys || []; });
+  }
+
+  function deletePasskey(id) {
+    return request('/auth/passkeys/' + encodeURIComponent(id), { method: 'DELETE' });
+  }
+
+  /* ---- 2FA recovery ---- */
+
+  function requestRecovery(email) {
+    return request('/auth/2fa/recover/request', { method: 'POST', body: { email: email } });
+  }
+
+  function confirmRecovery(token) {
+    return request('/auth/2fa/recover/confirm', { method: 'POST', body: { token: token } });
+  }
+
+  /* ---- administrator console ---- */
+
+  function adminSummary() { return request('/admin/summary'); }
+  function adminUsers() { return request('/admin/users').then(function (d) { return d.users || []; }); }
+  function adminRecovery() { return request('/admin/recovery').then(function (d) { return d.requests || []; }); }
+  function adminAudit(limit) { return request('/admin/audit?limit=' + (limit || 100)).then(function (d) { return d.events || []; }); }
+  function adminSetRole(id, role) { return request('/admin/users/' + encodeURIComponent(id) + '/role', { method: 'POST', body: { role: role } }); }
+  function adminVerifyEmail(id) { return request('/admin/users/' + encodeURIComponent(id) + '/verify-email', { method: 'POST' }); }
+  function adminReset2fa(id) { return request('/admin/users/' + encodeURIComponent(id) + '/reset-2fa', { method: 'POST' }); }
+  function adminDeleteUser(id) { return request('/admin/users/' + encodeURIComponent(id) + '?purge=1', { method: 'DELETE' }); }
+  function adminApproveRecovery(id) { return request('/admin/recovery/' + encodeURIComponent(id) + '/approve', { method: 'POST' }); }
+  function adminDenyRecovery(id, note) { return request('/admin/recovery/' + encodeURIComponent(id) + '/deny', { method: 'POST', body: { note: note || '' } }); }
 
   /* ---- sessions ---- */
 
@@ -636,6 +695,7 @@
     // auth
     register: register,
     login: login,
+    adoptSession: adoptSession,
     logout: logout,
     me: me,
     changePassword: changePassword,
@@ -652,6 +712,27 @@
     oauthProviders: oauthProviders,
     oauthStart: oauthStart,
     oauthExchange: oauthExchange,
+    // passkeys
+    passkeyRegisterOptions: passkeyRegisterOptions,
+    passkeyRegisterVerify: passkeyRegisterVerify,
+    passkeyLoginOptions: passkeyLoginOptions,
+    passkeyLoginVerify: passkeyLoginVerify,
+    passkeys: passkeys,
+    deletePasskey: deletePasskey,
+    // 2FA recovery
+    requestRecovery: requestRecovery,
+    confirmRecovery: confirmRecovery,
+    // administrator console
+    adminSummary: adminSummary,
+    adminUsers: adminUsers,
+    adminRecovery: adminRecovery,
+    adminAudit: adminAudit,
+    adminSetRole: adminSetRole,
+    adminVerifyEmail: adminVerifyEmail,
+    adminReset2fa: adminReset2fa,
+    adminDeleteUser: adminDeleteUser,
+    adminApproveRecovery: adminApproveRecovery,
+    adminDenyRecovery: adminDenyRecovery,
     // sessions
     sessions: sessions,
     revokeSession: revokeSession,

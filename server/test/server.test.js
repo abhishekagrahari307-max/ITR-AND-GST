@@ -65,6 +65,9 @@ before(async () => {
   process.env.DATA_DIR = tmpDir;
   process.env.SESSION_DAYS = '1';
   process.env.REGISTER_PER_HOUR = '200';
+  process.env.LOGIN_PER_15MIN = '500';
+  process.env.FORGOT_PER_HOUR = '200';
+  process.env.API_PER_MINUTE = '100000';
   process.env.EMAIL_DRIVER = 'console';
   process.env.EMAIL_FROM = 'TaxMitra <test@taxmitra.local>';
   process.env.OPENAI_API_KEY = 'test-key';
@@ -548,4 +551,380 @@ test('health advertises email, 2FA and OAuth readiness', async () => {
   assert.equal(r.body.capabilities.email, true);
   assert.equal(r.body.capabilities.twoFactor, true);
   assert.ok(Array.isArray(r.body.capabilities.oauthProviders));
+});
+
+/* ------------------------------------------------ passkeys (synthetic authenticator) */
+
+const nodeCrypto = require('node:crypto');
+const webauthn = require('../lib/webauthn');
+
+/* A tiny CBOR encoder for the shapes a real authenticator sends. */
+function cborEncode(value) {
+  if (Buffer.isBuffer(value)) return Buffer.concat([head(2, value.length), value]);
+  if (typeof value === 'string') {
+    const buf = Buffer.from(value, 'utf8');
+    return Buffer.concat([head(3, buf.length), buf]);
+  }
+  if (typeof value === 'number') {
+    return value >= 0 ? head(0, value) : head(1, -1 - value);
+  }
+  if (Array.isArray(value)) {
+    return Buffer.concat([head(4, value.length)].concat(value.map(cborEncode)));
+  }
+  if (value && typeof value === 'object') {
+    const keys = Object.keys(value);
+    const parts = [head(5, keys.length)];
+    for (const key of keys) {
+      parts.push(cborEncode(isNaN(Number(key)) ? key : Number(key)));
+      parts.push(cborEncode(value[key]));
+    }
+    return Buffer.concat(parts);
+  }
+  if (value === true) return Buffer.from([0xf5]);
+  if (value === false) return Buffer.from([0xf4]);
+  if (value === null) return Buffer.from([0xf6]);
+  throw new Error('Cannot CBOR-encode ' + typeof value);
+}
+
+function head(major, length) {
+  const prefix = major << 5;
+  if (length < 24) return Buffer.from([prefix | length]);
+  if (length < 256) return Buffer.from([prefix | 24, length]);
+  if (length < 65536) {
+    const buf = Buffer.alloc(3);
+    buf[0] = prefix | 25;
+    buf.writeUInt16BE(length, 1);
+    return buf;
+  }
+  const buf = Buffer.alloc(5);
+  buf[0] = prefix | 26;
+  buf.writeUInt32BE(length, 1);
+  return buf;
+}
+
+function b64u(buf) { return webauthn.toB64url(buf); }
+
+function makeAuthenticator(rpId, origin) {
+  const { publicKey, privateKey } = nodeCrypto.generateKeyPairSync('ec', { namedCurve: 'P-256' });
+  const jwk = publicKey.export({ format: 'jwk' });
+  const cose = {
+    1: 2,
+    3: -7,
+    '-1': 1,
+    '-2': webauthn.fromB64url(jwk.x),
+    '-3': webauthn.fromB64url(jwk.y),
+  };
+  const credentialId = nodeCrypto.randomBytes(32);
+  const rpIdHash = nodeCrypto.createHash('sha256').update(rpId).digest();
+
+  function authData(flags, counter, withAttested) {
+    const parts = [rpIdHash, Buffer.from([flags]), Buffer.alloc(4), Buffer.alloc(16)];
+    parts[2].writeUInt32BE(counter, 0);
+    if (withAttested) {
+      const len = Buffer.alloc(2);
+      len.writeUInt16BE(credentialId.length, 0);
+      parts.push(len, credentialId, cborEncode(cose));
+    }
+    return Buffer.concat(parts);
+  }
+
+  function register(challenge, options) {
+    const opts = options || {};
+    const clientDataJSON = Buffer.from(JSON.stringify({
+      type: 'webauthn.create',
+      challenge,
+      origin: opts.origin || origin,
+      crossOrigin: false,
+    })).toString('utf8');
+    const attestationObject = cborEncode({
+      fmt: 'none',
+      attStmt: {},
+      authData: authData(opts.flags === undefined ? 0x45 : opts.flags, 0, true),
+    });
+    return {
+      id: b64u(credentialId),
+      rawId: b64u(credentialId),
+      type: 'public-key',
+      response: {
+        clientDataJSON: b64u(Buffer.from(clientDataJSON, 'utf8')),
+        attestationObject: b64u(attestationObject),
+      },
+    };
+  }
+
+  function assert(challenge, counter, options) {
+    const opts = options || {};
+    const clientDataJSON = Buffer.from(JSON.stringify({
+      type: 'webauthn.get',
+      challenge,
+      origin: opts.origin || origin,
+      crossOrigin: false,
+    })).toString('utf8');
+    const signed = authData(opts.flags === undefined ? 0x05 : opts.flags, counter, false);
+    const clientHash = nodeCrypto.createHash('sha256').update(Buffer.from(clientDataJSON, 'utf8')).digest();
+    const signature = nodeCrypto.sign('sha256', Buffer.concat([signed, clientHash]), privateKey);
+    return {
+      id: b64u(credentialId),
+      rawId: b64u(credentialId),
+      type: 'public-key',
+      response: {
+        clientDataJSON: b64u(Buffer.from(clientDataJSON, 'utf8')),
+        authenticatorData: b64u(signed),
+        signature: b64u(signature),
+        userHandle: null,
+      },
+      _tamper: opts.tamper,
+    };
+  }
+
+  return { register, assert, credentialId, privateKey };
+}
+
+test('a passkey can be registered and used to sign in (real signature checks)', async () => {
+  const created = await registerUser('passkey@example.com', 'passkey-pass-1', 'Passkey User');
+  const options = await api('/api/auth/passkey/register/options', { method: 'POST', token: created.token });
+  assert.equal(options.status, 200);
+  const challenge = options.body.publicKey.challenge;
+  const rpId = options.body.publicKey.rp.id;
+  assert.ok(challenge && rpId);
+
+  const authenticator = makeAuthenticator(rpId, 'http://127.0.0.1:' + new URL(baseUrl).port);
+  const credential = authenticator.register(challenge);
+  const verified = await api('/api/auth/passkey/register/verify', {
+    method: 'POST',
+    token: created.token,
+    body: { credential, name: 'Test key' },
+  });
+  assert.equal(verified.status, 201, JSON.stringify(verified.body));
+  assert.equal(verified.body.passkeys.length, 1);
+
+  const list = await api('/api/auth/passkeys', { token: created.token });
+  assert.equal(list.body.passkeys.length, 1);
+  assert.equal(list.body.passkeys[0].name, 'Test key');
+
+  const loginOptions = await api('/api/auth/passkey/login/options', { method: 'POST', body: { email: 'passkey@example.com' } });
+  assert.equal(loginOptions.status, 200);
+  assert.equal(loginOptions.body.hasSuggestions, true);
+  assert.equal(loginOptions.body.publicKey.allowCredentials.length, 1);
+
+  const assertion = authenticator.assert(loginOptions.body.publicKey.challenge, 1);
+  const login = await api('/api/auth/passkey/login/verify', {
+    method: 'POST',
+    body: { email: 'passkey@example.com', credential: assertion },
+  });
+  assert.equal(login.status, 200, JSON.stringify(login.body));
+  assert.equal(login.body.secondFactorSatisfied, true);
+  assert.ok(login.body.token);
+
+  const me = await api('/api/auth/me', { token: login.body.token });
+  assert.equal(me.body.user.email, 'passkey@example.com');
+});
+
+test('passkey verification rejects wrong origin, replay and a stale counter', async () => {
+  const created = await registerUser('passkey2@example.com', 'passkey-pass-2', 'Second');
+  const options = await api('/api/auth/passkey/register/options', { method: 'POST', token: created.token });
+  const rpId = options.body.publicKey.rp.id;
+  const origin = 'http://127.0.0.1:' + new URL(baseUrl).port;
+  const authenticator = makeAuthenticator(rpId, origin);
+
+  const wrongOrigin = authenticator.register(options.body.publicKey.challenge, { origin: 'https://evil.example' });
+  const rejected = await api('/api/auth/passkey/register/verify', { method: 'POST', token: created.token, body: { credential: wrongOrigin } });
+  assert.equal(rejected.status, 400);
+  assert.match(rejected.body.error, /Origin mismatch/);
+
+  const second = await api('/api/auth/passkey/register/options', { method: 'POST', token: created.token });
+  const credential = authenticator.register(second.body.publicKey.challenge);
+  const ok = await api('/api/auth/passkey/register/verify', { method: 'POST', token: created.token, body: { credential } });
+  assert.equal(ok.status, 201);
+
+  // Replaying the same challenge must fail, because challenges are one-time tokens.
+  const replay = await api('/api/auth/passkey/register/verify', { method: 'POST', token: created.token, body: { credential } });
+  assert.equal(replay.status, 400);
+
+  // Counter going backwards is treated as a possible clone.
+  const opts1 = await api('/api/auth/passkey/login/options', { method: 'POST', body: { email: 'passkey2@example.com' } });
+  const good = authenticator.assert(opts1.body.publicKey.challenge, 5);
+  const firstLogin = await api('/api/auth/passkey/login/verify', { method: 'POST', body: { credential: good } });
+  assert.equal(firstLogin.status, 200);
+
+  const opts2 = await api('/api/auth/passkey/login/options', { method: 'POST', body: { email: 'passkey2@example.com' } });
+  const stale = authenticator.assert(opts2.body.publicKey.challenge, 5);
+  const staleLogin = await api('/api/auth/passkey/login/verify', { method: 'POST', body: { credential: stale } });
+  assert.equal(staleLogin.status, 401);
+  assert.match(staleLogin.body.error, /counter/i);
+});
+
+test('a passkey for one account cannot be used for another', async () => {
+  const a = await registerUser('pk-a@example.com', 'pk-a-pass-1', 'A');
+  const b = await registerUser('pk-b@example.com', 'pk-b-pass-1', 'B');
+  const options = await api('/api/auth/passkey/register/options', { method: 'POST', token: a.token });
+  const rpId = options.body.publicKey.rp.id;
+  const origin = 'http://127.0.0.1:' + new URL(baseUrl).port;
+  const authenticator = makeAuthenticator(rpId, origin);
+  const credential = authenticator.register(options.body.publicKey.challenge);
+  await api('/api/auth/passkey/register/verify', { method: 'POST', token: a.token, body: { credential } });
+
+  // B asks for options with B's email, then reuses A's private key.
+  const bOptions = await api('/api/auth/passkey/login/options', { method: 'POST', body: { email: 'pk-b@example.com' } });
+  const assertion = authenticator.assert(bOptions.body.publicKey.challenge, 1);
+  const rejected = await api('/api/auth/passkey/login/verify', { method: 'POST', body: { email: 'pk-b@example.com', credential: assertion } });
+  assert.equal(rejected.status, 401);
+  assert.equal(rejected.body.code, 'WEBAUTHN_MISMATCH');
+});
+
+/* --------------------------------------------- admin console + recovery */
+
+async function adminToken() {
+  const res = await api('/api/auth/login', { method: 'POST', body: { email: 'admin@example.com', password: 'admin-password-1' } });
+  assert.equal(res.status, 200, JSON.stringify(res.body));
+  return res.body.token;
+}
+
+test('the admin API is closed to normal users and open to administrators', async () => {
+  const normal = await api('/api/auth/login', { method: 'POST', body: { email: 'user@example.com', password: 'new-password-1' } });
+  const denied = await api('/api/admin/users', { token: normal.body.token });
+  assert.equal(denied.status, 403);
+
+  const admin = await adminToken();
+  const users = await api('/api/admin/users', { token: admin });
+  assert.equal(users.status, 200);
+  assert.ok(users.body.users.length >= 3);
+  const summary = await api('/api/admin/summary', { token: admin });
+  assert.equal(summary.status, 200);
+  assert.ok(summary.body.accounts >= 3);
+
+  // The audit trail the console renders: admin-only, newest first, no raw meta blob.
+  const auditDenied = await api('/api/admin/audit', { token: normal.body.token });
+  assert.equal(auditDenied.status, 403);
+  const audit = await api('/api/admin/audit?limit=10', { token: admin });
+  assert.equal(audit.status, 200);
+  assert.ok(audit.body.events.length > 0);
+  assert.ok(audit.body.events.every((e) => typeof e.action === 'string' && typeof e.at === 'number'));
+  assert.ok(audit.body.events.every((e) => !('meta' in e)));
+});
+
+test('an administrator can verify an email, change a role and reset two-factor', async () => {
+  const admin = await adminToken();
+  const created = await registerUser('managed@example.com', 'managed-pass-1', 'Managed');
+
+  const verified = await api('/api/admin/users/' + created.user.id + '/verify-email', { method: 'POST', token: admin });
+  assert.equal(verified.status, 200);
+  assert.equal(verified.body.user.email_verified, true);
+
+  const role = await api('/api/admin/users/' + created.user.id + '/role', { method: 'POST', token: admin, body: { role: 'admin' } });
+  assert.equal(role.status, 200);
+  assert.equal(role.body.user.role, 'admin');
+  const back = await api('/api/admin/users/' + created.user.id + '/role', { method: 'POST', token: admin, body: { role: 'user' } });
+  assert.equal(back.body.user.role, 'user');
+
+  const badRole = await api('/api/admin/users/' + created.user.id + '/role', { method: 'POST', token: admin, body: { role: 'superuser' } });
+  assert.equal(badRole.status, 400);
+
+  const self = await api('/api/admin/users/' + created.user.id + '/role', { method: 'POST', token: admin, body: { role: 'user' } });
+  assert.equal(self.status, 200);
+});
+
+test('two-factor recovery needs the emailed link AND an administrator', async () => {
+  emailLib.clearOutbox();
+  const created = await registerUser('recover@example.com', 'recover-pass-1', 'Recover');
+  const setup = await api('/api/auth/2fa/setup', { method: 'POST', token: created.token });
+  const code = otpLib.totpAt(setup.body.secret);
+  const enabled = await api('/api/auth/2fa/enable', { method: 'POST', token: created.token, body: { code } });
+  assert.equal(enabled.status, 200);
+
+  // Lost the phone: no code available.
+  const blocked = await api('/api/auth/login', { method: 'POST', body: { email: 'recover@example.com', password: 'recover-pass-1' } });
+  assert.equal(blocked.status, 401);
+  assert.equal(blocked.body.code, 'TOTP_REQUIRED');
+
+  const request = await api('/api/auth/2fa/recover/request', { method: 'POST', body: { email: 'recover@example.com' } });
+  assert.equal(request.status, 200);
+  assert.equal(request.body.adminApprovalRequired, true);
+
+  const userMail = lastMailTo('recover@example.com');
+  assert.match(userMail.subject, /recovery/i);
+  const recoverToken = /recover=([A-Za-z0-9_-]{20,})/.exec(userMail.text)[1];
+
+  const adminMail = emailLib.readOutbox().find((m) => m.to === 'admin@example.com');
+  assert.ok(adminMail, 'the administrator must be told');
+
+  // An administrator cannot approve before the user proves mailbox control.
+  const admin = await adminToken();
+  const list = await api('/api/admin/recovery', { token: admin });
+  const pending = list.body.requests.find((r) => r.email === 'recover@example.com');
+  assert.equal(pending.status, 'pending_email');
+  const tooEarly = await api('/api/admin/recovery/' + pending.id + '/approve', { method: 'POST', token: admin });
+  assert.equal(tooEarly.status, 409);
+  assert.equal(tooEarly.body.code, 'EMAIL_NOT_CONFIRMED');
+
+  const confirm = await api('/api/auth/2fa/recover/confirm', { method: 'POST', body: { token: recoverToken } });
+  assert.equal(confirm.status, 200);
+
+  const afterConfirm = await api('/api/admin/recovery', { token: admin });
+  const ready = afterConfirm.body.requests.find((r) => r.email === 'recover@example.com');
+  assert.equal(ready.status, 'awaiting_admin');
+
+  const approved = await api('/api/admin/recovery/' + ready.id + '/approve', { method: 'POST', token: admin });
+  assert.equal(approved.status, 200);
+  assert.equal(approved.body.twoFactorCleared, true);
+
+  // Two-factor is gone; the emailed reset link works once.
+  const after = await api('/api/auth/login', { method: 'POST', body: { email: 'recover@example.com', password: 'recover-pass-1' } });
+  assert.equal(after.status, 200);
+
+  const resetMail = lastMailTo('recover@example.com');
+  const resetToken = /reset=([A-Za-z0-9_-]{20,})/.exec(resetMail.text)[1];
+  const reset = await api('/api/auth/reset', { method: 'POST', body: { token: resetToken, password: 'after-recovery-1' } });
+  assert.equal(reset.status, 200);
+  const replay = await api('/api/auth/reset', { method: 'POST', body: { token: resetToken, password: 'another-1' } });
+  assert.equal(replay.status, 400);
+});
+
+test('a recovery request can be denied and never reveals whether an account exists', async () => {
+  const unknown = await api('/api/auth/2fa/recover/request', { method: 'POST', body: { email: 'ghost@nowhere.test' } });
+  assert.equal(unknown.status, 200);
+  assert.equal(unknown.body.ok, true);
+
+  emailLib.clearOutbox();
+  const created = await registerUser('deny@example.com', 'deny-pass-1', 'Deny');
+  const setup = await api('/api/auth/2fa/setup', { method: 'POST', token: created.token });
+  await api('/api/auth/2fa/enable', { method: 'POST', token: created.token, body: { code: otpLib.totpAt(setup.body.secret) } });
+  await api('/api/auth/2fa/recover/request', { method: 'POST', body: { email: 'deny@example.com' } });
+  const token = /recover=([A-Za-z0-9_-]{20,})/.exec(lastMailTo('deny@example.com').text)[1];
+  await api('/api/auth/2fa/recover/confirm', { method: 'POST', body: { token } });
+
+  const admin = await adminToken();
+  const list = await api('/api/admin/recovery', { token: admin });
+  const item = list.body.requests.find((r) => r.email === 'deny@example.com');
+  const denied = await api('/api/admin/recovery/' + item.id + '/deny', { method: 'POST', token: admin, body: { note: 'Could not verify identity' } });
+  assert.equal(denied.status, 200);
+
+  const stillLocked = await api('/api/auth/login', { method: 'POST', body: { email: 'deny@example.com', password: 'deny-pass-1' } });
+  assert.equal(stillLocked.status, 401);
+  assert.equal(stillLocked.body.code, 'TOTP_REQUIRED');
+
+  const again = await api('/api/admin/recovery/' + item.id + '/deny', { method: 'POST', token: admin });
+  assert.equal(again.status, 409);
+});
+
+test('an administrator can delete an account, but not their own', async () => {
+  const admin = await adminToken();
+  const created = await registerUser('delete-me@example.com', 'delete-pass-1', 'Delete');
+  await api('/api/sync/doc/tm-test', { method: 'PUT', token: created.token, body: { value: 'x' } });
+
+  const gone = await api('/api/admin/users/' + created.user.id, { method: 'DELETE', token: admin });
+  assert.equal(gone.status, 200);
+  const dead = await api('/api/auth/me', { token: created.token });
+  assert.equal(dead.status, 401);
+
+  const me = await api('/api/auth/login', { method: 'POST', body: { email: 'admin@example.com', password: 'admin-password-1' } });
+  const self = await api('/api/admin/users/' + me.body.user.id, { method: 'DELETE', token: admin });
+  assert.equal(self.status, 400);
+  assert.equal(self.body.code, 'SELF_DELETE');
+});
+
+test('health advertises passkeys and recovery', async () => {
+  const r = await api('/api/health');
+  assert.equal(r.body.capabilities.passkeys, true);
+  assert.equal(r.body.capabilities.twoFactorRecovery, true);
 });

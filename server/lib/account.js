@@ -19,6 +19,7 @@ const crypto = require('node:crypto');
 const otp = require('./otp');
 const oauthLib = require('./oauth');
 const emailLib = require('./email');
+const webauthn = require('./webauthn');
 
 const MAX_BACKUP_CODES = 10;
 
@@ -392,6 +393,349 @@ function install(route, ctx) {
     store.revokeSessionForUser(params.jti, session.user.id);
     store.audit(session.user.id, 'auth.session_revoked', {});
     sendJson(res, 200, { ok: true });
+  });
+
+  /* ------------------------------------------------------------ passkeys */
+
+  function rpConfig(req) {
+    const proto = String(req.headers['x-forwarded-proto'] || 'http').split(',')[0].trim();
+    const requestOrigin = proto + '://' + (req.headers.host || 'localhost');
+    let origin = requestOrigin;
+    if (cfg.oauth.baseUrl) {
+      try { origin = new URL(cfg.oauth.baseUrl).origin; } catch (e) { origin = requestOrigin; }
+    }
+    let hostname = 'localhost';
+    try { hostname = new URL(origin).hostname; } catch (e) { hostname = 'localhost'; }
+    return {
+      rpId: cfg.webauthn.rpId || hostname,
+      rpName: cfg.webauthn.rpName,
+      origins: cfg.webauthn.origins.length ? cfg.webauthn.origins : [origin],
+    };
+  }
+
+  function issueChallenge(purpose, meta) {
+    const value = webauthn.challenge();
+    store.createToken({
+      id: crypto.randomUUID(),
+      userId: meta.userId,
+      purpose,
+      tokenHash: otp.hashToken(value),
+      createdAt: Date.now(),
+      expiresAt: Date.now() + cfg.webauthn.challengeMinutes * 60 * 1000,
+      meta,
+    });
+    return value;
+  }
+
+  function consumeChallenge(value, purpose) {
+    if (!value || typeof value !== 'string') return null;
+    const row = store.findToken(otp.hashToken(value), purpose);
+    if (!row || row.used_at || Number(row.expires_at) <= Date.now()) return null;
+    store.useToken(row.id);
+    return row;
+  }
+
+  route('POST', '/api/auth/passkey/register/options', async (req, res) => {
+    const session = ctx.requireAuth(req);
+    limitOrThrow('passkey-options:' + session.user.id, 30, 60 * 60 * 1000);
+    const existing = store.listCredentials(session.user.id);
+    const challengeValue = issueChallenge('webauthn-register', { userId: session.user.id });
+    const rp = rpConfig(req);
+    sendJson(res, 200, {
+      publicKey: {
+        challenge: challengeValue,
+        rp: { id: rp.rpId, name: rp.rpName },
+        user: {
+          id: webauthn.toB64url(Buffer.from(session.user.id, 'utf8')),
+          name: session.user.email,
+          displayName: session.user.name || session.user.email,
+        },
+        pubKeyCredParams: webauthn.ALGORITHMS.map((alg) => ({ type: 'public-key', alg })),
+        timeout: cfg.webauthn.challengeMinutes * 60 * 1000,
+        attestation: 'none',
+        authenticatorSelection: { residentKey: 'preferred', userVerification: 'preferred' },
+        excludeCredentials: existing.map((c) => ({ type: 'public-key', id: c.credential_id })),
+      },
+      rpId: rp.rpId,
+    });
+  });
+
+  route('POST', '/api/auth/passkey/register/verify', async (req, res) => {
+    const session = ctx.requireAuth(req);
+    limitOrThrow('passkey-register:' + session.user.id, 20, 60 * 60 * 1000);
+    const body = await readJson(req, 64 * 1024);
+    const credential = body.credential || {};
+    const response = credential.response || {};
+    if (!response.clientDataJSON || !response.attestationObject) {
+      throw new HttpError(400, 'WEBAUTHN_INCOMPLETE', 'Send credential.response.clientDataJSON and attestationObject.');
+    }
+
+    let clientData;
+    try {
+      clientData = webauthn.parseClientData(response.clientDataJSON);
+    } catch (error) {
+      throw new HttpError(400, 'WEBAUTHN_INVALID', error.message);
+    }
+    const pending = consumeChallenge(clientData.challenge, 'webauthn-register');
+    if (!pending || pending.meta.userId !== session.user.id) {
+      throw new HttpError(400, 'WEBAUTHN_CHALLENGE', 'That registration challenge is missing, expired or for another account.');
+    }
+
+    const rp = rpConfig(req);
+    let result;
+    try {
+      result = webauthn.verifyRegistration({
+        attestationObject: response.attestationObject,
+        clientDataJSON: response.clientDataJSON,
+        expectedChallenge: clientData.challenge,
+        expectedOrigin: rp.origins,
+        rpId: rp.rpId,
+        requireUserVerification: cfg.webauthn.requireUserVerification,
+      });
+    } catch (error) {
+      throw new HttpError(400, 'WEBAUTHN_REJECTED', error.message);
+    }
+
+    if (store.findCredential(result.credentialId)) {
+      throw new HttpError(409, 'WEBAUTHN_DUPLICATE', 'That authenticator is already registered.');
+    }
+
+    store.addCredential({
+      id: crypto.randomUUID(),
+      userId: session.user.id,
+      credentialId: result.credentialId,
+      publicKeyJwk: result.publicKeyJwk,
+      signCount: result.signCount,
+      name: String(body.name || 'Passkey').slice(0, 60),
+      transports: Array.isArray(credential.transports) ? credential.transports.join(',') : '',
+      createdAt: Date.now(),
+    });
+    store.audit(session.user.id, 'auth.passkey_added', { credentialId: result.credentialId.slice(0, 12) });
+    sendJson(res, 201, {
+      ok: true,
+      credentialId: result.credentialId,
+      userVerified: result.userVerified,
+      passkeys: store.listCredentials(session.user.id).map((c) => ({ id: c.id, name: c.name, createdAt: c.created_at })),
+      message: 'Passkey added. You can use it to sign in on this account.',
+    });
+  });
+
+  route('GET', '/api/auth/passkeys', async (req, res) => {
+    const session = ctx.requireAuth(req);
+    sendJson(res, 200, {
+      passkeys: store.listCredentials(session.user.id).map((c) => ({
+        id: c.id,
+        name: c.name,
+        createdAt: Number(c.created_at),
+        lastUsed: c.last_used ? Number(c.last_used) : null,
+      })),
+    });
+  });
+
+  route('DELETE', '/api/auth/passkeys/:id', async (req, res, params) => {
+    const session = ctx.requireAuth(req);
+    store.deleteCredential(params.id, session.user.id);
+    store.audit(session.user.id, 'auth.passkey_removed', {});
+    sendJson(res, 200, { ok: true });
+  });
+
+  route('POST', '/api/auth/passkey/login/options', async (req, res) => {
+    limitOrThrow('passkey-login-options:' + clientIp(req, cfg.trustProxy), 60, 60 * 60 * 1000);
+    const body = await readJson(req, 8 * 1024);
+    const email = String(body.email || '').trim().toLowerCase();
+    const user = email ? store.findUserByEmail(email) : null;
+    const credentials = user ? store.listCredentials(user.id) : [];
+    const challengeValue = issueChallenge('webauthn-login', { userId: user ? user.id : '' });
+    const rp = rpConfig(req);
+    sendJson(res, 200, {
+      publicKey: {
+        challenge: challengeValue,
+        rpId: rp.rpId,
+        timeout: cfg.webauthn.challengeMinutes * 60 * 1000,
+        userVerification: cfg.webauthn.requireUserVerification ? 'required' : 'preferred',
+        allowCredentials: credentials.map((c) => ({
+          type: 'public-key',
+          id: c.credential_id,
+          ...(c.transports ? { transports: String(c.transports).split(',') } : {}),
+        })),
+      },
+      // An empty list means "no passkey we can suggest"; it is not proof about
+      // whether the address has an account (an account may simply have none).
+      hasSuggestions: credentials.length > 0,
+    });
+  });
+
+  route('POST', '/api/auth/passkey/login/verify', async (req, res) => {
+    limitOrThrow('passkey-login:' + clientIp(req, cfg.trustProxy), 40, 60 * 60 * 1000);
+    const body = await readJson(req, 64 * 1024);
+    const credential = body.credential || {};
+    const response = credential.response || {};
+    const credentialId = String(credential.id || credential.rawId || '');
+    if (!credentialId || !response.clientDataJSON || !response.authenticatorData || !response.signature) {
+      throw new HttpError(400, 'WEBAUTHN_INCOMPLETE', 'Send credential.id and clientDataJSON, authenticatorData and signature.');
+    }
+
+    let clientData;
+    try {
+      clientData = webauthn.parseClientData(response.clientDataJSON);
+    } catch (error) {
+      throw new HttpError(400, 'WEBAUTHN_INVALID', error.message);
+    }
+    const pending = consumeChallenge(clientData.challenge, 'webauthn-login');
+    if (!pending) {
+      throw new HttpError(400, 'WEBAUTHN_CHALLENGE', 'That sign-in challenge is missing, expired or already used.');
+    }
+
+    const stored = store.findCredential(credentialId);
+    if (!stored) throw new HttpError(401, 'WEBAUTHN_UNKNOWN', 'That passkey is not registered here.');
+    if (pending.meta.userId && pending.meta.userId !== stored.user_id) {
+      throw new HttpError(401, 'WEBAUTHN_MISMATCH', 'That passkey does not belong to the account in this request.');
+    }
+    const user = store.findUserById(stored.user_id);
+    if (!user) throw new HttpError(401, 'WEBAUTHN_UNKNOWN', 'The account for that passkey no longer exists.');
+
+    const rp = rpConfig(req);
+    let result;
+    try {
+      result = webauthn.verifyAssertion({
+        authenticatorData: response.authenticatorData,
+        clientDataJSON: response.clientDataJSON,
+        signature: response.signature,
+        publicKeyJwk: stored.publicKeyJwk,
+        expectedChallenge: clientData.challenge,
+        expectedOrigin: rp.origins,
+        rpId: rp.rpId,
+        storedSignCount: Number(stored.sign_count) || 0,
+        requireUserVerification: cfg.webauthn.requireUserVerification,
+      });
+    } catch (error) {
+      store.audit(user.id, 'auth.passkey_failed', { code: error.code || 'REJECTED' });
+      throw new HttpError(401, 'WEBAUTHN_REJECTED', error.message);
+    }
+
+    store.updateCredentialCounter(credentialId, result.newSignCount);
+    const issued = auth.issueToken(user, cfg.jwtSecret, cfg.sessionDays, req.headers['user-agent'], store);
+    store.touchLogin(user.id);
+    // A passkey assertion with User Verification satisfies the second factor.
+    store.audit(user.id, 'auth.passkey_login', { uv: result.userVerified });
+    sendJson(res, 200, {
+      token: issued.token,
+      expiresAt: issued.expiresAt,
+      user: publicUser(store.findUserById(user.id)),
+      secondFactorSatisfied: result.userVerified,
+    });
+  });
+
+  /* --------------------------------------------- two-factor recovery */
+
+  async function notifyAdmins(req, request, user) {
+    if (!emailLib.isConfigured(cfg) || !cfg.adminEmails.length) return { sent: 0 };
+    const link = appOrigin(req) + '/pages/admin-users.html';
+    let sent = 0;
+    for (const adminEmail of cfg.adminEmails) {
+      try {
+        await emailLib.send(cfg, {
+          to: adminEmail,
+          subject: 'TaxMitra: two-factor recovery awaiting your decision',
+          text: [
+            'A TaxMitra account asked for two-factor recovery.',
+            '',
+            'Account: ' + user.email,
+            'Email confirmed by the user: ' + (request.email_confirmed_at ? 'yes' : 'not yet'),
+            '',
+            'Review and decide: ' + link,
+            '',
+            'Approving clears their two-factor, signs out their sessions and emails them a one-time password reset link.',
+          ].join('\n'),
+          html: '<p>A TaxMitra account asked for two-factor recovery.</p>' +
+            '<p><strong>Account:</strong> ' + user.email + '<br/>Email confirmed by the user: ' +
+            (request.email_confirmed_at ? 'yes' : 'not yet') + '</p>' +
+            '<p><a href="' + link + '">Review in the admin console</a></p>',
+        });
+        sent += 1;
+      } catch (error) {
+        console.error('[email] admin notification failed:', error.message);
+      }
+    }
+    return { sent };
+  }
+
+  route('POST', '/api/auth/2fa/recover/request', async (req, res) => {
+    const body = await readJson(req, 8 * 1024);
+    const ip = clientIp(req, cfg.trustProxy);
+    limitOrThrow('recover-req:' + ip, 10, 60 * 60 * 1000);
+    const email = String(body.email || '').trim().toLowerCase();
+    const generic = {
+      ok: true,
+      message: 'If that account has two-factor on, a confirmation link is on its way. An administrator has to approve the reset before two-factor is cleared.',
+      adminApprovalRequired: true,
+    };
+    if (!auth.EMAIL_RE.test(email)) { sendJson(res, 200, generic); return; }
+
+    const user = store.findUserByEmail(email);
+    if (!user || Number(user.totp_enabled) !== 1) { sendJson(res, 200, generic); return; }
+    limitOrThrow('recover-user:' + user.id, 3, 24 * 60 * 60 * 1000);
+
+    const existing = store.openRecoveryForUser(user.id);
+    if (existing) { sendJson(res, 200, generic); return; }
+
+    const token = otp.randomToken(32);
+    const request = store.createRecovery({
+      id: crypto.randomUUID(),
+      userId: user.id,
+      status: 'pending_email',
+      tokenHash: otp.hashToken(token),
+      createdAt: Date.now(),
+      expiresAt: Date.now() + cfg.webauthn.recoveryHours * 60 * 60 * 1000,
+    });
+
+    if (emailLib.isConfigured(cfg)) {
+      const link = appOrigin(req) + '/pages/cloud.html?recover=' + encodeURIComponent(token);
+      try {
+        await emailLib.send(cfg, {
+          to: user.email,
+          subject: 'Confirm your TaxMitra two-factor recovery',
+          text: [
+            'Namaste' + (user.name ? ', ' + user.name : '') + ',',
+            '',
+            'Someone asked to recover access to this TaxMitra account because the authenticator app is gone.',
+            'Confirm the request here:',
+            link,
+            '',
+            'After you confirm, an administrator has to approve it. Approving clears two-factor, signs out every session and emails you a one-time password reset link.',
+            'If this was not you, ignore this message — nothing changes.',
+          ].join('\n'),
+          html: '<p>Namaste' + (user.name ? ' ' + user.name : '') + ',</p>' +
+            '<p>Someone asked to recover access because the authenticator app is gone.</p>' +
+            '<p><a href="' + link + '">Confirm the recovery request</a></p>' +
+            '<p>An administrator must then approve it. If this was not you, ignore this email.</p>',
+        });
+        store.audit(user.id, 'auth.recovery_requested', { ip });
+        await notifyAdmins(req, request, user);
+      } catch (error) {
+        store.audit(user.id, 'auth.recovery_mail_failed', { code: error.code || 'SEND_FAILED' });
+      }
+    }
+    sendJson(res, 200, generic);
+  });
+
+  route('POST', '/api/auth/2fa/recover/confirm', async (req, res) => {
+    const body = await readJson(req, 8 * 1024);
+    limitOrThrow('recover-confirm:' + clientIp(req, cfg.trustProxy), 20, 60 * 60 * 1000);
+    const token = String(body.token || '');
+    const request = token.length >= 16 ? store.findRecoveryByToken(otp.hashToken(token)) : null;
+    if (!request || Number(request.expires_at) <= Date.now() || request.decided_at) {
+      throw new HttpError(400, 'TOKEN_INVALID', 'That recovery link is invalid, expired or already used.');
+    }
+    if (request.status === 'pending_email') store.confirmRecovery(request.id);
+    const user = store.findUserById(request.user_id);
+    if (user) await notifyAdmins(req, store.findRecovery(request.id), user);
+    store.audit(request.user_id, 'auth.recovery_email_confirmed', {});
+    sendJson(res, 200, {
+      ok: true,
+      status: 'awaiting_admin',
+      message: 'Email confirmed. An administrator has to approve the reset before two-factor is cleared — you will get an email when that happens.',
+    });
   });
 
   /* ------------------------------------------------------------ internal */

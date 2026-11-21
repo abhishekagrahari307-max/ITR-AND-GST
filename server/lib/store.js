@@ -103,6 +103,31 @@ function createSqliteStore(file) {
       expires_at INTEGER NOT NULL,
       used_at INTEGER
     );
+    CREATE TABLE IF NOT EXISTS credentials (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      credential_id TEXT NOT NULL UNIQUE,
+      public_key TEXT NOT NULL,
+      sign_count INTEGER NOT NULL DEFAULT 0,
+      name TEXT NOT NULL DEFAULT 'Passkey',
+      transports TEXT NOT NULL DEFAULT '',
+      created_at INTEGER NOT NULL,
+      last_used INTEGER
+    );
+    CREATE INDEX IF NOT EXISTS credentials_user ON credentials(user_id);
+    CREATE TABLE IF NOT EXISTS recovery_requests (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      token_hash TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      email_confirmed_at INTEGER,
+      decided_at INTEGER,
+      decided_by TEXT,
+      note TEXT NOT NULL DEFAULT ''
+    );
+    CREATE INDEX IF NOT EXISTS recovery_user ON recovery_requests(user_id, created_at);
   `);
 
   // Forward-only migrations for databases created by an earlier build.
@@ -164,6 +189,27 @@ function createSqliteStore(file) {
     purgeStates: db.prepare('DELETE FROM oauth_states WHERE expires_at < ?'),
     listSessions: db.prepare('SELECT jti,created_at,expires_at,revoked,user_agent FROM sessions WHERE user_id = ? ORDER BY created_at DESC'),
     revokeOne: db.prepare('UPDATE sessions SET revoked = 1 WHERE jti = ? AND user_id = ?'),
+    insertCredential: db.prepare('INSERT INTO credentials (id,user_id,credential_id,public_key,sign_count,name,transports,created_at) VALUES (?,?,?,?,?,?,?,?)'),
+    credentialById: db.prepare('SELECT * FROM credentials WHERE credential_id = ?'),
+    credentialsFor: db.prepare('SELECT id,credential_id,name,transports,created_at,last_used,sign_count FROM credentials WHERE user_id = ? ORDER BY created_at'),
+    deleteCredential: db.prepare('DELETE FROM credentials WHERE id = ? AND user_id = ?'),
+    bumpCredential: db.prepare('UPDATE credentials SET sign_count = ?, last_used = ? WHERE credential_id = ?'),
+    countCredentials: db.prepare('SELECT COUNT(*) AS c FROM credentials WHERE user_id = ?'),
+    insertRecovery: db.prepare('INSERT INTO recovery_requests (id,user_id,status,token_hash,created_at,expires_at) VALUES (?,?,?,?,?,?)'),
+    recoveryById: db.prepare('SELECT * FROM recovery_requests WHERE id = ?'),
+    recoveryByToken: db.prepare('SELECT * FROM recovery_requests WHERE token_hash = ?'),
+    recoveryOpenForUser: db.prepare("SELECT * FROM recovery_requests WHERE user_id = ? AND status IN ('pending_email','awaiting_admin') ORDER BY created_at DESC LIMIT 1"),
+    recoveryList: db.prepare("SELECT * FROM recovery_requests WHERE status IN ('pending_email','awaiting_admin') ORDER BY created_at DESC LIMIT 100"),
+    recoveryDecide: db.prepare('UPDATE recovery_requests SET status = ?, decided_at = ?, decided_by = ?, note = ? WHERE id = ?'),
+    confirmRecovery: db.prepare("UPDATE recovery_requests SET status = 'awaiting_admin', email_confirmed_at = ? WHERE id = ?"),
+    allUsers: db.prepare('SELECT id,email,name,role,created_at,last_login,email_verified,totp_enabled FROM users ORDER BY created_at DESC'),
+    setRole: db.prepare('UPDATE users SET role = ? WHERE id = ?'),
+    deleteUser: db.prepare('DELETE FROM users WHERE id = ?'),
+    deleteSessionsFor: db.prepare('DELETE FROM sessions WHERE user_id = ?'),
+    deleteIdentitiesFor: db.prepare('DELETE FROM identities WHERE user_id = ?'),
+    deleteCredentialsFor: db.prepare('DELETE FROM credentials WHERE user_id = ?'),
+    deleteRecoveryFor: db.prepare('DELETE FROM recovery_requests WHERE user_id = ?'),
+    docsBytes: db.prepare('SELECT COUNT(*) AS c, COALESCE(SUM(length(value)),0) AS b FROM docs WHERE user_id = ?'),
   };
 
   return {
@@ -305,6 +351,85 @@ function createSqliteStore(file) {
     revokeSessionForUser(jti, userId) {
       q.revokeOne.run(jti, userId);
     },
+    /* ---- passkeys ---- */
+    addCredential(entry) {
+      q.insertCredential.run(
+        entry.id, entry.userId, entry.credentialId, JSON.stringify(entry.publicKeyJwk),
+        entry.signCount || 0, entry.name || 'Passkey', entry.transports || '', entry.createdAt || nowMs()
+      );
+      return q.credentialById.get(entry.credentialId);
+    },
+    findCredential(credentialId) {
+      const row = q.credentialById.get(credentialId);
+      if (!row) return null;
+      let publicKeyJwk = null;
+      try { publicKeyJwk = JSON.parse(row.public_key); } catch (e) { publicKeyJwk = null; }
+      return Object.assign({}, row, { publicKeyJwk });
+    },
+    listCredentials(userId) {
+      return q.credentialsFor.all(userId);
+    },
+    countCredentials(userId) {
+      return q.countCredentials.get(userId).c;
+    },
+    deleteCredential(id, userId) {
+      q.deleteCredential.run(id, userId);
+    },
+    updateCredentialCounter(credentialId, counter) {
+      q.bumpCredential.run(counter, nowMs(), credentialId);
+    },
+
+    /* ---- 2FA recovery requests ---- */
+    createRecovery(entry) {
+      q.insertRecovery.run(entry.id, entry.userId, entry.status || 'pending_email', entry.tokenHash, entry.createdAt || nowMs(), entry.expiresAt);
+      return q.recoveryById.get(entry.id);
+    },
+    findRecovery(id) {
+      return q.recoveryById.get(id) || null;
+    },
+    findRecoveryByToken(tokenHash) {
+      return q.recoveryByToken.get(tokenHash) || null;
+    },
+    openRecoveryForUser(userId) {
+      return q.recoveryOpenForUser.get(userId) || null;
+    },
+    listOpenRecovery() {
+      return q.recoveryList.all();
+    },
+    confirmRecovery(id) {
+      q.confirmRecovery.run(nowMs(), id);
+    },
+    decideRecovery(id, status, adminId, note) {
+      q.recoveryDecide.run(status, nowMs(), adminId || null, note || '', id);
+    },
+
+    /* ---- admin ---- */
+    listUsers() {
+      return q.allUsers.all().map((row) => {
+        const docs = q.docsBytes.get(row.id);
+        return Object.assign({}, row, {
+          email_verified: Number(row.email_verified) === 1,
+          two_factor: Number(row.totp_enabled) === 1,
+          documents: docs.c,
+          bytes: docs.b,
+          passkeys: q.countCredentials.get(row.id).c,
+        });
+      });
+    },
+    setRole(userId, role) {
+      q.setRole.run(role, userId);
+    },
+    deleteUser(userId) {
+      q.deleteSessionsFor.run(userId);
+      q.deleteIdentitiesFor.run(userId);
+      q.deleteCredentialsFor.run(userId);
+      q.deleteRecoveryFor.run(userId);
+      q.deleteAllDocs.run(userId);
+      q.deleteTokens.run(userId, 'password-reset');
+      q.deleteTokens.run(userId, 'email-verify');
+      q.deleteTokens.run(userId, 'oauth-login');
+      q.deleteUser.run(userId);
+    },
     close() {
       try { db.close(); } catch (e) { /* already closed */ }
     },
@@ -315,7 +440,7 @@ function createSqliteStore(file) {
 
 function createFileStore(file) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  const empty = { users: {}, sessions: {}, docs: {}, aiUsage: {}, audit: [], tokens: {}, identities: {}, oauthStates: {} };
+  const empty = { users: {}, sessions: {}, docs: {}, aiUsage: {}, audit: [], tokens: {}, identities: {}, oauthStates: {}, credentials: {}, recovery: {} };
   let state;
   try {
     state = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -571,6 +696,129 @@ function createFileStore(file) {
     revokeSessionForUser(jti, userId) {
       const session = state.sessions[jti];
       if (session && session.user_id === userId) { session.revoked = 1; save(); }
+    },
+    addCredential(entry) {
+      state.credentials[entry.credentialId] = {
+        id: entry.id,
+        user_id: entry.userId,
+        credential_id: entry.credentialId,
+        public_key: JSON.stringify(entry.publicKeyJwk),
+        sign_count: entry.signCount || 0,
+        name: entry.name || 'Passkey',
+        transports: entry.transports || '',
+        created_at: entry.createdAt || nowMs(),
+        last_used: null,
+      };
+      save();
+      return state.credentials[entry.credentialId];
+    },
+    findCredential(credentialId) {
+      const row = state.credentials[credentialId];
+      if (!row) return null;
+      let publicKeyJwk = null;
+      try { publicKeyJwk = JSON.parse(row.public_key); } catch (e) { publicKeyJwk = null; }
+      return Object.assign({}, row, { publicKeyJwk });
+    },
+    listCredentials(userId) {
+      return Object.values(state.credentials)
+        .filter((c) => c.user_id === userId)
+        .map((c) => ({ id: c.id, credential_id: c.credential_id, name: c.name, transports: c.transports, created_at: c.created_at, last_used: c.last_used, sign_count: c.sign_count }));
+    },
+    countCredentials(userId) {
+      return Object.values(state.credentials).filter((c) => c.user_id === userId).length;
+    },
+    deleteCredential(id, userId) {
+      Object.keys(state.credentials).forEach((key) => {
+        const c = state.credentials[key];
+        if (c.id === id && c.user_id === userId) delete state.credentials[key];
+      });
+      save();
+    },
+    updateCredentialCounter(credentialId, counter) {
+      if (state.credentials[credentialId]) {
+        state.credentials[credentialId].sign_count = counter;
+        state.credentials[credentialId].last_used = nowMs();
+        save();
+      }
+    },
+    createRecovery(entry) {
+      state.recovery[entry.id] = {
+        id: entry.id,
+        user_id: entry.userId,
+        status: entry.status || 'pending_email',
+        token_hash: entry.tokenHash,
+        created_at: entry.createdAt || nowMs(),
+        expires_at: entry.expiresAt,
+        email_confirmed_at: null,
+        decided_at: null,
+        decided_by: null,
+        note: '',
+      };
+      save();
+      return state.recovery[entry.id];
+    },
+    findRecovery(id) {
+      return state.recovery[id] || null;
+    },
+    findRecoveryByToken(tokenHash) {
+      return Object.values(state.recovery).find((r) => r.token_hash === tokenHash) || null;
+    },
+    openRecoveryForUser(userId) {
+      return Object.values(state.recovery)
+        .filter((r) => r.user_id === userId && (r.status === 'pending_email' || r.status === 'awaiting_admin'))
+        .sort((a, b) => b.created_at - a.created_at)[0] || null;
+    },
+    listOpenRecovery() {
+      return Object.values(state.recovery)
+        .filter((r) => r.status === 'pending_email' || r.status === 'awaiting_admin')
+        .sort((a, b) => b.created_at - a.created_at);
+    },
+    confirmRecovery(id) {
+      if (state.recovery[id]) {
+        state.recovery[id].status = 'awaiting_admin';
+        state.recovery[id].email_confirmed_at = nowMs();
+        save();
+      }
+    },
+    decideRecovery(id, status, adminId, note) {
+      if (state.recovery[id]) {
+        state.recovery[id].status = status;
+        state.recovery[id].decided_at = nowMs();
+        state.recovery[id].decided_by = adminId || null;
+        state.recovery[id].note = note || '';
+        save();
+      }
+    },
+    listUsers() {
+      return Object.values(state.users).map((u) => {
+        const docs = Object.values(state.docs[u.id] || {});
+        return {
+          id: u.id,
+          email: u.email,
+          name: u.name,
+          role: u.role,
+          created_at: u.created_at,
+          last_login: u.last_login,
+          email_verified: Number(u.email_verified) === 1,
+          two_factor: Number(u.totp_enabled) === 1,
+          documents: docs.length,
+          bytes: docs.reduce((sum, d) => sum + Buffer.byteLength(d.value), 0),
+          passkeys: this.countCredentials(u.id),
+        };
+      }).sort((a, b) => b.created_at - a.created_at);
+    },
+    setRole(userId, role) {
+      if (state.users[userId]) { state.users[userId].role = role; save(); }
+    },
+    deleteUser(userId) {
+      delete state.users[userId];
+      delete state.docs[userId];
+      Object.keys(state.sessions).forEach((k) => { if (state.sessions[k].user_id === userId) delete state.sessions[k]; });
+      Object.keys(state.identities).forEach((k) => { if (state.identities[k].user_id === userId) delete state.identities[k]; });
+      Object.keys(state.credentials).forEach((k) => { if (state.credentials[k].user_id === userId) delete state.credentials[k]; });
+      Object.keys(state.recovery).forEach((k) => { if (state.recovery[k].user_id === userId) delete state.recovery[k]; });
+      Object.keys(state.tokens).forEach((k) => { if (state.tokens[k].user_id === userId) delete state.tokens[k]; });
+      save();
     },
     close() {
       flush();

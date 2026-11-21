@@ -76,6 +76,8 @@
     var params;
     try { params = new URLSearchParams(window.location.search); } catch (e) { return; }
 
+    handleRecoverLink(params);
+
     if (params.get('reset')) {
       var panel = $('resetPanel');
       if (panel) panel.hidden = false;
@@ -120,6 +122,162 @@
       return C.syncNow().catch(handleSyncError);
     }).catch(function (err) {
       toast(err.message || 'That sign-in code was already used.', 'bad');
+    });
+  }
+
+  /* ----------------------------------------------------------- passkeys */
+
+  function b64uToBuffer(value) {
+    var str = String(value || '').replace(/-/g, '+').replace(/_/g, '/');
+    var pad = str.length % 4 === 0 ? '' : '='.repeat(4 - (str.length % 4));
+    var binary = atob(str + pad);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes.buffer;
+  }
+
+  function bufferToB64u(buffer) {
+    var bytes = new Uint8Array(buffer);
+    var binary = '';
+    for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function passkeySupported() {
+    return typeof window !== 'undefined' && !!window.PublicKeyCredential &&
+      !!(navigator.credentials && navigator.credentials.create);
+  }
+
+  function describePasskeyError(err) {
+    if (!err) return 'The passkey operation failed.';
+    if (err.name === 'NotAllowedError') return 'The passkey prompt was cancelled or timed out.';
+    if (err.name === 'InvalidStateError') return 'That authenticator is already registered for this account.';
+    if (err.name === 'SecurityError') return 'The browser refused: this page must be served over HTTPS with a matching domain.';
+    if (err.name === 'NotSupportedError') return 'This browser or device does not support that passkey type.';
+    return err.message || 'The passkey operation failed.';
+  }
+
+  function addPasskey() {
+    if (!C) return;
+    if (!passkeySupported()) {
+      alertText('passkeyError', 'This browser cannot create passkeys. Use a current Chrome, Edge, Safari or Firefox over HTTPS.');
+      return;
+    }
+    var btn = $('addPasskeyBtn');
+    if (btn) btn.disabled = true;
+    alertText('passkeyError', null);
+    alertText('passkeyMessage', null);
+
+    C.passkeyRegisterOptions().then(function (data) {
+      var publicKey = data.publicKey;
+      publicKey.challenge = b64uToBuffer(publicKey.challenge);
+      publicKey.user.id = b64uToBuffer(publicKey.user.id);
+      publicKey.excludeCredentials = (publicKey.excludeCredentials || []).map(function (cred) {
+        return { type: 'public-key', id: b64uToBuffer(cred.id) };
+      });
+      return navigator.credentials.create({ publicKey: publicKey });
+    }).then(function (credential) {
+      if (!credential) throw new Error('No credential was created.');
+      var transports = credential.response.getTransports ? credential.response.getTransports() : [];
+      return C.passkeyRegisterVerify({
+        id: credential.id,
+        rawId: bufferToB64u(credential.rawId),
+        type: credential.type,
+        transports: transports,
+        response: {
+          clientDataJSON: bufferToB64u(credential.response.clientDataJSON),
+          attestationObject: bufferToB64u(credential.response.attestationObject),
+        },
+      }, ($('passkeyName') || {}).value || 'Passkey');
+    }).then(function (data) {
+      alertText('passkeyMessage', data.message || 'Passkey added.');
+      toast('Passkey added.', 'ok');
+      renderPasskeys();
+      renderSecurity();
+    }).catch(function (err) {
+      alertText('passkeyError', describePasskeyError(err));
+    }).then(function () { if (btn) btn.disabled = false; });
+  }
+
+  function loginWithPasskey() {
+    if (!C) return;
+    if (!passkeySupported()) {
+      alertText('passkeyLoginError', 'This browser cannot use passkeys.');
+      return;
+    }
+    var email = ($('passkeyEmail') || {}).value || '';
+    var btn = $('passkeyLoginBtn');
+    if (btn) btn.disabled = true;
+    alertText('passkeyLoginError', null);
+
+    C.passkeyLoginOptions(email.trim()).then(function (data) {
+      var publicKey = data.publicKey;
+      publicKey.challenge = b64uToBuffer(publicKey.challenge);
+      publicKey.allowCredentials = (publicKey.allowCredentials || []).map(function (cred) {
+        return { type: 'public-key', id: b64uToBuffer(cred.id), transports: cred.transports };
+      });
+      return navigator.credentials.get({ publicKey: publicKey });
+    }).then(function (credential) {
+      if (!credential) throw new Error('No passkey was returned.');
+      return C.passkeyLoginVerify({
+        id: credential.id,
+        rawId: bufferToB64u(credential.rawId),
+        type: credential.type,
+        response: {
+          clientDataJSON: bufferToB64u(credential.response.clientDataJSON),
+          authenticatorData: bufferToB64u(credential.response.authenticatorData),
+          signature: bufferToB64u(credential.response.signature),
+          userHandle: credential.response.userHandle ? bufferToB64u(credential.response.userHandle) : null,
+        },
+      }, email.trim());
+    }).then(function (data) {
+      toast('Signed in with a passkey.', 'ok');
+      C.startAuto(30000);
+      renderAll();
+      return C.syncNow().catch(handleSyncError);
+    }).catch(function (err) {
+      alertText('passkeyLoginError', describePasskeyError(err));
+    }).then(function () { if (btn) btn.disabled = false; });
+  }
+
+  function renderPasskeys() {
+    var body = $('passkeyBody');
+    if (!body || !C || !C.user) return;
+    C.passkeys().then(function (list) {
+      if (!list.length) {
+        body.innerHTML = '<tr><td colspan="4" class="muted-note">No passkey yet. Add one below — after that you can sign in without a password.</td></tr>';
+        return;
+      }
+      body.innerHTML = list.map(function (p) {
+        return '<tr>' +
+          '<td>' + esc(p.name || 'Passkey') + '</td>' +
+          '<td>' + esc(when(p.createdAt)) + '</td>' +
+          '<td>' + esc(p.lastUsed ? when(p.lastUsed) : 'never') + '</td>' +
+          '<td><button class="btn-secondary-solid" type="button" data-passkey="' + esc(p.id) + '">Remove</button></td>' +
+          '</tr>';
+      }).join('');
+    }).catch(function (err) {
+      body.innerHTML = '<tr><td colspan="4" class="muted-note">' + esc(err.message || 'Could not read passkeys.') + '</td></tr>';
+    });
+  }
+
+  /* ---------------------------------------------------------- recovery */
+
+  function handleRecoverLink(params) {
+    var token = params.get('recover');
+    if (!token) return;
+    var panel = $('recoverPanel');
+    if (panel) panel.hidden = false;
+    var signedOut = $('signedOutView');
+    if (signedOut) signedOut.hidden = true;
+    var others = ['passkeySignInCard', 'forgotCard', 'oauthCard'];
+    others.forEach(function (id) { var el = $(id); if (el) el.hidden = true; });
+    if (!C) return;
+    C.confirmRecovery(token).then(function (data) {
+      alertText('recoverStatus', data.message || 'Email confirmed. Waiting for an administrator.');
+      toast('Recovery confirmed. An administrator must approve it.', 'ok');
+    }).catch(function (err) {
+      alertText('recoverStatus', err.message || 'That recovery link is invalid or expired.');
     });
   }
 
@@ -320,6 +478,10 @@
       var storage = $('profileUsage');
       if (storage && data.storage) storage.textContent = bytes(data.storage.bytes) + ' used of ' + bytes(data.storage.quota || 0);
 
+      var adminLink = $('adminLink');
+      if (adminLink) adminLink.hidden = !(data.user && data.user.role === 'admin');
+
+      renderPasskeys();
       return C.sessions();
     }).then(function (sessions) {
       var body = $('sessionBody');
@@ -593,6 +755,41 @@
       });
     }
 
+    var addPasskeyBtn = $('addPasskeyBtn');
+    if (addPasskeyBtn) addPasskeyBtn.addEventListener('click', addPasskey);
+
+    var passkeyLoginBtn = $('passkeyLoginBtn');
+    if (passkeyLoginBtn) passkeyLoginBtn.addEventListener('click', loginWithPasskey);
+
+    var passkeyBodyEl = $('passkeyBody');
+    if (passkeyBodyEl) {
+      passkeyBodyEl.addEventListener('click', function (event) {
+        var btn = event.target.closest('[data-passkey]');
+        if (!btn || !C) return;
+        if (!window.confirm('Remove this passkey? Any device using it will stop working.')) return;
+        btn.disabled = true;
+        C.deletePasskey(btn.getAttribute('data-passkey'))
+          .then(function () { renderPasskeys(); renderSecurity(); toast('Passkey removed.', 'info'); })
+          .catch(function (err) { alertText('passkeyError', err.message); btn.disabled = false; });
+      });
+    }
+
+    var recoverForm = $('recoverForm');
+    if (recoverForm) {
+      recoverForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        alertText('recoverError', null);
+        alertText('recoverMessage', null);
+        if (!C || !C.available) { alertText('recoverError', 'No TaxMitra server is answering.'); return; }
+        var btn = $('recoverBtn');
+        if (btn) btn.disabled = true;
+        C.requestRecovery(($('recoverEmail') || {}).value)
+          .then(function (data) { alertText('recoverMessage', data.message || 'Check your email.'); })
+          .catch(function (err) { alertText('recoverError', err.message || 'Could not start recovery.'); })
+          .then(function () { if (btn) btn.disabled = false; });
+      });
+    }
+
     var resendVerify = $('resendVerifyBtn');
     if (resendVerify) {
       resendVerify.addEventListener('click', function () {
@@ -712,6 +909,12 @@
   function boot() {
     renderServer();
     wire();
+    if (!passkeySupported()) {
+      ['addPasskeyBtn', 'passkeyLoginBtn'].forEach(function (id) {
+        var el = $(id);
+        if (el) { el.disabled = true; el.title = 'This browser does not support passkeys'; }
+      });
+    }
     if (!C) return;
     C.boot();
     consumeUrlState();

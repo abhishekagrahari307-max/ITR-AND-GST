@@ -24,6 +24,7 @@ const otp = require('./lib/otp');
 const emailLib = require('./lib/email');
 const oauthLib = require('./lib/oauth');
 const accountLib = require('./lib/account');
+const adminLib = require('./lib/admin');
 const { HttpError, sendJson, sendNoContent, readJson, applyCors, createLimiter, clientIp } = require('./lib/http');
 
 const cfg = configLib.load(process.env);
@@ -54,12 +55,6 @@ function publicUser(user) {
 function requireAuth(req) {
   const session = auth.authenticate(req, cfg, store);
   if (!session) throw new HttpError(401, 'UNAUTHENTICATED', 'Sign in to use this endpoint.');
-  return session;
-}
-
-function requireAdmin(req) {
-  const session = requireAuth(req);
-  if (session.user.role !== 'admin') throw new HttpError(403, 'FORBIDDEN', 'Administrator access is required.');
   return session;
 }
 
@@ -101,7 +96,7 @@ route('GET', '/api/health', async (req, res) => {
   sendJson(res, 200, {
     ok: true,
     service: 'taxmitra',
-    version: '11.0.0',
+    version: require('../package.json').version,
     time: new Date().toISOString(),
     storage: store.driver,
     capabilities: {
@@ -114,6 +109,8 @@ route('GET', '/api/health', async (req, res) => {
       email: emailLib.isConfigured(cfg),
       oauthProviders: oauthLib.enabledProviders(cfg).map((p) => p.id),
       twoFactor: true,
+      passkeys: true,
+      twoFactorRecovery: true,
     },
     limits: {
       aiPerHourPerIp: cfg.ai.perHourPerIp,
@@ -425,12 +422,7 @@ route('POST', '/api/govt/itr', async (req, res) => {
   throw govt.itrUnavailable();
 });
 
-/* ---- admin ---- */
-
-route('GET', '/api/admin/audit', async (req, res) => {
-  requireAdmin(req);
-  sendJson(res, 200, { events: store.recentAudit(100) });
-});
+/* ---- admin (server/lib/admin.js) ---- */
 
 /* ---- account lifecycle: verification, reset, 2FA, OAuth, sessions ---- */
 
@@ -441,6 +433,21 @@ const account = accountLib.install(route, {
   otp,
   emailLib,
   oauthLib,
+  HttpError,
+  sendJson,
+  readJson,
+  limitOrThrow,
+  publicUser,
+  clientIp,
+  requireAuth,
+});
+
+adminLib.install(route, {
+  cfg,
+  store,
+  auth,
+  otp,
+  emailLib,
   HttpError,
   sendJson,
   readJson,

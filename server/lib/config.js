@@ -87,6 +87,15 @@ function load(env) {
       codeMinutes: int(env.OAUTH_CODE_MINUTES, 2),
     },
 
+    webauthn: {
+      rpId: env.WEBAUTHN_RP_ID || '',            // hostname only, no scheme or port
+      rpName: env.WEBAUTHN_RP_NAME || 'TaxMitra',
+      origins: list(env.WEBAUTHN_ORIGINS),       // full origins, e.g. https://taxmitra.in
+      challengeMinutes: int(env.WEBAUTHN_CHALLENGE_MINUTES, 5),
+      requireUserVerification: bool(env.WEBAUTHN_REQUIRE_UV, true),
+      recoveryHours: int(env.RECOVERY_HOURS, 24),
+    },
+
     limits: {
       registerPerHour: int(env.REGISTER_PER_HOUR, 10),
       loginPer15Min: int(env.LOGIN_PER_15MIN, 20),

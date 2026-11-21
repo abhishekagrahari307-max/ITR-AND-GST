@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User administration – TaxMitra Cloud</title>
+  <meta name="description" content="Administrator console for a self-hosted TaxMitra server: accounts, roles, email verification, two-factor resets, deletions and pending two-factor recovery requests."/>
+  <meta name="robots" content="noindex"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/taxmitra.css"/>
+  <style>
+    .admin-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.35rem; margin-bottom: 1.25rem; }
+    .admin-card h2 { font-size: 1.05rem; font-weight: 800; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .admin-card > p.lead { font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 1rem; }
+    .alert { padding: 0.8rem 1rem; border-radius: var(--radius-sm); font-size: 0.84rem; margin-bottom: 1rem; border: 1px solid; }
+    .alert.warn { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.4); color: #92400e; }
+    .alert.bad { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.4); color: #991b1b; }
+    .alert.info { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.35); color: #155e75; }
+    .alert.ok { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.35); color: #065f46; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.85rem; margin-bottom: 1.25rem; }
+    .kpi { background: var(--bg-card); border: 1px solid var(--border); border-top: 3px solid var(--primary); border-radius: var(--radius); padding: 0.9rem 1rem; }
+    .kpi-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .kpi-value { font-size: 1.3rem; font-weight: 800; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
+    .kpi-sub { font-size: 0.7rem; color: var(--text-muted); }
+    .tm-table { width: 100%; border-collapse: collapse; }
+    .tm-table th, .tm-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); font-size: 0.8rem; text-align: left; vertical-align: middle; }
+    .tm-table th { background: var(--bg-secondary); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); font-weight: 700; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .pill { display: inline-block; padding: 0.12rem 0.5rem; border-radius: 99px; font-size: 0.68rem; font-weight: 800; white-space: nowrap; }
+    .pill.yes { background: rgba(16,185,129,0.12); color: #065f46; }
+    .pill.no { background: rgba(148,163,184,0.18); color: #475569; }
+    .pill.warn { background: rgba(245,158,11,0.16); color: #92400e; }
+    .pill.danger { background: rgba(239,68,68,0.12); color: #991b1b; }
+    .row-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .row-actions button { font-size: 0.72rem; padding: 0.3rem 0.55rem; min-height: 32px; }
+    .muted-note { font-size: 0.78rem; color: var(--text-muted); }
+    .toast-host { position: fixed; right: 1rem; bottom: 1rem; z-index: 999; display: flex; flex-direction: column; gap: 0.5rem; }
+    .tm-toast { background: var(--bg-dark); color: #fff; padding: 0.65rem 1rem; border-radius: var(--radius-sm); font-size: 0.82rem; max-width: 360px; opacity: 0; transform: translateY(8px); transition: all 0.25s ease; }
+    .tm-toast.show { opacity: 1; transform: translateY(0); }
+    .tm-toast.ok { border-left: 3px solid var(--success); } .tm-toast.bad { border-left: 3px solid var(--danger); }
+    .tm-toast.warn { border-left: 3px solid var(--warning); } .tm-toast.info { border-left: 3px solid var(--info); }
+    code { background: var(--bg-secondary); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.75rem; word-break: break-all; }
+    @media (max-width: 720px) {
+      .admin-card { padding: 1rem; }
+      .tm-table th, .tm-table td { padding: 0.45rem 0.5rem; font-size: 0.74rem; }
+      .kpi-value { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar-main" style="position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo"><div class="logo-icon">⚡</div><div class="logo-text"><span class="logo-primary">TaxMitra</span><span class="logo-badge">Admin</span></div></a>
+      <div style="flex:1"></div>
+      <div class="nav-right">
+        <button class="nav-icon-btn" id="themeToggle" type="button">🌙</button>
+        <a href="cloud.html" class="btn-nav-login">Cloud account</a>
+        <a href="../index.html" class="btn-nav-ai">Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-hero">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>User administration</span></div>
+      <h1>👥 User administration</h1>
+      <p>Accounts, roles, two-factor resets and recovery approvals on <strong>this</strong> server. Every action here is written to the audit log with the administrator's account.</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding-bottom:3rem">
+    <div class="toast-host" id="toastHost" aria-live="polite"></div>
+
+    <div id="gateMessage" class="alert info">
+      Checking who you are on this server…
+    </div>
+
+    <div id="adminBody" hidden>
+      <div class="kpi-grid" id="summaryGrid">
+        <div class="kpi"><div class="kpi-label">Accounts</div><div class="kpi-value" id="kpiAccounts">—</div><div class="kpi-sub">on this server</div></div>
+        <div class="kpi"><div class="kpi-label">Email confirmed</div><div class="kpi-value" id="kpiVerified">—</div><div class="kpi-sub">of the accounts</div></div>
+        <div class="kpi"><div class="kpi-label">Two-factor on</div><div class="kpi-value" id="kpiTwoFactor">—</div><div class="kpi-sub">authenticator app</div></div>
+        <div class="kpi"><div class="kpi-label">Passkeys</div><div class="kpi-value" id="kpiPasskeys">—</div><div class="kpi-sub">registered</div></div>
+        <div class="kpi"><div class="kpi-label">Cloud storage</div><div class="kpi-value" id="kpiStorage">—</div><div class="kpi-sub" id="kpiDocs">— documents</div></div>
+        <div class="kpi"><div class="kpi-label">Open recovery</div><div class="kpi-value" id="kpiRecovery">—</div><div class="kpi-sub">awaiting a decision</div></div>
+      </div>
+
+      <section class="admin-card">
+        <h2>Two-factor recovery requests</h2>
+        <p class="lead">A user who lost their authenticator confirms control of their mailbox first. Approving clears their two-factor, signs out every session and emails a one-time password reset link.</p>
+        <div class="table-wrap">
+          <table class="tm-table">
+            <thead>
+              <tr><th scope="col">Account</th><th scope="col">Status</th><th scope="col">Requested</th><th scope="col">Expires</th><th scope="col">Decision</th></tr>
+            </thead>
+            <tbody id="recoveryBody"><tr><td colspan="5" class="muted-note">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <p class="alert ok" id="recoveryResult" style="display:none;margin-top:0.85rem"></p>
+        <p class="alert bad" id="recoveryError" style="display:none;margin-top:0.85rem"></p>
+      </section>
+
+      <section class="admin-card">
+        <h2>Accounts</h2>
+        <p class="lead">Passwords are stored as scrypt hashes and are never visible here. Document counts are per account; opening someone else's books is not one of these actions.</p>
+        <div class="table-wrap">
+          <table class="tm-table">
+            <thead>
+              <tr><th scope="col">Account</th><th scope="col">Role</th><th scope="col">Email confirmed</th><th scope="col">2FA</th><th scope="col">Passkeys</th><th scope="col">Documents</th><th scope="col">Last sign-in</th><th scope="col">Actions</th></tr>
+            </thead>
+            <tbody id="usersBody"><tr><td colspan="8" class="muted-note">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <p class="alert ok" id="usersResult" style="display:none;margin-top:0.85rem"></p>
+        <p class="alert bad" id="usersError" style="display:none;margin-top:0.85rem"></p>
+      </section>
+
+      <section class="admin-card">
+        <h2>Recent audit events</h2>
+        <p class="lead">The last 100 server-side events: sign-ins, password changes, two-factor changes, recoveries and administrative actions.</p>
+        <div class="table-wrap">
+          <table class="tm-table">
+            <thead><tr><th scope="col">When</th><th scope="col">Action</th><th scope="col">Account</th></tr></thead>
+            <tbody id="auditBody"><tr><td colspan="3" class="muted-note">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <p class="muted-note" style="margin:2rem 0 2.5rem">
+      This console exists only on a TaxMitra server you run. On the static GitHub Pages build there is no server, so this page reports that honestly instead of showing empty tables.
+    </p>
+  </div>
+
+  <script src="../js/taxmitra.js"></script>
+  <script src="../js/tm-store.js"></script>
+  <script src="../js/cloud.js"></script>
+  <script src="../js/admin-users.js"></script>
+</body>
+</html>

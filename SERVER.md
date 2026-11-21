@@ -62,6 +62,14 @@ Everything below is implemented in `server/` with only Node built-ins. Nothing i
 | Two-factor (TOTP) | `POST /api/auth/2fa/setup`, `/enable`, `/disable` | RFC 6238 (SHA-1, 30 s, 6 digits, ±1 step). 10 backup codes, stored hashed, each works once. Disabling requires the password **and** a current code. |
 | OAuth sign-in | `GET /api/auth/oauth/providers`, `/:provider/start`, `/:provider/callback`, `POST /api/auth/oauth/exchange` | GitHub and Google authorisation-code flow. State is single-use and expires in 10 min. Access tokens never reach the browser: the callback issues a 2-minute one-time code that the page exchanges for a session. |
 | Session management | `GET /api/auth/sessions`, `DELETE /api/auth/sessions/:jti` | Every session row is visible with its device string; any of them can be revoked individually. |
+| Passkeys (WebAuthn) | `POST /api/auth/passkey/register/options`, `/register/verify`, `GET /api/auth/passkeys`, `DELETE /api/auth/passkeys/:id`, `POST /api/auth/passkey/login/options`, `/login/verify` | ES256 and RS256, implemented on `crypto` alone (`server/lib/webauthn.js`, minimal CBOR decoder — no npm package). The challenge is a hashed **single-use** token tied to its purpose, so it cannot be replayed or swapped between login and registration. Origin, `rpIdHash`, user-presence and (when `WEBAUTHN_REQUIRE_UV=true`) user-verification are all checked; a counter that goes backwards is treated as a cloned authenticator. When user verification is present the passkey **counts as the second factor**, so no TOTP prompt follows. |
+| 2FA recovery | `POST /api/auth/2fa/recover/request`, `/confirm`, `GET/POST /api/admin/recovery[/:id/approve\|deny]` | For someone who lost the authenticator. It takes two independent proofs: the emailed link proves the mailbox, an administrator proves the person. Until both are in, nothing changes. Approval clears TOTP, revokes **every** session and issues a single-use reset link; the request expires after `RECOVERY_HOURS`. A pending/denied request answers `TOTP_REQUIRED` exactly like a normal 2FA login, so it leaks nothing. |
+| Admin console | `GET /api/admin/users`, `GET /api/admin/summary`, `POST /api/admin/users/:id/role\|verify-email\|reset-2fa`, `DELETE /api/admin/users/:id` | Roles are checked server-side on every call (`requireAdmin`), never in the page. You cannot change your own role or delete yourself — that is the usual way an admin locks everyone out. Every action is written to the audit log (`admin.role_changed`, `admin.2fa_reset`, `admin.recovery_approved`, …). The screen is `pages/admin-users.html`. |
+
+**Who is an admin?** Put your address in `ADMIN_EMAILS`. The *first* account that registers with
+one of those addresses becomes `role = admin`; afterwards only an existing admin can promote
+someone (or you set `role` in the database yourself). With `ADMIN_EMAILS` empty there is no admin,
+the two recovery routes answer `403`, and the console says so instead of pretending.
 
 ### Free email delivery (pick one)
 
@@ -89,11 +97,41 @@ not configured — it never claims an email went out.
 
 Both providers are optional and independent; the page only shows the buttons that are configured.
 
+### Passkeys — one setting to get right
+
+Passkeys only work on an **HTTPS origin whose host matches the RP ID** (browsers refuse otherwise,
+and `http://localhost` is the one allowed exception). So:
+
+1. Set `WEBAUTHN_ORIGINS=https://your-host` (comma-separate several) and, if your hostname is not
+   the site host, `WEBAUTHN_RP_ID=your-host`. Both are optional: with neither set the server falls
+   back to the request's `Host` header, which is correct for a single-domain deployment.
+2. Add `pages/cloud.html` → Account security → **Add a passkey**. The browser asks for Touch ID /
+   Windows Hello / security key and the credential is stored against your account.
+3. To sign in: `cloud.html` → **Sign in with a passkey**, type the account email (the browser needs
+   it to pick the right credentials), confirm on the device. No password, and if the device
+   verified you, no 2FA code either.
+
+Passkeys and passwords coexist — adding one never removes your password, and removing the last
+passkey cannot lock you out.
+
 ### Turning on 2FA for yourself
 
 Open **`pages/cloud.html` → Account security → Set up two-factor**. The page shows the manual key
 and the `otpauth://` link; add it to any authenticator, type the 6-digit code, and save the ten
 backup codes it shows **once**.
+
+### If you lose the authenticator
+
+`cloud.html` → **Lost your authenticator app?** → enter the account email. Mail arrives with a
+confirm link (`cloud.html?recover=…`). Confirming it moves the request to *awaiting administrator*
+and notifies `ADMIN_EMAILS`. An admin opens `pages/admin-users.html` → Recovery requests →
+**Approve**, which clears two-factor, signs every old session out and mails a one-time password
+reset link. If no email driver is configured the console shows the reset link directly so you can
+still get in — and says plainly that no mail was sent.
+
+Why two steps: the mailbox alone is one stolen-inbox away from an account takeover, and an admin
+alone would be a single person who can silently strip 2FA off any account. Both are needed, and
+both are recorded in the audit log.
 
 ## 3. Accounts and sync, in plain words
 

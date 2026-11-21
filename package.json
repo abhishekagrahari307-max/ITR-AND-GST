@@ -1,6 +1,6 @@
 {
   "name": "taxmitra",
-  "version": "11.1.0",
+  "version": "11.2.0",
   "private": true,
   "description": "TaxMitra - GST billing, income-tax and ITR preparation tools, local-first in the browser, with a real Node server for accounts, sync and AI.",
   "license": "SEE LICENSE IN README.md",

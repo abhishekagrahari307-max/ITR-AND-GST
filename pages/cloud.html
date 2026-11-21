@@ -188,6 +188,47 @@
       </form>
     </div>
 
+    <div id="recoverPanel" class="cloud-card" hidden>
+      <h2>Confirm two-factor recovery</h2>
+      <p class="lead">This confirms you control this mailbox. An administrator still has to approve the reset — that is deliberate, so one stolen inbox cannot unlock the account.</p>
+      <p class="alert info" id="recoverStatus">Confirming…</p>
+      <div class="btn-row">
+        <a class="btn-nav-login" href="cloud.html">Back to sign-in</a>
+      </div>
+    </div>
+
+    <div class="cloud-card" id="passkeySignInCard">
+      <h2>Sign in with a passkey</h2>
+      <p class="lead">A passkey (Touch ID, Windows Hello, Face ID or a security key) replaces the password for this device. Nothing secret leaves the authenticator.</p>
+      <div class="cloud-grid">
+        <div class="form-group">
+          <label for="passkeyEmail">Email on the account</label>
+          <input type="email" id="passkeyEmail" name="passkeyEmail" autocomplete="username" placeholder="you@example.com"/>
+          <span class="hint">Needed so the browser can offer the passkeys registered for that account.</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary-solid" id="passkeyLoginBtn" type="button">Use a passkey</button>
+      </div>
+      <p class="alert bad" id="passkeyLoginError" style="display:none;margin-top:0.85rem"></p>
+    </div>
+
+    <div class="cloud-card">
+      <h2>Lost your authenticator app?</h2>
+      <p class="lead">Two-factor recovery proves you control the mailbox, then waits for an administrator. Only then is two-factor cleared and a one-time reset link sent.</p>
+      <form id="recoverForm" novalidate>
+        <div class="form-group">
+          <label for="recoverEmail">Email on the account</label>
+          <input type="email" id="recoverEmail" name="recoverEmail" autocomplete="email" required/>
+        </div>
+        <div class="btn-row">
+          <button class="btn-secondary-solid" id="recoverBtn" type="submit">Start recovery</button>
+        </div>
+        <p class="alert info" id="recoverMessage" style="display:none;margin-top:0.85rem"></p>
+        <p class="alert bad" id="recoverError" style="display:none;margin-top:0.85rem"></p>
+      </form>
+    </div>
+
     <!-- ───────────── signed in ───────────── -->
     <div id="signedInView" hidden>
       <section class="cloud-card">
@@ -293,6 +334,27 @@
           </div>
           <p class="alert bad" id="totpDisableError" style="display:none;margin-top:0.85rem"></p>
         </div>
+
+        <h3 style="font-size:0.9rem;margin:1.4rem 0 0.5rem">Passkeys</h3>
+        <p class="muted-note" style="margin-bottom:0.6rem">A passkey signs you in without a password and counts as a second factor when the authenticator verifies you (Face ID, fingerprint, PIN).</p>
+        <div class="table-wrap">
+          <table class="tm-table">
+            <thead><tr><th scope="col">Name</th><th scope="col">Added</th><th scope="col">Last used</th><th scope="col">Action</th></tr></thead>
+            <tbody id="passkeyBody"><tr><td colspan="4" class="muted-note">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="cloud-grid" style="margin-top:0.85rem">
+          <div class="form-group">
+            <label for="passkeyName">Name for the new passkey</label>
+            <input type="text" id="passkeyName" maxlength="60" placeholder="Laptop · Windows Hello"/>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-secondary-solid" id="addPasskeyBtn" type="button">Add a passkey</button>
+          <a class="btn-nav-login" id="adminLink" href="admin-users.html" hidden>Open user administration</a>
+        </div>
+        <p class="alert ok" id="passkeyMessage" style="display:none;margin-top:0.85rem"></p>
+        <p class="alert bad" id="passkeyError" style="display:none;margin-top:0.85rem"></p>
 
         <h3 style="font-size:0.9rem;margin:1.4rem 0 0.5rem">Devices signed in</h3>
         <div class="table-wrap">

@@ -159,7 +159,7 @@ JWT_SECRET=$(openssl rand -hex 32) npm start   # → http://localhost:3000
 | What | Real behaviour |
 |---|---|
 | Accounts | email + password, scrypt hashing, revocable JWT sessions, per-user data |
-| Account security | email verification, password reset (single-use hashed tokens), TOTP 2FA + backup codes, device/session list, Google & GitHub OAuth |
+| Account security | email verification, password reset (single-use hashed tokens), TOTP 2FA + backup codes, device/session list, Google & GitHub OAuth, **passkeys (WebAuthn)**, **two-factor recovery with admin approval**, **admin user console** |
 | Cloud sync | `tm*` documents per account, versions, quotas; secrets (`tm_keys`, tokens) never uploaded |
 | AI | server-side key (Gemini / OpenRouter / Groq / OpenAI-compatible) so visitors need none; rule engine when unset |
 | E-invoice IRN | real NIC IRP adapter (auth + IRN); `501 GOVT_NOT_CONFIGURED` without credentials |
@@ -173,15 +173,15 @@ The NestJS `backend/` folder remains archived material.
 ### Tests
 
 ```bash
-npm test                    # 521 tests · 3,495 assertions · zero dependencies
-npm run test:server         # 37 server tests: real HTTP, real SQLite, TOTP vectors, full auth lifecycle
+npm test                    # 523 tests · 3,511 assertions · zero dependencies
+npm run test:server         # 46 server tests: real HTTP, real SQLite, TOTP vectors, WebAuthn signatures, full auth + recovery lifecycle
 npm run test:all            # both
 npm start                   # the site + API on http://localhost:3000
 npm run serve:python        # static-only preview on http://localhost:8080
 
 npm install --no-save jsdom # optional, for the browser-level audits
 node tests/smoke.js         # browser checks drive the real pages (incl. directory and GitHub sign-in)
-node tests/pages-load.js    # loads all 66 pages, fails if any throws on startup
+node tests/pages-load.js    # loads all 68 pages, fails if any throws on startup
 ```
 
 ### Sign-in
