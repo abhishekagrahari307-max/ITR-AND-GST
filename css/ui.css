@@ -130,6 +130,10 @@ body.tm-ui.dark-mode {
 /* ── 2. Base typography and canvas ─────────────────────────── */
 
 html {
+  /* a single horizontal-overflowing box makes mobile browsers zoom the whole
+     page out; clipping stops that at the source */
+  overflow-x: clip;
+  max-width: 100%;
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--tm-nav-h) + 18px);
   -webkit-text-size-adjust: 100%;
@@ -137,6 +141,8 @@ html {
 }
 
 body.tm-ui {
+  overflow-x: clip;
+  max-width: 100%;
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: 1.62;
@@ -562,6 +568,14 @@ body.tm-ui.dark-mode .page-hero {
 .tm-ui .form-group,
 .tm-ui .fg { display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
 
+/* flex children default to min-width:auto and happily push a layout wider
+   than the phone screen — opt every shell child into shrinking instead */
+.tm-ui .nav-container > *,
+.tm-ui .btn-row > *,
+.tm-ui .card-header > *,
+.tm-ui .result-item > *,
+.tm-ui .gst-summary-row > * { min-width: 0; }
+
 .tm-ui .form-group > label,
 .tm-ui .fg > label,
 .tm-ui label {
@@ -941,12 +955,19 @@ html.tm-motion .tm-reveal:nth-child(3n) { --tm-delay: 140ms; }
     border-left: 1px solid var(--tm-line);
     box-shadow: var(--tm-shadow-3);
     overflow-y: auto;
-    translate: 100% 0;
+    /* The closed drawer stays *inside* the viewport and is hidden by a clip,
+       never by pushing it off-screen. An element translated past the right
+       edge widens the document, and Chrome then shrinks the whole page to fit
+       (the "everything is tiny in the left half" symptom on phones). */
+    clip-path: inset(0 0 0 100%);
     visibility: hidden;
-    transition: translate var(--tm-mid) var(--tm-ease), visibility var(--tm-mid) var(--tm-ease);
+    transition: clip-path var(--tm-mid) var(--tm-ease), visibility var(--tm-mid) var(--tm-ease);
     z-index: 990;
   }
-  .tm-ui .navbar-main .nav-links-wrapper.show { translate: 0 0; visibility: visible; }
+  .tm-ui .navbar-main .nav-links-wrapper.show {
+    clip-path: inset(0 0 0 0);
+    visibility: visible;
+  }
   .tm-ui .navbar-main .nav-links { flex-direction: column; align-items: stretch; gap: 0.15rem; }
   .tm-ui .navbar-main .nav-links .nav-item,
   .tm-ui .navbar-main .nav-links .nav-item:nth-child(n) { display: block; }

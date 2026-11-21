@@ -90,6 +90,29 @@ suite('UI · stylesheet stays self-contained', function () {
   });
 });
 
+suite('UI · the layout can never widen the phone screen', function () {
+  test('the document clips horizontal overflow', function () {
+    t.includes(CSS, 'overflow-x: clip', 'html/body must clip horizontal overflow');
+    var htmlBlock = /\nhtml \{([\s\S]*?)\n\}/.exec(CSS);
+    t.ok(htmlBlock, 'the stylesheet needs an html block');
+    t.includes(htmlBlock[1], 'overflow-x: clip', 'the guard must sit on html itself');
+  });
+
+  test('the drawer is hidden by clipping, never pushed off-screen', function () {
+    t.notOk(/translate:\s*100%/.test(CSS), 'an off-canvas translate widens the document and zooms the page out');
+    t.notOk(/translateX\(100%\)/.test(CSS), 'no off-canvas translate in the interface layer');
+    t.includes(CSS, 'clip-path: inset(0 0 0 100%)', 'the closed drawer should be clipped, not moved away');
+  });
+
+  test('flex children are allowed to shrink', function () {
+    t.includes(CSS, 'min-width: 0', 'shell children need min-width:0 so they cannot force the layout wider');
+  });
+
+  test('phones keep their page width even with wide tables', function () {
+    t.includes(CSS, '.tm-table-scroll', 'tables must scroll inside a wrapper instead of widening the page');
+  });
+});
+
 suite('UI · behaviours are progressive', function () {
   test('nothing is hidden until the script opts in', function () {
     t.includes(JS, "classList.add('tm-motion')", 'the script must add the motion class itself');
@@ -103,6 +126,10 @@ suite('UI · behaviours are progressive', function () {
     t.includes(JS, 'function sweep(', 'a sweep must reveal anything the observer missed');
     t.ok(/setTimeout\(\s*function \(\) \{ sweep\(/.test(JS), 'the sweep must run on a timer, not only on scroll');
     t.includes(JS, '6000', 'a final fallback must reveal everything, however late');
+  });
+
+  test('a phone can be diagnosed without devtools', function () {
+    t.includes(JS, 'debug=overflow', '?debug=overflow should report overflowing boxes');
   });
 
   test('the script never throws without a browser', function () {

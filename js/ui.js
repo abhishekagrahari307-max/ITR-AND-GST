@@ -290,6 +290,65 @@
     sync();
   }
 
+  /* --------------------------------------- opt-in overflow report */
+
+  /* Open any page with ?debug=overflow to see which boxes push past the
+     viewport. This is the fastest way to diagnose "the page is tiny in the
+     left half" on a real phone, where no desktop devtools are available. */
+  function mountOverflowReport() {
+    var wanted = false;
+    try {
+      wanted = new URLSearchParams(window.location.search).get('debug') === 'overflow';
+    } catch (error) {
+      wanted = false;
+    }
+    if (!wanted) return;
+
+    var panel = el('div', 'tm-debug', {
+      role: 'status',
+      style: 'position:fixed;inset:auto 0 0 0;z-index:99999;max-height:52vh;overflow:auto;' +
+        'background:#0b1220;color:#e6edf8;font:12px/1.5 ui-monospace,monospace;padding:.75rem 1rem;' +
+        'border-top:2px solid #2563eb',
+    });
+
+    function label(node) {
+      var name = node.tagName.toLowerCase();
+      if (node.id) name += '#' + node.id;
+      var cls = typeof node.className === 'string' ? node.className.trim().split(/\s+/).slice(0, 2).join('.') : '';
+      return name + (cls ? '.' + cls : '');
+    }
+
+    function report() {
+      var vw = window.innerWidth || 0;
+      var lines = [
+        'viewport ' + vw + 'px · document ' + document.documentElement.scrollWidth +
+        'px · body ' + document.body.scrollWidth + 'px'
+      ];
+      var offenders = [];
+      Array.prototype.forEach.call(document.querySelectorAll('body *'), function (node) {
+        var cs = window.getComputedStyle(node);
+        if (cs.position === 'fixed' || cs.display === 'none' || cs.visibility === 'hidden') return;
+        var rect = node.getBoundingClientRect();
+        if (!rect.width) return;
+        if (rect.right > vw + 1 || rect.left < -1) {
+          offenders.push({ node: node, right: Math.round(rect.right), left: Math.round(rect.left) });
+        }
+      });
+      offenders.sort(function (a, b) { return b.right - a.right; });
+      offenders.slice(0, 12).forEach(function (item) {
+        lines.push('→ ' + label(item.node) + '  left ' + item.left + ' · right ' + item.right);
+      });
+      if (!offenders.length) lines.push('no overflowing boxes found');
+      lines.push('tap to close');
+      panel.textContent = lines.join('\n');
+    }
+
+    panel.addEventListener('click', function () { panel.remove(); });
+    document.body.appendChild(panel);
+    report();
+    window.addEventListener('resize', report, { passive: true });
+  }
+
   /* --------------------------------------------------------- start */
 
   onReady(function () {
@@ -300,6 +359,7 @@
       mountTables();
       mountDrawer();
       mountReveals();
+      mountOverflowReport();
     } catch (error) {
       // A visual extra must never break a page.
       if (window.console && console.warn) console.warn('[ui] skipped an enhancement:', error && error.message);
