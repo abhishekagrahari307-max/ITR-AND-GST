@@ -147,15 +147,41 @@ by the pages *and* by the test suite. Full rules, data model and limitations are
 > government API. The GSTR-1 CSV is a reconciliation working paper, not the official upload
 > file. Download a backup from the admin console regularly — clearing site data deletes your books.
 
+### Real backend (optional): accounts, sync, AI, government adapters
+
+`server/` is a dependency-free Node process that serves the site **and** the API, so one command
+gives you the whole app:
+
+```bash
+JWT_SECRET=$(openssl rand -hex 32) npm start   # → http://localhost:3000
+```
+
+| What | Real behaviour |
+|---|---|
+| Accounts | email + password, scrypt hashing, revocable JWT sessions, per-user data |
+| Account security | email verification, password reset (single-use hashed tokens), TOTP 2FA + backup codes, device/session list, Google & GitHub OAuth, **passkeys (WebAuthn)**, **two-factor recovery with admin approval**, **admin user console** |
+| Cloud sync | `tm*` documents per account, versions, quotas; secrets (`tm_keys`, tokens) never uploaded |
+| AI | server-side key (Gemini / OpenRouter / Groq / OpenAI-compatible) so visitors need none; rule engine when unset |
+| E-invoice IRN | real NIC IRP adapter (auth + IRN); `501 GOVT_NOT_CONFIGURED` without credentials |
+| GST returns | real GSP adapter; `501` without a GSP account |
+| ITR filing | always `501 ITD_FILING_API_UNAVAILABLE` — there is no open filing API, and nothing is simulated |
+
+Open **`pages/cloud.html`** for the account, sync, AI-status and integration-readiness screen.
+Full setup, free-hosting trade-offs, security notes and limitations: [`SERVER.md`](SERVER.md).
+The NestJS `backend/` folder remains archived material.
+
 ### Tests
 
 ```bash
-npm test                    # 501 tests · 3,371 assertions · zero dependencies
-npm run serve               # local preview on http://localhost:8080
+npm test                    # 523 tests · 3,511 assertions · zero dependencies
+npm run test:server         # 46 server tests: real HTTP, real SQLite, TOTP vectors, WebAuthn signatures, full auth + recovery lifecycle
+npm run test:all            # both
+npm start                   # the site + API on http://localhost:3000
+npm run serve:python        # static-only preview on http://localhost:8080
 
 npm install --no-save jsdom # optional, for the browser-level audits
 node tests/smoke.js         # browser checks drive the real pages (incl. directory and GitHub sign-in)
-node tests/pages-load.js    # loads all 66 pages, fails if any throws on startup
+node tests/pages-load.js    # loads all 68 pages, fails if any throws on startup
 ```
 
 ### Sign-in

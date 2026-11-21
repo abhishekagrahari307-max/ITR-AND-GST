@@ -89,5 +89,6 @@ function expChalCSV(){if(!chals.length){showToast('No challans!','warning');retu
 function expChalPDF(){if(!window.jspdf||!chals.length){showToast(!chals.length?'No challans!':'PDF loading...','warning');return;}const{jsPDF}=window.jspdf;const doc=new jsPDF();doc.setFillColor(30,64,175);doc.rect(0,0,210,28,'F');doc.setTextColor(255,255,255);doc.setFontSize(14);doc.setFont('helvetica','bold');doc.text('Tax Challan Register — AY 2026-27',105,12,{align:'center'});doc.setFontSize(8);doc.text('TaxMitra AI | Abhishek Agrahari',105,22,{align:'center'});doc.setTextColor(30,30,30);doc.autoTable({startY:36,head:[['Type','BSR','Serial','Date','Amount','AY']],body:chals.map(c=>[TYPES[c.type]||c.type,c.bsr,c.ser,c.date,fmt(c.amt),c.ay]),headStyles:{fillColor:[30,64,175],textColor:255,fontSize:8},styles:{fontSize:8}});const tot=chals.reduce((s,c)=>s+c.amt,0);doc.text('Total: '+fmt(tot),15,doc.lastAutoTable.finalY+10);doc.save('Challans_TaxMitra.pdf');showToast('PDF downloaded!','success');}
 document.addEventListener('DOMContentLoaded',renderChals);
 </script>
+  <script src="../js/cloud.js"></script>
 </body>
 </html>

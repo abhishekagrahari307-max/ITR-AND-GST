@@ -12,3 +12,10 @@ Thumbs.db
 taxmitra-backup-*.json
 GSTR1-working-paper-*.csv
 itr-working-paper-*.json
+
+# server runtime
+.env
+.env.local
+data/
+*.db
+taxmitra.json

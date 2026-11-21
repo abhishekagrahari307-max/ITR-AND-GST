@@ -46,6 +46,28 @@ jobs:
           fi
           echo "No credential files tracked."
 
+  server:
+    name: Server (accounts · sync · AI · government)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # 22+ so the SQLite driver is the real one, not the JSON fallback.
+          node-version: '22'
+
+      - name: Server tests (real HTTP, real store, fake AI upstream)
+        run: npm run test:server
+
+      - name: Nothing generated or secret may be committed
+        run: |
+          set -e
+          if git ls-files | grep -E '(^|/)(data/|\.env$|taxmitra\.db|taxmitra\.json)'; then
+            echo "::error::Runtime data or an env file is tracked in git"; exit 1
+          fi
+          echo "No runtime data tracked."
+
   browser:
     name: Browser audits (jsdom)
     runs-on: ubuntu-latest
