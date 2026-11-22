@@ -14,8 +14,8 @@
   <meta name="description" content="Your personal tax dashboard — filing status, tax summary, compliance calendar, AI recommendations. All in one."/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="../css/taxmitra.css"/>
-  <link rel="stylesheet" href="../css/responsive.css">
+  <link rel="stylesheet" href="../css/taxmitra.css?v=6"/>
+  <link rel="stylesheet" href="../css/responsive.css?v=6">
   <style>
     .dashboard-layout { display: grid; grid-template-columns: 240px 1fr; gap: 1.5rem; padding: 1.5rem 0 3rem; }
     .dash-sidebar { display: flex; flex-direction: column; gap: 0.5rem; position: sticky; top: 80px; max-height: calc(100vh-90px); }
@@ -48,7 +48,7 @@
     @media(max-width:1024px){ .stats-grid { grid-template-columns: repeat(2,1fr); } .dash-grid { grid-template-columns: 1fr; } }
     @media(max-width:768px){ .dashboard-layout { grid-template-columns: 1fr; } .dash-sidebar { display: none; } .stats-grid { grid-template-columns: 1fr 1fr; } }
   </style>
-<link rel="stylesheet" href="../css/ui.css"/>
+<link rel="stylesheet" href="../css/ui.css?v=6"/>
 </head>
 <body class="tm-ui">
   <nav class="navbar-main" id="mainNav">
@@ -235,7 +235,7 @@
     </div>
   </div>
 
-  <script src="../js/taxmitra.js"></script>
+  <script src="../js/taxmitra.js?v=6"></script>
 
 <p style="text-align:center;padding:.3rem;font-size:.68rem;color:var(--text-muted,#aaa)">Developed by <strong>Abhishek Agrahari</strong></p>
 <script src="../js/config-generated.js"></script>
@@ -346,6 +346,6 @@ function quickAction(action) {
 </script>
 
   <script src="../js/cloud.js"></script>
-<script src="../js/ui.js" defer></script>
+<script src="../js/ui.js?v=6" defer></script>
 </body>
 </html>

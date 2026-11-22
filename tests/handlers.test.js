@@ -37,7 +37,8 @@ function pageFiles() {
 function resolveLocalScript(fromFile, src) {
   if (/^(https?:)?\/\//.test(src)) return null;      // CDN
   if (src.indexOf('data:') === 0) return null;
-  var resolved = path.normalize(path.join(path.dirname(fromFile), src));
+  var clean = src.split('?')[0].split('#')[0];   // drop cache-busting query
+  var resolved = path.normalize(path.join(path.dirname(fromFile), clean));
   var absolute = path.join(ROOT, resolved);
   return fs.existsSync(absolute) ? fs.readFileSync(absolute, 'utf8') : null;
 }

@@ -8,8 +8,8 @@
 <title>Document Vault – TaxMitra AI Enterprise</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<link rel="stylesheet" href="../css/taxmitra.css"/>
-<link rel="stylesheet" href="../css/responsive.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css?v=6"/>
+<link rel="stylesheet" href="../css/responsive.css?v=6"/>
 <style>
 .vault-layout{display:grid;grid-template-columns:240px 1fr;gap:1.25rem;padding:1.25rem 0 3rem;align-items:start}
 @media(max-width:900px){.vault-layout{grid-template-columns:1fr}}
@@ -52,7 +52,7 @@
 .modal-box{background:var(--bg-card);border-radius:var(--radius);padding:1.5rem;max-width:420px;width:100%;max-height:90vh;overflow-y:auto}
 .modal-box h3{font-size:1rem;font-weight:800;margin:0 0 1rem}
 </style>
-<link rel="stylesheet" href="../css/ui.css"/>
+<link rel="stylesheet" href="../css/ui.css?v=6"/>
 </head>
 <body class="tm-ui">
 <nav class="navbar-main" id="mainNav">
@@ -240,7 +240,7 @@
 <div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
 
 <script src="../js/firebase-config.js"></script>
-<script src="../js/taxmitra.js"></script>
+<script src="../js/taxmitra.js?v=6"></script>
 <script>
 var VAULT_KEY = 'tm_vault_docs';
 var pendingFiles = [];
@@ -549,6 +549,6 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 </script>
   <script src="../js/cloud.js"></script>
-<script src="../js/ui.js" defer></script>
+<script src="../js/ui.js?v=6" defer></script>
 </body>
 </html>
