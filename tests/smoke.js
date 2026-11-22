@@ -110,7 +110,7 @@ async function loadPage(relative) {
       return;
     }
     if (/^(https?:)?\/\//.test(script.src)) return; // CDN: skip
-    var file = path.join(ROOT, base, script.src);
+    var file = path.join(ROOT, base, String(script.src).split('?')[0].split('#')[0]);
     if (!fs.existsSync(file)) throw new Error('missing script ' + script.src + ' in ' + relative);
     window.eval(fs.readFileSync(file, 'utf8'));
   });

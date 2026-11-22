@@ -812,6 +812,62 @@ body.tm-ui.dark-mode .pill.danger { color: #fca5a5; }
 }
 .tm-ui .tab-panel { animation: tm-fade var(--tm-mid) var(--tm-ease) both; }
 
+/* ── 13. Intrinsic layout: collapse by available space, not by
+        media query. If a phone reports a strange width, or an
+        ancestor is narrow, these grids still fold down instead of
+        squeezing cards into postage stamps. ─────────────────── */
+
+.tm-ui .modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: clamp(0.75rem, 0.4rem + 1.4vw, 1.25rem);
+  align-items: start;
+}
+
+.tm-ui .stats-grid,
+.tm-ui .kpi-grid,
+.tm-ui .audience-grid,
+.tm-ui .due-dates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 165px), 1fr));
+  gap: clamp(0.6rem, 0.4rem + 0.9vw, 1rem);
+}
+
+/* the quick-tool strip used to scroll sideways; wrapping keeps every tool
+   visible and removes one more source of horizontal overflow */
+.tm-ui .quick-tools-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  overflow: visible;
+  padding-bottom: 0;
+}
+.tm-ui .qt-item {
+  flex: 1 1 64px;
+  min-width: 0;
+  white-space: normal;
+  text-align: center;
+}
+
+.tm-ui .hero-content {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: clamp(1.25rem, 1rem + 2vw, 3rem);
+}
+
+.tm-ui .module-card,
+.tm-ui .module-body,
+.tm-ui .module-features li { min-width: 0; }
+
+/* a long unbroken string (GSTIN, ARN, URL) must wrap instead of widening the card */
+.tm-ui .module-body p,
+.tm-ui .card-body p,
+.tm-ui .module-features li { overflow-wrap: anywhere; }
+
+/* the nav row may wrap on very narrow screens instead of crushing the logo */
+.tm-ui .nav-container { flex-wrap: wrap; row-gap: 0.35rem; }
+
+.tm-ui .nav-links-wrapper { min-width: 0; }
+
 /* ── 13. Small pieces used across pages ────────────────────── */
 
 .tm-ui .kpi-grid,

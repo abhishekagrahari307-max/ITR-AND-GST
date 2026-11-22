@@ -8,8 +8,8 @@
 <title>PAN Services – TaxMitra AI Enterprise</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<link rel="stylesheet" href="../css/taxmitra.css"/>
-<link rel="stylesheet" href="../css/responsive.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css?v=6"/>
+<link rel="stylesheet" href="../css/responsive.css?v=6"/>
 <style>
 .pan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
 @media(max-width:900px){.pan-grid{grid-template-columns:repeat(2,1fr)}}
@@ -46,7 +46,7 @@
 .step-list .num{width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0}
 .pan-format-guide{background:rgba(30,64,175,.06);border:1px solid rgba(30,64,175,.2);border-radius:var(--radius-sm);padding:.85rem;font-size:.82rem;margin-bottom:1rem}
 </style>
-<link rel="stylesheet" href="../css/ui.css"/>
+<link rel="stylesheet" href="../css/ui.css?v=6"/>
 </head>
 <body class="tm-ui">
 <nav class="navbar-main" id="mainNav">
@@ -336,7 +336,7 @@
 <div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
 
 <script src="../js/firebase-config.js"></script>
-<script src="../js/taxmitra.js"></script>
+<script src="../js/taxmitra.js?v=6"></script>
 <script>
 function showSection(id) {
   ['verify','aadhaar-link','new-pan','correction','epan','status'].forEach(function(s) {
@@ -458,6 +458,6 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 </script>
   <script src="../js/cloud.js"></script>
-<script src="../js/ui.js" defer></script>
+<script src="../js/ui.js?v=6" defer></script>
 </body>
 </html>

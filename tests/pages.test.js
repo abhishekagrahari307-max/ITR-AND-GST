@@ -80,7 +80,8 @@ suite('Pages · the four new modules exist', function () {
       var base = path.dirname(file);
       scriptSources(html).concat(stylesheetSources(html)).forEach(function (src) {
         if (/^(https?:)?\/\//.test(src) || src.indexOf('data:') === 0) return;
-        var resolved = path.normalize(path.join(base, src));
+        // cache-busting query (?v=6) is not part of the file path
+        var resolved = path.normalize(path.join(base, src.split('?')[0].split('#')[0]));
         t.ok(exists(resolved), file + ' references missing ' + src);
       });
     });

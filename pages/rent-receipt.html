@@ -10,8 +10,8 @@
   <title>🏠 Rent Receipt Generator – TaxMitra AI Enterprise</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="../css/taxmitra.css"/>
-  <link rel="stylesheet" href="../css/responsive.css"/>
+  <link rel="stylesheet" href="../css/taxmitra.css?v=6"/>
+  <link rel="stylesheet" href="../css/responsive.css?v=6"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
 window.generateBatchReceipts = window.downloadAllReceiptsPDF || window.generateAll || function(){showToast("Use Annual tab to generate batch","info");};
 </script>
@@ -38,7 +38,7 @@ window.generateBatchReceipts = window.downloadAllReceiptsPDF || window.generateA
     .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
     @media(max-width:600px) { .form-grid-2 { grid-template-columns:1fr; } }
   </style>
-<link rel="stylesheet" href="../css/ui.css"/>
+<link rel="stylesheet" href="../css/ui.css?v=6"/>
 </head>
 <body class="tm-ui">
   <div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.4rem"></div>
@@ -204,7 +204,7 @@ window.generateBatchReceipts = window.downloadAllReceiptsPDF || window.generateA
 <script src="../js/config-generated.js"></script>
 <script src="../js/firebase-config.js"></script>
 <script src="../js/ai-real.js"></script>
-<script src="../js/taxmitra.js"></script>
+<script src="../js/taxmitra.js?v=6"></script>
   <script>
   'use strict';
 
@@ -554,6 +554,6 @@ window.generateBatchReceipts = window.downloadAllReceiptsPDF || window.generateA
   });
   </script>
   <script src="../js/cloud.js"></script>
-<script src="../js/ui.js" defer></script>
+<script src="../js/ui.js?v=6" defer></script>
 </body>
 </html>

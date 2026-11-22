@@ -8,8 +8,8 @@
 <title>GST Analytics – TaxMitra AI Enterprise</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<link rel="stylesheet" href="../css/taxmitra.css"/>
-<link rel="stylesheet" href="../css/responsive.css"/>
+<link rel="stylesheet" href="../css/taxmitra.css?v=6"/>
+<link rel="stylesheet" href="../css/responsive.css?v=6"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 .analytics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;padding:1.25rem 0}
@@ -41,7 +41,7 @@
 .period-btn{padding:.3rem .75rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:.75rem;cursor:pointer;background:var(--bg-secondary);transition:var(--transition)}
 .period-btn.active{border-color:var(--primary);background:rgba(30,64,175,.1);color:var(--primary);font-weight:700}
 </style>
-<link rel="stylesheet" href="../css/ui.css"/>
+<link rel="stylesheet" href="../css/ui.css?v=6"/>
 </head>
 <body class="tm-ui">
 <nav class="navbar-main" id="mainNav">
@@ -178,7 +178,7 @@
 
 <div id="toastContainer" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem"></div>
 <script src="../js/firebase-config.js"></script>
-<script src="../js/taxmitra.js"></script>
+<script src="../js/taxmitra.js?v=6"></script>
 <script>
 var MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
 var OUTPUT = [45000,52000,48000,61000,58000,65000,42000,55000,68000,72000,59000,66000];
@@ -345,6 +345,6 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 </script>
   <script src="../js/cloud.js"></script>
-<script src="../js/ui.js" defer></script>
+<script src="../js/ui.js?v=6" defer></script>
 </body>
 </html>

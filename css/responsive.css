@@ -175,7 +175,7 @@
   /* --- DASHBOARD --- */
   .dashboard-layout { grid-template-columns: 1fr !important; }
   .dash-sidebar { display: none !important; }
-  .stats-grid { grid-template-columns: 1fr 1fr !important; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .dash-grid { grid-template-columns: 1fr !important; }
 
   /* --- TABLES --- */
@@ -293,8 +293,8 @@
 
   /* --- GRID OVERRIDES --- */
   .result-breakdown { grid-template-columns: 1fr !important; }
-  .stats-grid { grid-template-columns: 1fr 1fr !important; }
-  .calc-grid { grid-template-columns: 1fr 1fr !important; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .calc-grid { grid-template-columns: 1fr; }
   .slab-grid { grid-template-columns: 1fr 1fr; }
   .audience-grid { grid-template-columns: 1fr; }
   .tech-grid { grid-template-columns: 1fr; }
