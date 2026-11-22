@@ -114,7 +114,7 @@
   /* --- REGIME --- */
   .regime-slabs { flex-direction: column; gap: .85rem; }
   .regime-vs { display: none; }
-  .slab-grid { grid-template-columns: 1fr 1fr; }
+  .slab-grid { grid-template-columns: 1fr; }
   .regime-header { flex-direction: column; align-items: flex-start; gap: .4rem; }
 
   /* --- MODULES --- */
@@ -193,7 +193,7 @@
   /* --- CALC PAGE --- */
   .calc-main-layout { grid-template-columns: 1fr !important; }
   .calc-sidebar { display: none !important; }
-  .calc-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .calc-grid { grid-template-columns: repeat(2, 1fr); }
 
   /* --- DOWNLOAD BTN GROUP --- */
   .download-btn-group { flex-direction: column; gap: .5rem; }
@@ -231,7 +231,7 @@
   .footer-grid { grid-template-columns: 1fr; }
 
   /* Regime slabs one column */
-  .slab-grid { grid-template-columns: 1fr 1fr; }
+  .slab-grid { grid-template-columns: 1fr; }
 
   /* AI float */
   .ai-float-window { height: 74vh; }
@@ -295,7 +295,7 @@
   .result-breakdown { grid-template-columns: 1fr !important; }
   .stats-grid { grid-template-columns: 1fr; }
   .calc-grid { grid-template-columns: 1fr; }
-  .slab-grid { grid-template-columns: 1fr 1fr; }
+  .slab-grid { grid-template-columns: 1fr; }
   .audience-grid { grid-template-columns: 1fr; }
   .tech-grid { grid-template-columns: 1fr; }
   .due-dates-grid { grid-template-columns: 1fr; }

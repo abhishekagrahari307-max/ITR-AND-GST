@@ -141,9 +141,10 @@ suite('Layout · the phone gets a single-column card grid', function () {
     var rule = effective(['.stats-grid', '.tm-ui .stats-grid', '.tm-ui .kpi-grid'], 'grid-template-columns', MOBILE);
     t.ok(rule, 'the stats grid needs a grid-template-columns rule');
     // either an explicit single column, or a track list that folds by itself
-    var folds = /^1fr$/.test(rule.value.trim()) || /auto-fit|auto-fill/.test(rule.value);
+    var norm = rule.value.replace(/!important/gi, '').trim();
+    var folds = /^1fr$/.test(norm) || /auto-fit|auto-fill/.test(norm);
     t.ok(folds, 'stat cards must fold to one column on a phone: ' + JSON.stringify(rule));
-    t.notOk(/^repeat\(\s*[2-9]/.test(rule.value.trim()), 'no fixed multi-column track at 390px: ' + rule.value);
+    t.notOk(/^repeat\(\s*[2-9]/.test(norm), 'no fixed multi-column track at 390px: ' + rule.value);
   });
 
   test('the older sheet no longer forces two columns on a phone', function () {
@@ -172,6 +173,31 @@ suite('Layout · nothing scrolls sideways on a phone', function () {
     t.includes(drawer.value, 'inset', 'the drawer hides by clipping: ' + JSON.stringify(drawer));
     var translate = effective(['.tm-ui .navbar-main .nav-links-wrapper'], 'translate', TABLET);
     t.notOk(translate && /%/.test(translate.value), 'the drawer must not be translated off-screen');
+  });
+});
+
+suite('Layout · every legacy grid is one column at 390px', function () {
+  // These are the grids the old breakpoint sheet touched. A single
+  // `!important` two-column rule anywhere beats the later 480px rule, so we
+  // resolve the winner instead of trusting source order.
+  [
+    ['calc grid', ['.calc-grid']],
+    ['slab grid', ['.slab-grid']],
+    ['result breakdown', ['.result-breakdown']],
+    ['form grid', ['.form-grid', '.form-grid.cols-3']],
+    ['dashboard grid', ['.dash-grid']],
+    ['gst returns grid', ['.gst-returns-grid']],
+    ['composition grid', ['.comp-wrap']],
+    ['dashboard layout', ['.dashboard-layout']],
+    ['calc main layout', ['.calc-main-layout']]
+  ].forEach(function (pair) {
+    test(pair[0] + ' collapses on a phone', function () {
+      var rule = effective(pair[1], 'grid-template-columns', MOBILE);
+      if (!rule) return;                    // not all pages use it
+      var value = rule.value.replace(/!important/gi, '').trim();
+      var single = /^1fr$/.test(value) || /auto-fit|auto-fill/.test(value);
+      t.ok(single, pair[0] + ' is still multi-column at ' + MOBILE + 'px: ' + JSON.stringify(rule));
+    });
   });
 });
 
